@@ -1,17 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown Studio</title>
+    <meta name="theme-color" content="#0f172a">
 
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <title>Markdown Studio | Real-Time Markdown Editor</title>
+    <meta name="description"
+        content="A premium, zero-backend real-time Markdown editor. Features native vector PDF exports (A4, A2, Infinity), pure monochrome dark mode, LaTeX math support, and instant URL-based sharing.">
+    <meta name="keywords"
+        content="markdown editor, online markdown, convert markdown to pdf, real-time markdown, katex math editor, open source markdown">
+    <meta name="author" content="Arpit Pandey">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://apandey-studio.vercel.app/">
+    <meta property="og:title" content="Markdown Studio | Real-Time Markdown Editor">
+    <meta property="og:description"
+        content="Write, preview, and export high-quality vector PDFs instantly. No backend required.">
+    <meta property="og:image"
+        content="https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?q=80&w=1200&auto=format&fit=crop">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="apandey-studio.vercel.app">
+    <meta property="twitter:url" content="https://apandey-studio.vercel.app/">
+    <meta name="twitter:title" content="Markdown Studio | Real-Time Markdown Editor">
+    <meta name="twitter:description"
+        content="Write, preview, and export high-quality vector PDFs instantly. No backend required.">
+
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230f172a'><path d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3V8h3v7h3z'/></svg>">
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230f172a'><path d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3V8h3v7h3z'/></svg>">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header class="navbar">
         <div class="brand">Markdown Studio</div>
@@ -34,7 +67,8 @@
 
     <main class="app-container">
         <div class="panel editor-panel" id="editor-panel">
-            <textarea id="markdown-input" placeholder="Start typing your Markdown here..." spellcheck="false"></textarea>
+            <textarea id="markdown-input" placeholder="Start typing your Markdown here..."
+                spellcheck="false"></textarea>
         </div>
         <div class="divider" id="drag-divider"></div>
         <div class="panel preview-panel" id="preview-panel">
@@ -76,8 +110,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js"></script>
-    
+
     <script src="js/ui.js"></script>
     <script src="js/editor.js"></script>
 </body>
+
 </html>
