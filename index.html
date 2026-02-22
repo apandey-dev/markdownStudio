@@ -30,6 +30,18 @@
 </head>
 
 <body>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-light').disabled = true;
+                document.getElementById('theme-dark').disabled = false;
+            }
+        })();
+    </script>
+
     <header class="navbar">
         <div class="brand">Markdown Studio</div>
         <div class="actions">
@@ -59,7 +71,7 @@
 
             <button id="btn-theme" title="Toggle Dark/Light Mode"
                 style="padding: 8px; width: 38px; height: 38px; border-radius: 50%;">
-                <i data-lucide="moon" id="theme-icon" style="width: 18px; height: 18px;"></i>
+                <i id="theme-icon" style="width: 18px; height: 18px;"></i>
             </button>
         </div>
     </header>

@@ -1,67 +1,56 @@
 window.selectedPageSize = 'A4';
 window.toastTimeout = null;
 
-window.showToast = function(message, duration = 3000) {
+window.showToast = function (message, duration = 3000) {
     const toastEl = document.getElementById('toast');
     clearTimeout(window.toastTimeout);
-    
-    if(message.includes('<i')) {
+
+    if (message.includes('<i')) {
         toastEl.innerHTML = message;
         lucide.createIcons();
     } else {
         toastEl.textContent = message;
     }
-    
+
     toastEl.classList.add('show');
     window.toastTimeout = setTimeout(() => toastEl.classList.remove('show'), duration);
 };
 
-window.closePdfModal = function() {
+window.closePdfModal = function () {
     document.getElementById('pdf-modal').classList.remove('show');
 };
 
-window.closeNotesModal = function() {
+window.closeNotesModal = function () {
     document.getElementById('notes-modal').classList.remove('show');
 };
 
-window.closeDeleteModal = function() {
+window.closeDeleteModal = function () {
     document.getElementById('delete-modal').classList.remove('show');
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Set correct theme icon based on inline anti-flicker script applied in HTML
+    const themeIcon = document.getElementById('theme-icon');
+    const isCurrentlyDark = document.body.classList.contains('dark-mode');
+    themeIcon.setAttribute('data-lucide', isCurrentlyDark ? 'sun' : 'moon');
+
     lucide.createIcons();
 
-    // --- SMART ESCAPE KEY LOGIC (Modal Stacking) ---
+    // --- ESCAPE KEY LOGIC ---
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            
-            // Priority 1: Dropdowns (Agar koi dropdown khula hai toh pehle use band karo)
             const openDropdown = document.querySelector('.custom-dropdown.open');
-            if (openDropdown) {
-                openDropdown.classList.remove('open');
-                return; // Yahin ruk jao, baaki kuch close mat karo
-            }
+            if (openDropdown) { openDropdown.classList.remove('open'); return; }
 
-            // Priority 2: Delete Modal (Ye sabse upar aata hai)
             const deleteModal = document.getElementById('delete-modal');
-            if (deleteModal && deleteModal.classList.contains('show')) {
-                window.closeDeleteModal();
-                return; // Yahin ruk jao
-            }
+            if (deleteModal && deleteModal.classList.contains('show')) { window.closeDeleteModal(); return; }
 
-            // Priority 3: Notes Modal
             const notesModal = document.getElementById('notes-modal');
-            if (notesModal && notesModal.classList.contains('show')) {
-                window.closeNotesModal();
-                return; // Yahin ruk jao
-            }
+            if (notesModal && notesModal.classList.contains('show')) { window.closeNotesModal(); return; }
 
-            // Priority 4: PDF Export Modal
             const pdfModal = document.getElementById('pdf-modal');
-            if (pdfModal && pdfModal.classList.contains('show')) {
-                window.closePdfModal();
-                return; // Yahin ruk jao
-            }
+            if (pdfModal && pdfModal.classList.contains('show')) { window.closePdfModal(); return; }
         }
     });
 
@@ -74,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         header.addEventListener('click', (e) => {
             e.stopPropagation();
             document.querySelectorAll('.custom-dropdown').forEach(d => {
-                if(d !== dropdown) d.classList.remove('open');
+                if (d !== dropdown) d.classList.remove('open');
             });
             dropdown.classList.toggle('open');
         });
@@ -85,21 +74,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.classList.add('active');
                 textEl.textContent = `Preview: ${e.target.textContent}`;
                 dropdown.classList.remove('open');
-                if(callback) callback(e.target.getAttribute('data-value'));
+                if (callback) callback(e.target.getAttribute('data-value'));
             });
         });
     }
 
-    document.addEventListener('click', () => { 
-        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open')); 
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
     });
 
     setupDropdown('font-dropdown', 'font-selected-text', (val) => {
         document.documentElement.style.setProperty('--preview-font', `'${val}', sans-serif`);
     });
 
-    setupDropdown('size-dropdown', 'size-selected-text', (val) => { 
-        window.selectedPageSize = val; 
+    setupDropdown('size-dropdown', 'size-selected-text', (val) => {
+        window.selectedPageSize = val;
     });
 
     const divider = document.getElementById('drag-divider');
@@ -107,12 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.app-container');
     let isDragging = false;
 
-    divider.addEventListener('mousedown', () => { 
-        isDragging = true; 
-        document.body.style.cursor = 'col-resize'; 
-        document.body.style.userSelect = 'none'; 
+    divider.addEventListener('mousedown', () => {
+        isDragging = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
     });
-    
+
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         let newWidthPercentage = ((e.clientX - container.getBoundingClientRect().left) / container.getBoundingClientRect().width) * 100;
@@ -120,19 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newWidthPercentage > 80) newWidthPercentage = 80;
         editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
     });
-    
-    document.addEventListener('mouseup', () => { 
-        if (isDragging) { 
-            isDragging = false; 
-            document.body.style.cursor = 'default'; 
-            document.body.style.userSelect = 'auto'; 
-        } 
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = 'auto';
+        }
     });
 
-    // Theme Logic & Code Block CSS Switching
+    // Theme Toggle Logic
     const themeBtn = document.getElementById('btn-theme');
-    const themeIcon = document.getElementById('theme-icon');
-    
     const applyTheme = (isDark) => {
         if (isDark) {
             document.body.classList.add('dark-mode');
@@ -148,39 +135,32 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     };
 
-    const toggleTheme = () => { 
+    const toggleTheme = () => {
         const isDark = !document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light'); 
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
         applyTheme(isDark);
     };
-    
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) { applyTheme(true); } 
-    else { applyTheme(false); }
-    
+
     themeBtn.addEventListener('click', toggleTheme);
 
     const pdfBtn = document.getElementById('btn-pdf');
     const btnCancelPdf = document.getElementById('modal-cancel');
     const inputFilename = document.getElementById('pdf-filename');
 
-    pdfBtn.addEventListener('click', () => { 
-        document.getElementById('pdf-modal').classList.add('show'); 
-        inputFilename.focus(); 
-        inputFilename.select(); 
+    pdfBtn.addEventListener('click', () => {
+        document.getElementById('pdf-modal').classList.add('show');
+        inputFilename.focus();
+        inputFilename.select();
     });
     btnCancelPdf.addEventListener('click', window.closePdfModal);
 
     const notesBtn = document.getElementById('btn-notes');
     const btnCancelNotes = document.getElementById('notes-modal-close');
 
-    notesBtn.addEventListener('click', () => { 
-        document.getElementById('notes-modal').classList.add('show'); 
-        if(typeof window.renderNotesList === 'function') window.renderNotesList();
+    notesBtn.addEventListener('click', () => {
+        document.getElementById('notes-modal').classList.add('show');
+        if (typeof window.renderNotesList === 'function') window.renderNotesList();
     });
     btnCancelNotes.addEventListener('click', window.closeNotesModal);
-
-    // Cancel Delete Button
     document.getElementById('delete-cancel').addEventListener('click', window.closeDeleteModal);
 });
