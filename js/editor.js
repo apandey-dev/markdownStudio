@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('markdown-input');
+    const previewPanel = document.getElementById('preview-panel');
     const preview = document.getElementById('preview-output');
     const shareBtn = document.getElementById('btn-share');
     const btnConfirmPdf = document.getElementById('modal-confirm');
@@ -8,26 +9,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Modal Note Management System ---
     let notes = [];
     let activeNoteId = null;
+    let noteToDeleteId = null; // Stores ID of note waiting to be deleted
+
+    // The Beautiful Feature Guide Note
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to generate perfectly scaled vector PDFs (A4, A2, or Infinity pages).\n* **🎨 Smart Toggle & Custom Colors:** Format text quickly! Select text and click the **B** icon in the toolbar. Click it again to undo! You can also color text using \`[Text]{red}\`.\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document. No database required!\n* **📊 Live Stats & Sync Scroll:** Keep track of your word count at the bottom, and enjoy synchronized scrolling as you type.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** in the navbar to create a new one!`;
 
     function loadNotes() {
-        const saved = localStorage.getItem('md_studio_notes_modal_v2');
+        const saved = localStorage.getItem('md_studio_notes_modal_v4');
         if (saved) {
             const parsed = JSON.parse(saved);
             notes = parsed.notes;
             activeNoteId = parsed.activeNoteId;
         } else {
             const id = Date.now().toString();
-            notes = [{
-                id: id,
-                title: "Welcome Note",
-                content: "# Welcome to Markdown Studio 🖤\n\n## [ Directory Supported! ]{#3b82f6}\n\nClick **📂 Notes** in the navbar to create or switch between your notes."
-            }];
+            notes = [{ id: id, title: "Welcome to Markdown Studio", content: defaultWelcomeNote }];
             activeNoteId = id;
         }
     }
 
     function saveNotes() {
-        localStorage.setItem('md_studio_notes_modal_v2', JSON.stringify({ notes, activeNoteId }));
+        localStorage.setItem('md_studio_notes_modal_v4', JSON.stringify({ notes, activeNoteId }));
     }
 
     function getActiveNote() {
@@ -38,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const match = content.match(/^#+\s+(.*)/m);
         if (match && match[1]) {
             let text = match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1');
-            return text.substring(0, 25) + (text.length > 25 ? '...' : '');
+            return text.substring(0, 30) + (text.length > 30 ? '...' : '');
         }
         return "Untitled Note";
     }
@@ -50,16 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         notes.forEach(note => {
             const div = document.createElement('div');
             div.className = `note-item ${note.id === activeNoteId ? 'active' : ''}`;
-
-            // Delete button uses Lucide Trash icon
             div.innerHTML = `
-                <div class="note-title"><i data-lucide="file-text" style="width: 16px; height: 16px; opacity: 0.6;"></i> ${note.title}</div>
-                <button class="btn-delete-note" title="Delete Note">
-                    <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
-                </button>
+                <div class="note-title"><i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> ${note.title}</div>
+                <button class="btn-delete-note" title="Delete Note"><i data-lucide="trash-2" style="width: 18px; height: 18px;"></i></button>
             `;
 
-            // Switch Note
             div.addEventListener('click', (e) => {
                 if (e.target.closest('.btn-delete-note')) return;
                 activeNoteId = note.id;
@@ -69,41 +65,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.closeNotesModal();
             });
 
-            // Delete Note
+            // TRIGGERS CUSTOM DELETE MODAL INSTEAD OF INSTANT DELETE
             div.querySelector('.btn-delete-note').addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (notes.length === 1) {
-                    notes[0].content = "# Untitled Note\n";
-                    notes[0].title = "Untitled Note";
-                    editor.value = notes[0].content;
-                } else {
-                    const idx = notes.findIndex(n => n.id === note.id);
-                    notes.splice(idx, 1);
-                    if (activeNoteId === note.id) {
-                        activeNoteId = notes[Math.max(0, idx - 1)].id;
-                        editor.value = getActiveNote().content;
-                    }
-                }
-                saveNotes();
-                renderMarkdown();
-                window.renderNotesList();
+                noteToDeleteId = note.id;
+                document.getElementById('delete-modal').classList.add('show');
             });
 
             container.appendChild(div);
         });
-
-        // Crucial: Re-render lucide icons for dynamic content
         lucide.createIcons();
     };
 
-    // New Note Button inside Modal
+    // Confirm Delete Logic
+    document.getElementById('delete-confirm').addEventListener('click', () => {
+        if (!noteToDeleteId) return;
+
+        if (notes.length === 1) {
+            notes[0].content = "# Untitled Note\n";
+            notes[0].title = "Untitled Note";
+            editor.value = notes[0].content;
+        } else {
+            const idx = notes.findIndex(n => n.id === noteToDeleteId);
+            notes.splice(idx, 1);
+            if (activeNoteId === noteToDeleteId) {
+                activeNoteId = notes[Math.max(0, idx - 1)].id;
+                editor.value = getActiveNote().content;
+            }
+        }
+
+        saveNotes();
+        renderMarkdown();
+        window.renderNotesList();
+
+        noteToDeleteId = null;
+        window.closeDeleteModal();
+        window.showToast("<i data-lucide='trash-2'></i> Note deleted");
+    });
+
     document.getElementById('btn-new-note').addEventListener('click', () => {
         const newId = Date.now().toString();
-        notes.unshift({
-            id: newId,
-            title: "New Note",
-            content: "# New Note\n"
-        });
+        notes.unshift({ id: newId, title: "New Note", content: "# New Note\n" });
         activeNoteId = newId;
         editor.value = getActiveNote().content;
         saveNotes();
@@ -113,16 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast("<i data-lucide='check-circle'></i> New note created!");
     });
 
+    // --- Live Status Bar ---
+    function updateLiveStats(text) {
+        const chars = text.length;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+        const readingTime = Math.max(1, Math.ceil(words / 200));
+
+        document.getElementById('stat-words').textContent = `${words} Words`;
+        document.getElementById('stat-chars').textContent = `${chars} Characters`;
+        document.getElementById('stat-reading-time').textContent = `${readingTime} min read`;
+    }
+
     // --- Markdown Render Pipeline ---
     marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
-
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
+    function debounce(func, wait) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
     const renderMarkdown = debounce(() => {
         const rawText = editor.value;
@@ -134,12 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
             saveNotes();
         }
 
+        updateLiveStats(rawText);
+
         const colorProcessedText = rawText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
         const htmlContent = marked.parse(colorProcessedText);
         const cleanHtml = DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style'] });
 
         preview.innerHTML = cleanHtml;
-
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
     }, 50);
@@ -157,6 +164,130 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Synchronized Scrolling ---
+    editor.addEventListener('scroll', () => {
+        const percentage = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
+        if (previewPanel.scrollHeight > previewPanel.clientHeight) {
+            previewPanel.scrollTop = percentage * (previewPanel.scrollHeight - previewPanel.clientHeight);
+        }
+    });
+
+    // --- SMART FORMATTING TOOLBAR ---
+    document.querySelectorAll('.tool-btn[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-action');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            let selection = editor.value.substring(start, end);
+            const fullText = editor.value;
+
+            let prefix = ''; let suffix = ''; let defaultText = '';
+
+            if (action === 'bold') { prefix = '**'; suffix = '**'; defaultText = 'bold text'; }
+            else if (action === 'italic') { prefix = '*'; suffix = '*'; defaultText = 'italic text'; }
+            else if (action === 'math') { prefix = '$$'; suffix = '$$'; defaultText = 'e=mc^2'; }
+            else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
+            else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
+            else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
+            else if (action === 'image') { prefix = '!['; suffix = '](image_url)'; defaultText = 'alt text'; }
+            else if (action === 'table') {
+                prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
+                suffix = ''; defaultText = '';
+            }
+
+            editor.focus();
+
+            if (prefix && suffix && selection.startsWith(prefix) && selection.endsWith(suffix) && selection.length >= prefix.length + suffix.length) {
+                const unstripped = selection.substring(prefix.length, selection.length - suffix.length);
+                editor.value = fullText.substring(0, start) + unstripped + fullText.substring(end);
+                editor.selectionStart = start;
+                editor.selectionEnd = start + unstripped.length;
+                renderMarkdown();
+                return;
+            }
+
+            const textBefore = fullText.substring(Math.max(0, start - prefix.length), start);
+            const textAfter = fullText.substring(end, end + suffix.length);
+
+            if (prefix && suffix && textBefore === prefix && textAfter === suffix) {
+                editor.value = fullText.substring(0, start - prefix.length) + selection + fullText.substring(end + suffix.length);
+                editor.selectionStart = start - prefix.length;
+                editor.selectionEnd = start - prefix.length + selection.length;
+                renderMarkdown();
+                return;
+            }
+
+            if (action === 'heading') {
+                const lineStart = fullText.lastIndexOf('\n', start - 1) + 1;
+                const lineEnd = fullText.indexOf('\n', end);
+                const actualLineEnd = lineEnd === -1 ? fullText.length : lineEnd;
+                const lineText = fullText.substring(lineStart, actualLineEnd);
+
+                if (lineText.trimStart().startsWith('### ')) {
+                    const stripped = lineText.replace(/^\s*###\s*/, '');
+                    editor.value = fullText.substring(0, lineStart) + stripped + fullText.substring(actualLineEnd);
+                    const offset = Math.max(lineStart, start - 4);
+                    editor.selectionStart = editor.selectionEnd = offset;
+                    renderMarkdown();
+                    return;
+                }
+            }
+
+            const textToWrap = selection || defaultText;
+            editor.value = fullText.substring(0, start) + prefix + textToWrap + suffix + fullText.substring(end);
+
+            if (!selection) {
+                editor.selectionStart = start + prefix.length;
+                editor.selectionEnd = start + prefix.length + defaultText.length;
+            } else {
+                editor.selectionStart = start + prefix.length;
+                editor.selectionEnd = start + prefix.length + selection.length;
+            }
+
+            renderMarkdown();
+        });
+    });
+
+    // --- Import / Export .MD Files ---
+    const btnExportMd = document.getElementById('btn-export-md');
+    const btnImportMd = document.getElementById('btn-import-md');
+    const importFile = document.getElementById('import-file');
+
+    btnExportMd.addEventListener('click', () => {
+        const text = editor.value;
+        const blob = new Blob([text], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        let safeTitle = getActiveNote().title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        if (safeTitle === 'untitled_note' || !safeTitle) safeTitle = 'markdown_document';
+        a.download = `${safeTitle}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+        window.showToast("<i data-lucide='download'></i> .md file downloaded!");
+    });
+
+    btnImportMd.addEventListener('click', () => importFile.click());
+
+    importFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            const newId = Date.now().toString();
+            notes.unshift({ id: newId, title: file.name.replace('.md', '').replace('.txt', ''), content: content });
+            activeNoteId = newId;
+            editor.value = content;
+            saveNotes();
+            renderMarkdown();
+            if (typeof window.renderNotesList === 'function') window.renderNotesList();
+            window.showToast("<i data-lucide='file-up'></i> Document imported!");
+        };
+        reader.readAsText(file);
+        importFile.value = '';
+    });
+
     // --- Initialize App ---
     loadNotes();
 
@@ -164,47 +295,32 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const encodedData = window.location.hash.substring(1);
             const decodedText = decodeURIComponent(atob(encodedData));
-
             const sharedId = Date.now().toString();
-            notes.unshift({
-                id: sharedId,
-                title: extractTitle(decodedText) || "Shared Note",
-                content: decodedText
-            });
+            notes.unshift({ id: sharedId, title: extractTitle(decodedText) || "Shared Note", content: decodedText });
             activeNoteId = sharedId;
-
             window.showToast("<i data-lucide='download'></i> Shared document saved!");
             history.replaceState(null, null, ' ');
-        } catch (e) {
-            console.error("Invalid share link", e);
-        }
+        } catch (e) { console.error("Invalid share link", e); }
     }
 
     editor.value = getActiveNote().content;
     renderMarkdown();
 
     // --- PDF Export Logic ---
-    inputFilename.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') btnConfirmPdf.click();
-    });
-
+    inputFilename.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
     btnConfirmPdf.addEventListener('click', () => {
         let fileName = inputFilename.value.trim() || getActiveNote().title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();
 
         const style = document.createElement('style');
         let pageCss = "";
-
-        if (window.selectedPageSize === 'A4') {
-            pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 5px !important; }`;
-        } else if (window.selectedPageSize === 'A2') {
-            pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 5px !important; font-size: 1.2rem !important; }`;
-        } else if (window.selectedPageSize === 'Infinity') {
+        if (window.selectedPageSize === 'A4') { pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 5px !important; }`; }
+        else if (window.selectedPageSize === 'A2') { pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 5px !important; font-size: 1.2rem !important; }`; }
+        else if (window.selectedPageSize === 'Infinity') {
             const contentHeightPx = document.getElementById('preview-output').scrollHeight;
             const contentHeightMm = Math.ceil(contentHeightPx * 0.264583) + 10;
             pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 5px !important; }`;
         }
-
         style.innerHTML = pageCss;
         document.head.appendChild(style);
 
@@ -219,16 +335,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    // --- Share ---
+    // --- Share URL Link ---
     shareBtn.addEventListener('click', async () => {
         const textToShare = editor.value;
         const encodedData = btoa(encodeURIComponent(textToShare));
         const shareableUrl = window.location.origin + window.location.pathname + "#" + encodedData;
 
         if (navigator.share) {
-            try {
-                await navigator.share({ title: getActiveNote().title, url: shareableUrl });
-            } catch (err) { console.log(err); }
+            try { await navigator.share({ title: getActiveNote().title, url: shareableUrl }); }
+            catch (err) { console.log(err); }
         } else {
             navigator.clipboard.writeText(shareableUrl).then(() => {
                 if (typeof window.showToast === "function") window.showToast("<i data-lucide='link'></i> Link Copied!");
