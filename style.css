@@ -1,5 +1,4 @@
 :root {
-    /* Light Theme */
     --bg-color: #f3f4f6;
     --nav-bg: #ffffff;
     --text-color: #1f2937;
@@ -13,14 +12,12 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
-    /* Fonts */
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fira Code', monospace;
 }
 
 body.dark-mode {
-    /* Pure Monochrome Dark Theme */
     --bg-color: #000000;
     --nav-bg: #0a0a0a;
     --text-color: #e5e5e5;
@@ -115,7 +112,8 @@ body {
 
 .chevron {
     transition: transform 0.3s ease;
-    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
 }
 
 .custom-dropdown.open .chevron {
@@ -168,11 +166,16 @@ body {
 }
 
 /* Buttons */
-.actions button {
+.actions button,
+.modal-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     background-color: var(--accent-color);
     color: var(--btn-text);
     border: none;
-    padding: 8px 18px;
+    padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
     font-family: var(--ui-font);
@@ -181,7 +184,8 @@ body {
     transition: all 0.2s ease;
 }
 
-.actions button:hover {
+.actions button:hover,
+.modal-btn.btn-confirm:hover {
     background-color: var(--accent-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 10px var(--shadow-color);
@@ -272,14 +276,10 @@ textarea {
     line-height: 1.6;
 }
 
-/* Adjusted line height */
-
-/* Removes extra gap from the very first element */
 #preview-output>*:first-child {
     margin-top: 0;
 }
 
-/* Adjusted Heading Margins */
 #preview-output h1,
 #preview-output h2,
 #preview-output h3,
@@ -302,7 +302,6 @@ textarea {
     padding-bottom: 6px;
 }
 
-/* Adjusted Paragraph and List Margins */
 #preview-output p,
 #preview-output ul,
 #preview-output ol {
@@ -362,7 +361,7 @@ textarea {
     background-color: var(--hover-bg);
 }
 
-/* Modal */
+/* Modals */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -442,18 +441,6 @@ textarea {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 32px;
-}
-
-.modal-btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-family: var(--ui-font);
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    font-size: 0.95rem;
 }
 
 .btn-cancel {
@@ -464,16 +451,83 @@ textarea {
 
 .btn-cancel:hover {
     background-color: var(--hover-bg);
+    transform: none;
+    box-shadow: none;
 }
 
-.btn-confirm {
-    background-color: var(--accent-color);
-    color: var(--btn-text);
+/* FIXED SIZE NOTES MODAL LOGIC */
+.notes-modal-box {
+    max-width: 500px;
+    height: 60vh;
+    /* Fixed height relative to screen */
+    min-height: 400px;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    /* Allows internal scrolling */
 }
 
-.btn-confirm:hover {
-    background-color: var(--accent-hover);
-    transform: translateY(-1px);
+.notes-list {
+    flex: 1;
+    /* Takes up remaining space perfectly */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 8px;
+    margin-bottom: 20px;
+}
+
+.note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.note-item:hover {
+    border-color: var(--accent-color);
+}
+
+.note-item.active {
+    border-left: 4px solid var(--accent-color);
+    background-color: var(--hover-bg);
+}
+
+.note-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-delete-note {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete-note:hover {
+    opacity: 1;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-radius: 6px;
 }
 
 /* Toast */
@@ -495,6 +549,10 @@ textarea {
     transition: opacity 0.3s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateY(20px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 #toast.show {
@@ -507,7 +565,6 @@ textarea {
 @media print {
 
     .navbar,
-    .editor-panel,
     .divider,
     .modal-overlay,
     #toast {
@@ -523,6 +580,10 @@ textarea {
         background-color: var(--preview-bg) !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+
+    .editor-panel {
+        display: none !important;
     }
 
     .preview-panel {
@@ -561,42 +622,9 @@ textarea {
         break-inside: avoid !important;
     }
 
-    p {
-        orphans: 3;
-        widows: 3;
-    }
-
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .app-container {
-        flex-direction: column;
-    }
-
-    .editor-panel,
-    .preview-panel {
-        flex: 1 1 50%;
-        border-right: none;
-    }
-
-    .editor-panel {
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .divider {
-        display: none;
-    }
-
-    .actions button span {
-        display: none;
-    }
-
-    .dropdown-header span:first-child {
-        display: none;
     }
 }

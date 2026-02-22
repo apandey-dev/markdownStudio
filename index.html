@@ -8,40 +8,21 @@
 
     <title>Markdown Studio | Real-Time Markdown Editor</title>
     <meta name="description"
-        content="A premium, zero-backend real-time Markdown editor. Features native vector PDF exports (A4, A2, Infinity), pure monochrome dark mode, LaTeX math support, and instant URL-based sharing.">
-    <meta name="keywords"
-        content="markdown editor, online markdown, convert markdown to pdf, real-time markdown, katex math editor, open source markdown">
+        content="A premium, zero-backend real-time Markdown editor. Features native vector PDF exports, pure monochrome dark mode, and instant URL-based sharing.">
     <meta name="author" content="Arpit Pandey">
-    <meta name="robots" content="index, follow">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://apandey-studio.vercel.app/">
-    <meta property="og:title" content="Markdown Studio | Real-Time Markdown Editor">
-    <meta property="og:description"
-        content="Write, preview, and export high-quality vector PDFs instantly. No backend required.">
-    <meta property="og:image"
-        content="https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?q=80&w=1200&auto=format&fit=crop">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta property="twitter:domain" content="apandey-studio.vercel.app">
-    <meta property="twitter:url" content="https://apandey-studio.vercel.app/">
-    <meta name="twitter:title" content="Markdown Studio | Real-Time Markdown Editor">
-    <meta name="twitter:description"
-        content="Write, preview, and export high-quality vector PDFs instantly. No backend required.">
 
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><style>.icon { fill: %230f172a; } @media (prefers-color-scheme: dark) { .icon { fill: %23ffffff; } }</style><path class='icon' d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3V8h3v7h3z'/></svg>">
 
-    <link rel="apple-touch-icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3V8h3v7h3z'/></svg>">
-
     <link
-        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
         rel="stylesheet">
 
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -52,17 +33,31 @@
         <div class="actions">
             <div class="custom-dropdown" id="font-dropdown">
                 <div class="dropdown-header">
-                    <span id="font-selected-text">Preview: Fredoka</span> <span class="chevron">▼</span>
+                    <span id="font-selected-text">Font: Fredoka</span>
+                    <span class="chevron"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
                 </div>
                 <div class="dropdown-list">
                     <div class="dropdown-item active" data-value="Fredoka">Fredoka</div>
                     <div class="dropdown-item" data-value="Playpen Sans">Playpen Sans</div>
+                    <div class="dropdown-item" data-value="Kalam">Kalam</div>
+                    <div class="dropdown-item" data-value="Comic Neue">Comic Neue</div>
                 </div>
             </div>
 
-            <button id="btn-share" title="Generate Shareable Link">Share Link</button>
-            <button id="btn-pdf">Export PDF</button>
-            <button id="btn-theme">Dark Mode</button>
+            <button id="btn-notes" title="Manage Notes"
+                style="background-color: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);">
+                <i data-lucide="folder-open" style="width: 16px; height: 16px;"></i> Notes
+            </button>
+            <button id="btn-share" title="Generate Shareable Link">
+                <i data-lucide="link" style="width: 16px; height: 16px;"></i> Share
+            </button>
+            <button id="btn-pdf">
+                <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export PDF
+            </button>
+            <button id="btn-theme">
+                <i data-lucide="moon" id="theme-icon" style="width: 16px; height: 16px;"></i> <span id="theme-text">Dark
+                    Mode</span>
+            </button>
         </div>
     </header>
 
@@ -77,9 +72,31 @@
         </div>
     </main>
 
+    <div class="modal-overlay" id="notes-modal">
+        <div class="modal-box notes-modal-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 class="modal-title" style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="book-open"></i> My Notes
+                </h3>
+                <button class="modal-btn btn-confirm" id="btn-new-note" style="padding: 8px 14px; font-size: 0.9rem;">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New Note
+                </button>
+            </div>
+
+            <div class="notes-list" id="notes-list-container">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" id="notes-modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="pdf-modal">
         <div class="modal-box">
-            <h3 class="modal-title">Export Settings</h3>
+            <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="file-text"></i> Export Settings
+            </h3>
             <div class="input-group">
                 <label>Document Name</label>
                 <input type="text" class="modal-input" id="pdf-filename" value="Document" autocomplete="off" />
@@ -88,7 +105,9 @@
                 <label>Page Size Layout</label>
                 <div class="custom-dropdown" id="size-dropdown">
                     <div class="dropdown-header" style="width: 100%;">
-                        <span id="size-selected-text">A4 Size (Standard)</span> <span class="chevron">▼</span>
+                        <span id="size-selected-text">A4 Size (Standard)</span>
+                        <span class="chevron"><i data-lucide="chevron-down"
+                                style="width: 16px; height: 16px;"></i></span>
                     </div>
                     <div class="dropdown-list" style="width: 100%;">
                         <div class="dropdown-item active" data-value="A4">A4 Size (Standard)</div>

@@ -1,23 +1,35 @@
-// Global variables for cross-file communication
 window.selectedPageSize = 'A4';
 window.toastTimeout = null;
 
-// Global Toast Function
-window.showToast = function(message, duration = 3000) {
+window.showToast = function (message, duration = 3000) {
     const toastEl = document.getElementById('toast');
     clearTimeout(window.toastTimeout);
-    toastEl.textContent = message;
+
+    // Check if message is purely text or contains HTML/Icon
+    if (message.includes('<i')) {
+        toastEl.innerHTML = message;
+        lucide.createIcons(); // Render icon in toast
+    } else {
+        toastEl.textContent = message;
+    }
+
     toastEl.classList.add('show');
     window.toastTimeout = setTimeout(() => toastEl.classList.remove('show'), duration);
 };
 
-// Global function to close the PDF modal
-window.closePdfModal = function() {
+window.closePdfModal = function () {
     document.getElementById('pdf-modal').classList.remove('show');
 };
 
+window.closeNotesModal = function () {
+    document.getElementById('notes-modal').classList.remove('show');
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Generic Custom Dropdown Logic ---
+
+    // Render Lucide Icons
+    lucide.createIcons();
+
     function setupDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         const header = dropdown.querySelector('.dropdown-header');
@@ -27,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         header.addEventListener('click', (e) => {
             e.stopPropagation();
             document.querySelectorAll('.custom-dropdown').forEach(d => {
-                if(d !== dropdown) d.classList.remove('open');
+                if (d !== dropdown) d.classList.remove('open');
             });
             dropdown.classList.toggle('open');
         });
@@ -36,40 +48,36 @@ document.addEventListener('DOMContentLoaded', () => {
             item.addEventListener('click', (e) => {
                 items.forEach(i => i.classList.remove('active'));
                 e.target.classList.add('active');
-                textEl.textContent = e.target.textContent;
+                textEl.textContent = `Preview: ${e.target.textContent}`;
                 dropdown.classList.remove('open');
-                if(callback) callback(e.target.getAttribute('data-value'));
+                if (callback) callback(e.target.getAttribute('data-value'));
             });
         });
     }
 
-    document.addEventListener('click', () => { 
-        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open')); 
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
     });
 
-    // Font Setup
     setupDropdown('font-dropdown', 'font-selected-text', (val) => {
-        document.getElementById('font-selected-text').textContent = `Preview: ${val}`;
         document.documentElement.style.setProperty('--preview-font', `'${val}', sans-serif`);
     });
 
-    // Page Size Setup (saves into global variable)
-    setupDropdown('size-dropdown', 'size-selected-text', (val) => { 
-        window.selectedPageSize = val; 
+    setupDropdown('size-dropdown', 'size-selected-text', (val) => {
+        window.selectedPageSize = val;
     });
 
-    // --- Draggable View Logic ---
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel');
     const container = document.querySelector('.app-container');
     let isDragging = false;
 
-    divider.addEventListener('mousedown', () => { 
-        isDragging = true; 
-        document.body.style.cursor = 'col-resize'; 
-        document.body.style.userSelect = 'none'; 
+    divider.addEventListener('mousedown', () => {
+        isDragging = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
     });
-    
+
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         let newWidthPercentage = ((e.clientX - container.getBoundingClientRect().left) / container.getBoundingClientRect().width) * 100;
@@ -77,37 +85,56 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newWidthPercentage > 80) newWidthPercentage = 80;
         editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
     });
-    
-    document.addEventListener('mouseup', () => { 
-        if (isDragging) { 
-            isDragging = false; 
-            document.body.style.cursor = 'default'; 
-            document.body.style.userSelect = 'auto'; 
-        } 
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = 'auto';
+        }
     });
 
-    // --- Dark Mode Logic ---
     const themeBtn = document.getElementById('btn-theme');
-    const toggleTheme = () => { 
-        document.body.classList.toggle('dark-mode'); 
-        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); 
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+
+    const toggleTheme = () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+        // Switch Icon dynamically
+        themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        themeText.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        lucide.createIcons();
     };
-    
-    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) { 
-        document.body.classList.add('dark-mode'); 
+
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark-mode');
+        themeIcon.setAttribute('data-lucide', 'sun');
+        themeText.textContent = 'Light Mode';
     }
     themeBtn.addEventListener('click', toggleTheme);
 
-    // --- Modal Open/Close Handling ---
+    // PDF Modal
     const pdfBtn = document.getElementById('btn-pdf');
-    const btnCancel = document.getElementById('modal-cancel');
+    const btnCancelPdf = document.getElementById('modal-cancel');
     const inputFilename = document.getElementById('pdf-filename');
 
-    pdfBtn.addEventListener('click', () => { 
-        document.getElementById('pdf-modal').classList.add('show'); 
-        inputFilename.focus(); 
-        inputFilename.select(); 
+    pdfBtn.addEventListener('click', () => {
+        document.getElementById('pdf-modal').classList.add('show');
+        inputFilename.focus();
+        inputFilename.select();
     });
-    
-    btnCancel.addEventListener('click', window.closePdfModal);
+    btnCancelPdf.addEventListener('click', window.closePdfModal);
+
+    // Notes Modal
+    const notesBtn = document.getElementById('btn-notes');
+    const btnCancelNotes = document.getElementById('notes-modal-close');
+
+    notesBtn.addEventListener('click', () => {
+        document.getElementById('notes-modal').classList.add('show');
+        if (typeof window.renderNotesList === 'function') window.renderNotesList();
+    });
+    btnCancelNotes.addEventListener('click', window.closeNotesModal);
 });
