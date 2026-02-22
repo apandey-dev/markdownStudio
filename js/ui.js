@@ -31,13 +31,37 @@ window.closeDeleteModal = function() {
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
 
-    // Escape Key Listener
+    // --- SMART ESCAPE KEY LOGIC (Modal Stacking) ---
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            window.closePdfModal();
-            window.closeNotesModal();
-            window.closeDeleteModal(); // Added Escape for Delete modal
-            document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+            
+            // Priority 1: Dropdowns (Agar koi dropdown khula hai toh pehle use band karo)
+            const openDropdown = document.querySelector('.custom-dropdown.open');
+            if (openDropdown) {
+                openDropdown.classList.remove('open');
+                return; // Yahin ruk jao, baaki kuch close mat karo
+            }
+
+            // Priority 2: Delete Modal (Ye sabse upar aata hai)
+            const deleteModal = document.getElementById('delete-modal');
+            if (deleteModal && deleteModal.classList.contains('show')) {
+                window.closeDeleteModal();
+                return; // Yahin ruk jao
+            }
+
+            // Priority 3: Notes Modal
+            const notesModal = document.getElementById('notes-modal');
+            if (notesModal && notesModal.classList.contains('show')) {
+                window.closeNotesModal();
+                return; // Yahin ruk jao
+            }
+
+            // Priority 4: PDF Export Modal
+            const pdfModal = document.getElementById('pdf-modal');
+            if (pdfModal && pdfModal.classList.contains('show')) {
+                window.closePdfModal();
+                return; // Yahin ruk jao
+            }
         }
     });
 
