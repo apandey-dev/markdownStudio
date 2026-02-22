@@ -30,6 +30,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render Lucide Icons
     lucide.createIcons();
 
+    // --- ESCAPE KEY LOGIC ---
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Close Modals
+            window.closePdfModal();
+            window.closeNotesModal();
+
+            // Also close any open dropdowns for a better UX
+            document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+        }
+    });
+
     function setupDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         const header = dropdown.querySelector('.dropdown-header');
@@ -55,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Close Dropdowns on outside click
     document.addEventListener('click', () => {
         document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
     });
@@ -67,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.selectedPageSize = val;
     });
 
+    // --- Divider Dragging Logic ---
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel');
     const container = document.querySelector('.app-container');
@@ -94,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Dark Mode Logic ---
     const themeBtn = document.getElementById('btn-theme');
     const themeIcon = document.getElementById('theme-icon');
     const themeText = document.getElementById('theme-text');
@@ -116,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     themeBtn.addEventListener('click', toggleTheme);
 
-    // PDF Modal
+    // --- PDF Modal Buttons ---
     const pdfBtn = document.getElementById('btn-pdf');
     const btnCancelPdf = document.getElementById('modal-cancel');
     const inputFilename = document.getElementById('pdf-filename');
@@ -128,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     btnCancelPdf.addEventListener('click', window.closePdfModal);
 
-    // Notes Modal
+    // --- Notes Modal Buttons ---
     const notesBtn = document.getElementById('btn-notes');
     const btnCancelNotes = document.getElementById('notes-modal-close');
 
