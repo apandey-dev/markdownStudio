@@ -41,28 +41,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('mobile-sidebar-overlay');
     const closeSidebarBtn = document.getElementById('close-sidebar-btn');
 
-    if (mobileMenuBtn) {
+    if(mobileMenuBtn) {
         mobileMenuBtn.addEventListener('click', () => sidebarOverlay.classList.add('show'));
         closeSidebarBtn.addEventListener('click', () => sidebarOverlay.classList.remove('show'));
-        sidebarOverlay.addEventListener('click', (e) => {
-            if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
+        sidebarOverlay.addEventListener('click', (e) => { 
+            if(e.target === sidebarOverlay) sidebarOverlay.classList.remove('show'); 
         });
     }
 
-    document.getElementById('sidebar-btn-notes')?.addEventListener('click', () => {
-        sidebarOverlay.classList.remove('show');
-        document.getElementById('btn-notes').click();
+    document.getElementById('sidebar-btn-notes')?.addEventListener('click', () => { 
+        sidebarOverlay.classList.remove('show'); 
+        document.getElementById('btn-notes').click(); 
     });
-    document.getElementById('sidebar-btn-share')?.addEventListener('click', () => {
-        sidebarOverlay.classList.remove('show');
-        document.getElementById('btn-share').click();
+    document.getElementById('sidebar-btn-share')?.addEventListener('click', () => { 
+        sidebarOverlay.classList.remove('show'); 
+        document.getElementById('btn-share').click(); 
     });
-    document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => {
-        sidebarOverlay.classList.remove('show');
-        document.getElementById('btn-pdf').click();
+    document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => { 
+        sidebarOverlay.classList.remove('show'); 
+        document.getElementById('btn-pdf').click(); 
     });
-    document.getElementById('sidebar-btn-theme')?.addEventListener('click', () => {
-        document.getElementById('btn-theme').click();
+    document.getElementById('sidebar-btn-theme')?.addEventListener('click', () => { 
+        document.getElementById('btn-theme').click(); 
         const isDark = document.body.classList.contains('dark-mode');
         document.getElementById('sidebar-theme-icon').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
         lucide.createIcons();
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MOBILE FLOATING VIEW TOGGLE ---
     const mobileViewToggle = document.getElementById('mobile-view-toggle');
-    if (mobileViewToggle) {
+    if(mobileViewToggle) {
         mobileViewToggle.addEventListener('click', () => {
             document.body.classList.toggle('show-preview');
             const isPreview = document.body.classList.contains('show-preview');
@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ESCAPE KEY LOGIC ---
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            if (sidebarOverlay && sidebarOverlay.classList.contains('show')) {
-                sidebarOverlay.classList.remove('show');
-                return;
+            if(sidebarOverlay && sidebarOverlay.classList.contains('show')) { 
+                sidebarOverlay.classList.remove('show'); 
+                return; 
             }
 
             const openDropdown = document.querySelector('.custom-dropdown.open');
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.app-container');
     let isDragging = false;
 
-    if (divider) {
+    if(divider) {
         divider.addEventListener('mousedown', () => {
             isDragging = true;
             document.body.style.cursor = 'col-resize';

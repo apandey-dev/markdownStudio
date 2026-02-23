@@ -187,11 +187,10 @@
        ======================================================= */
 
     .modal-overlay {
-        align-items: flex-end;
-        /* Pushes modal to the bottom */
-        padding: 0;
+        align-items: flex-end !important;
+        /* Pushes modal completely to the bottom */
+        padding: 0 !important;
         backdrop-filter: blur(6px);
-        /* Native glass effect */
         -webkit-backdrop-filter: blur(6px);
     }
 
@@ -201,18 +200,19 @@
         max-width: 100% !important;
         border-radius: 32px 32px 0 0 !important;
         /* Round only top corners */
-        padding: 40px 24px 48px !important;
-        /* Extra bottom padding for phone swipe area */
+        padding: 32px 24px 40px !important;
+        /* Extra bottom padding */
         margin: 0 !important;
         transform: translateY(100%) !important;
-        /* Slide up animation */
-        transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+        /* Start off screen */
+        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
         border: none !important;
         border-top: 1px solid var(--border-color) !important;
     }
 
     .modal-overlay.show .modal-box {
         transform: translateY(0) !important;
+        /* Slide up smoothly */
     }
 
     /* iOS Style Drag Handle */
@@ -224,15 +224,24 @@
         transform: translateX(-50%);
         width: 44px;
         height: 5px;
-        background-color: var(--border-color);
+        background-color: var(--text-color);
+        opacity: 0.15;
         border-radius: 5px;
-        opacity: 0.8;
     }
 
-    /* Typography & Input Scaling for Mobile */
+    /* Universal Modal Typography */
     .modal-title {
         font-size: 1.5rem !important;
         margin-bottom: 24px !important;
+        white-space: nowrap !important;
+        /* Prevents text wrap glitch */
+    }
+
+    .modal-title i {
+        flex-shrink: 0 !important;
+        /* Prevents icon squish */
+        width: 24px !important;
+        height: 24px !important;
     }
 
     .input-group label {
@@ -261,15 +270,48 @@
         border-radius: 16px !important;
     }
 
-    /* Make Notes Modal Taller on Mobile */
+
+    /* --- Specific Modal Overrides --- */
+
+    /* 1. Notes Directory */
     .notes-modal-box {
         height: 85vh !important;
         max-height: 85vh !important;
+        padding-top: 40px !important;
     }
 
+    .notes-modal-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 20px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .notes-header-text {
+        text-align: left !important;
+    }
+
+    .notes-modal-header .modal-title {
+        font-size: 1.6rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    #btn-new-note {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 1.1rem !important;
+        border-radius: 16px !important;
+    }
+
+    /* Fix weird thick left border on active note */
     .note-item {
         padding: 18px 20px !important;
         border-radius: 16px !important;
+    }
+
+    .note-item.active {
+        border: 2px solid var(--accent-color) !important;
+        border-left: 2px solid var(--accent-color) !important;
     }
 
     .note-title {
@@ -283,5 +325,19 @@
     .btn-delete-note i {
         width: 22px !important;
         height: 22px !important;
+    }
+
+    /* 2. Delete Danger Modal */
+    .delete-modal-box {
+        text-align: left !important;
+        padding-top: 40px !important;
+    }
+
+    .delete-icon-wrapper {
+        justify-content: flex-start !important;
+    }
+
+    .delete-title {
+        font-size: 1.6rem !important;
     }
 }

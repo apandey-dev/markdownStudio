@@ -427,7 +427,7 @@ textarea {
     background-color: var(--hover-bg);
 }
 
-/* Modals */
+/* Modals Core */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -521,6 +521,7 @@ textarea {
     box-shadow: none;
 }
 
+/* Desktop Specific Modal Structuring */
 .notes-modal-box {
     max-width: 520px;
     height: 70vh;
@@ -529,6 +530,42 @@ textarea {
     display: flex;
     flex-direction: column;
     background-color: var(--bg-color);
+}
+
+.notes-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.notes-modal-header .modal-title {
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notes-modal-header .modal-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
+#btn-new-note {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+}
+
+.notes-modal-actions {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+#notes-modal-close {
+    width: 100%;
 }
 
 .notes-list {
@@ -594,6 +631,58 @@ textarea {
     opacity: 1;
     background-color: rgba(239, 68, 68, 0.1);
     transform: scale(1.1);
+}
+
+.delete-modal-box {
+    max-width: 360px;
+    text-align: center;
+    padding: 40px 32px;
+}
+
+.delete-icon-wrapper {
+    color: #ef4444;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+.delete-icon-wrapper i {
+    width: 48px;
+    height: 48px;
+}
+
+.delete-title {
+    margin-bottom: 12px;
+}
+
+.delete-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+.delete-actions {
+    justify-content: center;
+    gap: 16px;
+    margin-top: 0;
+    display: flex;
+}
+
+.delete-actions button {
+    width: 100%;
+}
+
+.btn-danger {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+.flex-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 #toast {
