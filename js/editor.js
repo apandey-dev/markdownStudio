@@ -6,12 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnConfirmPdf = document.getElementById('modal-confirm');
     const inputFilename = document.getElementById('pdf-filename');
 
-    // --- Modal Note Management System ---
     let notes = [];
     let activeNoteId = null;
-    let noteToDeleteId = null; // Stores ID of note waiting to be deleted
+    let noteToDeleteId = null;
 
-    // The Beautiful Feature Guide Note
     const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to generate perfectly scaled vector PDFs (A4, A2, or Infinity pages).\n* **🎨 Smart Toggle & Custom Colors:** Format text quickly! Select text and click the **B** icon in the toolbar. Click it again to undo! You can also color text using \`[Text]{red}\`.\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document. No database required!\n* **📊 Live Stats & Sync Scroll:** Keep track of your word count at the bottom, and enjoy synchronized scrolling as you type.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** in the navbar to create a new one!`;
 
     function loadNotes() {
@@ -65,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.closeNotesModal();
             });
 
-            // TRIGGERS CUSTOM DELETE MODAL INSTEAD OF INSTANT DELETE
             div.querySelector('.btn-delete-note').addEventListener('click', (e) => {
                 e.stopPropagation();
                 noteToDeleteId = note.id;
@@ -77,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     };
 
-    // Confirm Delete Logic
     document.getElementById('delete-confirm').addEventListener('click', () => {
         if (!noteToDeleteId) return;
 
@@ -115,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast("<i data-lucide='check-circle'></i> New note created!");
     });
 
-    // --- Live Status Bar ---
     function updateLiveStats(text) {
         const chars = text.length;
         const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -126,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-reading-time').textContent = `${readingTime} min read`;
     }
 
-    // --- Markdown Render Pipeline ---
     marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
     function debounce(func, wait) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
@@ -164,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Synchronized Scrolling ---
     editor.addEventListener('scroll', () => {
         const percentage = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
         if (previewPanel.scrollHeight > previewPanel.clientHeight) {
@@ -172,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- SMART FORMATTING TOOLBAR ---
     document.querySelectorAll('.tool-btn[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
@@ -248,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Import / Export .MD Files ---
     const btnExportMd = document.getElementById('btn-export-md');
     const btnImportMd = document.getElementById('btn-import-md');
     const importFile = document.getElementById('import-file');
@@ -288,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
         importFile.value = '';
     });
 
-    // --- Initialize App ---
     loadNotes();
 
     if (window.location.hash && window.location.hash.length > 1) {
@@ -306,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.value = getActiveNote().content;
     renderMarkdown();
 
-    // --- PDF Export Logic ---
     inputFilename.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
     btnConfirmPdf.addEventListener('click', () => {
         let fileName = inputFilename.value.trim() || getActiveNote().title || "Document";
@@ -335,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    // --- Share URL Link ---
     shareBtn.addEventListener('click', async () => {
         const textToShare = editor.value;
         const encodedData = btoa(encodeURIComponent(textToShare));
