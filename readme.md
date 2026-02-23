@@ -7,7 +7,7 @@
 
 ### 🔗 Live Demos
 - **Vercel Deployment:** [https://apandey-studio.vercel.app](https://apandey-studio.vercel.app)
-- **GitHub Pages:** [https://apandey.github.io/markdownStudio](https://apandey.github.io/markdownStudio)
+- **GitHub Pages:** [https://apandey-dev.github.io/markdownStudio](https://apandey.github.io/markdownStudio)
 
 ---
 
