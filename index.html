@@ -116,6 +116,16 @@
 
                 <div class="toolbar-spacer"></div>
 
+                <div class="desktop-only" style="display: flex; gap: 4px;">
+                    <button class="tool-btn view-btn" data-view="editor" title="Editor Only"><i
+                            data-lucide="file-edit"></i></button>
+                    <button class="tool-btn view-btn active" data-view="split" title="Split View"><i
+                            data-lucide="columns"></i></button>
+                    <button class="tool-btn view-btn" data-view="preview" title="Preview Only"><i
+                            data-lucide="monitor"></i></button>
+                </div>
+                <div class="toolbar-divider desktop-only"></div>
+
                 <input type="file" id="import-file" accept=".md,.txt" style="display: none;" />
                 <button class="tool-btn" id="btn-import-md" title="Import .md file"><i
                         data-lucide="file-up"></i></button>

@@ -254,6 +254,12 @@ body {
     color: var(--accent-color);
 }
 
+.tool-btn.active {
+    opacity: 1;
+    color: var(--accent-color);
+    background-color: var(--shadow-color);
+}
+
 .tool-btn i {
     width: 18px;
     height: 18px;
@@ -333,6 +339,34 @@ textarea {
     font-family: var(--preview-font);
     font-size: 1.05rem;
     overflow-y: auto;
+}
+
+/* DESKTOP VIEW MODES (Controlled by Body Class) */
+body.view-editor .editor-panel {
+    flex: 1 1 100% !important;
+    max-width: 100%;
+    border-right: none;
+}
+
+body.view-editor .preview-panel {
+    display: none !important;
+}
+
+body.view-editor .divider {
+    display: none !important;
+}
+
+body.view-preview .preview-panel {
+    flex: 1 1 100% !important;
+    max-width: 100%;
+}
+
+body.view-preview .editor-panel {
+    display: none !important;
+}
+
+body.view-preview .divider {
+    display: none !important;
 }
 
 #preview-output {

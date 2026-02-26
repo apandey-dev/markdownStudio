@@ -33,6 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return notes.find(n => n.id === activeNoteId);
     }
 
+    // Expose active title for the UI.js PDF modal logic
+    window.getActiveNoteTitle = function () {
+        const note = getActiveNote();
+        return note ? note.title : "Document";
+    };
+
     function extractTitle(content) {
         const match = content.match(/^#+\s+(.*)/m);
         if (match && match[1]) {
@@ -99,16 +105,25 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast("<i data-lucide='trash-2'></i> Note deleted");
     });
 
+    // CREATE NOTE WITH NAME PROMPT
     document.getElementById('btn-new-note').addEventListener('click', () => {
+        let noteName = prompt("Enter a name for your new note:", "New Note");
+
+        if (noteName === null) return; // User clicked Cancel
+        if (noteName.trim() === "") noteName = "Untitled Note";
+
         const newId = Date.now().toString();
-        notes.unshift({ id: newId, title: "New Note", content: "# New Note\n" });
+        // Dynamically inject the name as Header 1 so the extractTitle auto-picks it
+        notes.unshift({ id: newId, title: noteName, content: `# ${noteName}\n\nStart typing here...` });
+
         activeNoteId = newId;
         editor.value = getActiveNote().content;
+
         saveNotes();
         renderMarkdown();
         window.renderNotesList();
         window.closeNotesModal();
-        window.showToast("<i data-lucide='check-circle'></i> New note created!");
+        window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
     });
 
     function updateLiveStats(text) {
@@ -297,6 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMarkdown();
 
     inputFilename.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
+
+    // PDF Export Confirmed
     btnConfirmPdf.addEventListener('click', () => {
         let fileName = inputFilename.value.trim() || getActiveNote().title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();

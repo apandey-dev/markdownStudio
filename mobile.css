@@ -9,9 +9,21 @@
         display: none !important;
     }
 
-    /* Navbar Adjustment */
+    /* Fixed Mobile Header Logic */
     .navbar {
-        padding: 0 16px;
+        padding: 0 12px;
+        /* reduced padding */
+        gap: 8px;
+    }
+
+    .brand {
+        font-size: 1.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        /* Text will truncate if too long */
+        max-width: 65vw;
+        /* Absolute protection for iPhone SE */
     }
 
     #mobile-menu-btn {
@@ -19,7 +31,7 @@
         border: none;
         color: var(--text-color);
         cursor: pointer;
-        padding: 8px;
+        padding: 6px;
         font-size: 1.2rem;
     }
 
@@ -182,10 +194,9 @@
     }
 
 
-/* New Moedel Only For Mobile devices Bottom SHeet Style */
+    /* PREMIUM NATIVE APP MODALS (BOTTOM SHEETS) */
     .modal-overlay {
         align-items: flex-end !important;
-        /* Pushes modal completely to the bottom */
         padding: 0 !important;
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
@@ -196,12 +207,9 @@
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 32px 32px 0 0 !important;
-        /* Round only top corners */
         padding: 32px 24px 40px !important;
-        /* Extra bottom padding */
         margin: 0 !important;
         transform: translateY(100%) !important;
-        /* Start off screen */
         transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
         border: none !important;
         border-top: 1px solid var(--border-color) !important;
@@ -209,10 +217,8 @@
 
     .modal-overlay.show .modal-box {
         transform: translateY(0) !important;
-        /* Slide up smoothly */
     }
 
-    /* iOS Style Drag Handle */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -226,17 +232,14 @@
         border-radius: 5px;
     }
 
-    /* Universal Modal Typography */
     .modal-title {
         font-size: 1.5rem !important;
         margin-bottom: 24px !important;
         white-space: nowrap !important;
-        /* Prevents text wrap glitch */
     }
 
     .modal-title i {
         flex-shrink: 0 !important;
-        /* Prevents icon squish */
         width: 24px !important;
         height: 24px !important;
     }
@@ -252,7 +255,6 @@
         border-radius: 14px !important;
     }
 
-    /* Stack Buttons (Primary on Top, Cancel on Bottom) */
     .modal-actions {
         flex-direction: column-reverse !important;
         gap: 12px !important;
@@ -267,10 +269,6 @@
         border-radius: 16px !important;
     }
 
-
-    /* --- Specific Modal Overrides --- */
-
-    /* 1. Notes Directory */
     .notes-modal-box {
         height: 85vh !important;
         max-height: 85vh !important;
@@ -300,7 +298,6 @@
         border-radius: 16px !important;
     }
 
-    /* Fix weird thick left border on active note */
     .note-item {
         padding: 18px 20px !important;
         border-radius: 16px !important;
@@ -324,7 +321,6 @@
         height: 22px !important;
     }
 
-    /* 2. Delete Danger Modal */
     .delete-modal-box {
         text-align: left !important;
         padding-top: 40px !important;
