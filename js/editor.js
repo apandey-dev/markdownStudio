@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return notes.find(n => n.id === activeNoteId);
     }
 
+    // Expose active title for the UI.js PDF modal logic
     window.getActiveNoteTitle = function () {
         const note = getActiveNote();
         return note ? note.title : "Document";
@@ -348,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editor.value = getActiveNote().content;
     renderMarkdown();
+    if (typeof window.renderNotesList === 'function') window.renderNotesList();
 
     inputFilename.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 
