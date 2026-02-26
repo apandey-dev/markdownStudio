@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeNoteId = null;
     let noteToDeleteId = null;
 
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to generate perfectly scaled vector PDFs (A4, A2, or Infinity pages).\n* **🎨 Smart Toggle & Custom Colors:** Format text quickly! Select text and click the **B** icon in the toolbar. Click it again to undo! You can also color text using \`[Text]{red}\`.\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document. No database required!\n* **📊 Live Stats & Sync Scroll:** Keep track of your word count at the bottom, and enjoy synchronized scrolling as you type.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** in the navbar to create a new one!`;
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Smart Toggle:** Format text quickly! Select text and click the **B** icon in the toolbar. Click it again to undo!\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document.\n* **📊 Live Stats & Sync Scroll:** Keep track of your word count at the bottom.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** to create a new one!`;
 
     function loadNotes() {
         const saved = localStorage.getItem('md_studio_notes_modal_v4');
@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return notes.find(n => n.id === activeNoteId);
     }
 
-    // Expose active title for the UI.js PDF modal logic
     window.getActiveNoteTitle = function () {
         const note = getActiveNote();
         return note ? note.title : "Document";
@@ -101,19 +100,31 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderNotesList();
 
         noteToDeleteId = null;
-        window.closeDeleteModal();
+        if(typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
         window.showToast("<i data-lucide='trash-2'></i> Note deleted");
     });
 
-    // CREATE NOTE WITH NAME PROMPT
-    document.getElementById('btn-new-note').addEventListener('click', () => {
-        let noteName = prompt("Enter a name for your new note:", "New Note");
+    // --- CUSTOM PROMPT MODAL LOGIC FOR NEW NOTE ---
+    const btnNewNote = document.getElementById('btn-new-note');
+    const promptModal = document.getElementById('prompt-modal');
+    const promptInput = document.getElementById('prompt-input');
+    const btnPromptConfirm = document.getElementById('prompt-confirm');
+    const btnPromptCancel = document.getElementById('prompt-cancel');
 
-        if (noteName === null) return; // User clicked Cancel
-        if (noteName.trim() === "") noteName = "Untitled Note";
+    btnNewNote.addEventListener('click', () => {
+        promptInput.value = 'New Note';
+        promptModal.classList.add('show');
+        setTimeout(() => {
+            promptInput.focus();
+            promptInput.select();
+        }, 100);
+    });
+
+    const createNoteFromPrompt = () => {
+        let noteName = promptInput.value.trim();
+        if (noteName === "") noteName = "Untitled Note";
 
         const newId = Date.now().toString();
-        // Dynamically inject the name as Header 1 so the extractTitle auto-picks it
         notes.unshift({ id: newId, title: noteName, content: `# ${noteName}\n\nStart typing here...` });
 
         activeNoteId = newId;
@@ -122,9 +133,20 @@ document.addEventListener('DOMContentLoaded', () => {
         saveNotes();
         renderMarkdown();
         window.renderNotesList();
-        window.closeNotesModal();
+        
+        promptModal.classList.remove('show');
+        if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
         window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
+    };
+
+    btnPromptConfirm.addEventListener('click', createNoteFromPrompt);
+    promptInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') createNoteFromPrompt();
     });
+    btnPromptCancel.addEventListener('click', () => {
+        promptModal.classList.remove('show');
+    });
+
 
     function updateLiveStats(text) {
         const chars = text.length;
@@ -173,7 +195,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- SCROLL SYNC LOGIC ---
+    let isScrollSync = true;
+    const btnScrollSync = document.getElementById('btn-scroll-sync');
+    if(btnScrollSync) {
+        btnScrollSync.addEventListener('click', () => {
+            isScrollSync = !isScrollSync;
+            btnScrollSync.classList.toggle('active', isScrollSync);
+            if (!isScrollSync) {
+                btnScrollSync.style.opacity = '0.4';
+            } else {
+                btnScrollSync.style.opacity = '1';
+            }
+        });
+    }
+
     editor.addEventListener('scroll', () => {
+        if (!isScrollSync) return;
         const percentage = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
         if (previewPanel.scrollHeight > previewPanel.clientHeight) {
             previewPanel.scrollTop = percentage * (previewPanel.scrollHeight - previewPanel.clientHeight);

@@ -9,21 +9,22 @@
         display: none !important;
     }
 
-    /* Fixed Mobile Header Logic */
+    /* Fixed Mobile Header Logic - Prevents overflow on tiny screens */
     .navbar {
         padding: 0 12px;
-        /* reduced padding */
         gap: 8px;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        width: 100%;
     }
 
     .brand {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
+        flex-shrink: 1;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        /* Text will truncate if too long */
-        max-width: 65vw;
-        /* Absolute protection for iPhone SE */
+        min-width: 0;
     }
 
     #mobile-menu-btn {
@@ -31,8 +32,9 @@
         border: none;
         color: var(--text-color);
         cursor: pointer;
-        padding: 6px;
+        padding: 4px;
         font-size: 1.2rem;
+        flex-shrink: 0;
     }
 
     /* Floating View Toggle Button */
@@ -60,9 +62,8 @@
     }
 
     /* Single Panel Logic */
-    .app-container {
+    .split-workspace {
         flex-direction: column;
-        position: relative;
     }
 
     .editor-panel {
@@ -193,13 +194,16 @@
         font-size: 0.75rem;
     }
 
+    /* =======================================================
+       ✨ BOTTOM SHEET MODALS FOR MOBILE ✨
+       ======================================================= */
 
-    /* PREMIUM NATIVE APP MODALS (BOTTOM SHEETS) */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
+        display: flex !important;
     }
 
     .modal-box {
@@ -269,10 +273,11 @@
         border-radius: 16px !important;
     }
 
+    /* Notes Modal specific fixes */
     .notes-modal-box {
         height: 85vh !important;
         max-height: 85vh !important;
-        padding-top: 40px !important;
+        background-color: var(--nav-bg) !important;
     }
 
     .notes-modal-header {
@@ -301,6 +306,7 @@
     .note-item {
         padding: 18px 20px !important;
         border-radius: 16px !important;
+        background-color: var(--bg-color) !important;
     }
 
     .note-item.active {

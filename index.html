@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
 
     <title>Markdown Studio | Real-Time Markdown Editor</title>
@@ -44,9 +44,8 @@
     </script>
 
     <header class="navbar">
-        <div class="brand">Markdown Studio</div>
-
         <button id="mobile-menu-btn" class="mobile-only" title="Menu"><i data-lucide="menu"></i></button>
+        <div class="brand">Markdown Studio</div>
 
         <div class="actions desktop-only">
             <div class="custom-dropdown" id="font-dropdown">
@@ -74,8 +73,8 @@
             </button>
 
             <button id="btn-theme" title="Toggle Dark/Light Mode"
-                style="padding: 8px; width: 38px; height: 38px; border-radius: 50%;">
-                <i id="theme-icon" style="width: 18px; height: 18px;"></i>
+                style="padding: 6px; width: 34px; height: 34px; border-radius: 50%;">
+                <i id="theme-icon" style="width: 16px; height: 16px;"></i>
             </button>
         </div>
     </header>
@@ -97,58 +96,65 @@
     </div>
 
     <main class="app-container">
-
         <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
             <i data-lucide="eye"></i>
         </button>
 
-        <div class="panel editor-panel" id="editor-panel-wrapper">
-            <div class="editor-toolbar">
-                <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
-                <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
-                <button class="tool-btn" data-action="heading" title="Heading"><i data-lucide="heading"></i></button>
-                <div class="toolbar-divider"></div>
-                <button class="tool-btn" data-action="link" title="Link"><i data-lucide="link"></i></button>
-                <button class="tool-btn" data-action="image" title="Image"><i data-lucide="image"></i></button>
-                <button class="tool-btn" data-action="code" title="Code Block"><i data-lucide="code"></i></button>
-                <button class="tool-btn" data-action="table" title="Table"><i data-lucide="table"></i></button>
-                <button class="tool-btn" data-action="math" title="Math Formula"><i data-lucide="sigma"></i></button>
+        <div class="editor-toolbar">
+            <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
+            <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
+            <button class="tool-btn" data-action="heading" title="Heading"><i data-lucide="heading"></i></button>
+            <div class="toolbar-divider"></div>
+            <button class="tool-btn" data-action="link" title="Link"><i data-lucide="link"></i></button>
+            <button class="tool-btn" data-action="image" title="Image"><i data-lucide="image"></i></button>
+            <button class="tool-btn" data-action="code" title="Code Block"><i data-lucide="code"></i></button>
+            <button class="tool-btn" data-action="table" title="Table"><i data-lucide="table"></i></button>
+            <button class="tool-btn" data-action="math" title="Math Formula"><i data-lucide="sigma"></i></button>
 
-                <div class="toolbar-spacer"></div>
+            <div class="toolbar-spacer"></div>
 
-                <div class="desktop-only" style="display: flex; gap: 4px;">
-                    <button class="tool-btn view-btn" data-view="editor" title="Editor Only"><i
-                            data-lucide="file-edit"></i></button>
-                    <button class="tool-btn view-btn active" data-view="split" title="Split View"><i
-                            data-lucide="columns"></i></button>
-                    <button class="tool-btn view-btn" data-view="preview" title="Preview Only"><i
-                            data-lucide="monitor"></i></button>
-                </div>
-                <div class="toolbar-divider desktop-only"></div>
+            <button class="tool-btn active desktop-only" id="btn-scroll-sync" title="Toggle Scroll Sync"
+                style="margin-right: 8px;">
+                <i data-lucide="arrow-down-up"></i>
+            </button>
+            <div class="toolbar-divider desktop-only" style="margin-right: 8px;"></div>
 
-                <input type="file" id="import-file" accept=".md,.txt" style="display: none;" />
-                <button class="tool-btn" id="btn-import-md" title="Import .md file"><i
-                        data-lucide="file-up"></i></button>
-                <button class="tool-btn" id="btn-export-md" title="Download .md file"><i
-                        data-lucide="file-down"></i></button>
+            <div class="desktop-only"
+                style="display: flex; gap: 4px; border: 1px solid var(--border-color); border-radius: 8px; padding: 2px;">
+                <button class="tool-btn view-btn" data-view="editor" title="Editor Only"><i
+                        data-lucide="file-edit"></i></button>
+                <button class="tool-btn view-btn active" data-view="split" title="Split View"><i
+                        data-lucide="columns"></i></button>
+                <button class="tool-btn view-btn" data-view="preview" title="Preview Only"><i
+                        data-lucide="monitor"></i></button>
+            </div>
+            <div class="toolbar-divider desktop-only"></div>
+
+            <input type="file" id="import-file" accept=".md,.txt" style="display: none;" />
+            <button class="tool-btn" id="btn-import-md" title="Import .md file"><i data-lucide="file-up"></i></button>
+            <button class="tool-btn" id="btn-export-md" title="Download .md file"><i
+                    data-lucide="file-down"></i></button>
+        </div>
+
+        <div class="split-workspace" id="split-workspace">
+            <div class="panel editor-panel" id="editor-panel-wrapper">
+                <textarea id="markdown-input" placeholder="Start typing your Markdown here..."
+                    spellcheck="false"></textarea>
             </div>
 
-            <textarea id="markdown-input" placeholder="Start typing your Markdown here..."
-                spellcheck="false"></textarea>
+            <div class="divider desktop-only" id="drag-divider"></div>
 
-            <div class="status-bar">
-                <span id="stat-words">0 Words</span>
-                <div class="toolbar-divider" style="height: 12px; margin: 0;"></div>
-                <span id="stat-chars" class="desktop-only">0 Characters</span>
-                <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
-                <span id="stat-reading-time">0 min read</span>
+            <div class="panel preview-panel" id="preview-panel">
+                <div id="preview-output"></div>
             </div>
         </div>
 
-        <div class="divider desktop-only" id="drag-divider"></div>
-
-        <div class="panel preview-panel" id="preview-panel">
-            <div id="preview-output"></div>
+        <div class="status-bar">
+            <span id="stat-words">0 Words</span>
+            <div class="toolbar-divider" style="height: 12px; margin: 0;"></div>
+            <span id="stat-chars" class="desktop-only">0 Characters</span>
+            <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
+            <span id="stat-reading-time">0 min read</span>
         </div>
     </main>
 
@@ -168,6 +174,23 @@
             <div class="notes-list" id="notes-list-container"></div>
             <div class="modal-actions notes-modal-actions">
                 <button class="modal-btn btn-cancel" id="notes-modal-close">Close Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="prompt-modal" style="z-index: 2000;">
+        <div class="modal-box prompt-modal-box">
+            <h3 class="modal-title flex-title">
+                <i data-lucide="file-plus-2"></i> New Note
+            </h3>
+            <div class="input-group">
+                <label>Note Name</label>
+                <input type="text" class="modal-input" id="prompt-input" placeholder="Untitled Note"
+                    autocomplete="off" />
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" id="prompt-cancel">Cancel</button>
+                <button class="modal-btn btn-confirm" id="prompt-confirm">Create Note</button>
             </div>
         </div>
     </div>

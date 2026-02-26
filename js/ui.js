@@ -20,12 +20,16 @@ window.closePdfModal = function () {
     document.getElementById('pdf-modal').classList.remove('show');
 };
 
+window.closeDeleteModal = function () {
+    document.getElementById('delete-modal').classList.remove('show');
+};
+
 window.closeNotesModal = function () {
     document.getElementById('notes-modal').classList.remove('show');
 };
 
-window.closeDeleteModal = function () {
-    document.getElementById('delete-modal').classList.remove('show');
+window.closePromptModal = function () {
+    document.getElementById('prompt-modal').classList.remove('show');
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
 
-            // Remove active classes
+            // Remove classes
             document.body.classList.remove('view-editor', 'view-preview');
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
 
@@ -50,11 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (view === 'editor') document.body.classList.add('view-editor');
             if (view === 'preview') document.body.classList.add('view-preview');
 
-            // Reset drag divider inline styles if any
-            document.getElementById('editor-panel-wrapper').style.flex = '';
+            // Reset drag divider inline style
+            const editorPanel = document.getElementById('editor-panel-wrapper');
+            if (editorPanel) editorPanel.style.flex = '';
         });
     });
 
+    // --- MODAL TRIGGERS ---
+    document.getElementById('btn-notes')?.addEventListener('click', () => {
+        document.getElementById('notes-modal').classList.add('show');
+        if (typeof window.renderNotesList === 'function') window.renderNotesList();
+    });
+    document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
 
     // --- MOBILE SIDEBAR LOGIC ---
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -106,9 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebarOverlay.classList.remove('show');
                 return;
             }
-
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
+
+            const promptModal = document.getElementById('prompt-modal');
+            if (promptModal && promptModal.classList.contains('show')) { window.closePromptModal(); return; }
 
             const deleteModal = document.getElementById('delete-modal');
             if (deleteModal && deleteModal.classList.contains('show')) { window.closeDeleteModal(); return; }
@@ -160,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
-    const container = document.querySelector('.app-container');
+    const container = document.getElementById('split-workspace');
     let isDragging = false;
 
     if (divider) {
@@ -211,31 +224,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     themeBtn.addEventListener('click', toggleTheme);
 
-    // Dynamic PDF Prefill handled here
     const pdfBtn = document.getElementById('btn-pdf');
     const btnCancelPdf = document.getElementById('modal-cancel');
     const inputFilename = document.getElementById('pdf-filename');
 
     pdfBtn.addEventListener('click', () => {
         document.getElementById('pdf-modal').classList.add('show');
-
-        // Dynamically prefill name from editor
         if (window.getActiveNoteTitle) {
             inputFilename.value = window.getActiveNoteTitle();
         }
-
         inputFilename.focus();
         inputFilename.select();
     });
     btnCancelPdf.addEventListener('click', window.closePdfModal);
 
-    const notesBtn = document.getElementById('btn-notes');
-    const btnCancelNotes = document.getElementById('notes-modal-close');
-
-    notesBtn.addEventListener('click', () => {
-        document.getElementById('notes-modal').classList.add('show');
-        if (typeof window.renderNotesList === 'function') window.renderNotesList();
-    });
-    btnCancelNotes.addEventListener('click', window.closeNotesModal);
     document.getElementById('delete-cancel').addEventListener('click', window.closeDeleteModal);
 });

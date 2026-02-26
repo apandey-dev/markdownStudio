@@ -64,8 +64,9 @@ body {
     display: none;
 }
 
+/* SHRUNK NAVBAR (Saves vertical space) */
 .navbar {
-    height: 64px;
+    height: 52px;
     background-color: var(--nav-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -79,7 +80,7 @@ body {
 
 .brand {
     font-weight: 600;
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     color: var(--accent-color);
     letter-spacing: -0.5px;
 }
@@ -87,19 +88,19 @@ body {
 .actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
     user-select: none;
 }
 
 .dropdown-header {
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     background-color: var(--editor-bg);
@@ -108,9 +109,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.25s ease;
-    min-width: 160px;
+    min-width: 140px;
 }
 
 .dropdown-header:hover {
@@ -153,7 +154,7 @@ body {
 }
 
 .dropdown-item {
-    padding: 12px 16px;
+    padding: 10px 14px;
     cursor: pointer;
     transition: background-color 0.2s;
     color: var(--text-color);
@@ -182,11 +183,11 @@ body {
     background-color: var(--accent-color);
     color: var(--btn-text);
     border: none;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
     cursor: pointer;
     font-family: var(--ui-font);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s ease;
 }
@@ -209,10 +210,50 @@ body {
     border-color: var(--text-color);
 }
 
+/* Updated App Container Height to match 52px Navbar */
 .app-container {
     display: flex;
+    flex-direction: column;
+    height: calc(100vh - 52px);
+    position: relative;
+    overflow: hidden;
+    width: 100vw;
+}
+
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px;
+    gap: 6px;
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 24px;
+    background-color: var(--nav-bg);
+    border-top: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-family: var(--ui-font);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.split-workspace {
+    display: flex;
     flex: 1;
-    height: calc(100vh - 64px);
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    background-color: var(--editor-bg);
 }
 
 .editor-panel {
@@ -221,17 +262,6 @@ body {
     flex-direction: column;
     background-color: var(--editor-bg);
     border-right: 1px solid var(--border-color);
-}
-
-.editor-toolbar {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    gap: 6px;
-    background-color: var(--nav-bg);
-    border-bottom: 1px solid var(--border-color);
-    overflow-x: auto;
-    white-space: nowrap;
 }
 
 .tool-btn {
@@ -291,20 +321,6 @@ textarea {
     outline: none;
 }
 
-.status-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 24px;
-    background-color: var(--nav-bg);
-    border-top: 1px solid var(--border-color);
-    font-size: 0.8rem;
-    color: var(--text-color);
-    opacity: 0.7;
-    font-family: var(--ui-font);
-    font-weight: 500;
-}
-
 .divider {
     width: 8px;
     background-color: transparent;
@@ -341,7 +357,7 @@ textarea {
     overflow-y: auto;
 }
 
-/* DESKTOP VIEW MODES (Controlled by Body Class) */
+/* --- DESKTOP VIEW MODES --- */
 body.view-editor .editor-panel {
     flex: 1 1 100% !important;
     max-width: 100%;
@@ -555,7 +571,7 @@ body.view-preview .divider {
     box-shadow: none;
 }
 
-/* Desktop Specific Modal Structuring */
+/* REVERTED TO PROPER MODAL FOR DESKTOP */
 .notes-modal-box {
     max-width: 520px;
     height: 70vh;
@@ -667,6 +683,11 @@ body.view-preview .divider {
     transform: scale(1.1);
 }
 
+/* Specific Modals */
+.prompt-modal-box {
+    max-width: 380px;
+}
+
 .delete-modal-box {
     max-width: 360px;
     text-align: center;
@@ -749,7 +770,6 @@ body.view-preview .divider {
     transform: translateY(0);
 }
 
-/* PRINT CSS */
 @media print {
 
     .navbar,
