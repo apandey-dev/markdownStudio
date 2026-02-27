@@ -1,6 +1,5 @@
 /* ==========================================================================
    MARKDOWN STUDIO - CORE STYLESHEET
-   Description: Main UI styling for the editor, toolbar, modals, and themes.
    ========================================================================== */
 
 :root {
@@ -16,7 +15,6 @@
     --shadow-color: rgba(0, 0, 0, 0.06);
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
-
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fira Code', monospace;
@@ -68,7 +66,6 @@ body {
     display: none;
 }
 
-/* NAVBAR */
 .navbar {
     height: 52px;
     background-color: var(--nav-bg);
@@ -96,7 +93,6 @@ body {
     gap: 10px;
 }
 
-/* DROPDOWN */
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
@@ -212,7 +208,6 @@ body {
     border-radius: 0 4px 4px 0;
 }
 
-/* BUTTONS */
 .actions button,
 .modal-btn {
     display: flex;
@@ -249,7 +244,6 @@ body {
     border-color: var(--text-color);
 }
 
-/* MAIN WORKSPACE */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -404,7 +398,6 @@ textarea {
     min-height: 0;
 }
 
-/* VIEW MODES */
 body.view-editor .editor-panel {
     flex: 1 1 100% !important;
     max-width: 100%;
@@ -432,31 +425,38 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* RENDER OUTPUT */
 #preview-output,
-#dashboard-preview-output {
+#dashboard-preview-output,
+#sync-preview-output {
     width: 100%;
     max-width: none;
     line-height: 1.6;
 }
 
 #preview-output>*:first-child,
-#dashboard-preview-output>*:first-child {
+#dashboard-preview-output>*:first-child,
+#sync-preview-output>*:first-child {
     margin-top: 0;
 }
 
 #preview-output h1,
 #dashboard-preview-output h1,
+#sync-preview-output h1,
 #preview-output h2,
 #dashboard-preview-output h2,
+#sync-preview-output h2,
 #preview-output h3,
 #dashboard-preview-output h3,
+#sync-preview-output h3,
 #preview-output h4,
 #dashboard-preview-output h4,
+#sync-preview-output h4,
 #preview-output h5,
 #dashboard-preview-output h5,
+#sync-preview-output h5,
 #preview-output h6,
-#dashboard-preview-output h6 {
+#dashboard-preview-output h6,
+#sync-preview-output h6 {
     margin-top: 1em;
     margin-bottom: 0.4em;
     font-weight: 600;
@@ -464,12 +464,14 @@ body.view-preview .divider {
 }
 
 #preview-output h1,
-#dashboard-preview-output h1 {
+#dashboard-preview-output h1,
+#sync-preview-output h1 {
     font-size: 2.2rem;
 }
 
 #preview-output h2,
-#dashboard-preview-output h2 {
+#dashboard-preview-output h2,
+#sync-preview-output h2 {
     font-size: 1.8rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 6px;
@@ -477,15 +479,19 @@ body.view-preview .divider {
 
 #preview-output p,
 #dashboard-preview-output p,
+#sync-preview-output p,
 #preview-output ul,
 #dashboard-preview-output ul,
+#sync-preview-output ul,
 #preview-output ol,
-#dashboard-preview-output ol {
+#dashboard-preview-output ol,
+#sync-preview-output ol {
     margin-bottom: 0.8em;
 }
 
 #preview-output pre,
-#dashboard-preview-output pre {
+#dashboard-preview-output pre,
+#sync-preview-output pre {
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 1em;
@@ -494,7 +500,8 @@ body.view-preview .divider {
 }
 
 #preview-output pre code,
-#dashboard-preview-output pre code {
+#dashboard-preview-output pre code,
+#sync-preview-output pre code {
     font-family: var(--editor-font);
     font-size: 0.9em;
     padding: 20px;
@@ -504,8 +511,10 @@ body.view-preview .divider {
 
 #preview-output p code,
 #dashboard-preview-output p code,
+#sync-preview-output p code,
 #preview-output li code,
-#dashboard-preview-output li code {
+#dashboard-preview-output li code,
+#sync-preview-output li code {
     background-color: var(--border-color);
     padding: 2px 6px;
     border-radius: 4px;
@@ -513,7 +522,8 @@ body.view-preview .divider {
 }
 
 #preview-output blockquote,
-#dashboard-preview-output blockquote {
+#dashboard-preview-output blockquote,
+#sync-preview-output blockquote {
     border-left: 4px solid var(--accent-color);
     padding-left: 20px;
     color: var(--text-color);
@@ -527,7 +537,8 @@ body.view-preview .divider {
 }
 
 #preview-output table,
-#dashboard-preview-output table {
+#dashboard-preview-output table,
+#sync-preview-output table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1em;
@@ -535,19 +546,22 @@ body.view-preview .divider {
 
 #preview-output th,
 #dashboard-preview-output th,
+#sync-preview-output th,
 #preview-output td,
-#dashboard-preview-output td {
+#dashboard-preview-output td,
+#sync-preview-output td {
     border: 1px solid var(--border-color);
     padding: 10px 14px;
     text-align: left;
 }
 
 #preview-output th,
-#dashboard-preview-output th {
+#dashboard-preview-output th,
+#sync-preview-output th {
     background-color: var(--hover-bg);
 }
 
-/* MODALS CORE */
+/* MODALS */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -720,7 +734,6 @@ body.dark-mode .btn-cancel:hover {
     opacity: 1;
 }
 
-/* ✨ CUTE HELP BUTTON ✨ */
 .btn-help-cute {
     background-color: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
@@ -751,7 +764,6 @@ body.dark-mode .btn-help-cute:hover {
     background-color: rgba(96, 165, 250, 0.25);
 }
 
-/* ✨ GUIDE MODAL STEPS ✨ */
 .pat-guide-box {
     max-width: 450px;
 }
@@ -794,7 +806,7 @@ body.dark-mode .btn-help-cute:hover {
     color: var(--accent-color);
 }
 
-/* NOTES DASHBOARD */
+/* ✨ DASHBOARD & TABS ✨ */
 .notes-dashboard-box {
     max-width: 1000px;
     height: 85vh;
@@ -844,6 +856,53 @@ body.dark-mode .btn-help-cute:hover {
 
 .notes-dashboard-left-header {
     padding: 16px 24px 16px;
+}
+
+/* Dashboard Toggle Tabs */
+.notes-tab-container {
+    display: flex;
+    background-color: var(--nav-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 4px;
+    margin-bottom: 16px;
+    gap: 4px;
+}
+
+.notes-tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    border-radius: 16px;
+    color: var(--text-color);
+    font-family: var(--ui-font);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.notes-tab-btn:hover {
+    opacity: 1;
+    background-color: var(--hover-bg);
+}
+
+.notes-tab-btn.active {
+    opacity: 1;
+    background-color: var(--shadow-color);
+    color: var(--accent-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.notes-tab-btn i {
+    width: 14px;
+    height: 14px;
 }
 
 #btn-new-note {
@@ -980,6 +1039,10 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 /* MINOR MODALS */
+.prompt-modal-box {
+    max-width: 380px;
+}
+
 .delete-modal-box {
     max-width: 360px;
     text-align: center;
@@ -1027,9 +1090,7 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
-/* ==========================================
-   TOAST NOTIFICATIONS (Z-Index Fixed)
-   ========================================== */
+/* TOAST */
 #toast {
     visibility: hidden;
     min-width: 200px;
@@ -1040,7 +1101,6 @@ body.dark-mode .btn-help-cute:hover {
     padding: 12px 20px;
     position: fixed;
     z-index: 9999;
-    /* 🚀 Fixed: Sabse upar dikhega (Modals ke bhi upar) */
     right: 24px;
     bottom: 24px;
     font-size: 0.95rem;
@@ -1061,16 +1121,11 @@ body.dark-mode .btn-help-cute:hover {
     transform: translateY(0);
 }
 
-/* ==========================================
-   ✨ PREMIUM DOUBLE DASHED DIVIDER ✨
-   (Rendered when typing === )
-   ========================================== */
+/* CUSTOM DIVIDER === */
 .custom-divider {
     border: none;
     height: 12px;
-    background-image:
-        linear-gradient(to right, var(--accent-color) 60%, transparent 40%),
-        linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
+    background-image: linear-gradient(to right, var(--accent-color) 60%, transparent 40%), linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
     background-position: top, bottom;
     background-size: 20px 3px;
     background-repeat: repeat-x;
@@ -1078,9 +1133,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.8;
 }
 
-/* ==========================================
-   ✨ PREMIUM SYNC STATUS PILL BUTTON ✨
-   ========================================== */
+/* SYNC PILLS */
 .sync-status-btn {
     display: inline-flex;
     align-items: center;
@@ -1092,7 +1145,6 @@ body.dark-mode .btn-help-cute:hover {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-right: 12px;
     border: 1.5px solid transparent;
 }
 
