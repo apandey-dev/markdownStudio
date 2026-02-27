@@ -43,6 +43,7 @@ body.dark-mode {
     display: none;
 }
 
+/* Strict full-height container to prevent body scrolling */
 body {
     font-family: var(--ui-font);
     background-color: var(--bg-color);
@@ -74,6 +75,8 @@ body {
     box-shadow: 0 4px 12px var(--shadow-color);
     z-index: 100;
     transition: background-color 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+    /* Prevents navbar from shrinking */
 }
 
 .brand {
@@ -208,10 +211,12 @@ body {
     border-color: var(--text-color);
 }
 
+/* --- CORE LAYOUT FIX: Ensures panels scroll, not the page --- */
 .app-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 52px);
+    flex: 1;
+    min-height: 0;
     position: relative;
     overflow: hidden;
     width: 100vw;
@@ -247,6 +252,7 @@ body {
 .split-workspace {
     display: flex;
     flex: 1;
+    min-height: 0;
     overflow: hidden;
     width: 100%;
     position: relative;
@@ -259,6 +265,7 @@ body {
     flex-direction: column;
     background-color: var(--editor-bg);
     border-right: 1px solid var(--border-color);
+    min-height: 0;
 }
 
 .tool-btn {
@@ -316,6 +323,7 @@ textarea {
     font-size: 15px;
     line-height: 1.7;
     outline: none;
+    overflow-y: auto;
 }
 
 .divider {
@@ -325,6 +333,7 @@ textarea {
     transition: background-color 0.2s;
     z-index: 10;
     position: relative;
+    flex-shrink: 0;
 }
 
 .divider::after {
@@ -347,11 +356,14 @@ textarea {
 
 .preview-panel {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     background-color: var(--preview-bg);
     padding: 32px 48px;
     font-family: var(--preview-font);
     font-size: 1.05rem;
     overflow-y: auto;
+    min-height: 0;
 }
 
 /* DESKTOP VIEW MODES */
@@ -382,8 +394,8 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* FIX: preview-output now takes 100% width like editor */
 #preview-output {
+    width: 100%;
     max-width: none;
     line-height: 1.6;
 }
@@ -556,19 +568,29 @@ body.view-preview .divider {
     gap: 12px;
 }
 
+/* ✨ PREMIUM CANCEL / CLOSE BUTTON ✨ */
 .btn-cancel {
     background-color: transparent;
     color: var(--text-color);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.85;
+    font-weight: 600;
 }
 
 .btn-cancel:hover {
+    opacity: 1;
     background-color: var(--hover-bg);
-    transform: none;
-    box-shadow: none;
+    border-color: var(--text-color);
+    transform: scale(0.97);
+    box-shadow: inset 0 2px 4px var(--shadow-color);
 }
 
-/* REVERTED TO PROPER MODAL FOR DESKTOP */
+body.dark-mode .btn-cancel:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Modals Structuring */
 .notes-modal-box {
     max-width: 520px;
     height: 70vh;
@@ -613,6 +635,7 @@ body.view-preview .divider {
 
 #notes-modal-close {
     width: 100%;
+    padding: 12px;
 }
 
 .notes-list {
@@ -680,7 +703,6 @@ body.view-preview .divider {
     transform: scale(1.1);
 }
 
-/* Specific Modals */
 .prompt-modal-box {
     max-width: 380px;
 }
@@ -729,6 +751,7 @@ body.view-preview .divider {
 .btn-danger {
     background-color: #ef4444 !important;
     color: #ffffff !important;
+    border: none;
 }
 
 .flex-title {
@@ -779,7 +802,8 @@ body.view-preview .divider {
     }
 
     body,
-    .app-container {
+    .app-container,
+    .split-workspace {
         height: auto !important;
         min-height: 100vh !important;
         overflow: visible !important;
@@ -834,36 +858,4 @@ body.view-preview .divider {
         print-color-adjust: exact !important;
         color-adjust: exact !important;
     }
-}
-
-
-#notes-modal-close {
-    width: 100%;
-    padding: 14px 20px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    border-radius: 14px;
-    background-color: transparent;
-    color: var(--text-color);
-    border: 1.5px solid var(--border-color);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    opacity: 0.8;
-    margin-top: 8px;
-}
-
-
-#notes-modal-close:hover {
-    opacity: 1;
-    background-color: var(--hover-bg);
-    border-color: var(--text-color);
-    transform: scale(0.98);
-    box-shadow: inset 0 2px 4px var(--shadow-color);
-}
-
-body.dark-mode #notes-modal-close:hover {
-    background-color: rgba(255, 255, 255, 0.05);
 }

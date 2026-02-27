@@ -96,10 +96,6 @@
     </div>
 
     <main class="app-container">
-        <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
-            <i data-lucide="eye"></i>
-        </button>
-
         <div class="editor-toolbar">
             <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
             <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
@@ -147,6 +143,10 @@
             <div class="panel preview-panel" id="preview-panel">
                 <div id="preview-output"></div>
             </div>
+
+            <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
+                <i data-lucide="eye"></i>
+            </button>
         </div>
 
         <div class="status-bar">
@@ -174,7 +174,7 @@
             <div class="notes-list" id="notes-list-container"></div>
             <div class="modal-actions notes-modal-actions">
                 <button class="modal-btn btn-cancel" id="notes-modal-close">
-                    <i data-lucide="x-circle" style="width: 18px; height: 18px;"></i> Close Panel
+                    <i data-lucide="x-circle" style="width: 18px;"></i> Close Panel
                 </button>
             </div>
         </div>
@@ -191,7 +191,9 @@
                     autocomplete="off" />
             </div>
             <div class="modal-actions">
-                <button class="modal-btn btn-cancel" id="prompt-cancel">Cancel</button>
+                <button class="modal-btn btn-cancel" id="prompt-cancel">
+                    <i data-lucide="x-circle" style="width: 18px;"></i> Cancel
+                </button>
                 <button class="modal-btn btn-confirm" id="prompt-confirm">Create Note</button>
             </div>
         </div>
@@ -207,7 +209,9 @@
                 This action cannot be undone. Are you sure you want to permanently delete this note?
             </p>
             <div class="modal-actions delete-actions">
-                <button class="modal-btn btn-cancel" id="delete-cancel">Cancel</button>
+                <button class="modal-btn btn-cancel" id="delete-cancel">
+                    <i data-lucide="x-circle" style="width: 18px;"></i> Cancel
+                </button>
                 <button class="modal-btn btn-danger" id="delete-confirm">Delete</button>
             </div>
         </div>
@@ -238,7 +242,9 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="modal-btn btn-cancel" id="modal-cancel">Cancel</button>
+                <button class="modal-btn btn-cancel" id="modal-cancel">
+                    <i data-lucide="x-circle" style="width: 18px;"></i> Cancel
+                </button>
                 <button class="modal-btn btn-confirm" id="modal-confirm">Save PDF</button>
             </div>
         </div>

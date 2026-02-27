@@ -24,11 +24,11 @@ window.closeDeleteModal = function () {
     document.getElementById('delete-modal').classList.remove('show');
 };
 
-window.closeNotesModal = function () {
+window.closeNotesModal = function() {
     document.getElementById('notes-modal').classList.remove('show');
 };
 
-window.closePromptModal = function () {
+window.closePromptModal = function() {
     document.getElementById('prompt-modal').classList.remove('show');
 };
 
@@ -44,17 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
-
-            // Remove classes
+            
             document.body.classList.remove('view-editor', 'view-preview');
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-
+            
             btn.classList.add('active');
-
+            
             if (view === 'editor') document.body.classList.add('view-editor');
             if (view === 'preview') document.body.classList.add('view-preview');
-
-            // Reset drag divider inline style
+            
             const editorPanel = document.getElementById('editor-panel-wrapper');
             if (editorPanel) editorPanel.style.flex = '';
         });
@@ -173,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
-    const container = document.getElementById('split-workspace');
+    const container = document.getElementById('split-workspace'); 
     let isDragging = false;
 
     if (divider) {
