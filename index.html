@@ -164,6 +164,11 @@
             <span id="stat-chars" class="desktop-only">0 Characters</span>
             <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
             <span id="stat-reading-time">0 min read</span>
+
+            <button id="btn-open-sync-modal" class="sync-status-btn mode-github"
+                style="margin-left: auto; margin-right: 0; display: none;" title="Move local notes to GitHub">
+                <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> Save to Cloud
+            </button>
         </div>
     </main>
 
@@ -212,6 +217,36 @@
                 style="width: 100%; margin-top: 24px; padding: 16px; font-size: 1.1rem;">
                 Start Writing
             </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cloud-sync-modal" style="z-index: 3500;">
+        <div class="modal-box notes-dashboard-box">
+            <button class="btn-close-dashboard" id="cloud-sync-close" title="Close"><i data-lucide="x"></i></button>
+
+            <div class="notes-dashboard-left">
+                <div class="notes-dashboard-left-header">
+                    <div class="notes-header-text">
+                        <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="cloud-upload"></i> Sync to Cloud
+                        </h3>
+                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 8px;">Select local notes to upload</p>
+                    </div>
+                </div>
+                <div class="notes-list" id="sync-notes-list-container"></div>
+            </div>
+
+            <div class="notes-dashboard-right">
+                <div class="dashboard-actions">
+                    <button class="pill-btn btn-back mobile-only" id="sync-btn-back"><i data-lucide="arrow-left"
+                            style="width: 16px;"></i> Back</button>
+                    <button class="pill-btn btn-edit" id="btn-confirm-sync"
+                        style="background-color: #10b981; margin-left: auto;">
+                        <i data-lucide="upload-cloud" style="width: 16px;"></i> Upload Selected
+                    </button>
+                </div>
+                <div class="dashboard-preview-content" id="sync-preview-output"></div>
+            </div>
         </div>
     </div>
 

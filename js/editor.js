@@ -19,25 +19,31 @@ document.addEventListener('DOMContentLoaded', () => {
     let highlightedNoteId = null; 
     let appMode = localStorage.getItem('md_app_mode'); // 'local' or 'github'
 
+    // Cloud Sync State
+    let syncSelectedNotes = new Set();
+    let syncHighlightedNoteId = null;
+
     const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\` to add color.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\` before any text!\n* **➖ Spaced Divider:** Type \`===\` on a new line for a wide-spaced horizontal rule.\n\n/center **This heading is perfectly centered!**\n\n===\n\n> Click **📂 Notes** to create a new one!`;
 
     // --- 1. SETUP MODAL & MODE INITIALIZATION ---
     function updateSyncStatusUI() {
         const syncStatus = document.getElementById('sync-status');
+        const btnOpenSyncModal = document.getElementById('btn-open-sync-modal');
         if(!syncStatus) return;
 
         syncStatus.style.display = 'inline-flex';
         if(appMode === 'github') {
             syncStatus.innerHTML = `<i data-lucide="cloud" style="width: 14px; height: 14px;"></i> GitHub Cloud`;
             syncStatus.className = 'sync-status-btn mode-github';
+            if(btnOpenSyncModal) btnOpenSyncModal.style.display = 'none'; // Hide Save to cloud when already in cloud
         } else {
             syncStatus.innerHTML = `<i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local Mode`;
             syncStatus.className = 'sync-status-btn mode-local';
+            if(btnOpenSyncModal) btnOpenSyncModal.style.display = 'inline-flex'; // Show Save to Cloud button
         }
         if(window.lucide) lucide.createIcons();
     }
 
-    // Allows user to click Status bar to change modes later!
     document.getElementById('sync-status')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.add('show');
     });
@@ -46,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const setupModal = document.getElementById('setup-modal');
         
         if (!appMode) {
-            setupModal.classList.add('show'); // First time ever
+            setupModal.classList.add('show');
         } else if (appMode === 'github') {
             const savedToken = localStorage.getItem('md_github_token');
             if(savedToken && window.GitHubBackend) {
@@ -62,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Setup Modal Buttons
+    // Modal Option Toggles
     document.getElementById('btn-opt-local')?.addEventListener('click', (e) => {
         e.currentTarget.classList.add('active');
         document.getElementById('btn-opt-github').classList.remove('active');
@@ -72,7 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-opt-github')?.addEventListener('click', (e) => {
         e.currentTarget.classList.add('active');
         document.getElementById('btn-opt-local').classList.remove('active');
-        document.getElementById('github-token-section').style.display = 'block';
+        
+        // 🚀 SMART AUTO-LOGIN LOGIC 
+        const savedToken = localStorage.getItem('md_github_token');
+        if (savedToken) {
+            document.getElementById('github-token-input').value = savedToken;
+            document.getElementById('btn-start-app').click(); // Auto-fire login!
+        } else {
+            document.getElementById('github-token-section').style.display = 'block';
+        }
     });
 
     document.getElementById('btn-start-app')?.addEventListener('click', async () => {
@@ -89,7 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const activeToken = token || localStorage.getItem('md_github_token');
 
-            btn.innerHTML = "Connecting to GitHub...";
+            btn.innerHTML = `<i data-lucide="loader" class="spin"></i> Connecting...`;
+            if(window.lucide) lucide.createIcons();
             btn.disabled = true;
 
             const success = await GitHubBackend.init(activeToken);
@@ -114,13 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 finishAppLoad();
             } else {
                 window.showToast("Invalid Token. Check scope and try again.");
+                document.getElementById('github-token-section').style.display = 'block'; // Show input if hidden
             }
-            // Reset button state
             btn.innerHTML = "Start Writing";
             btn.disabled = false;
 
         } else {
-            // Local Mode Selected
             appMode = 'local';
             localStorage.setItem('md_app_mode', 'local');
             setupModal.classList.remove('show');
@@ -147,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. GITHUB MODE LOGIC ---
     async function initGitHubMode(token) {
-        window.showToast("<i data-lucide='loader'></i> Syncing from GitHub...");
+        window.showToast("<i data-lucide='loader' class='spin'></i> Syncing from GitHub...");
         const success = await GitHubBackend.init(token);
         if (success) {
             const cloudNotes = await GitHubBackend.getAllNotes();
@@ -173,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(appMode === 'local') {
             localStorage.setItem('md_studio_notes_modal_v4', JSON.stringify({ notes, activeNoteId }));
         } else if (appMode === 'github') {
-            // Background array updated immediately for speed:
             localStorage.setItem('md_studio_notes_backup', JSON.stringify({ notes, activeNoteId }));
         }
     }
@@ -197,7 +210,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if(window.lucide) lucide.createIcons();
     }
 
-    // --- DASHBOARD RENDERING ---
+    // --- 4. SHARED PARSER UTILITY ---
+    function customMarkdownParser(rawText) {
+        let processedText = rawText;
+        
+        // Custom Parser logic
+        processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+        
+        const htmlContent = marked.parse(processedText);
+        return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
+    }
+
+    // --- 5. DASHBOARD RENDERING ---
     window.renderNotesList = function () {
         const container = document.getElementById('notes-list-container');
         if(!container) return;
@@ -214,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.renderNotesList(); 
                 window.renderDashboardPreview();
                 if (window.innerWidth <= 768) {
-                    document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
+                    document.querySelector('#notes-modal .notes-dashboard-box')?.classList.add('show-preview-pane');
                 }
             });
 
@@ -224,27 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(window.lucide) lucide.createIcons();
         window.renderDashboardPreview();
     };
-
-    // --- SHARED PARSER UTILITY ---
-    function customMarkdownParser(rawText) {
-        let processedText = rawText;
-        
-        // 1. Double Dashed Line (===) mapped to custom HTML divider
-        processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
-        
-        // 2. Multi-line alignment blocks
-        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        
-        // 3. Single-line alignment shortcut
-        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        
-        // 4. Custom Color syntax
-        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-        
-        // Pass to Marked, allowing custom class names to survive Purify
-        const htmlContent = marked.parse(processedText);
-        return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
-    }
 
     window.renderDashboardPreview = function() {
         const previewEl = document.getElementById('dashboard-preview-output');
@@ -280,7 +286,113 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('dash-btn-back')?.addEventListener('click', () => {
-        document.querySelector('.notes-dashboard-box')?.classList.remove('show-preview-pane');
+        document.querySelector('#notes-modal .notes-dashboard-box')?.classList.remove('show-preview-pane');
+    });
+
+    // --- 6. 🚀 CLOUD SYNC MODAL LOGIC (New Feature) ---
+    window.renderSyncList = function() {
+        const container = document.getElementById('sync-notes-list-container');
+        if(!container) return;
+        container.innerHTML = '';
+        
+        if(!syncHighlightedNoteId && notes.length > 0) syncHighlightedNoteId = notes[0].id;
+
+        notes.forEach(note => {
+            const div = document.createElement('div');
+            div.className = `note-item ${note.id === syncHighlightedNoteId ? 'active' : ''}`;
+            const isChecked = syncSelectedNotes.has(note.id) ? 'checked' : '';
+            
+            div.innerHTML = `
+                <div class="note-title" style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                    <input type="checkbox" class="sync-checkbox" data-id="${note.id}" ${isChecked} style="width: 18px; height: 18px; cursor: pointer;">
+                    <i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> 
+                    <span style="flex:1; overflow:hidden; text-overflow:ellipsis;">${note.title}</span>
+                </div>
+            `;
+
+            // Note Preview Trigger
+            div.addEventListener('click', (e) => {
+                if(e.target.type === 'checkbox') return; // Don't trigger if clicked exactly on checkbox
+                syncHighlightedNoteId = note.id;
+                window.renderSyncList();
+                window.renderSyncPreview();
+                if (window.innerWidth <= 768) {
+                    document.querySelector('#cloud-sync-modal .notes-dashboard-box')?.classList.add('show-preview-pane');
+                }
+            });
+
+            // Checkbox Trigger
+            const cb = div.querySelector('.sync-checkbox');
+            cb.addEventListener('change', (e) => {
+                if(e.target.checked) syncSelectedNotes.add(note.id);
+                else syncSelectedNotes.delete(note.id);
+                
+                document.getElementById('btn-confirm-sync').innerHTML = `<i data-lucide="upload-cloud" style="width: 16px;"></i> Upload Selected (${syncSelectedNotes.size})`;
+                if(window.lucide) lucide.createIcons();
+            });
+
+            container.appendChild(div);
+        });
+        if(window.lucide) lucide.createIcons();
+        window.renderSyncPreview();
+    };
+
+    window.renderSyncPreview = function() {
+        const previewEl = document.getElementById('sync-preview-output');
+        const note = notes.find(n => n.id === syncHighlightedNoteId) || notes[0];
+        if(!note || !previewEl) return;
+        
+        previewEl.innerHTML = customMarkdownParser(note.content);
+        renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+    };
+
+    document.getElementById('sync-btn-back')?.addEventListener('click', () => {
+        document.querySelector('#cloud-sync-modal .notes-dashboard-box')?.classList.remove('show-preview-pane');
+    });
+
+    document.getElementById('btn-confirm-sync')?.addEventListener('click', async () => {
+        if(syncSelectedNotes.size === 0) {
+            window.showToast("Select at least one note to upload.");
+            return;
+        }
+
+        let token = localStorage.getItem('md_github_token');
+        if(!token) {
+            window.showToast("No Token found. Connecting to GitHub...");
+            if(typeof window.closeCloudSyncModal === 'function') window.closeCloudSyncModal();
+            document.getElementById('setup-modal').classList.add('show');
+            document.getElementById('btn-opt-github').click();
+            return;
+        }
+
+        const btn = document.getElementById('btn-confirm-sync');
+        btn.innerHTML = `<i data-lucide="loader" class="spin"></i> Uploading...`;
+        btn.disabled = true;
+        if(window.lucide) lucide.createIcons();
+
+        const success = await GitHubBackend.init(token);
+        if(!success) {
+            window.showToast("Invalid GitHub Token.");
+            btn.innerHTML = `<i data-lucide="upload-cloud" style="width: 16px;"></i> Upload Selected (${syncSelectedNotes.size})`;
+            btn.disabled = false;
+            return;
+        }
+
+        let uploadCount = 0;
+        for(let id of syncSelectedNotes) {
+            const note = notes.find(n => n.id === id);
+            if(note) {
+                await GitHubBackend.saveNote('new', note.title, note.content);
+                uploadCount++;
+            }
+        }
+
+        window.showToast(`<i data-lucide="check-circle"></i> Sync Successful! Switch modes to view them.`);
+        if(typeof window.closeCloudSyncModal === 'function') window.closeCloudSyncModal();
+        
+        btn.innerHTML = `<i data-lucide="upload-cloud" style="width: 16px;"></i> Upload Selected (${syncSelectedNotes.size})`;
+        btn.disabled = false;
     });
 
     // --- DELETE CONFIRM LOGIC ---
@@ -305,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if(appMode === 'github' && noteToDelete.path) {
-                window.showToast("<i data-lucide='loader'></i> Deleting from Cloud...");
+                window.showToast("<i data-lucide='loader' class='spin'></i> Deleting from Cloud...");
                 await GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
             }
         }
@@ -341,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editor.value = content;
 
         if(appMode === 'github') {
-            window.showToast("<i data-lucide='loader'></i> Saving to Cloud...");
+            window.showToast("<i data-lucide='loader' class='spin'></i> Saving to Cloud...");
             const sha = await GitHubBackend.saveNote('new', noteName, content);
             if(sha) notes[0].id = sha; 
         }
@@ -387,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
         
+        // Auto update dashboard if open
         if(highlightedNoteId === activeNoteId && document.getElementById('notes-modal')?.classList.contains('show')) {
             window.renderDashboardPreview();
         }
@@ -532,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- IMPORT / EXPORT LOGIC ---
     const btnExportMd = document.getElementById('btn-export-md');
     const btnImportMd = document.getElementById('btn-import-md');
     const importFile = document.getElementById('import-file');
@@ -586,6 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Invalid share link", e); }
     }
 
+    // --- PDF EXPORT LOGIC ---
     inputFilename?.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 
     btnConfirmPdf?.addEventListener('click', () => {

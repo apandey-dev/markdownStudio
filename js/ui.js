@@ -8,12 +8,12 @@ window.toastTimeout = null;
 
 window.showToast = function (message, duration = 3000) {
     const toastEl = document.getElementById('toast');
-    if (!toastEl) return;
+    if(!toastEl) return;
     clearTimeout(window.toastTimeout);
 
     if (message.includes('<i')) {
         toastEl.innerHTML = message;
-        if (window.lucide) lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     } else {
         toastEl.textContent = message;
     }
@@ -25,20 +25,28 @@ window.showToast = function (message, duration = 3000) {
 // --- MODAL CLOSURE EXPORTS ---
 window.closePdfModal = function () { document.getElementById('pdf-modal')?.classList.remove('show'); };
 window.closeDeleteModal = function () { document.getElementById('delete-modal')?.classList.remove('show'); };
-window.closeNotesModal = function () {
+window.closeNotesModal = function() {
     document.getElementById('notes-modal')?.classList.remove('show');
-    document.querySelector('.notes-dashboard-box')?.classList.remove('show-preview-pane');
+    document.querySelector('#notes-modal .notes-dashboard-box')?.classList.remove('show-preview-pane');
 };
-window.closePromptModal = function () { document.getElementById('prompt-modal')?.classList.remove('show'); };
-window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
+window.closeCloudSyncModal = function() {
+    document.getElementById('cloud-sync-modal')?.classList.remove('show');
+    document.querySelector('#cloud-sync-modal .notes-dashboard-box')?.classList.remove('show-preview-pane');
+};
+window.closePromptModal = function() { document.getElementById('prompt-modal')?.classList.remove('show'); };
+window.closePatGuideModal = function() { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 
 document.addEventListener('DOMContentLoaded', () => {
 
     const themeIcon = document.getElementById('theme-icon');
     const isCurrentlyDark = document.body.classList.contains('dark-mode');
-    if (themeIcon) themeIcon.setAttribute('data-lucide', isCurrentlyDark ? 'sun' : 'moon');
+    if(themeIcon) themeIcon.setAttribute('data-lucide', isCurrentlyDark ? 'sun' : 'moon');
+    if(window.lucide) lucide.createIcons();
 
-    if (window.lucide) lucide.createIcons();
+    // Dynamically inject spin animation CSS for loaders
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } } .spin { animation: spin 1s linear infinite; }`;
+    document.head.appendChild(style);
 
     // --- DESKTOP VIEW TOGGLE LOGIC ---
     document.querySelectorAll('.view-btn').forEach(btn => {
@@ -47,10 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.remove('view-editor', 'view-preview');
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
+            
             if (view === 'editor') document.body.classList.add('view-editor');
             if (view === 'preview') document.body.classList.add('view-preview');
-
+            
             const editorPanel = document.getElementById('editor-panel-wrapper');
             if (editorPanel) editorPanel.style.flex = '';
         });
@@ -64,9 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         });
     });
-
+    
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
+    
+    // Cloud Sync Modal triggers
+    document.getElementById('btn-open-sync-modal')?.addEventListener('click', () => {
+        document.getElementById('cloud-sync-modal')?.classList.add('show');
+        if (typeof window.renderSyncList === 'function') window.renderSyncList();
+    });
+    document.getElementById('cloud-sync-close')?.addEventListener('click', window.closeCloudSyncModal);
 
+    // Guide Modal Trigger
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('pat-guide-modal')?.classList.add('show');
@@ -77,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('mobile-sidebar-overlay');
     document.getElementById('mobile-menu-btn')?.addEventListener('click', () => sidebarOverlay?.classList.add('show'));
     document.getElementById('close-sidebar-btn')?.addEventListener('click', () => sidebarOverlay?.classList.remove('show'));
-
+    
     sidebarOverlay?.addEventListener('click', (e) => {
         if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
     });
@@ -94,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-theme')?.click();
         const isDark = document.body.classList.contains('dark-mode');
         document.getElementById('sidebar-theme-icon')?.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-        if (window.lucide) lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     });
 
     // --- MOBILE FLOATING VIEW TOGGLE ---
@@ -104,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.toggle('show-preview');
             const isPreview = document.body.classList.contains('show-preview');
             mobileViewToggle.innerHTML = isPreview ? '<i data-lucide="edit-2"></i>' : '<i data-lucide="eye"></i>';
-            if (window.lucide) lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         });
     }
 
@@ -118,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (setupModal?.classList.contains('show')) { setupModal.classList.remove('show'); return; }
 
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { window.closePatGuideModal(); return; }
+            if (document.getElementById('cloud-sync-modal')?.classList.contains('show')) { window.closeCloudSyncModal(); return; }
             if (document.getElementById('prompt-modal')?.classList.contains('show')) { window.closePromptModal(); return; }
             if (document.getElementById('delete-modal')?.classList.contains('show')) { window.closeDeleteModal(); return; }
             if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
@@ -128,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DROPDOWN LOGIC ---
     function setupDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
-        if (!dropdown) return;
+        if(!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
         const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
@@ -145,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.addEventListener('click', (e) => {
                 items.forEach(i => i.classList.remove('active'));
                 e.target.classList.add('active');
-                if (textEl) textEl.textContent = `Preview: ${e.target.textContent}`;
+                if(textEl) textEl.textContent = `Preview: ${e.target.textContent}`;
                 dropdown.classList.remove('open');
                 if (callback) callback(e.target.getAttribute('data-value'));
             });
@@ -156,12 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
     });
 
+    // FONT PERSISTENCE
     const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
     document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
-
+    
     const fontDropdownItems = document.querySelectorAll('#font-dropdown .dropdown-item');
     const fontSelectedText = document.getElementById('font-selected-text');
-    if (fontDropdownItems.length > 0 && fontSelectedText) {
+    if(fontDropdownItems.length > 0 && fontSelectedText) {
         fontDropdownItems.forEach(item => {
             item.classList.remove('active');
             if (item.getAttribute('data-value') === savedFont) {
@@ -183,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DRAGGABLE SPLIT PANE ---
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
-    const container = document.getElementById('split-workspace');
+    const container = document.getElementById('split-workspace'); 
     let isDragging = false;
 
     if (divider && editorPanel && container) {
@@ -224,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('theme-light').disabled = false;
             document.getElementById('theme-dark').disabled = true;
         }
-        if (window.lucide) lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     };
 
     themeBtn?.addEventListener('click', () => {

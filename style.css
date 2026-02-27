@@ -1027,7 +1027,9 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
-/* TOAST */
+/* ==========================================
+   TOAST NOTIFICATIONS (Z-Index Fixed)
+   ========================================== */
 #toast {
     visibility: hidden;
     min-width: 200px;
@@ -1037,7 +1039,8 @@ body.dark-mode .btn-help-cute:hover {
     border-radius: 8px;
     padding: 12px 20px;
     position: fixed;
-    z-index: 2000;
+    z-index: 9999;
+    /* 🚀 Fixed: Sabse upar dikhega (Modals ke bhi upar) */
     right: 24px;
     bottom: 24px;
     font-size: 0.95rem;
