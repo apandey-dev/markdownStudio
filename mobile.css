@@ -16,6 +16,7 @@
     }
 
     /* --- FIXED MOBILE HEADER --- */
+    /* Prevents overflow and text cutoff on very small screens like iPhone SE */
     .navbar {
         padding: 0 12px;
         gap: 8px;
@@ -45,7 +46,7 @@
     }
 
     /* --- CORE APP CONTAINER LOCK --- */
-    /* Prevents the body from scrolling, delegates scrolling to panels */
+    /* Prevents the body from scrolling, delegates scrolling exclusively to panels */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -90,7 +91,7 @@
     }
 
     /* --- FLOATING VIEW TOGGLE BUTTON --- */
-    /* Safe anchor at bottom right */
+    /* Safely anchored at bottom right of the split workspace */
     #mobile-view-toggle {
         position: absolute;
         bottom: 16px;
@@ -114,7 +115,7 @@
         transform: scale(0.9);
     }
 
-    /* --- MOBILE SIDEBAR MENU --- */
+    /* --- MOBILE SIDEBAR MENU (Overlay) --- */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -210,6 +211,7 @@
         color: var(--accent-color);
     }
 
+    /* Adjust editor textarea for mobile */
     textarea {
         padding: 16px;
         font-size: 14px;
@@ -222,7 +224,7 @@
 
     /* =======================================================
        ✨ BOTTOM SHEET MODALS FOR MOBILE ✨
-       Converts standard modals into iOS-style slide-up sheets
+       Converts standard centered modals into iOS-style slide-up sheets
        ======================================================= */
     .modal-overlay {
         align-items: flex-end !important;
@@ -249,7 +251,7 @@
         transform: translateY(0) !important;
     }
 
-    /* Native Handle Indicator */
+    /* Native Handle Indicator on top of Bottom Sheets */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -280,6 +282,7 @@
         font-size: 1rem !important;
     }
 
+    /* Ensure Premium Dropdown adapts to mobile modal */
     .modal-input,
     .dropdown-header {
         padding: 16px !important;
@@ -287,7 +290,7 @@
         border-radius: 14px !important;
     }
 
-    /* Stack buttons on mobile */
+    /* Stack buttons vertically on mobile for easier thumb access */
     .modal-actions {
         flex-direction: column-reverse !important;
         gap: 12px !important;
@@ -310,6 +313,7 @@
         overflow: hidden !important;
     }
 
+    /* Fix Universal Close button positioning on mobile */
     .notes-dashboard-box .btn-close-dashboard {
         top: 12px !important;
         right: 12px !important;
@@ -372,6 +376,7 @@
         transform: translateX(0);
     }
 
+    /* Horizontally scrollable pill buttons inside mobile preview pane */
     .dashboard-actions {
         padding: 12px 20px !important;
         gap: 8px !important;
@@ -390,6 +395,7 @@
         padding: 24px 20px !important;
     }
 
+    /* Fix minor modal alignments */
     .delete-modal-box {
         text-align: left !important;
         padding-top: 40px !important;

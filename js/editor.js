@@ -181,11 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPromptCancel = document.getElementById('prompt-cancel');
 
     btnNewNote?.addEventListener('click', () => {
-        promptInput.value = 'New Note';
+        promptInput.value = ''; // Cleaned prompt input initially
         promptModal.classList.add('show');
         setTimeout(() => {
             promptInput.focus();
-            promptInput.select();
         }, 100);
     });
 
@@ -194,8 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (noteName === "") noteName = "Untitled Note";
 
         const newId = Date.now().toString();
+        // Add note to array
         notes.unshift({ id: newId, title: noteName, content: `# ${noteName}\n\nStart typing here...` });
 
+        // Change Active IDs to the new Note
         activeNoteId = newId;
         highlightedNoteId = newId;
         editor.value = getActiveNote().content;
@@ -204,8 +205,14 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMarkdown();
         window.renderNotesList();
         
+        // Hide the prompt modal, BUT KEEP THE DASHBOARD MODAL OPEN!
         promptModal.classList.remove('show');
-        if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
+        
+        // Smoothly transition to the preview of the newly created note on Mobile
+        if (window.innerWidth <= 768) {
+            document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
+        }
+
         window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
     };
 
@@ -260,6 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
         
+        // Auto update dashboard preview if the active note is currently highlighted there
         if(highlightedNoteId === activeNoteId && document.getElementById('notes-modal')?.classList.contains('show')) {
             window.renderDashboardPreview();
         }
@@ -280,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // ✨ SMART 2-WAY SCROLL SYNC (BUG FIXED) ✨
+    // ✨ SMART 2-WAY SCROLL SYNC ✨
     // ==========================================
     let isScrollSync = true;
     let isSyncingLeft = false;
@@ -296,14 +304,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // When scrolling Editor (Left), update Preview (Right)
     editor.addEventListener('scroll', () => {
-        if (!isScrollSync || isSyncingLeft) return; // Prevent infinite loop
+        if (!isScrollSync || isSyncingLeft) return; 
         
         const editorScrollable = editor.scrollHeight - editor.clientHeight;
         const previewScrollable = previewPanel.scrollHeight - previewPanel.clientHeight;
 
-        // Ensure there is something to scroll to avoid zero division (NaN error)
         if (editorScrollable > 0 && previewScrollable > 0) {
             isSyncingRight = true;
             const percentage = editor.scrollTop / editorScrollable;
@@ -314,9 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // When scrolling Preview (Right), update Editor (Left)
     previewPanel.addEventListener('scroll', () => {
-        if (!isScrollSync || isSyncingRight) return; // Prevent infinite loop
+        if (!isScrollSync || isSyncingRight) return; 
         
         const editorScrollable = editor.scrollHeight - editor.clientHeight;
         const previewScrollable = previewPanel.scrollHeight - previewPanel.clientHeight;
@@ -342,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let prefix = ''; let suffix = ''; let defaultText = '';
 
-            // Mapping Formatting Rules
             if (action === 'bold') { prefix = '**'; suffix = '**'; defaultText = 'bold text'; }
             else if (action === 'italic') { prefix = '*'; suffix = '*'; defaultText = 'italic text'; }
             else if (action === 'math') { prefix = '$$'; suffix = '$$'; defaultText = 'e=mc^2'; }
@@ -354,14 +358,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';
             }
-            // Alignment Actions
             else if (action === 'align-left') { prefix = '/left '; suffix = ''; defaultText = 'Left aligned text'; }
             else if (action === 'align-center') { prefix = '/center '; suffix = ''; defaultText = 'Centered text'; }
             else if (action === 'align-right') { prefix = '/right '; suffix = ''; defaultText = 'Right aligned text'; }
 
             editor.focus();
 
-            // Toggle logic for existing formatting
             if (prefix && suffix && selection.startsWith(prefix) && selection.endsWith(suffix) && selection.length >= prefix.length + suffix.length) {
                 const unstripped = selection.substring(prefix.length, selection.length - suffix.length);
                 editor.value = fullText.substring(0, start) + unstripped + fullText.substring(end);
@@ -382,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Heading logic
             if (action === 'heading') {
                 const lineStart = fullText.lastIndexOf('\n', start - 1) + 1;
                 const lineEnd = fullText.indexOf('\n', end);
@@ -414,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- IMPORT / EXPORT LOGIC ---
     const btnExportMd = document.getElementById('btn-export-md');
     const btnImportMd = document.getElementById('btn-import-md');
     const importFile = document.getElementById('import-file');
@@ -459,7 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
     highlightedNoteId = activeNoteId;
 
-    // Check for shared URL Hash
     if (window.location.hash && window.location.hash.length > 1) {
         try {
             const encodedData = window.location.hash.substring(1);
@@ -476,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.value = getActiveNote().content;
     renderMarkdown();
 
-    // --- PDF EXPORT LOGIC ---
     inputFilename?.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 
     btnConfirmPdf?.addEventListener('click', () => {
@@ -486,7 +484,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const style = document.createElement('style');
         let pageCss = "";
         
-        // Apply appropriate @page rules based on dropdown selection
         if (window.selectedPageSize === 'A4') { pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 5px !important; }`; }
         else if (window.selectedPageSize === 'A2') { pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 5px !important; font-size: 1.2rem !important; }`; }
         else if (window.selectedPageSize === 'Infinity') {
@@ -500,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalTitle = document.title;
         document.title = fileName;
 
-        // Print dialog timeout
         setTimeout(() => {
             window.print();
             document.title = originalTitle;
@@ -509,7 +505,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    // --- URL SHARING LOGIC ---
     shareBtn?.addEventListener('click', async () => {
         const textToShare = editor.value;
         const encodedData = btoa(encodeURIComponent(textToShare));
