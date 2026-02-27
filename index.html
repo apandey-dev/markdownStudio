@@ -16,21 +16,18 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Delius&display=swap"
         rel="stylesheet">
-
     <link id="theme-light" rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
     <link id="theme-dark" rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" disabled>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
 
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
 
-<body>
+<body class="sidebar-open">
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
@@ -65,9 +62,9 @@
                 </div>
             </div>
 
-            <button id="btn-notes" title="Manage Notes"
+            <button id="btn-notes-desktop" class="modal-trigger-notes" title="Manage Notes"
                 style="background-color: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);">
-                <i data-lucide="folder-open" style="width: 16px; height: 16px;"></i> Notes
+                <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
             </button>
             <button id="btn-share" title="Generate Shareable Link">
                 <i data-lucide="link" style="width: 16px; height: 16px;"></i> Share
@@ -89,7 +86,8 @@
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
             <div class="sidebar-links">
-                <button class="sidebar-btn" id="sidebar-btn-notes"><i data-lucide="folder-open"></i> My Notes</button>
+                <button class="sidebar-btn modal-trigger-notes" id="sidebar-btn-notes"><i data-lucide="folder-open"></i>
+                    My Notes</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="link"></i> Share Link</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
                 <button class="sidebar-btn" id="sidebar-btn-theme"><i data-lucide="moon" id="sidebar-theme-icon"></i>
@@ -99,29 +97,27 @@
     </div>
 
     <main class="app-container">
+        <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
+            <i data-lucide="eye"></i>
+        </button>
 
         <div class="editor-toolbar">
             <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
             <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
             <button class="tool-btn" data-action="heading" title="Heading"><i data-lucide="heading"></i></button>
-
             <div class="toolbar-divider"></div>
-
             <button class="tool-btn" data-action="align-left" title="Align Left"><i
                     data-lucide="align-left"></i></button>
             <button class="tool-btn" data-action="align-center" title="Align Center"><i
                     data-lucide="align-center"></i></button>
             <button class="tool-btn" data-action="align-right" title="Align Right"><i
                     data-lucide="align-right"></i></button>
-
             <div class="toolbar-divider"></div>
-
             <button class="tool-btn" data-action="link" title="Link"><i data-lucide="link"></i></button>
             <button class="tool-btn" data-action="image" title="Image"><i data-lucide="image"></i></button>
             <button class="tool-btn" data-action="code" title="Code Block"><i data-lucide="code"></i></button>
             <button class="tool-btn" data-action="table" title="Table"><i data-lucide="table"></i></button>
             <button class="tool-btn" data-action="math" title="Math Formula"><i data-lucide="sigma"></i></button>
-
             <div class="toolbar-spacer"></div>
 
             <button class="tool-btn active desktop-only" id="btn-scroll-sync" title="Toggle Scroll Sync"
@@ -152,117 +148,218 @@
                 <textarea id="markdown-input" placeholder="Start typing your Markdown here..."
                     spellcheck="false"></textarea>
             </div>
-
             <div class="divider desktop-only" id="drag-divider"></div>
-
             <div class="panel preview-panel" id="preview-panel">
                 <div id="preview-output"></div>
             </div>
-
-            <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
-                <i data-lucide="eye"></i>
-            </button>
         </div>
 
         <div class="status-bar">
+            <button id="sync-status" class="sync-status-btn" style="display: none;" title="Click to Change Setup">
+                <i data-lucide="hard-drive"></i> Local Mode
+            </button>
+
             <span id="stat-words">0 Words</span>
             <div class="toolbar-divider" style="height: 12px; margin: 0;"></div>
             <span id="stat-chars" class="desktop-only">0 Characters</span>
             <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
             <span id="stat-reading-time">0 min read</span>
+
+            <button id="btn-open-sync-modal" class="sync-status-btn mode-github"
+                style="margin-left: auto; margin-right: 0; display: none;" title="Move local notes to GitHub">
+                <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> Save to Cloud
+            </button>
         </div>
     </main>
 
-    <div class="modal-overlay" id="notes-modal">
-        <div class="modal-box notes-dashboard-box">
+    <div class="modal-overlay" id="setup-modal" style="z-index: 3000;">
+        <div class="modal-box setup-modal-box">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div class="brand-icon"
+                    style="background: var(--accent-color); color: var(--btn-text); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i data-lucide="pen-tool" style="width: 32px; height: 32px;"></i>
+                </div>
+                <h3 class="modal-title" style="margin-bottom: 8px;">Welcome to Studio</h3>
+                <p class="modal-subtitle" style="opacity: 0.8; font-size: 0.95rem;">Choose where you want to securely
+                    save your notes.</p>
+            </div>
 
-            <button class="btn-close-dashboard" id="notes-modal-close" title="Close Dashboard">
-                <i data-lucide="x"></i>
+            <div class="setup-options">
+                <button class="setup-btn active" id="btn-opt-local">
+                    <i data-lucide="hard-drive"></i>
+                    <div class="opt-text">
+                        <strong>Local Storage</strong>
+                        <span>Save notes locally in this browser</span>
+                    </div>
+                </button>
+                <button class="setup-btn" id="btn-opt-github">
+                    <i data-lucide="github"></i>
+                    <div class="opt-text">
+                        <strong>GitHub Cloud</strong>
+                        <span>Sync notes to a private repository</span>
+                    </div>
+                </button>
+            </div>
+
+            <div class="github-token-section" id="github-token-section" style="display: none; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token
+                        (Classic)</label>
+                    <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?">
+                        <i data-lucide="help-circle"></i> Need Help?
+                    </button>
+                </div>
+                <input type="password" id="github-token-input" class="modal-input" placeholder="ghp_xxxx..."
+                    autocomplete="off" spellcheck="false" />
+            </div>
+
+            <button class="modal-btn btn-confirm" id="btn-start-app"
+                style="width: 100%; margin-top: 24px; padding: 16px; font-size: 1.1rem;">
+                Start Writing
             </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cloud-sync-modal" style="z-index: 3500;">
+        <div class="modal-box notes-dashboard-box">
+            <button class="btn-close-dashboard" id="cloud-sync-close" title="Close"><i data-lucide="x"></i></button>
 
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
-                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;">
-                        <div class="notes-header-text">
-                            <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                                <i data-lucide="library"></i> My Notes
-                            </h3>
-                        </div>
-                        <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;">
-                             Create New Note
-                        </button>
+                    <div class="notes-header-text">
+                        <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="cloud-upload"></i> Sync to Cloud
+                        </h3>
+                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 8px;">Select local notes to upload</p>
                     </div>
                 </div>
-                <div class="notes-list" id="notes-list-container">
-                </div>
+                <div class="notes-list" id="sync-notes-list-container"></div>
             </div>
 
             <div class="notes-dashboard-right">
                 <div class="dashboard-actions">
-                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back">
-                        <i data-lucide="arrow-left" style="width: 16px;"></i> Back
-                    </button>
-
-                    <button class="pill-btn btn-edit" id="dash-btn-edit">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit Note
-                    </button>
-                    <button class="pill-btn btn-export desktop-only" id="dash-btn-export">
-                        <i data-lucide="printer" style="width: 16px;"></i> Export PDF
-                    </button>
-                    <button class="pill-btn btn-delete" id="dash-btn-delete">
-                        <i data-lucide="trash-2" style="width: 16px;"></i> Delete
+                    <button class="pill-btn btn-back mobile-only" id="sync-btn-back"><i data-lucide="arrow-left"
+                            style="width: 16px;"></i> Back</button>
+                    <button class="pill-btn btn-edit" id="btn-confirm-sync"
+                        style="background-color: #10b981; margin-left: auto;">
+                        <i data-lucide="upload-cloud" style="width: 16px;"></i> Upload Selected
                     </button>
                 </div>
-
-                <div class="dashboard-preview-content" id="dashboard-preview-output">
-                </div>
+                <div class="dashboard-preview-content" id="sync-preview-output"></div>
             </div>
-
         </div>
     </div>
 
-    <div class="modal-overlay" id="prompt-modal" style="z-index: 2000;">
-        <div class="modal-box prompt-modal-box">
-            <h3 class="modal-title flex-title">
-                <i data-lucide="file-plus-2"></i> New Note 
+    <div class="modal-overlay" id="pat-guide-modal" style="z-index: 4000;">
+        <div class="modal-box pat-guide-box">
+            <h3 class="modal-title flex-title" style="color: #3b82f6; margin-bottom: 16px;">
+                <i data-lucide="book-open"></i> How to get a PAT?
             </h3>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Follow these steps to generate a secure
+                token for syncing.</p>
+            <ul class="guide-steps">
+                <li><span class="step-num">1</span>
+                    <div>Go to GitHub <strong>Settings</strong> > <strong>Developer settings</strong>.</div>
+                </li>
+                <li><span class="step-num">2</span>
+                    <div>Click on <strong>Personal access tokens</strong> &rarr; <strong>Tokens (classic)</strong>.
+                    </div>
+                </li>
+                <li><span class="step-num">3</span>
+                    <div>Click <strong>Generate new token (classic)</strong>.</div>
+                </li>
+                <li><span class="step-num">4</span>
+                    <div>Give it a name, and strictly check the <code>repo</code> checkbox (needed to save files).</div>
+                </li>
+                <li><span class="step-num">5</span>
+                    <div>Click <strong>Generate token</strong>, copy it, and paste it here!</div>
+                </li>
+            </ul>
+            <div class="modal-actions" style="justify-content: space-between; margin-top: 24px;">
+                <a href="https://github.com/settings/tokens/new?scopes=repo&description=Markdown+Studio+Sync"
+                    target="_blank" class="modal-btn btn-confirm"
+                    style="text-decoration: none; background-color: #2ea043; color: white;">
+                    <i data-lucide="external-link" style="width: 16px;"></i> Open GitHub
+                </a>
+                <button class="modal-btn btn-cancel" id="pat-guide-close">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="notes-modal">
+        <div class="modal-box notes-dashboard-box">
+            <button class="btn-close-dashboard" id="notes-modal-close" title="Close Dashboard"><i
+                    data-lucide="x"></i></button>
+            <div class="notes-dashboard-left">
+                <div class="notes-dashboard-left-header">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="library"></i> My Notes
+                        </h3>
+                    </div>
+
+                    <div id="notes-tab-toggle" class="notes-tab-container" style="display: none;">
+                        <button class="notes-tab-btn active" data-tab="local"><i data-lucide="hard-drive"></i>
+                            Local</button>
+                        <button class="notes-tab-btn" data-tab="github"><i data-lucide="cloud"></i> GitHub</button>
+                    </div>
+
+                    <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
+                            data-lucide="plus"></i> Create New Note</button>
+                </div>
+                <div class="notes-list" id="notes-list-container"></div>
+            </div>
+            <div class="notes-dashboard-right">
+                <div class="dashboard-actions">
+                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i data-lucide="arrow-left"
+                            style="width: 16px;"></i> Back</button>
+                    <span id="dash-mode-indicator"
+                        style="margin-right: auto; font-size: 0.85rem; font-weight: 600; opacity: 0.6; display: flex; align-items: center; gap: 4px;"></span>
+                    <button class="pill-btn btn-edit" id="dash-btn-edit"><i data-lucide="edit-3"
+                            style="width: 16px;"></i> Edit Note</button>
+                    <button class="pill-btn btn-export desktop-only" id="dash-btn-export"><i data-lucide="printer"
+                            style="width: 16px;"></i> Export PDF</button>
+                    <button class="pill-btn btn-delete" id="dash-btn-delete"><i data-lucide="trash-2"
+                            style="width: 16px;"></i> Delete</button>
+                </div>
+                <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="prompt-modal" style="z-index: 5000;">
+        <div class="modal-box prompt-modal-box">
+            <h3 class="modal-title flex-title"><i data-lucide="file-plus-2"></i> New Note</h3>
             <div class="input-group">
                 <label>Note Name</label>
                 <input type="text" class="modal-input" id="prompt-input" placeholder="Untitled Note"
                     autocomplete="off" />
             </div>
             <div class="modal-actions">
-                <button class="modal-btn btn-cancel" id="prompt-cancel">
-                    <i data-lucide="x-circle" style="width: 18px;"></i> Cancel
-                </button>
+                <button class="modal-btn btn-cancel" id="prompt-cancel"><i data-lucide="x-circle"
+                        style="width: 18px;"></i> Cancel</button>
                 <button class="modal-btn btn-confirm" id="prompt-confirm">Create Note</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="delete-modal" style="z-index: 2000;">
+    <div class="modal-overlay" id="delete-modal" style="z-index: 5000;">
         <div class="modal-box delete-modal-box">
-            <div class="delete-icon-wrapper">
-                <i data-lucide="alert-triangle"></i>
-            </div>
+            <div class="delete-icon-wrapper"><i data-lucide="alert-triangle"></i></div>
             <h3 class="modal-title delete-title">Delete Note?</h3>
-            <p class="delete-subtitle">
-                This action cannot be undone. Are you sure you want to permanently delete this note?
-            </p>
+            <p class="delete-subtitle">This action cannot be undone. Are you sure?</p>
             <div class="modal-actions delete-actions">
-                <button class="modal-btn btn-cancel" id="delete-cancel">
-                    <i data-lucide="x-circle" style="width: 18px;"></i> Cancel
-                </button>
+                <button class="modal-btn btn-cancel" id="delete-cancel"><i data-lucide="x-circle"
+                        style="width: 18px;"></i> Cancel</button>
                 <button class="modal-btn btn-danger" id="delete-confirm">Delete</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="pdf-modal" style="z-index: 2000;">
+    <div class="modal-overlay" id="pdf-modal" style="z-index: 5000;">
         <div class="modal-box">
-            <h3 class="modal-title flex-title">
-                <i data-lucide="file-text"></i> Export Settings
-            </h3>
+            <h3 class="modal-title flex-title"><i data-lucide="file-text"></i> Export Settings</h3>
             <div class="input-group">
                 <label>Document Name</label>
                 <input type="text" class="modal-input" id="pdf-filename" value="Document" autocomplete="off" />
@@ -283,9 +380,8 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="modal-btn btn-cancel" id="modal-cancel">
-                    <i data-lucide="x-circle" style="width: 18px;"></i> Cancel
-                </button>
+                <button class="modal-btn btn-cancel" id="modal-cancel"><i data-lucide="x-circle"
+                        style="width: 18px;"></i> Cancel</button>
                 <button class="modal-btn btn-confirm" id="modal-confirm">Save PDF</button>
             </div>
         </div>
@@ -300,6 +396,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js"></script>
 
     <script src="js/ui.js"></script>
+    <script src="js/github.js"></script>
     <script src="js/editor.js"></script>
 </body>
 
