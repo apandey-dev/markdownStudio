@@ -1,3 +1,8 @@
+/* ==========================================================================
+   EDITOR CONTROLLER
+   Handles local storage notes, markdown parsing, scroll sync, and shortcuts.
+   ========================================================================== */
+
 document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('markdown-input');
     const previewPanel = document.getElementById('preview-panel');
@@ -9,10 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let notes = [];
     let activeNoteId = null;
     let noteToDeleteId = null;
-    let highlightedNoteId = null; // Used for Dashboard Preview without changing active editor
+    let highlightedNoteId = null; // Used for Dashboard Preview
 
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Smart Toggle:** Format text quickly! Select text and click the **B** icon in the toolbar. Click it again to undo!\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document.\n* **📊 Live Stats & Sync Scroll:** Keep track of your word count at the bottom.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** to create a new one!`;
+    // Initial Welcome Note with Shortcut Guide
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Custom Colors:** Format text quickly! Use syntax \`[Text]{red}\` to add color.\n* **↔️ Text Alignment Shortcuts:** Type \`/center\`, \`/right\`, \`/left\`, or \`/justify\` before any text!\n\n/center **This heading is perfectly centered!**\n\n/right *You can also align blocks using /right followed by text...*\n\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** to create a new one!`;
 
+    // --- LOCAL STORAGE MANAGEMENT ---
     function loadNotes() {
         const saved = localStorage.getItem('md_studio_notes_modal_v4');
         if (saved) {
@@ -62,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="note-title"><i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> ${note.title}</div>
             `;
 
+            // Single click highlights and previews the note
             div.addEventListener('click', () => {
                 highlightedNoteId = note.id;
                 window.renderNotesList(); // Re-render to show active border
@@ -69,11 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // If on mobile, slide the preview pane in
                 if (window.innerWidth <= 768) {
-                    document.querySelector('.notes-dashboard-box').classList.add('show-preview-pane');
+                    document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
                 }
             });
 
-            // Double click directly opens editor (Desktop speed feature)
+            // Double click immediately loads note into editor (Desktop speed feature)
             div.addEventListener('dblclick', () => {
                 document.getElementById('dash-btn-edit').click();
             });
@@ -84,13 +92,18 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderDashboardPreview();
     };
 
+    // Dashboard Live Preview Parser
     window.renderDashboardPreview = function() {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId) || notes[0];
-        if(!note) return;
+        if(!note || !previewEl) return;
         
-        const colorProcessedText = note.content.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-        const htmlContent = marked.parse(colorProcessedText);
+        let processedText = note.content;
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+        
+        const htmlContent = marked.parse(processedText);
         const cleanHtml = DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style'] });
         
         previewEl.innerHTML = cleanHtml;
@@ -99,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- DASHBOARD ACTIONS (Pill Buttons) ---
-    document.getElementById('dash-btn-edit').addEventListener('click', () => {
+    document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
         activeNoteId = highlightedNoteId;
         editor.value = getActiveNote().content;
         saveNotes();
@@ -107,12 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
 
-    document.getElementById('dash-btn-delete').addEventListener('click', () => {
+    document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
         noteToDeleteId = highlightedNoteId;
         document.getElementById('delete-modal').classList.add('show');
     });
 
-    document.getElementById('dash-btn-export').addEventListener('click', () => {
+    document.getElementById('dash-btn-export')?.addEventListener('click', () => {
         activeNoteId = highlightedNoteId;
         editor.value = getActiveNote().content;
         saveNotes();
@@ -125,12 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Mobile Back Button
-    document.getElementById('dash-btn-back').addEventListener('click', () => {
-        document.querySelector('.notes-dashboard-box').classList.remove('show-preview-pane');
+    document.getElementById('dash-btn-back')?.addEventListener('click', () => {
+        document.querySelector('.notes-dashboard-box')?.classList.remove('show-preview-pane');
     });
 
     // --- DELETE CONFIRM LOGIC ---
-    document.getElementById('delete-confirm').addEventListener('click', () => {
+    document.getElementById('delete-confirm')?.addEventListener('click', () => {
         if (!noteToDeleteId) return;
 
         if (notes.length === 1) {
@@ -167,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPromptConfirm = document.getElementById('prompt-confirm');
     const btnPromptCancel = document.getElementById('prompt-cancel');
 
-    btnNewNote.addEventListener('click', () => {
+    btnNewNote?.addEventListener('click', () => {
         promptInput.value = 'New Note';
         promptModal.classList.add('show');
         setTimeout(() => {
@@ -192,17 +205,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderNotesList();
         
         promptModal.classList.remove('show');
-        
-        // Auto open the new note in editor
         if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
         window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
     };
 
-    btnPromptConfirm.addEventListener('click', createNoteFromPrompt);
-    promptInput.addEventListener('keypress', (e) => {
+    btnPromptConfirm?.addEventListener('click', createNoteFromPrompt);
+    promptInput?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') createNoteFromPrompt();
     });
-    btnPromptCancel.addEventListener('click', () => {
+    btnPromptCancel?.addEventListener('click', () => {
         promptModal.classList.remove('show');
     });
 
@@ -220,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
     function debounce(func, wait) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
+    // --- MAIN MARKDOWN PARSER (With Alignment & Colors) ---
     const renderMarkdown = debounce(() => {
         const rawText = editor.value;
 
@@ -232,22 +244,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateLiveStats(rawText);
 
-        const colorProcessedText = rawText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-        const htmlContent = marked.parse(colorProcessedText);
+        let processedText = rawText;
+
+        // 1. Multi-line alignment blocks
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        // 2. Single-line alignment shortcut
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        // 3. Custom Color syntax
+        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+
+        const htmlContent = marked.parse(processedText);
         const cleanHtml = DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style'] });
 
         preview.innerHTML = cleanHtml;
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
         
-        // Auto update dashboard preview if the active note is currently highlighted there
-        if(highlightedNoteId === activeNoteId && document.getElementById('notes-modal').classList.contains('show')) {
+        if(highlightedNoteId === activeNoteId && document.getElementById('notes-modal')?.classList.contains('show')) {
             window.renderDashboardPreview();
         }
     }, 50);
 
     editor.addEventListener('input', renderMarkdown);
 
+    // Tab key support
     editor.addEventListener('keydown', function (e) {
         if (e.key === 'Tab') {
             e.preventDefault();
@@ -259,29 +279,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- SCROLL SYNC LOGIC ---
+    // ==========================================
+    // ✨ SMART 2-WAY SCROLL SYNC (BUG FIXED) ✨
+    // ==========================================
     let isScrollSync = true;
+    let isSyncingLeft = false;
+    let isSyncingRight = false;
+    let scrollTimeout;
+
     const btnScrollSync = document.getElementById('btn-scroll-sync');
     if(btnScrollSync) {
         btnScrollSync.addEventListener('click', () => {
             isScrollSync = !isScrollSync;
             btnScrollSync.classList.toggle('active', isScrollSync);
-            if (!isScrollSync) {
-                btnScrollSync.style.opacity = '0.4';
-            } else {
-                btnScrollSync.style.opacity = '1';
-            }
+            btnScrollSync.style.opacity = isScrollSync ? '1' : '0.4';
         });
     }
 
+    // When scrolling Editor (Left), update Preview (Right)
     editor.addEventListener('scroll', () => {
-        if (!isScrollSync) return;
-        const percentage = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
-        if (previewPanel.scrollHeight > previewPanel.clientHeight) {
-            previewPanel.scrollTop = percentage * (previewPanel.scrollHeight - previewPanel.clientHeight);
+        if (!isScrollSync || isSyncingLeft) return; // Prevent infinite loop
+        
+        const editorScrollable = editor.scrollHeight - editor.clientHeight;
+        const previewScrollable = previewPanel.scrollHeight - previewPanel.clientHeight;
+
+        // Ensure there is something to scroll to avoid zero division (NaN error)
+        if (editorScrollable > 0 && previewScrollable > 0) {
+            isSyncingRight = true;
+            const percentage = editor.scrollTop / editorScrollable;
+            previewPanel.scrollTop = percentage * previewScrollable;
+            
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => { isSyncingRight = false; }, 50);
         }
     });
 
+    // When scrolling Preview (Right), update Editor (Left)
+    previewPanel.addEventListener('scroll', () => {
+        if (!isScrollSync || isSyncingRight) return; // Prevent infinite loop
+        
+        const editorScrollable = editor.scrollHeight - editor.clientHeight;
+        const previewScrollable = previewPanel.scrollHeight - previewPanel.clientHeight;
+
+        if (editorScrollable > 0 && previewScrollable > 0) {
+            isSyncingLeft = true;
+            const percentage = previewPanel.scrollTop / previewScrollable;
+            editor.scrollTop = percentage * editorScrollable;
+            
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => { isSyncingLeft = false; }, 50);
+        }
+    });
+
+    // --- TOOLBAR SHORTCUT ACTIONS ---
     document.querySelectorAll('.tool-btn[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
@@ -292,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let prefix = ''; let suffix = ''; let defaultText = '';
 
+            // Mapping Formatting Rules
             if (action === 'bold') { prefix = '**'; suffix = '**'; defaultText = 'bold text'; }
             else if (action === 'italic') { prefix = '*'; suffix = '*'; defaultText = 'italic text'; }
             else if (action === 'math') { prefix = '$$'; suffix = '$$'; defaultText = 'e=mc^2'; }
@@ -303,9 +354,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';
             }
+            // Alignment Actions
+            else if (action === 'align-left') { prefix = '/left '; suffix = ''; defaultText = 'Left aligned text'; }
+            else if (action === 'align-center') { prefix = '/center '; suffix = ''; defaultText = 'Centered text'; }
+            else if (action === 'align-right') { prefix = '/right '; suffix = ''; defaultText = 'Right aligned text'; }
 
             editor.focus();
 
+            // Toggle logic for existing formatting
             if (prefix && suffix && selection.startsWith(prefix) && selection.endsWith(suffix) && selection.length >= prefix.length + suffix.length) {
                 const unstripped = selection.substring(prefix.length, selection.length - suffix.length);
                 editor.value = fullText.substring(0, start) + unstripped + fullText.substring(end);
@@ -326,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Heading logic
             if (action === 'heading') {
                 const lineStart = fullText.lastIndexOf('\n', start - 1) + 1;
                 const lineEnd = fullText.indexOf('\n', end);
@@ -357,11 +414,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- IMPORT / EXPORT LOGIC ---
     const btnExportMd = document.getElementById('btn-export-md');
     const btnImportMd = document.getElementById('btn-import-md');
     const importFile = document.getElementById('import-file');
 
-    btnExportMd.addEventListener('click', () => {
+    btnExportMd?.addEventListener('click', () => {
         const text = editor.value;
         const blob = new Blob([text], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
@@ -375,9 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast("<i data-lucide='download'></i> .md file downloaded!");
     });
 
-    btnImportMd.addEventListener('click', () => importFile.click());
+    btnImportMd?.addEventListener('click', () => importFile.click());
 
-    importFile.addEventListener('change', (e) => {
+    importFile?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -397,9 +455,11 @@ document.addEventListener('DOMContentLoaded', () => {
         importFile.value = '';
     });
 
+    // INITIAL LOAD
     loadNotes();
     highlightedNoteId = activeNoteId;
 
+    // Check for shared URL Hash
     if (window.location.hash && window.location.hash.length > 1) {
         try {
             const encodedData = window.location.hash.substring(1);
@@ -416,15 +476,17 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.value = getActiveNote().content;
     renderMarkdown();
 
-    inputFilename.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
+    // --- PDF EXPORT LOGIC ---
+    inputFilename?.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 
-    // PDF Export Confirmed
-    btnConfirmPdf.addEventListener('click', () => {
+    btnConfirmPdf?.addEventListener('click', () => {
         let fileName = inputFilename.value.trim() || getActiveNote().title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();
 
         const style = document.createElement('style');
         let pageCss = "";
+        
+        // Apply appropriate @page rules based on dropdown selection
         if (window.selectedPageSize === 'A4') { pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 5px !important; }`; }
         else if (window.selectedPageSize === 'A2') { pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 5px !important; font-size: 1.2rem !important; }`; }
         else if (window.selectedPageSize === 'Infinity') {
@@ -438,6 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalTitle = document.title;
         document.title = fileName;
 
+        // Print dialog timeout
         setTimeout(() => {
             window.print();
             document.title = originalTitle;
@@ -446,7 +509,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    shareBtn.addEventListener('click', async () => {
+    // --- URL SHARING LOGIC ---
+    shareBtn?.addEventListener('click', async () => {
         const textToShare = editor.value;
         const encodedData = btoa(encodeURIComponent(textToShare));
         const shareableUrl = window.location.origin + window.location.pathname + "#" + encodedData;

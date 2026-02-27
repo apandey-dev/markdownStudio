@@ -1,7 +1,6 @@
 /* ==========================================================================
    MARKDOWN STUDIO - CORE STYLESHEET
    Description: Main UI styling for the editor, toolbar, modals, and themes.
-   Author: Arpit Pandey
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -52,14 +51,15 @@ body.dark-mode {
     margin: 0;
     padding: 0;
     scrollbar-width: none;
-    /* Firefox: Hide scrollbar */
+    /* Hide scrollbar for Firefox */
 }
 
 *::-webkit-scrollbar {
     display: none;
-    /* Chrome/Safari: Hide scrollbar */
+    /* Hide scrollbar for Chrome/Safari */
 }
 
+/* Strict full-height container to prevent body scrolling */
 body {
     font-family: var(--ui-font);
     background-color: var(--bg-color);
@@ -68,7 +68,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* Prevent body scrolling */
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -97,7 +96,7 @@ body {
     z-index: 100;
     transition: background-color 0.3s, border-color 0.3s;
     flex-shrink: 0;
-    /* Prevent squishing on small height screens */
+    /* Prevents navbar from shrinking on resize */
 }
 
 .brand {
@@ -113,7 +112,7 @@ body {
     gap: 10px;
 }
 
-/* Generic Button Styles (Navbar) */
+/* Generic Header Buttons */
 .actions button,
 .modal-btn {
     display: flex;
@@ -151,67 +150,55 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   4. PREMIUM CUSTOM DROPDOWN (Font & PDF Settings)
+   4. PREMIUM CUSTOM DROPDOWN
    -------------------------------------------------------------------------- */
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
     user-select: none;
-    width: 100%;
 }
 
-/* Dropdown trigger button */
 .dropdown-header {
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 1.5px solid var(--border-color);
-    background-color: var(--input-bg, transparent);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--editor-bg);
     color: var(--text-color);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 10px;
+    transition: all 0.25s ease;
+    min-width: 140px;
 }
 
 .dropdown-header:hover {
-    border-color: var(--text-color);
+    border-color: var(--accent-color);
     background-color: var(--hover-bg);
 }
 
-/* Header state when open */
-.custom-dropdown.open .dropdown-header {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px var(--shadow-color);
-    background-color: transparent;
-}
-
 .chevron {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s ease;
     display: flex;
     align-items: center;
-    opacity: 0.6;
 }
 
 .custom-dropdown.open .chevron {
     transform: rotate(180deg);
-    opacity: 1;
-    color: var(--accent-color);
 }
 
-/* Dropdown Options Container (Glassmorphism effect) */
 .dropdown-list {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    background-color: var(--nav-bg);
+    background-color: var(--dropdown-bg);
     border: 1px solid var(--border-color);
-    border-radius: 14px;
-    box-shadow: 0 12px 30px var(--shadow-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px var(--shadow-color);
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
@@ -219,9 +206,6 @@ body {
     transform-origin: top center;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 200;
-    padding: 6px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
 }
 
 .custom-dropdown.open .dropdown-list {
@@ -231,27 +215,17 @@ body {
 }
 
 .dropdown-item {
-    padding: 12px 16px;
-    border-radius: 8px;
+    padding: 10px 14px;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s;
     color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 2px;
-    position: relative;
-    overflow: hidden;
 }
 
-.dropdown-item:last-child {
-    margin-bottom: 0;
-}
-
-/* Smooth right slide on hover */
 .dropdown-item:hover {
     background-color: var(--hover-bg);
-    transform: translateX(4px);
     color: var(--accent-color);
 }
 
@@ -259,18 +233,6 @@ body {
     font-weight: 600;
     color: var(--accent-color);
     background-color: var(--shadow-color);
-}
-
-/* Accent line for active option */
-.dropdown-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 15%;
-    bottom: 15%;
-    width: 3px;
-    background-color: var(--accent-color);
-    border-radius: 0 4px 4px 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -297,6 +259,43 @@ body {
     overflow-x: auto;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+/* Global Status Bar */
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 24px;
+    background-color: var(--nav-bg);
+    border-top: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-family: var(--ui-font);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+/* Split Pane Wrapper */
+.split-workspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    background-color: var(--editor-bg);
+}
+
+/* Left Panel: Markdown Editor */
+.editor-panel {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--editor-bg);
+    border-right: 1px solid var(--border-color);
+    min-height: 0;
 }
 
 .tool-btn {
@@ -342,27 +341,6 @@ body {
     min-width: 16px;
 }
 
-/* Split Pane Container */
-.split-workspace {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-    background-color: var(--editor-bg);
-}
-
-/* Left Panel: Markdown Input */
-.editor-panel {
-    flex: 0 0 50%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--editor-bg);
-    border-right: 1px solid var(--border-color);
-    min-height: 0;
-}
-
 textarea {
     width: 100%;
     flex: 1;
@@ -378,7 +356,7 @@ textarea {
     overflow-y: auto;
 }
 
-/* Draggable Resizer */
+/* Draggable Resizer Line */
 .divider {
     width: 8px;
     background-color: transparent;
@@ -420,24 +398,8 @@ textarea {
     min-height: 0;
 }
 
-/* Global Status Bar (Bottom) */
-.status-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 6px 24px;
-    background-color: var(--nav-bg);
-    border-top: 1px solid var(--border-color);
-    font-size: 0.75rem;
-    color: var(--text-color);
-    opacity: 0.7;
-    font-family: var(--ui-font);
-    font-weight: 500;
-    flex-shrink: 0;
-}
-
 /* --------------------------------------------------------------------------
-   6. FULLSCREEN VIEW MODES
+   6. DESKTOP VIEW MODES (Controlled via body classes)
    -------------------------------------------------------------------------- */
 body.view-editor .editor-panel {
     flex: 1 1 100% !important;
@@ -467,7 +429,7 @@ body.view-preview .divider {
 }
 
 /* --------------------------------------------------------------------------
-   7. MARKDOWN RENDER STYLES (Preview Output)
+   7. MARKDOWN RENDERING STYLES
    -------------------------------------------------------------------------- */
 #preview-output,
 #dashboard-preview-output {
@@ -520,7 +482,6 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* Code Blocks */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
@@ -539,7 +500,6 @@ body.view-preview .divider {
     overflow-x: auto;
 }
 
-/* Inline Code */
 #preview-output p code,
 #dashboard-preview-output p code,
 #preview-output li code,
@@ -550,7 +510,6 @@ body.view-preview .divider {
     color: var(--accent-color);
 }
 
-/* Blockquotes */
 #preview-output blockquote,
 #dashboard-preview-output blockquote {
     border-left: 4px solid var(--accent-color);
@@ -565,7 +524,6 @@ body.view-preview .divider {
     border: 1px solid var(--border-color);
 }
 
-/* Tables */
 #preview-output table,
 #dashboard-preview-output table {
     width: 100%;
@@ -635,13 +593,6 @@ body.view-preview .divider {
     color: var(--accent-color);
 }
 
-.flex-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Form Inputs inside Modals */
 .input-group {
     margin-bottom: 20px;
 }
@@ -678,7 +629,7 @@ body.view-preview .divider {
     gap: 12px;
 }
 
-/* Premium Cancel Button for Modals */
+/* ✨ PREMIUM CANCEL BUTTON ✨ */
 .btn-cancel {
     background-color: transparent;
     color: var(--text-color);
@@ -701,7 +652,7 @@ body.dark-mode .btn-cancel:hover {
 }
 
 /* --------------------------------------------------------------------------
-   9. NOTES DASHBOARD MODAL
+   9. NOTES DASHBOARD MODAL (Premium Grid Layout)
    -------------------------------------------------------------------------- */
 .notes-dashboard-box {
     max-width: 1000px;
@@ -714,7 +665,7 @@ body.dark-mode .btn-cancel:hover {
     position: relative;
 }
 
-/* Universal Dashboard Close Button */
+/* Universal Close Button (Top-Right) */
 .notes-dashboard-box .btn-close-dashboard {
     position: absolute;
     top: 16px;
@@ -741,7 +692,7 @@ body.dark-mode .btn-cancel:hover {
     color: var(--accent-color);
 }
 
-/* Left Pane (File Explorer) */
+/* Left Pane: Notes Directory */
 .notes-dashboard-left {
     width: 35%;
     min-width: 280px;
@@ -807,7 +758,7 @@ body.dark-mode .btn-cancel:hover {
     gap: 12px;
 }
 
-/* Right Pane (Note Preview & Actions) */
+/* Right Pane: Live Preview */
 .notes-dashboard-right {
     flex: 1;
     display: flex;
@@ -816,6 +767,7 @@ body.dark-mode .btn-cancel:hover {
     overflow: hidden;
 }
 
+/* Action Pills Toolbar */
 .dashboard-actions {
     display: flex;
     justify-content: flex-end;
@@ -826,10 +778,8 @@ body.dark-mode .btn-cancel:hover {
     background-color: var(--nav-bg);
     height: 70px;
     padding-right: 70px;
-    /* Space reserved for close button */
 }
 
-/* Custom Pill Buttons */
 .pill-btn {
     display: flex;
     align-items: center;
@@ -893,7 +843,7 @@ body.dark-mode .btn-cancel:hover {
 }
 
 /* --------------------------------------------------------------------------
-   10. MINOR SPECIFIC MODALS
+   10. MINOR SPECIFIC MODALS (Delete & Prompt)
    -------------------------------------------------------------------------- */
 .prompt-modal-box {
     max-width: 380px;
@@ -946,6 +896,12 @@ body.dark-mode .btn-cancel:hover {
     border: none;
 }
 
+.flex-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 /* --------------------------------------------------------------------------
    11. TOAST NOTIFICATIONS
    -------------------------------------------------------------------------- */
@@ -980,7 +936,7 @@ body.dark-mode .btn-cancel:hover {
 }
 
 /* --------------------------------------------------------------------------
-   12. PRINT MEDIA STYLES (For PDF Export)
+   12. PRINT MEDIA STYLES (For Native PDF Export)
    -------------------------------------------------------------------------- */
 @media print {
 

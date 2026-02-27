@@ -7,8 +7,7 @@
     <meta name="theme-color" content="#0f172a">
 
     <title>Markdown Studio | Real-Time Markdown Editor</title>
-    <meta name="description"
-        content="A premium, zero-backend real-time Markdown editor. Features native vector PDF exports, pure monochrome dark mode, and instant URL-based sharing.">
+    <meta name="description" content="A premium, zero-backend real-time Markdown editor.">
     <meta name="author" content="Arpit Pandey">
 
     <link rel="icon" type="image/svg+xml"
@@ -26,6 +25,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
 
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -61,7 +61,6 @@
                     <div class="dropdown-item" data-value="Kalam" style="font-family: 'Kalam', cursive;">Kalam</div>
                     <div class="dropdown-item" data-value="Comic Neue" style="font-family: 'Comic Neue', cursive;">Comic
                         Neue</div>
-
                     <div class="dropdown-item" data-value="Delius" style="font-family: 'Delius', cursive;">Delius</div>
                 </div>
             </div>
@@ -76,7 +75,6 @@
             <button id="btn-pdf" title="Export to PDF">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export
             </button>
-
             <button id="btn-theme" title="Toggle Dark/Light Mode"
                 style="padding: 6px; width: 34px; height: 34px; border-radius: 50%;">
                 <i id="theme-icon" style="width: 16px; height: 16px;"></i>
@@ -101,15 +99,23 @@
     </div>
 
     <main class="app-container">
-        <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
-            <i data-lucide="eye"></i>
-        </button>
 
         <div class="editor-toolbar">
             <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
             <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
             <button class="tool-btn" data-action="heading" title="Heading"><i data-lucide="heading"></i></button>
+
             <div class="toolbar-divider"></div>
+
+            <button class="tool-btn" data-action="align-left" title="Align Left"><i
+                    data-lucide="align-left"></i></button>
+            <button class="tool-btn" data-action="align-center" title="Align Center"><i
+                    data-lucide="align-center"></i></button>
+            <button class="tool-btn" data-action="align-right" title="Align Right"><i
+                    data-lucide="align-right"></i></button>
+
+            <div class="toolbar-divider"></div>
+
             <button class="tool-btn" data-action="link" title="Link"><i data-lucide="link"></i></button>
             <button class="tool-btn" data-action="image" title="Image"><i data-lucide="image"></i></button>
             <button class="tool-btn" data-action="code" title="Code Block"><i data-lucide="code"></i></button>
@@ -152,6 +158,10 @@
             <div class="panel preview-panel" id="preview-panel">
                 <div id="preview-output"></div>
             </div>
+
+            <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
+                <i data-lucide="eye"></i>
+            </button>
         </div>
 
         <div class="status-bar">
@@ -179,7 +189,7 @@
                             </h3>
                         </div>
                         <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;">
-                            Create New Note
+                            <i data-lucide="plus"></i> Create New Note
                         </button>
                     </div>
                 </div>

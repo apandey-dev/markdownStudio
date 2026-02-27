@@ -1,5 +1,12 @@
+/* ==========================================================================
+   MARKDOWN STUDIO - MOBILE RESPONSIVE STYLES
+   Description: Adjusts the layout for mobile devices (screens < 768px).
+   Implements Bottom Sheet modals and hides/shows relevant elements.
+   ========================================================================== */
+
 @media screen and (max-width: 768px) {
 
+    /* --- VISIBILITY HELPERS --- */
     .mobile-only {
         display: flex !important;
     }
@@ -8,7 +15,7 @@
         display: none !important;
     }
 
-    /* Fixed Mobile Header Logic */
+    /* --- FIXED MOBILE HEADER --- */
     .navbar {
         padding: 0 12px;
         gap: 8px;
@@ -37,7 +44,8 @@
         flex-shrink: 0;
     }
 
-    /* Core App Container lock */
+    /* --- CORE APP CONTAINER LOCK --- */
+    /* Prevents the body from scrolling, delegates scrolling to panels */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -81,7 +89,8 @@
         display: block !important;
     }
 
-    /* Floating View Toggle Button - SAFE ANCHOR */
+    /* --- FLOATING VIEW TOGGLE BUTTON --- */
+    /* Safe anchor at bottom right */
     #mobile-view-toggle {
         position: absolute;
         bottom: 16px;
@@ -105,7 +114,7 @@
         transform: scale(0.9);
     }
 
-    /* Mobile Sidebar Menu */
+    /* --- MOBILE SIDEBAR MENU --- */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -213,6 +222,7 @@
 
     /* =======================================================
        ✨ BOTTOM SHEET MODALS FOR MOBILE ✨
+       Converts standard modals into iOS-style slide-up sheets
        ======================================================= */
     .modal-overlay {
         align-items: flex-end !important;
@@ -239,6 +249,7 @@
         transform: translateY(0) !important;
     }
 
+    /* Native Handle Indicator */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -276,6 +287,7 @@
         border-radius: 14px !important;
     }
 
+    /* Stack buttons on mobile */
     .modal-actions {
         flex-direction: column-reverse !important;
         gap: 12px !important;
@@ -290,7 +302,7 @@
         border-radius: 16px !important;
     }
 
-    /* ✨ MOBILE DASHBOARD MAGIC ✨ */
+    /* --- MOBILE DASHBOARD MAGIC (Notes List -> Preview Slide) --- */
     .notes-dashboard-box {
         height: 85vh !important;
         flex-direction: column !important;
@@ -298,7 +310,6 @@
         overflow: hidden !important;
     }
 
-    /* Universal Close button on mobile - position fix */
     .notes-dashboard-box .btn-close-dashboard {
         top: 12px !important;
         right: 12px !important;
@@ -338,7 +349,7 @@
         background-color: var(--nav-bg) !important;
     }
 
-    /* Right Panel (Preview) - Hidden initially via transform */
+    /* Right Panel (Preview) - Hidden initially via horizontal transform */
     .notes-dashboard-right {
         position: absolute !important;
         top: 0;
@@ -351,7 +362,7 @@
         padding-top: 24px;
     }
 
-    /* When a note is tapped, slide right panel in */
+    /* Toggle Class: Slide the list out, slide the preview in */
     .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
         transform: translateX(-30%);
         opacity: 0;
@@ -368,7 +379,6 @@
         white-space: nowrap;
         flex-shrink: 0;
         padding-right: 50px !important;
-        /* Space for Close button */
     }
 
     .pill-btn {
