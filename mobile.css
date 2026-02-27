@@ -1,7 +1,3 @@
-/* ==========================================================================
-   MARKDOWN STUDIO - MOBILE RESPONSIVE STYLES
-   ========================================================================== */
-
 @media screen and (max-width: 768px) {
     .mobile-only {
         display: flex !important;

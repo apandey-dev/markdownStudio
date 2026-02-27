@@ -1,8 +1,3 @@
-/* ==========================================================================
-   UI CONTROLLER
-   Handles interactions, modals, themes, fonts, and workspace layout.
-   ========================================================================== */
-
 window.selectedPageSize = 'A4';
 window.toastTimeout = null;
 
@@ -22,7 +17,6 @@ window.showToast = function (message, duration = 3000) {
     window.toastTimeout = setTimeout(() => toastEl.classList.remove('show'), duration);
 };
 
-// --- MODAL CLOSURE EXPORTS ---
 window.closePdfModal = function () { document.getElementById('pdf-modal')?.classList.remove('show'); };
 window.closeDeleteModal = function () { document.getElementById('delete-modal')?.classList.remove('show'); };
 window.closeNotesModal = function () {
@@ -43,12 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeIcon) themeIcon.setAttribute('data-lucide', isCurrentlyDark ? 'sun' : 'moon');
     if (window.lucide) lucide.createIcons();
 
-    // Loader style injected
     const style = document.createElement('style');
     style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } } .spin { animation: spin 1s linear infinite; }`;
     document.head.appendChild(style);
 
-    // --- DESKTOP VIEW TOGGLE ---
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
@@ -64,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- MODAL TRIGGERS ---
     document.querySelectorAll('.modal-trigger-notes').forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('notes-modal')?.classList.add('show');
@@ -87,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
 
-    // --- MOBILE SIDEBAR ---
     const sidebarOverlay = document.getElementById('mobile-sidebar-overlay');
     document.getElementById('mobile-menu-btn')?.addEventListener('click', () => sidebarOverlay?.classList.add('show'));
     document.getElementById('close-sidebar-btn')?.addEventListener('click', () => sidebarOverlay?.classList.remove('show'));
@@ -118,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ESCAPE KEY LOGIC ---
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
@@ -136,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- DROPDOWN ---
     function setupDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -189,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupDropdown('size-dropdown', 'size-selected-text', (val) => { window.selectedPageSize = val; });
 
-    // --- SPLIT PANE DRAG ---
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
     const container = document.getElementById('split-workspace');
@@ -209,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- THEME ---
     const themeBtn = document.getElementById('btn-theme');
     const applyTheme = (isDark) => {
         if (isDark) {
