@@ -1,12 +1,10 @@
 /* ==========================================================================
    MARKDOWN STUDIO - MOBILE RESPONSIVE STYLES
    Description: Adjusts the layout for mobile devices (screens < 768px).
-   Implements Bottom Sheet modals and hides/shows relevant elements.
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
 
-    /* --- VISIBILITY HELPERS --- */
     .mobile-only {
         display: flex !important;
     }
@@ -15,8 +13,7 @@
         display: none !important;
     }
 
-    /* --- FIXED MOBILE HEADER --- */
-    /* Prevents overflow and text cutoff on very small screens like iPhone SE */
+    /* Fixed Mobile Header Logic */
     .navbar {
         padding: 0 12px;
         gap: 8px;
@@ -45,8 +42,7 @@
         flex-shrink: 0;
     }
 
-    /* --- CORE APP CONTAINER LOCK --- */
-    /* Prevents the body from scrolling, delegates scrolling exclusively to panels */
+    /* Core App Container lock */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -90,8 +86,7 @@
         display: block !important;
     }
 
-    /* --- FLOATING VIEW TOGGLE BUTTON --- */
-    /* Safely anchored at bottom right of the split workspace */
+    /* Floating View Toggle Button */
     #mobile-view-toggle {
         position: absolute;
         bottom: 16px;
@@ -115,7 +110,7 @@
         transform: scale(0.9);
     }
 
-    /* --- MOBILE SIDEBAR MENU (Overlay) --- */
+    /* Mobile Sidebar Menu */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -211,7 +206,6 @@
         color: var(--accent-color);
     }
 
-    /* Adjust editor textarea for mobile */
     textarea {
         padding: 16px;
         font-size: 14px;
@@ -224,7 +218,6 @@
 
     /* =======================================================
        ✨ BOTTOM SHEET MODALS FOR MOBILE ✨
-       Converts standard centered modals into iOS-style slide-up sheets
        ======================================================= */
     .modal-overlay {
         align-items: flex-end !important;
@@ -251,7 +244,6 @@
         transform: translateY(0) !important;
     }
 
-    /* Native Handle Indicator on top of Bottom Sheets */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -282,7 +274,6 @@
         font-size: 1rem !important;
     }
 
-    /* Ensure Premium Dropdown adapts to mobile modal */
     .modal-input,
     .dropdown-header {
         padding: 16px !important;
@@ -290,7 +281,6 @@
         border-radius: 14px !important;
     }
 
-    /* Stack buttons vertically on mobile for easier thumb access */
     .modal-actions {
         flex-direction: column-reverse !important;
         gap: 12px !important;
@@ -305,7 +295,7 @@
         border-radius: 16px !important;
     }
 
-    /* --- MOBILE DASHBOARD MAGIC (Notes List -> Preview Slide) --- */
+    /* Specific Bottom Sheet Adjustments */
     .notes-dashboard-box {
         height: 85vh !important;
         flex-direction: column !important;
@@ -313,7 +303,6 @@
         overflow: hidden !important;
     }
 
-    /* Fix Universal Close button positioning on mobile */
     .notes-dashboard-box .btn-close-dashboard {
         top: 12px !important;
         right: 12px !important;
@@ -322,7 +311,6 @@
         background-color: var(--bg-color) !important;
     }
 
-    /* Left Panel (List) */
     .notes-dashboard-left {
         width: 100% !important;
         height: 100%;
@@ -353,7 +341,6 @@
         background-color: var(--nav-bg) !important;
     }
 
-    /* Right Panel (Preview) - Hidden initially via horizontal transform */
     .notes-dashboard-right {
         position: absolute !important;
         top: 0;
@@ -366,7 +353,6 @@
         padding-top: 24px;
     }
 
-    /* Toggle Class: Slide the list out, slide the preview in */
     .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
         transform: translateX(-30%);
         opacity: 0;
@@ -376,7 +362,6 @@
         transform: translateX(0);
     }
 
-    /* Horizontally scrollable pill buttons inside mobile preview pane */
     .dashboard-actions {
         padding: 12px 20px !important;
         gap: 8px !important;
@@ -395,7 +380,6 @@
         padding: 24px 20px !important;
     }
 
-    /* Fix minor modal alignments */
     .delete-modal-box {
         text-align: left !important;
         padding-top: 40px !important;
@@ -407,5 +391,11 @@
 
     .delete-title {
         font-size: 1.6rem !important;
+    }
+
+    .pat-guide-box {
+        height: auto !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
     }
 }

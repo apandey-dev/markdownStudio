@@ -1,26 +1,136 @@
 /* ==========================================================================
-   EDITOR CONTROLLER
-   Handles local storage notes, markdown parsing, scroll sync, and shortcuts.
+   EDITOR CONTROLLER (Dual Mode: Local vs GitHub)
+   Handles storage modes, parsing, scrolling, shortcuts, and custom syntax.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM ELEMENTS
     const editor = document.getElementById('markdown-input');
     const previewPanel = document.getElementById('preview-panel');
     const preview = document.getElementById('preview-output');
     const shareBtn = document.getElementById('btn-share');
     const btnConfirmPdf = document.getElementById('modal-confirm');
     const inputFilename = document.getElementById('pdf-filename');
-
+    
+    // State Variables
     let notes = [];
     let activeNoteId = null;
     let noteToDeleteId = null;
-    let highlightedNoteId = null; // Used for Dashboard Preview
+    let highlightedNoteId = null; 
+    let appMode = localStorage.getItem('md_app_mode'); // 'local' or 'github'
 
-    // Initial Welcome Note with Shortcut Guide
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Custom Colors:** Format text quickly! Use syntax \`[Text]{red}\` to add color.\n* **↔️ Text Alignment Shortcuts:** Type \`/center\`, \`/right\`, \`/left\`, or \`/justify\` before any text!\n\n/center **This heading is perfectly centered!**\n\n/right *You can also align blocks using /right followed by text...*\n\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** to create a new one!`;
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\` to add color.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\` before any text!\n* **➖ Spaced Divider:** Type \`===\` on a new line for a wide-spaced horizontal rule.\n\n/center **This heading is perfectly centered!**\n\n===\n\n> Click **📂 Notes** to create a new one!`;
 
-    // --- LOCAL STORAGE MANAGEMENT ---
-    function loadNotes() {
+    // --- 1. SETUP MODAL & MODE INITIALIZATION ---
+    function updateSyncStatusUI() {
+        const syncStatus = document.getElementById('sync-status');
+        if(!syncStatus) return;
+
+        syncStatus.style.display = 'inline-flex';
+        if(appMode === 'github') {
+            syncStatus.innerHTML = `<i data-lucide="cloud" style="width: 14px; height: 14px;"></i> GitHub Cloud`;
+            syncStatus.className = 'sync-status-btn mode-github';
+        } else {
+            syncStatus.innerHTML = `<i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local Mode`;
+            syncStatus.className = 'sync-status-btn mode-local';
+        }
+        if(window.lucide) lucide.createIcons();
+    }
+
+    // Allows user to click Status bar to change modes later!
+    document.getElementById('sync-status')?.addEventListener('click', () => {
+        document.getElementById('setup-modal').classList.add('show');
+    });
+
+    function initAppMode() {
+        const setupModal = document.getElementById('setup-modal');
+        
+        if (!appMode) {
+            setupModal.classList.add('show'); // First time ever
+        } else if (appMode === 'github') {
+            const savedToken = localStorage.getItem('md_github_token');
+            if(savedToken && window.GitHubBackend) {
+                updateSyncStatusUI();
+                initGitHubMode(savedToken);
+            } else {
+                appMode = 'local';
+                loadLocalNotes();
+            }
+        } else {
+            appMode = 'local';
+            loadLocalNotes();
+        }
+    }
+
+    // Setup Modal Buttons
+    document.getElementById('btn-opt-local')?.addEventListener('click', (e) => {
+        e.currentTarget.classList.add('active');
+        document.getElementById('btn-opt-github').classList.remove('active');
+        document.getElementById('github-token-section').style.display = 'none';
+    });
+
+    document.getElementById('btn-opt-github')?.addEventListener('click', (e) => {
+        e.currentTarget.classList.add('active');
+        document.getElementById('btn-opt-local').classList.remove('active');
+        document.getElementById('github-token-section').style.display = 'block';
+    });
+
+    document.getElementById('btn-start-app')?.addEventListener('click', async () => {
+        const isGithubSelected = document.getElementById('btn-opt-github').classList.contains('active');
+        const setupModal = document.getElementById('setup-modal');
+        const btn = document.getElementById('btn-start-app');
+        
+        if (isGithubSelected) {
+            const token = document.getElementById('github-token-input').value.trim();
+            if (!token && !localStorage.getItem('md_github_token')) {
+                window.showToast("Please enter a valid GitHub token.");
+                return;
+            }
+            
+            const activeToken = token || localStorage.getItem('md_github_token');
+
+            btn.innerHTML = "Connecting to GitHub...";
+            btn.disabled = true;
+
+            const success = await GitHubBackend.init(activeToken);
+            
+            if(success) {
+                appMode = 'github';
+                localStorage.setItem('md_app_mode', 'github');
+                setupModal.classList.remove('show');
+                window.showToast("<i data-lucide='check'></i> Connected to GitHub!");
+                
+                updateSyncStatusUI();
+                
+                const cloudNotes = await GitHubBackend.getAllNotes();
+                if(cloudNotes.length > 0) {
+                    notes = cloudNotes;
+                    activeNoteId = notes[0].id;
+                } else {
+                    const newId = await GitHubBackend.saveNote('new', "Welcome", defaultWelcomeNote);
+                    notes = [{ id: newId || 'temp', title: "Welcome", content: defaultWelcomeNote }];
+                    activeNoteId = notes[0].id;
+                }
+                finishAppLoad();
+            } else {
+                window.showToast("Invalid Token. Check scope and try again.");
+            }
+            // Reset button state
+            btn.innerHTML = "Start Writing";
+            btn.disabled = false;
+
+        } else {
+            // Local Mode Selected
+            appMode = 'local';
+            localStorage.setItem('md_app_mode', 'local');
+            setupModal.classList.remove('show');
+            updateSyncStatusUI();
+            loadLocalNotes();
+        }
+    });
+
+    // --- 2. LOCAL STORAGE LOGIC ---
+    function loadLocalNotes() {
         const saved = localStorage.getItem('md_studio_notes_modal_v4');
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -31,91 +141,126 @@ document.addEventListener('DOMContentLoaded', () => {
             notes = [{ id: id, title: "Welcome to Markdown Studio", content: defaultWelcomeNote }];
             activeNoteId = id;
         }
+        updateSyncStatusUI();
+        finishAppLoad();
     }
 
-    function saveNotes() {
-        localStorage.setItem('md_studio_notes_modal_v4', JSON.stringify({ notes, activeNoteId }));
+    // --- 3. GITHUB MODE LOGIC ---
+    async function initGitHubMode(token) {
+        window.showToast("<i data-lucide='loader'></i> Syncing from GitHub...");
+        const success = await GitHubBackend.init(token);
+        if (success) {
+            const cloudNotes = await GitHubBackend.getAllNotes();
+            if(cloudNotes.length > 0) {
+                notes = cloudNotes;
+                activeNoteId = notes[0].id;
+            } else {
+                notes = [{ id: 'temp', title: "Welcome", content: defaultWelcomeNote }];
+                activeNoteId = 'temp';
+            }
+            window.showToast("<i data-lucide='check-circle'></i> Sync Complete");
+            finishAppLoad();
+        } else {
+            window.showToast("GitHub Sync failed. Reverting to local.");
+            appMode = 'local';
+            localStorage.setItem('md_app_mode', 'local');
+            updateSyncStatusUI();
+            loadLocalNotes();
+        }
     }
 
-    function getActiveNote() {
-        return notes.find(n => n.id === activeNoteId);
+    async function saveCurrentNote() {
+        if(appMode === 'local') {
+            localStorage.setItem('md_studio_notes_modal_v4', JSON.stringify({ notes, activeNoteId }));
+        } else if (appMode === 'github') {
+            // Background array updated immediately for speed:
+            localStorage.setItem('md_studio_notes_backup', JSON.stringify({ notes, activeNoteId }));
+        }
     }
 
-    window.getActiveNoteTitle = function () {
-        const note = getActiveNote();
-        return note ? note.title : "Document";
-    };
+    function getActiveNote() { return notes.find(n => n.id === activeNoteId); }
+    window.getActiveNoteTitle = function () { const note = getActiveNote(); return note ? note.title : "Document"; };
 
     function extractTitle(content) {
         const match = content.match(/^#+\s+(.*)/m);
         if (match && match[1]) {
-            let text = match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1');
-            return text.substring(0, 30) + (text.length > 30 ? '...' : '');
+            return match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').substring(0, 30) + '...';
         }
         return "Untitled Note";
     }
 
-    // --- DASHBOARD: LIST RENDER & PREVIEW LOGIC ---
+    function finishAppLoad() {
+        highlightedNoteId = activeNoteId;
+        editor.value = getActiveNote()?.content || "";
+        renderMarkdown();
+        if (typeof window.renderNotesList === 'function') window.renderNotesList();
+        if(window.lucide) lucide.createIcons();
+    }
+
+    // --- DASHBOARD RENDERING ---
     window.renderNotesList = function () {
         const container = document.getElementById('notes-list-container');
+        if(!container) return;
         container.innerHTML = '';
-        
         if(!highlightedNoteId) highlightedNoteId = activeNoteId;
 
         notes.forEach(note => {
             const div = document.createElement('div');
             div.className = `note-item ${note.id === highlightedNoteId ? 'active' : ''}`;
-            div.innerHTML = `
-                <div class="note-title"><i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> ${note.title}</div>
-            `;
+            div.innerHTML = `<div class="note-title"><i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> ${note.title}</div>`;
 
-            // Single click highlights and previews the note
             div.addEventListener('click', () => {
                 highlightedNoteId = note.id;
-                window.renderNotesList(); // Re-render to show active border
+                window.renderNotesList(); 
                 window.renderDashboardPreview();
-                
-                // If on mobile, slide the preview pane in
                 if (window.innerWidth <= 768) {
                     document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
                 }
             });
 
-            // Double click immediately loads note into editor (Desktop speed feature)
-            div.addEventListener('dblclick', () => {
-                document.getElementById('dash-btn-edit').click();
-            });
-
+            div.addEventListener('dblclick', () => { document.getElementById('dash-btn-edit')?.click(); });
             container.appendChild(div);
         });
-        lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
         window.renderDashboardPreview();
     };
 
-    // Dashboard Live Preview Parser
+    // --- SHARED PARSER UTILITY ---
+    function customMarkdownParser(rawText) {
+        let processedText = rawText;
+        
+        // 1. Double Dashed Line (===) mapped to custom HTML divider
+        processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
+        
+        // 2. Multi-line alignment blocks
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        
+        // 3. Single-line alignment shortcut
+        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+        
+        // 4. Custom Color syntax
+        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+        
+        // Pass to Marked, allowing custom class names to survive Purify
+        const htmlContent = marked.parse(processedText);
+        return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
+    }
+
     window.renderDashboardPreview = function() {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId) || notes[0];
         if(!note || !previewEl) return;
         
-        let processedText = note.content;
-        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-        
-        const htmlContent = marked.parse(processedText);
-        const cleanHtml = DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style'] });
-        
-        previewEl.innerHTML = cleanHtml;
+        previewEl.innerHTML = customMarkdownParser(note.content);
         renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
     };
 
-    // --- DASHBOARD ACTIONS (Pill Buttons) ---
+    // --- DASHBOARD ACTIONS ---
     document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
         activeNoteId = highlightedNoteId;
         editor.value = getActiveNote().content;
-        saveNotes();
+        saveCurrentNote();
         renderMarkdown();
         if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
@@ -128,22 +273,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('dash-btn-export')?.addEventListener('click', () => {
         activeNoteId = highlightedNoteId;
         editor.value = getActiveNote().content;
-        saveNotes();
+        saveCurrentNote();
         renderMarkdown();
-        
         if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
-        setTimeout(() => {
-            document.getElementById('btn-pdf').click();
-        }, 300);
+        setTimeout(() => { document.getElementById('btn-pdf').click(); }, 300);
     });
 
-    // Mobile Back Button
     document.getElementById('dash-btn-back')?.addEventListener('click', () => {
         document.querySelector('.notes-dashboard-box')?.classList.remove('show-preview-pane');
     });
 
     // --- DELETE CONFIRM LOGIC ---
-    document.getElementById('delete-confirm')?.addEventListener('click', () => {
+    document.getElementById('delete-confirm')?.addEventListener('click', async () => {
         if (!noteToDeleteId) return;
 
         if (notes.length === 1) {
@@ -152,9 +293,9 @@ document.addEventListener('DOMContentLoaded', () => {
             editor.value = notes[0].content;
         } else {
             const idx = notes.findIndex(n => n.id === noteToDeleteId);
+            const noteToDelete = notes[idx];
             notes.splice(idx, 1);
             
-            // Fix states if active or highlighted note is deleted
             if (activeNoteId === noteToDeleteId) {
                 activeNoteId = notes[Math.max(0, idx - 1)].id;
                 editor.value = getActiveNote().content;
@@ -162,9 +303,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (highlightedNoteId === noteToDeleteId) {
                 highlightedNoteId = activeNoteId;
             }
+
+            if(appMode === 'github' && noteToDelete.path) {
+                window.showToast("<i data-lucide='loader'></i> Deleting from Cloud...");
+                await GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
+            }
         }
 
-        saveNotes();
+        saveCurrentNote();
         renderMarkdown();
         window.renderNotesList();
 
@@ -173,101 +319,74 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast("<i data-lucide='trash-2'></i> Note deleted");
     });
 
-    // --- CUSTOM PROMPT MODAL LOGIC FOR NEW NOTE ---
+    // --- NEW NOTE LOGIC ---
     const btnNewNote = document.getElementById('btn-new-note');
     const promptModal = document.getElementById('prompt-modal');
     const promptInput = document.getElementById('prompt-input');
-    const btnPromptConfirm = document.getElementById('prompt-confirm');
-    const btnPromptCancel = document.getElementById('prompt-cancel');
-
+    
     btnNewNote?.addEventListener('click', () => {
-        promptInput.value = ''; // Cleaned prompt input initially
+        promptInput.value = ''; 
         promptModal.classList.add('show');
-        setTimeout(() => {
-            promptInput.focus();
-        }, 100);
+        setTimeout(() => { promptInput.focus(); }, 100);
     });
 
-    const createNoteFromPrompt = () => {
-        let noteName = promptInput.value.trim();
-        if (noteName === "") noteName = "Untitled Note";
-
+    const createNoteFromPrompt = async () => {
+        let noteName = promptInput.value.trim() || "Untitled Note";
         const newId = Date.now().toString();
-        // Add note to array
-        notes.unshift({ id: newId, title: noteName, content: `# ${noteName}\n\nStart typing here...` });
-
-        // Change Active IDs to the new Note
+        const content = `# ${noteName}\n\nStart typing here...`;
+        
+        notes.unshift({ id: newId, title: noteName, content: content });
         activeNoteId = newId;
         highlightedNoteId = newId;
-        editor.value = getActiveNote().content;
+        editor.value = content;
 
-        saveNotes();
+        if(appMode === 'github') {
+            window.showToast("<i data-lucide='loader'></i> Saving to Cloud...");
+            const sha = await GitHubBackend.saveNote('new', noteName, content);
+            if(sha) notes[0].id = sha; 
+        }
+
+        saveCurrentNote();
         renderMarkdown();
         window.renderNotesList();
         
-        // Hide the prompt modal, BUT KEEP THE DASHBOARD MODAL OPEN!
         promptModal.classList.remove('show');
-        
-        // Smoothly transition to the preview of the newly created note on Mobile
-        if (window.innerWidth <= 768) {
-            document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
-        }
-
+        if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
         window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
     };
 
-    btnPromptConfirm?.addEventListener('click', createNoteFromPrompt);
-    promptInput?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') createNoteFromPrompt();
-    });
-    btnPromptCancel?.addEventListener('click', () => {
-        promptModal.classList.remove('show');
-    });
+    document.getElementById('prompt-confirm')?.addEventListener('click', createNoteFromPrompt);
+    promptInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') createNoteFromPrompt(); });
+    document.getElementById('prompt-cancel')?.addEventListener('click', () => { promptModal.classList.remove('show'); });
 
-    // --- STATS LOGIC ---
+    // --- PARSER AND STATS ---
     function updateLiveStats(text) {
         const chars = text.length;
         const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-        const readingTime = Math.max(1, Math.ceil(words / 200));
-
         document.getElementById('stat-words').textContent = `${words} Words`;
         document.getElementById('stat-chars').textContent = `${chars} Characters`;
-        document.getElementById('stat-reading-time').textContent = `${readingTime} min read`;
+        document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
     }
 
     marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
     function debounce(func, wait) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
-    // --- MAIN MARKDOWN PARSER (With Alignment & Colors) ---
     const renderMarkdown = debounce(() => {
         const rawText = editor.value;
-
         const activeNote = getActiveNote();
+        
         if (activeNote) {
             activeNote.content = rawText;
             activeNote.title = extractTitle(rawText);
-            saveNotes();
+            saveCurrentNote();
         }
 
         updateLiveStats(rawText);
-
-        let processedText = rawText;
-
-        // 1. Multi-line alignment blocks
-        processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        // 2. Single-line alignment shortcut
-        processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        // 3. Custom Color syntax
-        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-
-        const htmlContent = marked.parse(processedText);
-        const cleanHtml = DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style'] });
-
-        preview.innerHTML = cleanHtml;
+        preview.innerHTML = customMarkdownParser(rawText);
+        
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
         
-        // Auto update dashboard preview if the active note is currently highlighted there
         if(highlightedNoteId === activeNoteId && document.getElementById('notes-modal')?.classList.contains('show')) {
             window.renderDashboardPreview();
         }
@@ -306,7 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editor.addEventListener('scroll', () => {
         if (!isScrollSync || isSyncingLeft) return; 
-        
         const editorScrollable = editor.scrollHeight - editor.clientHeight;
         const previewScrollable = previewPanel.scrollHeight - previewPanel.clientHeight;
 
@@ -322,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     previewPanel.addEventListener('scroll', () => {
         if (!isScrollSync || isSyncingRight) return; 
-        
         const editorScrollable = editor.scrollHeight - editor.clientHeight;
         const previewScrollable = previewPanel.scrollHeight - previewPanel.clientHeight;
 
@@ -336,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- TOOLBAR SHORTCUT ACTIONS ---
+    // Toolbar Shortcuts Mapping
     document.querySelectorAll('.tool-btn[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
@@ -446,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeNoteId = newId;
             highlightedNoteId = newId;
             editor.value = content;
-            saveNotes();
+            saveCurrentNote();
             renderMarkdown();
             if (typeof window.renderNotesList === 'function') window.renderNotesList();
             window.showToast("<i data-lucide='file-up'></i> Document imported!");
@@ -455,10 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
         importFile.value = '';
     });
 
-    // INITIAL LOAD
-    loadNotes();
-    highlightedNoteId = activeNoteId;
-
+    // Check for shared URL Hash
     if (window.location.hash && window.location.hash.length > 1) {
         try {
             const encodedData = window.location.hash.substring(1);
@@ -471,9 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
             history.replaceState(null, null, ' ');
         } catch (e) { console.error("Invalid share link", e); }
     }
-
-    editor.value = getActiveNote().content;
-    renderMarkdown();
 
     inputFilename?.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 
@@ -519,4 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
+
+    // TRIGGER APP INITIALIZATION ON LOAD
+    initAppMode();
 });

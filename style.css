@@ -3,11 +3,7 @@
    Description: Main UI styling for the editor, toolbar, modals, and themes.
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1. CSS VARIABLES (THEMING)
-   -------------------------------------------------------------------------- */
 :root {
-    /* Light Mode Palette */
     --bg-color: #f3f4f6;
     --nav-bg: #ffffff;
     --text-color: #1f2937;
@@ -21,14 +17,12 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
-    /* Typography */
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fira Code', monospace;
 }
 
 body.dark-mode {
-    /* Dark Mode Palette */
     --bg-color: #000000;
     --nav-bg: #0a0a0a;
     --text-color: #e5e5e5;
@@ -43,23 +37,17 @@ body.dark-mode {
     --hover-bg: #1a1a1a;
 }
 
-/* --------------------------------------------------------------------------
-   2. GLOBAL RESETS & BASE STYLES
-   -------------------------------------------------------------------------- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     scrollbar-width: none;
-    /* Hide scrollbar for Firefox */
 }
 
 *::-webkit-scrollbar {
     display: none;
-    /* Hide scrollbar for Chrome/Safari */
 }
 
-/* Strict full-height container to prevent body scrolling */
 body {
     font-family: var(--ui-font);
     background-color: var(--bg-color);
@@ -71,7 +59,6 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Utility Classes */
 .mobile-only {
     display: none !important;
 }
@@ -81,9 +68,7 @@ body {
     display: none;
 }
 
-/* --------------------------------------------------------------------------
-   3. HEADER / NAVBAR
-   -------------------------------------------------------------------------- */
+/* NAVBAR */
 .navbar {
     height: 52px;
     background-color: var(--nav-bg);
@@ -96,7 +81,6 @@ body {
     z-index: 100;
     transition: background-color 0.3s, border-color 0.3s;
     flex-shrink: 0;
-    /* Prevents navbar from shrinking on resize */
 }
 
 .brand {
@@ -112,7 +96,123 @@ body {
     gap: 10px;
 }
 
-/* Generic Header Buttons */
+/* DROPDOWN */
+.custom-dropdown {
+    position: relative;
+    font-family: var(--ui-font);
+    font-size: 0.9rem;
+    font-weight: 500;
+    user-select: none;
+    width: 100%;
+}
+
+.dropdown-header {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background-color: var(--input-bg, transparent);
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-header:hover {
+    border-color: var(--text-color);
+    background-color: var(--hover-bg);
+}
+
+.custom-dropdown.open .dropdown-header {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--shadow-color);
+    background-color: transparent;
+}
+
+.chevron {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    opacity: 0.6;
+}
+
+.custom-dropdown.open .chevron {
+    transform: rotate(180deg);
+    opacity: 1;
+    color: var(--accent-color);
+}
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background-color: var(--nav-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px var(--shadow-color);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.98);
+    transform-origin: top center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    padding: 6px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.custom-dropdown.open .dropdown-list {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-bg);
+    transform: translateX(4px);
+    color: var(--accent-color);
+}
+
+.dropdown-item.active {
+    font-weight: 600;
+    color: var(--accent-color);
+    background-color: var(--shadow-color);
+}
+
+.dropdown-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 3px;
+    background-color: var(--accent-color);
+    border-radius: 0 4px 4px 0;
+}
+
+/* BUTTONS */
 .actions button,
 .modal-btn {
     display: flex;
@@ -149,141 +249,7 @@ body {
     border-color: var(--text-color);
 }
 
-/* --------------------------------------------------------------------------
-   4. PREMIUM CUSTOM DROPDOWN (Fonts & Export Settings)
-   Strictly scoped to not break any other elements.
-   -------------------------------------------------------------------------- */
-.custom-dropdown {
-    position: relative;
-    font-family: var(--ui-font);
-    font-size: 0.95rem;
-    font-weight: 500;
-    user-select: none;
-    width: 100%;
-}
-
-/* Dropdown Header (The Input Box) */
-.dropdown-header {
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 1.5px solid var(--border-color);
-    background-color: var(--input-bg, transparent);
-    color: var(--text-color);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dropdown-header:hover {
-    border-color: var(--text-color);
-    background-color: var(--hover-bg);
-}
-
-/* Header state when dropdown is Open */
-.custom-dropdown.open .dropdown-header {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px var(--shadow-color);
-    background-color: transparent;
-}
-
-/* Chevron Arrow Animation */
-.chevron {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    opacity: 0.6;
-}
-
-.custom-dropdown.open .chevron {
-    transform: rotate(180deg);
-    opacity: 1;
-    color: var(--accent-color);
-}
-
-/* Dropdown List Container (Glassmorphism + Shadow) */
-.dropdown-list {
-    position: absolute;
-    top: calc(100% + 8px);
-    /* 8px gap below header */
-    left: 0;
-    right: 0;
-    background-color: var(--dropdown-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    box-shadow: 0 12px 30px var(--shadow-color);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px) scale(0.98);
-    transform-origin: top center;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2000;
-    /* High z-index to float over everything */
-    padding: 6px;
-    /* Inner padding for floating items */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.custom-dropdown.open .dropdown-list {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scale(1);
-}
-
-/* Individual Dropdown Items */
-.dropdown-item {
-    padding: 12px 16px;
-    border-radius: 8px;
-    /* Inner rounding */
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 2px;
-    position: relative;
-    overflow: hidden;
-}
-
-.dropdown-item:last-child {
-    margin-bottom: 0;
-}
-
-/* Hover State - Smooth Slide */
-.dropdown-item:hover {
-    background-color: var(--hover-bg);
-    transform: translateX(4px);
-    /* Slight right shift on hover */
-    color: var(--accent-color);
-}
-
-/* Active / Selected State */
-.dropdown-item.active {
-    font-weight: 600;
-    color: var(--accent-color);
-    background-color: var(--shadow-color);
-}
-
-/* Left Indicator Line for Active Item */
-.dropdown-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 15%;
-    bottom: 15%;
-    width: 3px;
-    background-color: var(--accent-color);
-    border-radius: 0 4px 4px 0;
-}
-
-/* --------------------------------------------------------------------------
-   5. MAIN WORKSPACE LAYOUT
-   -------------------------------------------------------------------------- */
+/* MAIN WORKSPACE */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -294,7 +260,6 @@ body {
     width: 100vw;
 }
 
-/* Global Editor Toolbar */
 .editor-toolbar {
     display: flex;
     align-items: center;
@@ -305,6 +270,40 @@ body {
     overflow-x: auto;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 24px;
+    background-color: var(--nav-bg);
+    border-top: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-family: var(--ui-font);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.split-workspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    background-color: var(--editor-bg);
+}
+
+.editor-panel {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--editor-bg);
+    border-right: 1px solid var(--border-color);
+    min-height: 0;
 }
 
 .tool-btn {
@@ -350,27 +349,6 @@ body {
     min-width: 16px;
 }
 
-/* Split Pane Container */
-.split-workspace {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-    background-color: var(--editor-bg);
-}
-
-/* Left Panel: Markdown Input */
-.editor-panel {
-    flex: 0 0 50%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--editor-bg);
-    border-right: 1px solid var(--border-color);
-    min-height: 0;
-}
-
 textarea {
     width: 100%;
     flex: 1;
@@ -386,7 +364,6 @@ textarea {
     overflow-y: auto;
 }
 
-/* Draggable Resizer */
 .divider {
     width: 8px;
     background-color: transparent;
@@ -415,7 +392,6 @@ textarea {
     left: 2px;
 }
 
-/* Right Panel: HTML Output */
 .preview-panel {
     flex: 1;
     display: flex;
@@ -428,25 +404,7 @@ textarea {
     min-height: 0;
 }
 
-/* Global Status Bar (Bottom) */
-.status-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 6px 24px;
-    background-color: var(--nav-bg);
-    border-top: 1px solid var(--border-color);
-    font-size: 0.75rem;
-    color: var(--text-color);
-    opacity: 0.7;
-    font-family: var(--ui-font);
-    font-weight: 500;
-    flex-shrink: 0;
-}
-
-/* --------------------------------------------------------------------------
-   6. FULLSCREEN VIEW MODES
-   -------------------------------------------------------------------------- */
+/* VIEW MODES */
 body.view-editor .editor-panel {
     flex: 1 1 100% !important;
     max-width: 100%;
@@ -474,9 +432,7 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* --------------------------------------------------------------------------
-   7. MARKDOWN RENDER STYLES (Preview Output)
-   -------------------------------------------------------------------------- */
+/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -528,7 +484,6 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* Code Blocks */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
@@ -547,7 +502,6 @@ body.view-preview .divider {
     overflow-x: auto;
 }
 
-/* Inline Code */
 #preview-output p code,
 #dashboard-preview-output p code,
 #preview-output li code,
@@ -558,7 +512,6 @@ body.view-preview .divider {
     color: var(--accent-color);
 }
 
-/* Blockquotes */
 #preview-output blockquote,
 #dashboard-preview-output blockquote {
     border-left: 4px solid var(--accent-color);
@@ -573,7 +526,6 @@ body.view-preview .divider {
     border: 1px solid var(--border-color);
 }
 
-/* Tables */
 #preview-output table,
 #dashboard-preview-output table {
     width: 100%;
@@ -595,9 +547,7 @@ body.view-preview .divider {
     background-color: var(--hover-bg);
 }
 
-/* --------------------------------------------------------------------------
-   8. CORE MODALS (Overlays & Dialog Boxes)
-   -------------------------------------------------------------------------- */
+/* MODALS CORE */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -649,7 +599,6 @@ body.view-preview .divider {
     gap: 8px;
 }
 
-/* Form Inputs inside Modals */
 .input-group {
     margin-bottom: 20px;
 }
@@ -686,7 +635,6 @@ body.view-preview .divider {
     gap: 12px;
 }
 
-/* Premium Cancel Button for Modals */
 .btn-cancel {
     background-color: transparent;
     color: var(--text-color);
@@ -708,9 +656,145 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* --------------------------------------------------------------------------
-   9. NOTES DASHBOARD MODAL (Premium Grid Layout)
-   -------------------------------------------------------------------------- */
+/* ✨ SETUP / LOGIN MODAL ✨ */
+.setup-modal-box {
+    max-width: 460px;
+    padding: 40px 32px;
+}
+
+.setup-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.setup-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background-color: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-color);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    font-family: var(--ui-font);
+}
+
+.setup-btn i {
+    width: 24px;
+    height: 24px;
+    color: var(--accent-color);
+    opacity: 0.7;
+}
+
+.setup-btn .opt-text strong {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 2px;
+}
+
+.setup-btn .opt-text span {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    font-weight: 500;
+}
+
+.setup-btn:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--text-color);
+}
+
+.setup-btn.active {
+    border-color: var(--accent-color);
+    background-color: var(--shadow-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
+}
+
+.setup-btn.active i {
+    opacity: 1;
+}
+
+/* ✨ CUTE HELP BUTTON ✨ */
+.btn-help-cute {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: var(--ui-font);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+}
+
+.btn-help-cute:hover {
+    transform: translateY(-2px);
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+body.dark-mode .btn-help-cute {
+    background-color: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+}
+
+body.dark-mode .btn-help-cute:hover {
+    background-color: rgba(96, 165, 250, 0.25);
+}
+
+/* ✨ GUIDE MODAL STEPS ✨ */
+.pat-guide-box {
+    max-width: 450px;
+}
+
+.guide-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    text-align: left;
+}
+
+.guide-steps li {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 12px;
+    line-height: 1.5;
+    display: flex;
+    gap: 12px;
+}
+
+.guide-steps li .step-num {
+    background: #3b82f6;
+    color: #ffffff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.guide-steps li code {
+    background: var(--border-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: var(--accent-color);
+}
+
+/* NOTES DASHBOARD */
 .notes-dashboard-box {
     max-width: 1000px;
     height: 85vh;
@@ -722,7 +806,6 @@ body.dark-mode .btn-cancel:hover {
     position: relative;
 }
 
-/* Universal Dashboard Close Button */
 .notes-dashboard-box .btn-close-dashboard {
     position: absolute;
     top: 16px;
@@ -749,7 +832,6 @@ body.dark-mode .btn-cancel:hover {
     color: var(--accent-color);
 }
 
-/* Left Pane: Notes Directory */
 .notes-dashboard-left {
     width: 35%;
     min-width: 280px;
@@ -815,7 +897,6 @@ body.dark-mode .btn-cancel:hover {
     gap: 12px;
 }
 
-/* Right Pane: Live Preview */
 .notes-dashboard-right {
     flex: 1;
     display: flex;
@@ -824,7 +905,6 @@ body.dark-mode .btn-cancel:hover {
     overflow: hidden;
 }
 
-/* Action Pills Toolbar */
 .dashboard-actions {
     display: flex;
     justify-content: flex-end;
@@ -835,10 +915,8 @@ body.dark-mode .btn-cancel:hover {
     background-color: var(--nav-bg);
     height: 70px;
     padding-right: 70px;
-    /* Space reserved for close button */
 }
 
-/* Custom Pill Buttons */
 .pill-btn {
     display: flex;
     align-items: center;
@@ -901,13 +979,7 @@ body.dark-mode .btn-cancel:hover {
     font-size: 1.05rem;
 }
 
-/* --------------------------------------------------------------------------
-   10. MINOR SPECIFIC MODALS (Delete & Prompt)
-   -------------------------------------------------------------------------- */
-.prompt-modal-box {
-    max-width: 380px;
-}
-
+/* MINOR MODALS */
 .delete-modal-box {
     max-width: 360px;
     text-align: center;
@@ -955,9 +1027,7 @@ body.dark-mode .btn-cancel:hover {
     border: none;
 }
 
-/* --------------------------------------------------------------------------
-   11. TOAST NOTIFICATIONS
-   -------------------------------------------------------------------------- */
+/* TOAST */
 #toast {
     visibility: hidden;
     min-width: 200px;
@@ -988,9 +1058,58 @@ body.dark-mode .btn-cancel:hover {
     transform: translateY(0);
 }
 
-/* --------------------------------------------------------------------------
-   12. PRINT MEDIA STYLES (For Native PDF Export)
-   -------------------------------------------------------------------------- */
+/* ==========================================
+   ✨ PREMIUM DOUBLE DASHED DIVIDER ✨
+   (Rendered when typing === )
+   ========================================== */
+.custom-divider {
+    border: none;
+    height: 12px;
+    background-image:
+        linear-gradient(to right, var(--accent-color) 60%, transparent 40%),
+        linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
+    background-position: top, bottom;
+    background-size: 20px 3px;
+    background-repeat: repeat-x;
+    margin: 3em 0;
+    opacity: 0.8;
+}
+
+/* ==========================================
+   ✨ PREMIUM SYNC STATUS PILL BUTTON ✨
+   ========================================== */
+.sync-status-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: var(--ui-font);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 12px;
+    border: 1.5px solid transparent;
+}
+
+.sync-status-btn.mode-local {
+    background-color: var(--shadow-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.sync-status-btn.mode-github {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.sync-status-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
 @media print {
 
     .navbar,
@@ -1060,4 +1179,3 @@ body.dark-mode .btn-cancel:hover {
         color-adjust: exact !important;
     }
 }
-
