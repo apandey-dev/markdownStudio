@@ -2,7 +2,7 @@
    GITHUB SYNC CONTROLLER (Zero-Backend)
    ========================================================================== */
 
-const GitHubBackend = {
+window.GitHubBackend = {
     token: null,
     repoOwner: '',
     repoName: 'markdown-studio-notes', 
@@ -12,6 +12,8 @@ const GitHubBackend = {
     b64_to_utf8(str) { return decodeURIComponent(escape(window.atob(str))); },
 
     async init(token) {
+        if (this.isConfigured && this.token === token) return true; // Prevent duplicate logins
+        
         this.token = token;
         try {
             const userRes = await fetch('https://api.github.com/user', {
@@ -33,6 +35,7 @@ const GitHubBackend = {
             return true;
         } catch (error) {
             console.error("GitHub Init Error:", error.message);
+            this.isConfigured = false;
             return false;
         }
     },
@@ -63,7 +66,7 @@ const GitHubBackend = {
             });
 
             if (!createRes.ok) throw new Error("Repo Creation Failed. Ensure 'repo' scope is checked!");
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Buffer time for GitHub servers
         } else if (!res.ok) {
              throw new Error("Failed to access repository.");
         }
@@ -73,8 +76,13 @@ const GitHubBackend = {
         if (!this.isConfigured) return [];
         
         try {
-            const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents`, {
-                headers: { 'Authorization': `token ${this.token}` }
+            // ?t=${Date.now()} forcefully bypasses any browser cache
+            const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents?t=${Date.now()}`, {
+                headers: { 
+                    'Authorization': `token ${this.token}`,
+                    'Cache-Control': 'no-store, no-cache',
+                    'Pragma': 'no-cache'
+                }
             });
             
             if (!res.ok) return [];
@@ -82,11 +90,10 @@ const GitHubBackend = {
             const files = await res.json();
             const mdFiles = files.filter(f => f.name.endsWith('.md'));
             
-            // Sort by filename descending (Timestamp logic keeps newest on top)
-            mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+            mdFiles.sort((a, b) => b.name.localeCompare(a.name)); // Sort by timestamp prefix
 
-            let notes = [];
-            for (let file of mdFiles) {
+            // Parallel fast-fetching all note contents
+            const notesPromises = mdFiles.map(async (file) => {
                 const contentRes = await fetch(file.url, { headers: { 'Authorization': `token ${this.token}` }});
                 const contentData = await contentRes.json();
                 const rawContent = this.b64_to_utf8(contentData.content);
@@ -94,15 +101,18 @@ const GitHubBackend = {
                 const match = rawContent.match(/^#+\s+(.*)/m);
                 const title = match ? match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').substring(0, 30) : file.name.replace('.md', '');
                 
-                notes.push({
+                return {
                     id: file.sha,
                     title: title,
                     content: rawContent,
                     path: file.path,
                     lastUpdated: Date.now()
-                });
-            }
-            return notes;
+                };
+            });
+
+            const notes = await Promise.all(notesPromises);
+            return notes.sort((a, b) => b.path.localeCompare(a.path)); // Final strict sort
+
         } catch (error) {
             console.error("Fetch Notes Error:", error);
             return [];
@@ -113,7 +123,6 @@ const GitHubBackend = {
         if (!this.isConfigured) return null;
         
         const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'untitled';
-        // Prefix with timestamp so alphabetical sorting acts as chronological sorting
         const path = existingPath || `${Date.now()}_${safeTitle}.md`; 
 
         const bodyData = {
