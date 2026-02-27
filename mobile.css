@@ -8,7 +8,7 @@
         display: none !important;
     }
 
-    /* Fix Header Width/Overflow */
+    /* Fixed Mobile Header Logic */
     .navbar {
         padding: 0 12px;
         gap: 8px;
@@ -37,7 +37,7 @@
         flex-shrink: 0;
     }
 
-    /* FIX: Ensure app-container stays strictly inside viewport */
+    /* Core App Container lock */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -70,6 +70,7 @@
         display: none;
         padding: 20px 16px;
         overflow-y: auto;
+        min-height: 0;
     }
 
     body.show-preview .editor-panel {
@@ -80,7 +81,7 @@
         display: block !important;
     }
 
-    /* Beautiful Floating View Toggle Button anchored properly */
+    /* Floating View Toggle Button - SAFE ANCHOR */
     #mobile-view-toggle {
         position: absolute;
         bottom: 16px;
@@ -249,6 +250,7 @@
         background-color: var(--text-color);
         opacity: 0.15;
         border-radius: 5px;
+        z-index: 10;
     }
 
     .modal-title {
@@ -288,51 +290,94 @@
         border-radius: 16px !important;
     }
 
-    /* Notes Modal specific fixes */
-    .notes-modal-box {
+    /* ✨ MOBILE DASHBOARD MAGIC ✨ */
+    .notes-dashboard-box {
         height: 85vh !important;
-        max-height: 85vh !important;
-        background-color: var(--nav-bg) !important;
-    }
-
-    .notes-modal-header {
         flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 20px !important;
-        margin-bottom: 20px !important;
+        padding: 0 !important;
+        overflow: hidden !important;
     }
 
-    .notes-header-text {
-        text-align: left !important;
+    /* Universal Close button on mobile - position fix */
+    .notes-dashboard-box .btn-close-dashboard {
+        top: 12px !important;
+        right: 12px !important;
+        width: 34px !important;
+        height: 34px !important;
+        background-color: var(--bg-color) !important;
     }
 
-    .notes-modal-header .modal-title {
-        font-size: 1.6rem !important;
-        margin-bottom: 4px !important;
+    /* Left Panel (List) */
+    .notes-dashboard-left {
+        width: 100% !important;
+        height: 100%;
+        border-right: none !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-top: 24px !important;
+    }
+
+    .notes-dashboard-left-header {
+        padding: 0 24px 16px !important;
+        padding-top: 20px !important;
+    }
+
+    #btn-new-note {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 1.1rem !important;
+        border-radius: 16px !important;
+    }
+
+    .notes-list {
+        padding: 4px 24px 24px !important;
     }
 
     .note-item {
         padding: 18px 20px !important;
         border-radius: 16px !important;
-        background-color: var(--bg-color) !important;
+        background-color: var(--nav-bg) !important;
     }
 
-    .note-item.active {
-        border: 2px solid var(--accent-color) !important;
-        border-left: 2px solid var(--accent-color) !important;
+    /* Right Panel (Preview) - Hidden initially via transform */
+    .notes-dashboard-right {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 5;
+        padding-top: 24px;
     }
 
-    .note-title {
-        font-size: 1.1rem !important;
+    /* When a note is tapped, slide right panel in */
+    .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
+        transform: translateX(-30%);
+        opacity: 0;
     }
 
-    .btn-delete-note {
-        padding: 10px !important;
+    .notes-dashboard-box.show-preview-pane .notes-dashboard-right {
+        transform: translateX(0);
     }
 
-    .btn-delete-note i {
-        width: 22px !important;
-        height: 22px !important;
+    .dashboard-actions {
+        padding: 12px 20px !important;
+        gap: 8px !important;
+        overflow-x: auto;
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding-right: 50px !important;
+        /* Space for Close button */
+    }
+
+    .pill-btn {
+        padding: 8px 14px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .dashboard-preview-content {
+        padding: 24px 20px !important;
     }
 
     .delete-modal-box {

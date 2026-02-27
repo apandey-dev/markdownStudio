@@ -15,7 +15,7 @@
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><style>.icon { fill: %230f172a; } @media (prefers-color-scheme: dark) { .icon { fill: %23ffffff; } }</style><path class='icon' d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3V8h3v7h3z'/></svg>">
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Delius&display=swap"
         rel="stylesheet">
 
     <link id="theme-light" rel="stylesheet"
@@ -54,10 +54,15 @@
                     <span class="chevron"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
                 </div>
                 <div class="dropdown-list">
-                    <div class="dropdown-item active" data-value="Fredoka">Fredoka</div>
-                    <div class="dropdown-item" data-value="Playpen Sans">Playpen Sans</div>
-                    <div class="dropdown-item" data-value="Kalam">Kalam</div>
-                    <div class="dropdown-item" data-value="Comic Neue">Comic Neue</div>
+                    <div class="dropdown-item active" data-value="Fredoka" style="font-family: 'Fredoka', sans-serif;">
+                        Fredoka</div>
+                    <div class="dropdown-item" data-value="Playpen Sans" style="font-family: 'Playpen Sans', cursive;">
+                        Playpen Sans</div>
+                    <div class="dropdown-item" data-value="Kalam" style="font-family: 'Kalam', cursive;">Kalam</div>
+                    <div class="dropdown-item" data-value="Comic Neue" style="font-family: 'Comic Neue', cursive;">Comic
+                        Neue</div>
+
+                    <div class="dropdown-item" data-value="Delius" style="font-family: 'Delius', cursive;">Delius</div>
                 </div>
             </div>
 
@@ -96,6 +101,10 @@
     </div>
 
     <main class="app-container">
+        <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
+            <i data-lucide="eye"></i>
+        </button>
+
         <div class="editor-toolbar">
             <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
             <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
@@ -143,10 +152,6 @@
             <div class="panel preview-panel" id="preview-panel">
                 <div id="preview-output"></div>
             </div>
-
-            <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
-                <i data-lucide="eye"></i>
-            </button>
         </div>
 
         <div class="status-bar">
@@ -159,24 +164,50 @@
     </main>
 
     <div class="modal-overlay" id="notes-modal">
-        <div class="modal-box notes-modal-box">
-            <div class="notes-modal-header">
-                <div class="notes-header-text">
-                    <h3 class="modal-title">
-                        <i data-lucide="library"></i> My Notes
-                    </h3>
-                    <p class="modal-subtitle">Manage all your local documents</p>
+        <div class="modal-box notes-dashboard-box">
+
+            <button class="btn-close-dashboard" id="notes-modal-close" title="Close Dashboard">
+                <i data-lucide="x"></i>
+            </button>
+
+            <div class="notes-dashboard-left">
+                <div class="notes-dashboard-left-header">
+                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;">
+                        <div class="notes-header-text">
+                            <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="library"></i> My Notes
+                            </h3>
+                        </div>
+                        <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;">
+                            Create New Note
+                        </button>
+                    </div>
                 </div>
-                <button class="modal-btn btn-confirm" id="btn-new-note">
-                    <i data-lucide="plus"></i> Create
-                </button>
+                <div class="notes-list" id="notes-list-container">
+                </div>
             </div>
-            <div class="notes-list" id="notes-list-container"></div>
-            <div class="modal-actions notes-modal-actions">
-                <button class="modal-btn btn-cancel" id="notes-modal-close">
-                    <i data-lucide="x-circle" style="width: 18px;"></i> Close Panel
-                </button>
+
+            <div class="notes-dashboard-right">
+                <div class="dashboard-actions">
+                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back">
+                        <i data-lucide="arrow-left" style="width: 16px;"></i> Back
+                    </button>
+
+                    <button class="pill-btn btn-edit" id="dash-btn-edit">
+                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit Note
+                    </button>
+                    <button class="pill-btn btn-export desktop-only" id="dash-btn-export">
+                        <i data-lucide="printer" style="width: 16px;"></i> Export PDF
+                    </button>
+                    <button class="pill-btn btn-delete" id="dash-btn-delete">
+                        <i data-lucide="trash-2" style="width: 16px;"></i> Delete
+                    </button>
+                </div>
+
+                <div class="dashboard-preview-content" id="dashboard-preview-output">
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -199,7 +230,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="delete-modal">
+    <div class="modal-overlay" id="delete-modal" style="z-index: 2000;">
         <div class="modal-box delete-modal-box">
             <div class="delete-icon-wrapper">
                 <i data-lucide="alert-triangle"></i>
@@ -217,7 +248,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="pdf-modal">
+    <div class="modal-overlay" id="pdf-modal" style="z-index: 2000;">
         <div class="modal-box">
             <h3 class="modal-title flex-title">
                 <i data-lucide="file-text"></i> Export Settings

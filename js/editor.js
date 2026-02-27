@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let notes = [];
     let activeNoteId = null;
     let noteToDeleteId = null;
+    let highlightedNoteId = null; // Used for Dashboard Preview without changing active editor
 
     const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium, zero-backend workspace. Here is a quick guide to what you can do:\n\n## [ ✨ Pro Features ]{#3b82f6}\n\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Smart Toggle:** Format text quickly! Select text and click the **B** icon in the toolbar. Click it again to undo!\n* **🔗 Zero-Backend Sharing:** Click "Share" to generate a secure URL containing your entire document.\n* **📊 Live Stats & Sync Scroll:** Keep track of your word count at the bottom.\n\n### Code Example\nCode blocks automatically switch themes depending on your Light/Dark mode setting!\n\n\`\`\`javascript\nfunction greet() {\n  console.log('Welcome to your new Markdown Studio!');\n}\n\`\`\`\n\n> Start typing to explore, or click **📂 Notes** to create a new one!`;
 
@@ -47,38 +48,88 @@ document.addEventListener('DOMContentLoaded', () => {
         return "Untitled Note";
     }
 
+    // --- DASHBOARD: LIST RENDER & PREVIEW LOGIC ---
     window.renderNotesList = function () {
         const container = document.getElementById('notes-list-container');
         container.innerHTML = '';
+        
+        if(!highlightedNoteId) highlightedNoteId = activeNoteId;
 
         notes.forEach(note => {
             const div = document.createElement('div');
-            div.className = `note-item ${note.id === activeNoteId ? 'active' : ''}`;
+            div.className = `note-item ${note.id === highlightedNoteId ? 'active' : ''}`;
             div.innerHTML = `
                 <div class="note-title"><i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> ${note.title}</div>
-                <button class="btn-delete-note" title="Delete Note"><i data-lucide="trash-2" style="width: 18px; height: 18px;"></i></button>
             `;
 
-            div.addEventListener('click', (e) => {
-                if (e.target.closest('.btn-delete-note')) return;
-                activeNoteId = note.id;
-                editor.value = note.content;
-                saveNotes();
-                renderMarkdown();
-                window.closeNotesModal();
+            div.addEventListener('click', () => {
+                highlightedNoteId = note.id;
+                window.renderNotesList(); // Re-render to show active border
+                window.renderDashboardPreview();
+                
+                // If on mobile, slide the preview pane in
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.notes-dashboard-box').classList.add('show-preview-pane');
+                }
             });
 
-            div.querySelector('.btn-delete-note').addEventListener('click', (e) => {
-                e.stopPropagation();
-                noteToDeleteId = note.id;
-                document.getElementById('delete-modal').classList.add('show');
+            // Double click directly opens editor (Desktop speed feature)
+            div.addEventListener('dblclick', () => {
+                document.getElementById('dash-btn-edit').click();
             });
 
             container.appendChild(div);
         });
         lucide.createIcons();
+        window.renderDashboardPreview();
     };
 
+    window.renderDashboardPreview = function() {
+        const previewEl = document.getElementById('dashboard-preview-output');
+        const note = notes.find(n => n.id === highlightedNoteId) || notes[0];
+        if(!note) return;
+        
+        const colorProcessedText = note.content.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+        const htmlContent = marked.parse(colorProcessedText);
+        const cleanHtml = DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style'] });
+        
+        previewEl.innerHTML = cleanHtml;
+        renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+    };
+
+    // --- DASHBOARD ACTIONS (Pill Buttons) ---
+    document.getElementById('dash-btn-edit').addEventListener('click', () => {
+        activeNoteId = highlightedNoteId;
+        editor.value = getActiveNote().content;
+        saveNotes();
+        renderMarkdown();
+        if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
+    });
+
+    document.getElementById('dash-btn-delete').addEventListener('click', () => {
+        noteToDeleteId = highlightedNoteId;
+        document.getElementById('delete-modal').classList.add('show');
+    });
+
+    document.getElementById('dash-btn-export').addEventListener('click', () => {
+        activeNoteId = highlightedNoteId;
+        editor.value = getActiveNote().content;
+        saveNotes();
+        renderMarkdown();
+        
+        if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
+        setTimeout(() => {
+            document.getElementById('btn-pdf').click();
+        }, 300);
+    });
+
+    // Mobile Back Button
+    document.getElementById('dash-btn-back').addEventListener('click', () => {
+        document.querySelector('.notes-dashboard-box').classList.remove('show-preview-pane');
+    });
+
+    // --- DELETE CONFIRM LOGIC ---
     document.getElementById('delete-confirm').addEventListener('click', () => {
         if (!noteToDeleteId) return;
 
@@ -89,9 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const idx = notes.findIndex(n => n.id === noteToDeleteId);
             notes.splice(idx, 1);
+            
+            // Fix states if active or highlighted note is deleted
             if (activeNoteId === noteToDeleteId) {
                 activeNoteId = notes[Math.max(0, idx - 1)].id;
                 editor.value = getActiveNote().content;
+            }
+            if (highlightedNoteId === noteToDeleteId) {
+                highlightedNoteId = activeNoteId;
             }
         }
 
@@ -128,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notes.unshift({ id: newId, title: noteName, content: `# ${noteName}\n\nStart typing here...` });
 
         activeNoteId = newId;
+        highlightedNoteId = newId;
         editor.value = getActiveNote().content;
 
         saveNotes();
@@ -135,6 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderNotesList();
         
         promptModal.classList.remove('show');
+        
+        // Auto open the new note in editor
         if(typeof window.closeNotesModal === 'function') window.closeNotesModal();
         window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
     };
@@ -147,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         promptModal.classList.remove('show');
     });
 
+    // --- STATS LOGIC ---
     function updateLiveStats(text) {
         const chars = text.length;
         const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -179,6 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
         preview.innerHTML = cleanHtml;
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        
+        // Auto update dashboard preview if the active note is currently highlighted there
+        if(highlightedNoteId === activeNoteId && document.getElementById('notes-modal').classList.contains('show')) {
+            window.renderDashboardPreview();
+        }
     }, 50);
 
     editor.addEventListener('input', renderMarkdown);
@@ -321,6 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newId = Date.now().toString();
             notes.unshift({ id: newId, title: file.name.replace('.md', '').replace('.txt', ''), content: content });
             activeNoteId = newId;
+            highlightedNoteId = newId;
             editor.value = content;
             saveNotes();
             renderMarkdown();
@@ -332,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     loadNotes();
+    highlightedNoteId = activeNoteId;
 
     if (window.location.hash && window.location.hash.length > 1) {
         try {
@@ -340,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const sharedId = Date.now().toString();
             notes.unshift({ id: sharedId, title: extractTitle(decodedText) || "Shared Note", content: decodedText });
             activeNoteId = sharedId;
+            highlightedNoteId = sharedId;
             window.showToast("<i data-lucide='download'></i> Shared document saved!");
             history.replaceState(null, null, ' ');
         } catch (e) { console.error("Invalid share link", e); }
@@ -347,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editor.value = getActiveNote().content;
     renderMarkdown();
-    if (typeof window.renderNotesList === 'function') window.renderNotesList();
 
     inputFilename.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 

@@ -24,11 +24,13 @@ window.closeDeleteModal = function () {
     document.getElementById('delete-modal').classList.remove('show');
 };
 
-window.closeNotesModal = function() {
+window.closeNotesModal = function () {
     document.getElementById('notes-modal').classList.remove('show');
+    // Reset Mobile Slide Panel configuration
+    document.querySelector('.notes-dashboard-box').classList.remove('show-preview-pane');
 };
 
-window.closePromptModal = function() {
+window.closePromptModal = function () {
     document.getElementById('prompt-modal').classList.remove('show');
 };
 
@@ -44,15 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
-            
+
             document.body.classList.remove('view-editor', 'view-preview');
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-            
+
             btn.classList.add('active');
-            
+
             if (view === 'editor') document.body.classList.add('view-editor');
             if (view === 'preview') document.body.classList.add('view-preview');
-            
+
             const editorPanel = document.getElementById('editor-panel-wrapper');
             if (editorPanel) editorPanel.style.flex = '';
         });
@@ -63,7 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('notes-modal').classList.add('show');
         if (typeof window.renderNotesList === 'function') window.renderNotesList();
     });
+    // Consolidated Single Close trigger for Notes Dashboard
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
+
 
     // --- MOBILE SIDEBAR LOGIC ---
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -171,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
-    const container = document.getElementById('split-workspace'); 
+    const container = document.getElementById('split-workspace');
     let isDragging = false;
 
     if (divider) {
