@@ -1,5 +1,6 @@
 /* ==========================================================================
    MARKDOWN STUDIO - CORE STYLESHEET
+   Description: Main UI styling for the editor, toolbar, modals, and themes.
    ========================================================================== */
 
 :root {
@@ -466,6 +467,7 @@ body.view-preview .divider {
     display: none !important;
 }
 
+/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -517,6 +519,7 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
+/* ✨ PRE/CODE WRAPPING FIX FOR BOTH UI & PDF ✨ */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
@@ -532,7 +535,11 @@ body.view-preview .divider {
     font-size: 0.9em;
     padding: 20px;
     display: block;
-    overflow-x: auto;
+
+    /* Next 3 lines ensure code wraps in the normal UI too! */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 #preview-output p code,
@@ -1070,6 +1077,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
+/* ✨ EXPORT SPECIFIC STYLES ✨ */
 @media print {
 
     .navbar,
@@ -1131,6 +1139,16 @@ body.dark-mode .btn-help-cute:hover {
     td {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+    }
+
+    /* Strict Wrapping for Code Blocks in PDF */
+    pre,
+    pre code {
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: -moz-pre-wrap !important;
+        white-space: -o-pre-wrap !important;
     }
 
     * {
