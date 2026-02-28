@@ -268,11 +268,18 @@
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+
                         <div class="notes-header-text">
-                            <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                                <i data-lucide="library"></i> My Notes
-                            </h3>
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                <h3 class="modal-title"
+                                    style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <i data-lucide="library"></i> My Notes
+                                </h3>
+                                <span id="dashboard-mode-badge" class="dashboard-badge"></span>
+                            </div>
                         </div>
+
                         <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
                                 data-lucide="plus"></i> Create New Note</button>
 

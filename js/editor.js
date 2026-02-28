@@ -37,6 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
             indicator.innerHTML = isGithub ? `<i data-lucide="cloud" style="width:12px; height:12px;"></i> GitHub Cloud` : `<i data-lucide="hard-drive" style="width:12px; height:12px;"></i> Local Storage`;
         }
 
+        // ✨ UPDATE DASHBOARD BADGE HERE ✨
+        const dashboardBadge = document.getElementById('dashboard-mode-badge');
+        if (dashboardBadge) {
+            if (isGithub) {
+                dashboardBadge.innerHTML = '<i data-lucide="cloud" style="width: 12px; height: 12px;"></i> GITHUB CLOUD';
+                dashboardBadge.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                dashboardBadge.style.color = '#10b981';
+                dashboardBadge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+            } else {
+                dashboardBadge.innerHTML = '<i data-lucide="hard-drive" style="width: 12px; height: 12px;"></i> LOCAL';
+                dashboardBadge.style.backgroundColor = 'var(--shadow-color)';
+                dashboardBadge.style.color = 'var(--text-color)';
+                dashboardBadge.style.border = '1px solid var(--border-color)';
+            }
+        }
+
         const btnPush = document.getElementById('btn-push-github');
         if (btnPush) {
             if (!isGithub && localStorage.getItem('md_github_token') && notes.length > 0) {
@@ -251,8 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.className = `note-item ${note.id === highlightedNoteId ? 'active' : ''}`;
 
-            // Using precise DOM nodes prevents unescaped characters in note.title
-            // from breaking HTML rendering (swallowing the icon).
             const titleContainer = document.createElement('div');
             titleContainer.className = 'note-title';
             titleContainer.style.display = 'flex';
@@ -265,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
             iconEl.style.width = '18px';
             iconEl.style.height = '18px';
             iconEl.style.opacity = '0.7';
-            iconEl.style.flexShrink = '0'; // strictly keeps icon alive
+            iconEl.style.flexShrink = '0';
 
             const textSpan = document.createElement('span');
-            textSpan.textContent = note.title; // 100% safe rendering
+            textSpan.textContent = note.title;
             textSpan.style.whiteSpace = 'nowrap';
             textSpan.style.overflow = 'hidden';
             textSpan.style.textOverflow = 'ellipsis';
@@ -696,21 +710,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.removeChild(style);
             if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Export Successful!");
         }, 300);
-    });
-
-    shareBtn?.addEventListener('click', async () => {
-        const textToShare = editor.value;
-        const encodedData = btoa(encodeURIComponent(textToShare));
-        const shareableUrl = window.location.origin + window.location.pathname + "#" + encodedData;
-
-        if (navigator.share) {
-            try { await navigator.share({ title: getActiveNote().title, url: shareableUrl }); }
-            catch (err) { console.log(err); }
-        } else {
-            navigator.clipboard.writeText(shareableUrl).then(() => {
-                if (typeof window.showToast === "function") window.showToast("<i data-lucide='link'></i> Link Copied!");
-            });
-        }
     });
 
     // TRIGGER APP INITIALIZATION ON LOAD

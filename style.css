@@ -830,6 +830,20 @@ body.dark-mode .btn-help-cute:hover {
     padding: 16px 24px 16px;
 }
 
+/* ✨ DASHBOARD BADGE STYLES ✨ */
+.dashboard-badge {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
 #btn-new-note {
     border-radius: 16px;
     width: 100%;
