@@ -281,6 +281,44 @@ body {
     flex-shrink: 0;
 }
 
+/* Mode Toggle */
+.mode-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--border-color);
+    padding: 2px;
+    border-radius: 30px;
+    margin-right: 12px;
+}
+
+.mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 30px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    font-family: var(--ui-font);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.7;
+}
+
+.mode-btn.active {
+    background: var(--nav-bg);
+    opacity: 1;
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.mode-btn i {
+    width: 14px;
+    height: 14px;
+}
+
 .split-workspace {
     display: flex;
     flex: 1;
@@ -1133,7 +1171,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.8;
 }
 
-/* SYNC PILLS */
+/* SYNC PILLS (kept for Save to Cloud button) */
 .sync-status-btn {
     display: inline-flex;
     align-items: center;
@@ -1233,5 +1271,65 @@ body.dark-mode .btn-help-cute:hover {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
+    }
+}
+
+
+/* ==========================================================================
+   Custom Checkbox (used in Sync Modal and anywhere else)
+   ========================================================================== */
+
+/* Hide default checkbox */
+.sync-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--nav-bg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sync-checkbox:hover {
+    border-color: var(--accent-color);
+}
+
+.sync-checkbox:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.sync-checkbox:checked::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+body.dark-mode .sync-checkbox {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .sync-checkbox:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Optional: larger checkbox for better touch on tablets (but still desktop-oriented) */
+@media (hover: none) and (pointer: coarse) {
+    .sync-checkbox {
+        width: 24px;
+        height: 24px;
     }
 }
