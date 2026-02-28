@@ -1,41 +1,43 @@
 /* ==========================================================================
    GITHUB SYNC CONTROLLER (Zero-Backend)
-   Description: Handles all API calls to GitHub (Fetch, Create, Delete notes)
+   Description: Handles all API calls to GitHub (Fetch, Create, Update, Delete notes)
    ========================================================================== */
 
 const GitHubBackend = {
     token: null,
     repoOwner: '',
-    repoName: 'markdown-studio-notes', // Name of the repo created automatically
+    repoName: 'markdown-studio-notes',
     isConfigured: false,
 
-    // Base64 Helpers for Unicode (Emoji) support
+    // Robust Base64 Helpers for full Unicode & Emoji support
     utf8_to_b64(str) {
-        return window.btoa(unescape(encodeURIComponent(str)));
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+            function toSolidBytes(match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
     },
     b64_to_utf8(str) {
-        return decodeURIComponent(escape(window.atob(str)));
+        return decodeURIComponent(atob(str).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
     },
 
     // 1. Initialize and Verify Token
     async init(token) {
         this.token = token;
         try {
-            // Get user info
             const userRes = await fetch('https://api.github.com/user', {
                 headers: { 'Authorization': `token ${this.token}` }
             });
-            
+
             if (!userRes.ok) throw new Error('Invalid Token');
-            
+
             const userData = await userRes.json();
             this.repoOwner = userData.login;
 
-            // Check if repo exists, if not, create it
             await this.checkAndCreateRepo();
-            
+
             this.isConfigured = true;
-            localStorage.setItem('md_github_token', token);
             return true;
 
         } catch (error) {
@@ -51,10 +53,9 @@ const GitHubBackend = {
         });
 
         if (res.status === 404) {
-            // Repo not found, create a private one
             await fetch('https://api.github.com/user/repos', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Authorization': `token ${this.token}`,
                     'Content-Type': 'application/json'
                 },
@@ -72,39 +73,36 @@ const GitHubBackend = {
     // 3. Fetch all Notes from Repo
     async getAllNotes() {
         if (!this.isConfigured) return [];
-        
+
         try {
             const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents`, {
                 headers: { 'Authorization': `token ${this.token}` }
             });
-            
+
             if (!res.ok) return [];
-            
+
             const files = await res.json();
             const mdFiles = files.filter(f => f.name.endsWith('.md'));
-            
+
             let notes = [];
             for (let file of mdFiles) {
-                // Fetch actual content of each file
                 const contentRes = await fetch(file.url, {
                     headers: { 'Authorization': `token ${this.token}` }
                 });
                 const contentData = await contentRes.json();
-                
+
                 const rawContent = this.b64_to_utf8(contentData.content);
-                // Extract Title from content
                 const match = rawContent.match(/^#+\s+(.*)/m);
                 const title = match ? match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').substring(0, 30) : file.name.replace('.md', '');
-                
+
                 notes.push({
-                    id: file.sha, // We use SHA as ID for GitHub files
+                    id: file.sha,
                     title: title,
                     content: rawContent,
                     path: file.path,
-                    lastUpdated: Date.now() // Approximated
+                    lastUpdated: Date.now()
                 });
             }
-            // Sort by newest first
             return notes.reverse();
         } catch (error) {
             console.error("Fetch Notes Error:", error);
@@ -112,35 +110,45 @@ const GitHubBackend = {
         }
     },
 
-    // 4. Save/Update Note
-    async saveNote(noteId, title, content) {
+    // 4. Save/Update Note 
+    async saveNote(noteId, existingPath, title, content) {
         if (!this.isConfigured) return null;
-        
-        // Generate a safe filename
-        const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'untitled';
-        const path = `${safeTitle}_${Date.now().toString().slice(-6)}.md`; 
+
+        let path = existingPath;
+        if (!path) {
+            let safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            if (!safeTitle) safeTitle = 'untitled';
+            // Added short unique identifier to prevent exact name collisions on creation
+            path = `${safeTitle}_${Date.now().toString().slice(-4)}.md`;
+        }
 
         const bodyData = {
             message: `Auto-saved note: ${title}`,
             content: this.utf8_to_b64(content)
         };
 
-        if (noteId && noteId !== 'new') {
-            bodyData.sha = noteId; 
+        if (noteId && noteId !== 'new' && noteId !== 'temp') {
+            bodyData.sha = noteId;
         }
 
         try {
             const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${path}`, {
                 method: 'PUT',
-                headers: { 
+                headers: {
                     'Authorization': `token ${this.token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(bodyData)
             });
             const data = await res.json();
-            return data.content.sha; // Return new SHA to update ID locally
-        } catch(error) {
+
+            if (res.ok) {
+                return { sha: data.content.sha, path: data.content.path };
+            } else {
+                console.error("GitHub Update Conflict / Error", data);
+                return null;
+            }
+        } catch (error) {
             console.error("Save Error:", error);
             return null;
         }
@@ -152,7 +160,7 @@ const GitHubBackend = {
         try {
             await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${path}`, {
                 method: 'DELETE',
-                headers: { 
+                headers: {
                     'Authorization': `token ${this.token}`,
                     'Content-Type': 'application/json'
                 },
@@ -162,7 +170,7 @@ const GitHubBackend = {
                 })
             });
             return true;
-        } catch(e) {
+        } catch (e) {
             return false;
         }
     }

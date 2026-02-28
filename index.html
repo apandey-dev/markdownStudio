@@ -44,8 +44,17 @@
         <button id="mobile-menu-btn" class="mobile-only" title="Menu"><i data-lucide="menu"></i></button>
         <div class="brand">Markdown Studio</div>
 
-        <div class="actions desktop-only">
-            <div class="custom-dropdown" id="font-dropdown">
+        <div class="actions">
+            <div class="mode-toggle desktop-only" id="nav-mode-toggle">
+                <button class="mode-tab active" data-target="local" id="nav-tab-local">
+                    <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local
+                </button>
+                <button class="mode-tab" data-target="github" id="nav-tab-github">
+                    <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> Cloud
+                </button>
+            </div>
+
+            <div class="custom-dropdown desktop-only" id="font-dropdown">
                 <div class="dropdown-header">
                     <span id="font-selected-text">Preview: Fredoka</span>
                     <span class="chevron"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
@@ -62,14 +71,14 @@
                 </div>
             </div>
 
-            <button id="btn-notes-desktop" class="modal-trigger-notes" title="Manage Notes"
+            <button id="btn-notes-desktop" class="modal-trigger-notes desktop-only" title="Manage Notes"
                 style="background-color: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
             </button>
-            <button id="btn-share" title="Generate Shareable Link">
+            <button id="btn-share" class="desktop-only" title="Generate Shareable Link">
                 <i data-lucide="link" style="width: 16px; height: 16px;"></i> Share
             </button>
-            <button id="btn-pdf" title="Export to PDF">
+            <button id="btn-pdf" class="desktop-only" title="Export to PDF">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export
             </button>
             <button id="btn-theme" title="Toggle Dark/Light Mode"
@@ -85,6 +94,20 @@
                 <h3>Menu</h3>
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
+
+            <div style="padding: 16px 16px 0;">
+                <div class="mode-toggle" id="mobile-mode-toggle" style="width: 100%; justify-content: space-between;">
+                    <button class="mode-tab active" data-target="local" id="mob-tab-local"
+                        style="flex: 1; justify-content: center;">
+                        <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local
+                    </button>
+                    <button class="mode-tab" data-target="github" id="mob-tab-github"
+                        style="flex: 1; justify-content: center;">
+                        <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> Cloud
+                    </button>
+                </div>
+            </div>
+
             <div class="sidebar-links">
                 <button class="sidebar-btn modal-trigger-notes" id="sidebar-btn-notes"><i data-lucide="folder-open"></i>
                     My Notes</button>
@@ -145,8 +168,7 @@
 
         <div class="split-workspace" id="split-workspace">
             <div class="panel editor-panel" id="editor-panel-wrapper">
-                <textarea id="markdown-input" placeholder="Start typing your Markdown here..."
-                    spellcheck="false"></textarea>
+                <textarea id="markdown-input" placeholder="Loading workspace..." spellcheck="false" disabled></textarea>
             </div>
             <div class="divider desktop-only" id="drag-divider"></div>
             <div class="panel preview-panel" id="preview-panel">
@@ -155,14 +177,14 @@
         </div>
 
         <div class="status-bar">
-            <button id="sync-status" class="sync-status-btn" style="display: none;" title="Click to Change Setup">
-                <i data-lucide="hard-drive"></i> Local Mode
-            </button>
+            <span id="active-mode-indicator" style="font-weight: 600; color: var(--accent-color);"><i
+                    data-lucide="hard-drive" style="width:12px; height:12px;"></i> Local Storage</span>
+            <div class="toolbar-divider" style="height: 12px; margin: 0 12px;"></div>
 
             <span id="stat-words">0 Words</span>
-            <div class="toolbar-divider" style="height: 12px; margin: 0;"></div>
+            <div class="toolbar-divider" style="height: 12px; margin: 0 12px;"></div>
             <span id="stat-chars" class="desktop-only">0 Characters</span>
-            <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
+            <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0 12px;"></div>
             <span id="stat-reading-time">0 min read</span>
         </div>
     </main>
@@ -172,31 +194,14 @@
             <div style="text-align: center; margin-bottom: 24px;">
                 <div class="brand-icon"
                     style="background: var(--accent-color); color: var(--btn-text); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                    <i data-lucide="pen-tool" style="width: 32px; height: 32px;"></i>
+                    <i data-lucide="github" style="width: 32px; height: 32px;"></i>
                 </div>
-                <h3 class="modal-title" style="margin-bottom: 8px;">Welcome to Studio</h3>
-                <p class="modal-subtitle" style="opacity: 0.8; font-size: 0.95rem;">Choose where you want to securely
-                    save your notes.</p>
+                <h3 class="modal-title" style="margin-bottom: 8px;">Connect to GitHub</h3>
+                <p class="modal-subtitle" style="opacity: 0.8; font-size: 0.95rem;">Link your account to sync notes to
+                    the cloud.</p>
             </div>
 
-            <div class="setup-options">
-                <button class="setup-btn active" id="btn-opt-local">
-                    <i data-lucide="hard-drive"></i>
-                    <div class="opt-text">
-                        <strong>Local Storage</strong>
-                        <span>Save notes locally in this browser</span>
-                    </div>
-                </button>
-                <button class="setup-btn" id="btn-opt-github">
-                    <i data-lucide="github"></i>
-                    <div class="opt-text">
-                        <strong>GitHub Cloud</strong>
-                        <span>Sync notes to a private repository</span>
-                    </div>
-                </button>
-            </div>
-
-            <div class="github-token-section" id="github-token-section" style="display: none; margin-top: 20px;">
+            <div class="github-token-section" id="github-token-section" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token
                         (Classic)</label>
@@ -208,10 +213,13 @@
                     autocomplete="off" spellcheck="false" />
             </div>
 
-            <button class="modal-btn btn-confirm" id="btn-start-app"
-                style="width: 100%; margin-top: 24px; padding: 16px; font-size: 1.1rem;">
-                Start Writing
-            </button>
+            <div class="modal-actions" style="margin-top: 24px; flex-direction: row; gap: 12px;">
+                <button class="modal-btn btn-cancel" id="btn-cancel-setup" style="flex: 1;">Cancel</button>
+                <button class="modal-btn btn-confirm" id="btn-start-app"
+                    style="flex: 1; padding: 14px; font-size: 1.1rem;">
+                    Connect
+                </button>
+            </div>
         </div>
     </div>
 
@@ -259,7 +267,7 @@
                     data-lucide="x"></i></button>
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
-                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
                         <div class="notes-header-text">
                             <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
                                 <i data-lucide="library"></i> My Notes
@@ -267,6 +275,11 @@
                         </div>
                         <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
                                 data-lucide="plus"></i> Create New Note</button>
+
+                        <button class="modal-btn btn-confirm" id="btn-push-github"
+                            style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 16px; font-size: 1rem; padding: 12px;">
+                            <i data-lucide="cloud-upload"></i> Push Local to Cloud
+                        </button>
                     </div>
                 </div>
                 <div class="notes-list" id="notes-list-container"></div>

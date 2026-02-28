@@ -96,6 +96,44 @@ body {
     gap: 10px;
 }
 
+/* ✨ NEW MODE TOGGLE PILL ✨ */
+.mode-toggle {
+    display: flex;
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.mode-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-family: var(--ui-font);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.6;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mode-tab:hover {
+    opacity: 0.8;
+}
+
+.mode-tab.active {
+    background-color: var(--nav-bg);
+    color: var(--accent-color);
+    opacity: 1;
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
 /* DROPDOWN */
 .custom-dropdown {
     position: relative;
@@ -103,7 +141,6 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
     user-select: none;
-    width: 100%;
 }
 
 .dropdown-header {
@@ -213,7 +250,7 @@ body {
 }
 
 /* BUTTONS */
-.actions button,
+.actions>button,
 .modal-btn {
     display: flex;
     align-items: center;
@@ -231,7 +268,7 @@ body {
     transition: all 0.2s ease;
 }
 
-.actions button:hover,
+.actions>button:hover,
 .modal-btn.btn-confirm:hover {
     background-color: var(--accent-hover);
     transform: translateY(-1px);
@@ -362,6 +399,11 @@ textarea {
     line-height: 1.7;
     outline: none;
     overflow-y: auto;
+}
+
+textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .divider {
@@ -660,64 +702,6 @@ body.dark-mode .btn-cancel:hover {
 .setup-modal-box {
     max-width: 460px;
     padding: 40px 32px;
-}
-
-.setup-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 24px;
-}
-
-.setup-btn {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    border-radius: 14px;
-    background-color: transparent;
-    border: 1.5px solid var(--border-color);
-    color: var(--text-color);
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-    font-family: var(--ui-font);
-}
-
-.setup-btn i {
-    width: 24px;
-    height: 24px;
-    color: var(--accent-color);
-    opacity: 0.7;
-}
-
-.setup-btn .opt-text strong {
-    display: block;
-    font-size: 1.05rem;
-    margin-bottom: 2px;
-}
-
-.setup-btn .opt-text span {
-    display: block;
-    font-size: 0.85rem;
-    opacity: 0.7;
-    font-weight: 500;
-}
-
-.setup-btn:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--text-color);
-}
-
-.setup-btn.active {
-    border-color: var(--accent-color);
-    background-color: var(--shadow-color);
-    box-shadow: 0 0 0 1px var(--accent-color);
-}
-
-.setup-btn.active i {
-    opacity: 1;
 }
 
 /* ✨ CUTE HELP BUTTON ✨ */
@@ -1075,39 +1059,15 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.8;
 }
 
-/* ==========================================
-   ✨ PREMIUM SYNC STATUS PILL BUTTON ✨
-   ========================================== */
-.sync-status-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-family: var(--ui-font);
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-right: 12px;
-    border: 1.5px solid transparent;
+/* LOADING SPINNER */
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-.sync-status-btn.mode-local {
-    background-color: var(--shadow-color);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-.sync-status-btn.mode-github {
-    background-color: rgba(16, 185, 129, 0.1);
-    border-color: #10b981;
-    color: #10b981;
-}
-
-.sync-status-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px var(--shadow-color);
+.spin {
+    animation: spin 2s linear infinite;
 }
 
 @media print {

@@ -73,6 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
 
+    document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
+        document.getElementById('setup-modal').classList.remove('show');
+    });
+
     // --- MOBILE SIDEBAR LOGIC ---
     const sidebarOverlay = document.getElementById('mobile-sidebar-overlay');
     document.getElementById('mobile-menu-btn')?.addEventListener('click', () => sidebarOverlay?.classList.add('show'));
