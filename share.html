@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+
+    <title>Shared Note | Markdown Studio</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Delius&display=swap" rel="stylesheet">
+    <link id="theme-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link id="theme-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    
+    <style>
+        .share-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            background-color: var(--preview-bg);
+            overflow: hidden;
+        }
+        .share-header {
+            height: 60px;
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            z-index: 100;
+        }
+        .share-content {
+            flex: 1;
+            padding: 40px 15%;
+            overflow-y: auto;
+            font-family: var(--preview-font);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        @media screen and (max-width: 768px) {
+            .share-content {
+                padding: 24px 16px;
+            }
+        }
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-color);
+            opacity: 0.7;
+            gap: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-light').disabled = true;
+                document.getElementById('theme-dark').disabled = false;
+            }
+            
+            const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
+            document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
+        })();
+    </script>
+
+    <div class="share-container">
+        <header class="share-header">
+            <div class="brand" style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="lock" style="width: 18px; color: #10b981;"></i> Secure Note
+            </div>
+            <button id="btn-edit-studio" class="modal-btn btn-confirm" style="font-size: 0.9rem;">
+                <i data-lucide="external-link" style="width: 16px;"></i> Edit in Studio
+            </button>
+        </header>
+
+        <div class="share-content" id="shared-preview">
+            <div class="loading-state" id="loading-indicator">
+                <i data-lucide="loader" class="spin" style="width: 32px; height: 32px; color: var(--accent-color);"></i>
+                <p>Decrypting secure payload...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js"></script>
+
+    <script>
+        lucide.createIcons();
+        window.sharedRawText = "";
+
+        // Shared Parser Utility (Kept local to prevent editor.js dependency)
+        function customMarkdownParser(rawText) {
+            let processedText = rawText;
+            processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
+            processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+            processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
+            processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+            
+            marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
+            const htmlContent = marked.parse(processedText);
+            return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
+        }
+
+        async function loadEncryptedGist() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gistId = urlParams.get('id');
+            const key = window.location.hash.substring(1);
+            const container = document.getElementById('shared-preview');
+            const indicator = document.getElementById('loading-indicator');
+
+            if (!gistId || !key) {
+                indicator.innerHTML = `<i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: #ef4444;"></i>
+                                       <h3 style="color: var(--text-color);">Invalid Secure Link</h3>
+                                       <p>The link is missing the Gist ID or the decryption key.</p>`;
+                lucide.createIcons();
+                return;
+            }
+
+            try {
+                // Fetch public/secret gist via GitHub API
+                const res = await fetch(`https://api.github.com/gists/${gistId}`);
+                if (!res.ok) throw new Error("Document not found or removed by owner.");
+                const data = await res.json();
+                
+                const files = Object.values(data.files);
+                if (files.length === 0) throw new Error("No readable files found.");
+                
+                const encryptedContent = files[0].content;
+                
+                // Decrypt via AES-256
+                const decryptedBytes = CryptoJS.AES.decrypt(encryptedContent, key);
+                const rawText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                
+                if (!rawText) throw new Error("Decryption failed. The secret key is invalid.");
+
+                window.sharedRawText = rawText;
+
+                // Render Markdown
+                container.innerHTML = customMarkdownParser(rawText);
+                renderMathInElement(container, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+                container.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+
+            } catch (err) {
+                indicator.innerHTML = `<i data-lucide="x-circle" style="width: 48px; height: 48px; color: #ef4444;"></i>
+                                       <h3 style="color: var(--text-color);">Error Loading Document</h3>
+                                       <p>${err.message}</p>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Send back to Editor
+        document.getElementById('btn-edit-studio').addEventListener('click', () => {
+            if(!window.sharedRawText) return alert("Note is not loaded yet.");
+            const encodedData = btoa(encodeURIComponent(window.sharedRawText));
+            window.location.href = `https://apandey-studio.vercel.app/#${encodedData}`;
+        });
+
+        window.onload = loadEncryptedGist;
+    </script>
+</body>
+</html>

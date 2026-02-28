@@ -1,6 +1,5 @@
 /* ==========================================================================
    MARKDOWN STUDIO - CORE STYLESHEET
-   Description: Main UI styling for the editor, toolbar, modals, and themes.
    ========================================================================== */
 
 :root {
@@ -96,7 +95,7 @@ body {
     gap: 10px;
 }
 
-/* ✨ NEW MODE TOGGLE PILL ✨ */
+/* ✨ MODE TOGGLE PILL ✨ */
 .mode-toggle {
     display: flex;
     background-color: var(--hover-bg);
@@ -154,7 +153,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s;
 }
 
 .dropdown-header:hover {
@@ -195,7 +194,7 @@ body {
     visibility: hidden;
     transform: translateY(-10px) scale(0.98);
     transform-origin: top center;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s;
     z-index: 2000;
     padding: 6px;
     backdrop-filter: blur(12px);
@@ -212,7 +211,7 @@ body {
     padding: 12px 16px;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s;
     color: var(--text-color);
     display: flex;
     align-items: center;
@@ -446,17 +445,13 @@ textarea:disabled {
     min-height: 0;
 }
 
-/* VIEW MODES */
 body.view-editor .editor-panel {
     flex: 1 1 100% !important;
     max-width: 100%;
     border-right: none;
 }
 
-body.view-editor .preview-panel {
-    display: none !important;
-}
-
+body.view-editor .preview-panel,
 body.view-editor .divider {
     display: none !important;
 }
@@ -466,15 +461,11 @@ body.view-preview .preview-panel {
     max-width: 100%;
 }
 
-body.view-preview .editor-panel {
-    display: none !important;
-}
-
+body.view-preview .editor-panel,
 body.view-preview .divider {
     display: none !important;
 }
 
-/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -681,7 +672,7 @@ body.view-preview .divider {
     background-color: transparent;
     color: var(--text-color);
     border: 1.5px solid var(--border-color);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s;
     opacity: 0.85;
     font-weight: 600;
 }
@@ -718,7 +709,7 @@ body.dark-mode .btn-cancel:hover {
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+    transition: transform 0.2s, background-color 0.2s;
 }
 
 .btn-help-cute:hover {
@@ -1041,7 +1032,7 @@ body.dark-mode .btn-help-cute:hover {
     font-size: 0.95rem;
     font-weight: 500;
     opacity: 0;
-    transition: opacity 0.3s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.3s, transform 0.3s;
     transform: translateY(20px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     display: flex;
@@ -1056,16 +1047,11 @@ body.dark-mode .btn-help-cute:hover {
     transform: translateY(0);
 }
 
-/* ==========================================
-   ✨ PREMIUM DOUBLE DASHED DIVIDER ✨
-   (Rendered when typing === )
-   ========================================== */
+/* ✨ PREMIUM DOUBLE DASHED DIVIDER ✨ */
 .custom-divider {
     border: none;
     height: 12px;
-    background-image:
-        linear-gradient(to right, var(--accent-color) 60%, transparent 40%),
-        linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
+    background-image: linear-gradient(to right, var(--accent-color) 60%, transparent 40%), linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
     background-position: top, bottom;
     background-size: 20px 3px;
     background-repeat: repeat-x;

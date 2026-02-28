@@ -1,10 +1,8 @@
 /* ==========================================================================
    MARKDOWN STUDIO - MOBILE RESPONSIVE STYLES
-   Description: Adjusts the layout for mobile devices (screens < 768px).
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
-
     .mobile-only {
         display: flex !important;
     }
@@ -216,9 +214,7 @@
         font-size: 0.75rem;
     }
 
-    /* =======================================================
-       ✨ BOTTOM SHEET MODALS FOR MOBILE ✨
-       ======================================================= */
+    /* BOTTOM SHEET MODALS FOR MOBILE */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
