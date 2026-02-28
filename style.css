@@ -1,5 +1,6 @@
 /* ==========================================================================
    MARKDOWN STUDIO - CORE STYLESHEET
+   Description: Main UI styling for the editor, toolbar, modals, and themes.
    ========================================================================== */
 
 :root {
@@ -15,6 +16,7 @@
     --shadow-color: rgba(0, 0, 0, 0.06);
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
+
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fira Code', monospace;
@@ -66,6 +68,7 @@ body {
     display: none;
 }
 
+/* NAVBAR */
 .navbar {
     height: 52px;
     background-color: var(--nav-bg);
@@ -93,6 +96,7 @@ body {
     gap: 10px;
 }
 
+/* DROPDOWN */
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
@@ -208,6 +212,7 @@ body {
     border-radius: 0 4px 4px 0;
 }
 
+/* BUTTONS */
 .actions button,
 .modal-btn {
     display: flex;
@@ -244,6 +249,7 @@ body {
     border-color: var(--text-color);
 }
 
+/* MAIN WORKSPACE */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -279,44 +285,6 @@ body {
     font-family: var(--ui-font);
     font-weight: 500;
     flex-shrink: 0;
-}
-
-/* Mode Toggle */
-.mode-toggle {
-    display: flex;
-    gap: 4px;
-    background: var(--border-color);
-    padding: 2px;
-    border-radius: 30px;
-    margin-right: 12px;
-}
-
-.mode-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 30px;
-    border: none;
-    background: transparent;
-    color: var(--text-color);
-    font-family: var(--ui-font);
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    opacity: 0.7;
-}
-
-.mode-btn.active {
-    background: var(--nav-bg);
-    opacity: 1;
-    box-shadow: 0 2px 6px var(--shadow-color);
-}
-
-.mode-btn i {
-    width: 14px;
-    height: 14px;
 }
 
 .split-workspace {
@@ -436,6 +404,7 @@ textarea {
     min-height: 0;
 }
 
+/* VIEW MODES */
 body.view-editor .editor-panel {
     flex: 1 1 100% !important;
     max-width: 100%;
@@ -463,38 +432,31 @@ body.view-preview .divider {
     display: none !important;
 }
 
+/* RENDER OUTPUT */
 #preview-output,
-#dashboard-preview-output,
-#sync-preview-output {
+#dashboard-preview-output {
     width: 100%;
     max-width: none;
     line-height: 1.6;
 }
 
 #preview-output>*:first-child,
-#dashboard-preview-output>*:first-child,
-#sync-preview-output>*:first-child {
+#dashboard-preview-output>*:first-child {
     margin-top: 0;
 }
 
 #preview-output h1,
 #dashboard-preview-output h1,
-#sync-preview-output h1,
 #preview-output h2,
 #dashboard-preview-output h2,
-#sync-preview-output h2,
 #preview-output h3,
 #dashboard-preview-output h3,
-#sync-preview-output h3,
 #preview-output h4,
 #dashboard-preview-output h4,
-#sync-preview-output h4,
 #preview-output h5,
 #dashboard-preview-output h5,
-#sync-preview-output h5,
 #preview-output h6,
-#dashboard-preview-output h6,
-#sync-preview-output h6 {
+#dashboard-preview-output h6 {
     margin-top: 1em;
     margin-bottom: 0.4em;
     font-weight: 600;
@@ -502,14 +464,12 @@ body.view-preview .divider {
 }
 
 #preview-output h1,
-#dashboard-preview-output h1,
-#sync-preview-output h1 {
+#dashboard-preview-output h1 {
     font-size: 2.2rem;
 }
 
 #preview-output h2,
-#dashboard-preview-output h2,
-#sync-preview-output h2 {
+#dashboard-preview-output h2 {
     font-size: 1.8rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 6px;
@@ -517,19 +477,15 @@ body.view-preview .divider {
 
 #preview-output p,
 #dashboard-preview-output p,
-#sync-preview-output p,
 #preview-output ul,
 #dashboard-preview-output ul,
-#sync-preview-output ul,
 #preview-output ol,
-#dashboard-preview-output ol,
-#sync-preview-output ol {
+#dashboard-preview-output ol {
     margin-bottom: 0.8em;
 }
 
 #preview-output pre,
-#dashboard-preview-output pre,
-#sync-preview-output pre {
+#dashboard-preview-output pre {
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 1em;
@@ -538,8 +494,7 @@ body.view-preview .divider {
 }
 
 #preview-output pre code,
-#dashboard-preview-output pre code,
-#sync-preview-output pre code {
+#dashboard-preview-output pre code {
     font-family: var(--editor-font);
     font-size: 0.9em;
     padding: 20px;
@@ -549,10 +504,8 @@ body.view-preview .divider {
 
 #preview-output p code,
 #dashboard-preview-output p code,
-#sync-preview-output p code,
 #preview-output li code,
-#dashboard-preview-output li code,
-#sync-preview-output li code {
+#dashboard-preview-output li code {
     background-color: var(--border-color);
     padding: 2px 6px;
     border-radius: 4px;
@@ -560,8 +513,7 @@ body.view-preview .divider {
 }
 
 #preview-output blockquote,
-#dashboard-preview-output blockquote,
-#sync-preview-output blockquote {
+#dashboard-preview-output blockquote {
     border-left: 4px solid var(--accent-color);
     padding-left: 20px;
     color: var(--text-color);
@@ -575,8 +527,7 @@ body.view-preview .divider {
 }
 
 #preview-output table,
-#dashboard-preview-output table,
-#sync-preview-output table {
+#dashboard-preview-output table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1em;
@@ -584,22 +535,19 @@ body.view-preview .divider {
 
 #preview-output th,
 #dashboard-preview-output th,
-#sync-preview-output th,
 #preview-output td,
-#dashboard-preview-output td,
-#sync-preview-output td {
+#dashboard-preview-output td {
     border: 1px solid var(--border-color);
     padding: 10px 14px;
     text-align: left;
 }
 
 #preview-output th,
-#dashboard-preview-output th,
-#sync-preview-output th {
+#dashboard-preview-output th {
     background-color: var(--hover-bg);
 }
 
-/* MODALS */
+/* MODALS CORE */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -772,6 +720,7 @@ body.dark-mode .btn-cancel:hover {
     opacity: 1;
 }
 
+/* ✨ CUTE HELP BUTTON ✨ */
 .btn-help-cute {
     background-color: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
@@ -802,6 +751,7 @@ body.dark-mode .btn-help-cute:hover {
     background-color: rgba(96, 165, 250, 0.25);
 }
 
+/* ✨ GUIDE MODAL STEPS ✨ */
 .pat-guide-box {
     max-width: 450px;
 }
@@ -844,7 +794,7 @@ body.dark-mode .btn-help-cute:hover {
     color: var(--accent-color);
 }
 
-/* ✨ DASHBOARD & TABS ✨ */
+/* NOTES DASHBOARD */
 .notes-dashboard-box {
     max-width: 1000px;
     height: 85vh;
@@ -894,53 +844,6 @@ body.dark-mode .btn-help-cute:hover {
 
 .notes-dashboard-left-header {
     padding: 16px 24px 16px;
-}
-
-/* Dashboard Toggle Tabs */
-.notes-tab-container {
-    display: flex;
-    background-color: var(--nav-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 4px;
-    margin-bottom: 16px;
-    gap: 4px;
-}
-
-.notes-tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: transparent;
-    border: none;
-    padding: 8px;
-    border-radius: 16px;
-    color: var(--text-color);
-    font-family: var(--ui-font);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: all 0.2s ease;
-}
-
-.notes-tab-btn:hover {
-    opacity: 1;
-    background-color: var(--hover-bg);
-}
-
-.notes-tab-btn.active {
-    opacity: 1;
-    background-color: var(--shadow-color);
-    color: var(--accent-color);
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-.notes-tab-btn i {
-    width: 14px;
-    height: 14px;
 }
 
 #btn-new-note {
@@ -1077,10 +980,6 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 /* MINOR MODALS */
-.prompt-modal-box {
-    max-width: 380px;
-}
-
 .delete-modal-box {
     max-width: 360px;
     text-align: center;
@@ -1128,7 +1027,7 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
-/* TOAST (Z-Index Fixed) */
+/* TOAST */
 #toast {
     visibility: hidden;
     min-width: 200px;
@@ -1138,7 +1037,7 @@ body.dark-mode .btn-help-cute:hover {
     border-radius: 8px;
     padding: 12px 20px;
     position: fixed;
-    z-index: 9999;
+    z-index: 2000;
     right: 24px;
     bottom: 24px;
     font-size: 0.95rem;
@@ -1159,11 +1058,16 @@ body.dark-mode .btn-help-cute:hover {
     transform: translateY(0);
 }
 
-/* CUSTOM DIVIDER === */
+/* ==========================================
+   ✨ PREMIUM DOUBLE DASHED DIVIDER ✨
+   (Rendered when typing === )
+   ========================================== */
 .custom-divider {
     border: none;
     height: 12px;
-    background-image: linear-gradient(to right, var(--accent-color) 60%, transparent 40%), linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
+    background-image:
+        linear-gradient(to right, var(--accent-color) 60%, transparent 40%),
+        linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
     background-position: top, bottom;
     background-size: 20px 3px;
     background-repeat: repeat-x;
@@ -1171,7 +1075,9 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.8;
 }
 
-/* SYNC PILLS (kept for Save to Cloud button) */
+/* ==========================================
+   ✨ PREMIUM SYNC STATUS PILL BUTTON ✨
+   ========================================== */
 .sync-status-btn {
     display: inline-flex;
     align-items: center;
@@ -1272,78 +1178,4 @@ body.dark-mode .btn-help-cute:hover {
         print-color-adjust: exact !important;
         color-adjust: exact !important;
     }
-}
-
-
-/* ==========================================================================
-   Custom Checkbox (used in Sync Modal and anywhere else)
-   ========================================================================== */
-
-/* Hide default checkbox */
-.sync-checkbox {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
-    background-color: var(--nav-bg);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.sync-checkbox:hover {
-    border-color: var(--accent-color);
-}
-
-.sync-checkbox:checked {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
-.sync-checkbox:checked::after {
-    content: '';
-    width: 12px;
-    height: 12px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-body.dark-mode .sync-checkbox {
-    background-color: var(--bg-color);
-    border-color: var(--border-color);
-}
-
-body.dark-mode .sync-checkbox:checked {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
-/* Optional: larger checkbox for better touch on tablets (but still desktop-oriented) */
-@media (hover: none) and (pointer: coarse) {
-    .sync-checkbox {
-        width: 24px;
-        height: 24px;
-    }
-}
-
-/* Shared view indicator */
-#shared-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    background-color: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-left: auto;
 }

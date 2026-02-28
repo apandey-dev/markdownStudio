@@ -155,27 +155,15 @@
         </div>
 
         <div class="status-bar">
-            <!-- Mode Toggle (Left Side) -->
-            <div class="mode-toggle">
-                <button id="mode-local" class="mode-btn active" title="Local Mode">
-                    <i data-lucide="hard-drive"></i> Local
-                </button>
-                <button id="mode-github" class="mode-btn" title="GitHub Mode">
-                    <i data-lucide="cloud"></i> GitHub
-                </button>
-            </div>
+            <button id="sync-status" class="sync-status-btn" style="display: none;" title="Click to Change Setup">
+                <i data-lucide="hard-drive"></i> Local Mode
+            </button>
 
             <span id="stat-words">0 Words</span>
             <div class="toolbar-divider" style="height: 12px; margin: 0;"></div>
             <span id="stat-chars" class="desktop-only">0 Characters</span>
             <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
             <span id="stat-reading-time">0 min read</span>
-
-            <!-- Save to Cloud button (only visible in Local Mode) -->
-            <button id="btn-open-sync-modal" class="sync-status-btn mode-github"
-                style="margin-left: auto; margin-right: 0; display: none;" title="Move local notes to GitHub">
-                <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> Save to Cloud
-            </button>
         </div>
     </main>
 
@@ -227,36 +215,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="cloud-sync-modal" style="z-index: 3500;">
-        <div class="modal-box notes-dashboard-box">
-            <button class="btn-close-dashboard" id="cloud-sync-close" title="Close"><i data-lucide="x"></i></button>
-
-            <div class="notes-dashboard-left">
-                <div class="notes-dashboard-left-header">
-                    <div class="notes-header-text">
-                        <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                            <i data-lucide="cloud-upload"></i> Sync to Cloud
-                        </h3>
-                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 8px;">Select local notes to upload</p>
-                    </div>
-                </div>
-                <div class="notes-list" id="sync-notes-list-container"></div>
-            </div>
-
-            <div class="notes-dashboard-right">
-                <div class="dashboard-actions">
-                    <button class="pill-btn btn-back mobile-only" id="sync-btn-back"><i data-lucide="arrow-left"
-                            style="width: 16px;"></i> Back</button>
-                    <button class="pill-btn btn-edit" id="btn-confirm-sync"
-                        style="background-color: #10b981; margin-left: auto;">
-                        <i data-lucide="upload-cloud" style="width: 16px;"></i> Upload Selected
-                    </button>
-                </div>
-                <div class="dashboard-preview-content" id="sync-preview-output"></div>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="pat-guide-modal" style="z-index: 4000;">
         <div class="modal-box pat-guide-box">
             <h3 class="modal-title flex-title" style="color: #3b82f6; margin-bottom: 16px;">
@@ -264,6 +222,7 @@
             </h3>
             <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Follow these steps to generate a secure
                 token for syncing.</p>
+
             <ul class="guide-steps">
                 <li><span class="step-num">1</span>
                     <div>Go to GitHub <strong>Settings</strong> > <strong>Developer settings</strong>.</div>
@@ -282,6 +241,7 @@
                     <div>Click <strong>Generate token</strong>, copy it, and paste it here!</div>
                 </li>
             </ul>
+
             <div class="modal-actions" style="justify-content: space-between; margin-top: 24px;">
                 <a href="https://github.com/settings/tokens/new?scopes=repo&description=Markdown+Studio+Sync"
                     target="_blank" class="modal-btn btn-confirm"
@@ -299,22 +259,15 @@
                     data-lucide="x"></i></button>
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                            <i data-lucide="library"></i> My Notes
-                        </h3>
+                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;">
+                        <div class="notes-header-text">
+                            <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="library"></i> My Notes
+                            </h3>
+                        </div>
+                        <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
+                                data-lucide="plus"></i> Create New Note</button>
                     </div>
-
-                    <!-- Pill tabs – always visible -->
-                    <div id="notes-tab-toggle" class="notes-tab-container">
-                        <button class="notes-tab-btn active" data-tab="local"><i data-lucide="hard-drive"></i>
-                            Local</button>
-                        <button class="notes-tab-btn" data-tab="github"><i data-lucide="cloud"></i> GitHub</button>
-                    </div>
-
-                    <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
-                            data-lucide="plus"></i> Create New Note</button>
                 </div>
                 <div class="notes-list" id="notes-list-container"></div>
             </div>
@@ -322,8 +275,6 @@
                 <div class="dashboard-actions">
                     <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i data-lucide="arrow-left"
                             style="width: 16px;"></i> Back</button>
-                    <span id="dash-mode-indicator"
-                        style="margin-right: auto; font-size: 0.85rem; font-weight: 600; opacity: 0.6; display: flex; align-items: center; gap: 4px;"></span>
                     <button class="pill-btn btn-edit" id="dash-btn-edit"><i data-lucide="edit-3"
                             style="width: 16px;"></i> Edit Note</button>
                     <button class="pill-btn btn-export desktop-only" id="dash-btn-export"><i data-lucide="printer"
@@ -336,7 +287,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="prompt-modal" style="z-index: 5000;">
+    <div class="modal-overlay" id="prompt-modal" style="z-index: 2000;">
         <div class="modal-box prompt-modal-box">
             <h3 class="modal-title flex-title"><i data-lucide="file-plus-2"></i> New Note</h3>
             <div class="input-group">
@@ -352,7 +303,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="delete-modal" style="z-index: 5000;">
+    <div class="modal-overlay" id="delete-modal" style="z-index: 2000;">
         <div class="modal-box delete-modal-box">
             <div class="delete-icon-wrapper"><i data-lucide="alert-triangle"></i></div>
             <h3 class="modal-title delete-title">Delete Note?</h3>
@@ -365,7 +316,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="pdf-modal" style="z-index: 5000;">
+    <div class="modal-overlay" id="pdf-modal" style="z-index: 2000;">
         <div class="modal-box">
             <h3 class="modal-title flex-title"><i data-lucide="file-text"></i> Export Settings</h3>
             <div class="input-group">
@@ -405,7 +356,6 @@
 
     <script src="js/ui.js"></script>
     <script src="js/github.js"></script>
-    <script src="js/shareHandler.js"></script>
     <script src="js/editor.js"></script>
 </body>
 
