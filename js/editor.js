@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EDITOR CONTROLLER (Strict Segregation & Persistent Auth)
+   EDITOR CONTROLLER (Strict Segregation & Bug Fixes Applied)
    Handles storage modes, parsing, scrolling, shortcuts, and custom syntax.
    ========================================================================== */
 
@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.disabled = true;
 
     // State Variables
-    let notes = []; // This strictly holds current mode's notes only
+    let notes = [];
     let activeNoteId = null;
     let noteToDeleteId = null;
     let highlightedNoteId = null;
-    let appMode = 'local'; // default 
+    let appMode = 'local';
     let cloudSaveTimeout = null;
 
     const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\` to add color.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\` before any text!\n* **➖ Spaced Divider:** Type \`===\` on a new line for a wide-spaced horizontal rule.\n\n/center **This heading is perfectly centered!**\n\n===\n\n> Click **📂 Notes** to create a new one!`;
@@ -37,10 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
             indicator.innerHTML = isGithub ? `<i data-lucide="cloud" style="width:12px; height:12px;"></i> GitHub Cloud` : `<i data-lucide="hard-drive" style="width:12px; height:12px;"></i> Local Storage`;
         }
 
-        // Handle "Push to Cloud" button visibility
         const btnPush = document.getElementById('btn-push-github');
         if (btnPush) {
-            // Strictly check token existence. If token is there AND mode is local, show button
             if (!isGithub && localStorage.getItem('md_github_token') && notes.length > 0) {
                 btnPush.style.display = 'flex';
             } else {
@@ -52,20 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function switchToMode(targetMode) {
-        if (appMode === targetMode && editor.disabled === false) return; // already active
+        if (appMode === targetMode && editor.disabled === false) return;
 
-        // Save current state before switching safely
         if (notes.length > 0) saveCurrentNote();
 
         if (targetMode === 'github') {
             const token = localStorage.getItem('md_github_token');
             if (!token) {
-                // Not logged in -> ask for token
                 document.getElementById('setup-modal').classList.add('show');
-                return; // halt switch until user logs in
+                return;
             }
 
-            // Valid token found -> Connect silently
             document.querySelectorAll(`[data-target="github"]`).forEach(tab => tab.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> Cloud');
             if (window.lucide) lucide.createIcons();
 
@@ -92,16 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 updatePillUI();
                 finishAppLoad();
             } else {
-                // Token expired or invalid
                 window.showToast("Token invalid. Please reconnect.");
                 localStorage.removeItem('md_github_token');
                 document.querySelectorAll(`[data-target="github"]`).forEach(tab => tab.innerHTML = '<i data-lucide="cloud" style="width:14px; height:14px;"></i> Cloud');
                 document.getElementById('setup-modal').classList.add('show');
-                switchToMode('local'); // fallback to local visually
+                switchToMode('local');
             }
 
         } else {
-            // Switch to Local
             appMode = 'local';
             localStorage.setItem('md_app_mode', 'local');
             editor.disabled = true;
@@ -110,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Bind Navbar Toggle Buttons
     document.querySelectorAll('.mode-tab').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget.getAttribute('data-target');
@@ -118,13 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Handle initial boot
     function initAppMode() {
         const savedMode = localStorage.getItem('md_app_mode') || 'local';
         switchToMode(savedMode);
     }
 
-    // Setup Modal Buttons (Auth flow)
     document.getElementById('btn-start-app')?.addEventListener('click', async () => {
         const tokenInput = document.getElementById('github-token-input');
         const token = tokenInput.value.trim();
@@ -141,13 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const success = await GitHubBackend.init(token);
 
         if (success) {
-            // PERFECT LOGIN - Save token permanently
             localStorage.setItem('md_github_token', token);
             tokenInput.value = '';
             document.getElementById('setup-modal').classList.remove('show');
             window.showToast("<i data-lucide='check'></i> Successfully Connected!");
-
-            // Switch to github mode naturally
             switchToMode('github');
         } else {
             window.showToast("Invalid Token. Check scope and try again.");
@@ -159,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. LOCAL STORAGE LOGIC ---
     function loadLocalNotes() {
-        // Using v5 key to prevent conflict with any old corrupted data
         const saved = localStorage.getItem('md_studio_notes_local_v5');
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -178,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appMode === 'local') {
             localStorage.setItem('md_studio_notes_local_v5', JSON.stringify({ notes, activeNoteId }));
         } else if (appMode === 'github') {
-            // Backup locally for speed
             localStorage.setItem('md_studio_notes_github_backup', JSON.stringify({ notes, activeNoteId }));
 
             const currentNote = getActiveNote();
@@ -209,7 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function extractTitle(content) {
         const match = content.match(/^#+\s+(.*)/m);
         if (match && match[1]) {
-            return match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').substring(0, 30) + '...';
+            let extracted = match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').trim();
+            return extracted.length > 30 ? extracted.substring(0, 30) + '...' : extracted;
         }
         return "Untitled Note";
     }
@@ -240,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res) { note.id = res.sha; note.path = res.path; }
             }
 
-            // Switch context permanently to Github since data is pushed
             appMode = 'github';
             localStorage.setItem('md_app_mode', 'github');
             saveCurrentNote();
@@ -253,19 +238,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- DASHBOARD RENDERING ---
+    // --- DASHBOARD RENDERING (BUG FIXED: ICON MISSING) ---
     window.renderNotesList = function () {
         const container = document.getElementById('notes-list-container');
         if (!container) return;
         container.innerHTML = '';
         if (!highlightedNoteId) highlightedNoteId = activeNoteId;
 
-        updatePillUI(); // Ensures button visibility is correct based on state
+        updatePillUI();
 
         notes.forEach(note => {
             const div = document.createElement('div');
             div.className = `note-item ${note.id === highlightedNoteId ? 'active' : ''}`;
-            div.innerHTML = `<div class="note-title"><i data-lucide="file-text" style="width: 18px; height: 18px; opacity: 0.7;"></i> ${note.title}</div>`;
+
+            // Using precise DOM nodes prevents unescaped characters in note.title
+            // from breaking HTML rendering (swallowing the icon).
+            const titleContainer = document.createElement('div');
+            titleContainer.className = 'note-title';
+            titleContainer.style.display = 'flex';
+            titleContainer.style.alignItems = 'center';
+            titleContainer.style.gap = '12px';
+            titleContainer.style.overflow = 'hidden';
+
+            const iconEl = document.createElement('i');
+            iconEl.setAttribute('data-lucide', 'file-text');
+            iconEl.style.width = '18px';
+            iconEl.style.height = '18px';
+            iconEl.style.opacity = '0.7';
+            iconEl.style.flexShrink = '0'; // strictly keeps icon alive
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = note.title; // 100% safe rendering
+            textSpan.style.whiteSpace = 'nowrap';
+            textSpan.style.overflow = 'hidden';
+            textSpan.style.textOverflow = 'ellipsis';
+
+            titleContainer.appendChild(iconEl);
+            titleContainer.appendChild(textSpan);
+            div.appendChild(titleContainer);
 
             div.addEventListener('click', () => {
                 highlightedNoteId = note.id;
@@ -686,6 +696,21 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.removeChild(style);
             if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Export Successful!");
         }, 300);
+    });
+
+    shareBtn?.addEventListener('click', async () => {
+        const textToShare = editor.value;
+        const encodedData = btoa(encodeURIComponent(textToShare));
+        const shareableUrl = window.location.origin + window.location.pathname + "#" + encodedData;
+
+        if (navigator.share) {
+            try { await navigator.share({ title: getActiveNote().title, url: shareableUrl }); }
+            catch (err) { console.log(err); }
+        } else {
+            navigator.clipboard.writeText(shareableUrl).then(() => {
+                if (typeof window.showToast === "function") window.showToast("<i data-lucide='link'></i> Link Copied!");
+            });
+        }
     });
 
     // TRIGGER APP INITIALIZATION ON LOAD

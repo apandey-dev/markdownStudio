@@ -1,6 +1,6 @@
 /* ==========================================================================
    GITHUB SYNC CONTROLLER (Zero-Backend)
-   Description: Handles all API calls to GitHub (Fetch, Create, Update, Delete notes)
+   Handles all API calls to GitHub (Fetch, Create, Update, Delete notes)
    ========================================================================== */
 
 const GitHubBackend = {
@@ -93,7 +93,12 @@ const GitHubBackend = {
 
                 const rawContent = this.b64_to_utf8(contentData.content);
                 const match = rawContent.match(/^#+\s+(.*)/m);
-                const title = match ? match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').substring(0, 30) : file.name.replace('.md', '');
+                let title = file.name.replace('.md', '');
+
+                if (match && match[1]) {
+                    let extracted = match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').trim();
+                    title = extracted.length > 30 ? extracted.substring(0, 30) + '...' : extracted;
+                }
 
                 notes.push({
                     id: file.sha,
@@ -118,7 +123,6 @@ const GitHubBackend = {
         if (!path) {
             let safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             if (!safeTitle) safeTitle = 'untitled';
-            // Added short unique identifier to prevent exact name collisions on creation
             path = `${safeTitle}_${Date.now().toString().slice(-4)}.md`;
         }
 
