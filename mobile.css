@@ -1,7 +1,9 @@
 /* ==========================================================================
-   MARKDOWN STUDIO - MOBILE RESPONSIVE STYLES
+   MARKDOWN STUDIO – MOBILE RESPONSIVE STYLES
+   Optimized for all screen sizes with smooth UX.
    ========================================================================== */
 
+/* Base mobile adjustments */
 @media screen and (max-width: 768px) {
     .mobile-only {
         display: flex !important;
@@ -11,6 +13,7 @@
         display: none !important;
     }
 
+    /* ----- Navbar ----- */
     .navbar {
         padding: 0 12px;
         gap: 8px;
@@ -37,8 +40,12 @@
         padding: 4px;
         font-size: 1.2rem;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
+    /* ----- Main Layout ----- */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -82,6 +89,7 @@
         display: block !important;
     }
 
+    /* Mobile view toggle button (eye / edit) */
     #mobile-view-toggle {
         position: absolute;
         bottom: 16px;
@@ -97,7 +105,7 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: transform 0.2s, background-color 0.2s;
         display: flex;
     }
 
@@ -105,6 +113,12 @@
         transform: scale(0.9);
     }
 
+    body.dark-mode #mobile-view-toggle {
+        background-color: var(--accent-hover);
+        color: var(--btn-text);
+    }
+
+    /* ----- Mobile Sidebar (slide-out menu) ----- */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -116,7 +130,7 @@
         z-index: 1000;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s;
+        transition: opacity 0.3s, visibility 0.3s;
     }
 
     .mobile-sidebar-overlay.show {
@@ -189,6 +203,7 @@
         font-size: 1rem;
         font-weight: 500;
         text-align: left;
+        transition: background-color 0.2s, border-color 0.2s;
     }
 
     .sidebar-btn:active {
@@ -200,17 +215,42 @@
         color: var(--accent-color);
     }
 
+    /* ----- Editor & Textarea ----- */
     textarea {
         padding: 16px;
         font-size: 14px;
     }
 
+    /* ----- Status Bar (with mode toggle) ----- */
     .status-bar {
         padding: 8px 16px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
     }
 
-    /* BOTTOM SHEET MODALS */
+    .mode-toggle {
+        margin-right: 8px;
+    }
+
+    .mode-btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .mode-btn i {
+        width: 12px;
+        height: 12px;
+    }
+
+    #stat-words,
+    #stat-reading-time {
+        white-space: nowrap;
+    }
+
+    /* ----- All Modals: Bottom Sheet Style ----- */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -230,6 +270,8 @@
         transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
         border: none !important;
         border-top: 1px solid var(--border-color) !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
     }
 
     .modal-overlay.show .modal-box {
@@ -287,7 +329,7 @@
         border-radius: 16px !important;
     }
 
-    /* DASHBOARD MAGIC */
+    /* ----- Notes Dashboard (Two‑column becomes one) ----- */
     .notes-dashboard-box {
         height: 85vh !important;
         flex-direction: column !important;
@@ -343,11 +385,13 @@
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 5;
         padding-top: 24px;
+        background-color: var(--preview-bg) !important;
     }
 
     .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
         transform: translateX(-30%);
         opacity: 0;
+        pointer-events: none;
     }
 
     .notes-dashboard-box.show-preview-pane .notes-dashboard-right {
@@ -361,6 +405,7 @@
         white-space: nowrap;
         flex-shrink: 0;
         padding-right: 50px !important;
+        background-color: var(--nav-bg) !important;
     }
 
     .pill-btn {
@@ -372,6 +417,12 @@
         padding: 24px 20px !important;
     }
 
+    /* ----- Sync Modal (similar adjustments) ----- */
+    #cloud-sync-modal .notes-dashboard-box {
+        /* same as above */
+    }
+
+    /* ----- Delete Modal ----- */
     .delete-modal-box {
         text-align: left !important;
         padding-top: 40px !important;
@@ -385,9 +436,58 @@
         font-size: 1.6rem !important;
     }
 
+    /* ----- PAT Guide Modal ----- */
     .pat-guide-box {
         height: auto !important;
         max-height: 90vh !important;
         overflow-y: auto !important;
+    }
+
+    /* ----- Dropdowns inside modals (e.g., PDF size) ----- */
+    .custom-dropdown .dropdown-list {
+        position: fixed;
+        top: auto;
+        bottom: 80px;
+        left: 24px;
+        right: 24px;
+        width: auto;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
+
+/* Extra small devices (phones < 400px) */
+@media screen and (max-width: 400px) {
+    .status-bar {
+        font-size: 0.65rem;
+        gap: 4px;
+    }
+
+    .mode-btn {
+        padding: 4px 6px;
+        font-size: 0.65rem;
+    }
+
+    .mode-btn i {
+        width: 10px;
+        height: 10px;
+    }
+
+    .dashboard-actions {
+        gap: 4px;
+    }
+
+    .pill-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Larger tablets (landscape) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+
+    /* Optional: slight adjustments for tablets in landscape */
+    .editor-panel {
+        flex: 0 0 45% !important;
     }
 }

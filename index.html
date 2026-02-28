@@ -155,9 +155,15 @@
         </div>
 
         <div class="status-bar">
-            <button id="sync-status" class="sync-status-btn" style="display: none;" title="Click to Change Setup">
-                <i data-lucide="hard-drive"></i> Local Mode
-            </button>
+            <!-- Mode Toggle (Left Side) -->
+            <div class="mode-toggle">
+                <button id="mode-local" class="mode-btn active" title="Local Mode">
+                    <i data-lucide="hard-drive"></i> Local
+                </button>
+                <button id="mode-github" class="mode-btn" title="GitHub Mode">
+                    <i data-lucide="cloud"></i> GitHub
+                </button>
+            </div>
 
             <span id="stat-words">0 Words</span>
             <div class="toolbar-divider" style="height: 12px; margin: 0;"></div>
@@ -165,6 +171,7 @@
             <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0;"></div>
             <span id="stat-reading-time">0 min read</span>
 
+            <!-- Save to Cloud button (only visible in Local Mode) -->
             <button id="btn-open-sync-modal" class="sync-status-btn mode-github"
                 style="margin-left: auto; margin-right: 0; display: none;" title="Move local notes to GitHub">
                 <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> Save to Cloud
@@ -299,7 +306,8 @@
                         </h3>
                     </div>
 
-                    <div id="notes-tab-toggle" class="notes-tab-container" style="display: none;">
+                    <!-- Pill tabs – always visible -->
+                    <div id="notes-tab-toggle" class="notes-tab-container">
                         <button class="notes-tab-btn active" data-tab="local"><i data-lucide="hard-drive"></i>
                             Local</button>
                         <button class="notes-tab-btn" data-tab="github"><i data-lucide="cloud"></i> GitHub</button>
