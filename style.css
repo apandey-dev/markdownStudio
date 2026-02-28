@@ -1333,3 +1333,17 @@ body.dark-mode .sync-checkbox:checked {
         height: 24px;
     }
 }
+
+/* Shared view indicator */
+#shared-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: auto;
+}
