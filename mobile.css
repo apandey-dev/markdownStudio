@@ -20,6 +20,11 @@
         font-size: 16px !important;
     }
 
+    /* ✨ DYNAMIC HEIGHT FIX: Prevents header from jumping when keyboard opens ✨ */
+    body {
+        height: 100dvh !important;
+    }
+
     /* 2. NAVBAR (Clean & Minimal) */
     .navbar {
         padding: 0 16px;
@@ -27,7 +32,6 @@
         gap: 12px;
         flex-wrap: nowrap;
         justify-content: flex-start;
-        /* Align left for mobile */
     }
 
     #mobile-menu-btn {
@@ -43,9 +47,12 @@
     }
 
     .brand {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         flex: 1;
         text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* 3. EDITOR & PREVIEW WORKSPACE */
@@ -76,12 +83,12 @@
     .preview-panel {
         flex: 1 !important;
         display: none;
-        padding: 24px 20px;
+        padding: 20px 16px;
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
         /* FAB spacing */
     }
 
-    /* Toggle View Logic */
+    /* ✨ Toggle View Logic (Added Toolbar Hide for Full-Screen Reading) ✨ */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -90,47 +97,67 @@
         display: block !important;
     }
 
+    body.show-preview .editor-toolbar {
+        display: none !important;
+    }
+
+    /* Toolbar perfectly hidden in preview mode */
+
     textarea {
-        padding: 20px;
+        padding: 16px;
         padding-bottom: 80px;
         /* Space for FAB */
     }
 
-    /* 4. TOOLBAR (Touch Friendly Horizontal Scroll) */
+    /* 4. TOOLBAR (Compact & Clean) */
     .editor-toolbar {
-        padding: 8px 12px;
-        gap: 8px;
+        padding: 6px 8px !important;
+        gap: 4px !important;
+        min-height: 44px;
         -webkit-overflow-scrolling: touch;
-        /* Smooth iOS scroll */
         scroll-behavior: smooth;
     }
 
     .tool-btn {
-        padding: 10px;
-        /* Larger touch target */
+        padding: 6px !important;
+        /* Smaller touch target */
+    }
+
+    .tool-btn i {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .toolbar-divider {
+        margin: 0 2px !important;
+    }
+
+    .toolbar-spacer {
+        min-width: 8px !important;
     }
 
     .status-bar {
         padding: 8px 16px;
         padding-bottom: calc(8px + env(safe-area-inset-bottom));
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         justify-content: center;
-        /* Center stats on mobile */
     }
 
-    /* 5. FLOATING ACTION BUTTON (FAB) for Preview Toggle */
+    /* 5. FLOATING ACTION BUTTON (EYE/FAB - Perfect Placement) */
     #mobile-view-toggle {
         position: absolute;
-        bottom: 24px;
-        right: 24px;
+        /* Safe Area + extra spacing to avoid keyboard overlap */
+        bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+        right: 20px !important;
         z-index: 50;
-        width: 60px;
-        height: 60px;
+        width: 52px !important;
+        /* Refined size */
+        height: 52px !important;
         border-radius: 50%;
         background-color: var(--accent-color);
         color: var(--btn-text);
         border: none;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -141,12 +168,7 @@
         transform: scale(0.9);
     }
 
-    #mobile-view-toggle i {
-        width: 24px;
-        height: 24px;
-    }
-
-    /* 6. MOBILE SIDEBAR (Drawer Menu) */
+    /* 6. MOBILE SIDEBAR (Polished Buttons & Close Icon) */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -187,13 +209,44 @@
     }
 
     .sidebar-header {
-        height: 64px;
+        height: 60px !important;
+        /* Proper alignment */
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 20px;
-        padding-top: env(safe-area-inset-top);
+        padding: env(safe-area-inset-top) 20px 0 !important;
+    }
+
+    .sidebar-header h3 {
+        font-size: 1.15rem;
+        margin: 0;
+        font-family: var(--ui-font);
+        font-weight: 600;
+    }
+
+    /* Beautiful Circular Close Button */
+    #close-sidebar-btn {
+        background-color: var(--hover-bg) !important;
+        border-radius: 50% !important;
+        border: none;
+        color: var(--text-color);
+        cursor: pointer;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s !important;
+    }
+
+    #close-sidebar-btn i {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    #close-sidebar-btn:active {
+        background-color: var(--border-color) !important;
     }
 
     .sidebar-links {
@@ -210,7 +263,7 @@
         align-items: center;
         gap: 16px;
         padding: 16px;
-        border-radius: 16px;
+        border-radius: 12px;
         background-color: transparent;
         border: 1px solid var(--border-color);
         color: var(--text-color);
@@ -225,6 +278,7 @@
 
     .sidebar-btn:active {
         background-color: var(--hover-bg);
+        border-color: var(--accent-color);
     }
 
     /* SideBar Pill Toggle */
@@ -243,7 +297,6 @@
     /* 7. BOTTOM SHEET MODALS (Native iOS/Android Feel) */
     .modal-overlay {
         align-items: flex-end !important;
-        /* Push to bottom */
         padding: 0 !important;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -310,12 +363,10 @@
         border-radius: 16px !important;
     }
 
-    /* 8. NOTES DASHBOARD (Advanced Sliding Panes UX) */
+    /* 8. NOTES DASHBOARD */
     .notes-dashboard-box {
         padding: 0 !important;
-        /* Remove default padding */
         display: block !important;
-        /* Stack context */
         overflow: hidden !important;
     }
 
@@ -327,7 +378,6 @@
         z-index: 100;
     }
 
-    /* Left Pane (List View) */
     .notes-dashboard-left {
         width: 100% !important;
         height: 100% !important;
@@ -361,11 +411,9 @@
 
     .note-item.active {
         border-left: 1px solid var(--border-color) !important;
-        /* Remove heavy left border on mobile */
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* Right Pane (Preview / Actions) */
     .notes-dashboard-right {
         position: absolute !important;
         top: 0;
@@ -381,7 +429,6 @@
         padding-top: 16px;
     }
 
-    /* Sliding Animation Triggered via JS */
     .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
         transform: translateX(-30%);
         opacity: 0;
