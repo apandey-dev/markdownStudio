@@ -5,7 +5,7 @@
 
 @media screen and (max-width: 768px) {
 
-    /* 1. VISIBILITY UTILITIES */
+    /* ✨ 1. VISIBILITY & NATIVE APP FEEL UTILITIES ✨ */
     .mobile-only {
         display: flex !important;
     }
@@ -20,7 +20,12 @@
         font-size: 16px !important;
     }
 
-    /* ✨ DYNAMIC HEIGHT FIX: Prevents header from jumping when keyboard opens ✨ */
+    /* Remove annoying blue tap highlight on mobile browsers */
+    * {
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* DYNAMIC HEIGHT FIX: Prevents header from jumping when keyboard opens */
     body {
         height: 100dvh !important;
     }
@@ -88,7 +93,7 @@
         /* FAB spacing */
     }
 
-    /* ✨ Toggle View Logic (Added Toolbar Hide for Full-Screen Reading) ✨ */
+    /* Toggle View Logic */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -101,7 +106,7 @@
         display: none !important;
     }
 
-    /* Toolbar perfectly hidden in preview mode */
+    /* Toolbar hidden in preview mode */
 
     textarea {
         padding: 16px;
@@ -123,7 +128,8 @@
         /* Smaller touch target */
     }
 
-    .tool-btn i {
+    .tool-btn i,
+    .tool-btn svg {
         width: 16px !important;
         height: 16px !important;
     }
@@ -240,7 +246,8 @@
         transition: background 0.2s !important;
     }
 
-    #close-sidebar-btn i {
+    #close-sidebar-btn i,
+    #close-sidebar-btn svg {
         width: 18px !important;
         height: 18px !important;
     }
@@ -272,7 +279,8 @@
         font-weight: 500;
     }
 
-    .sidebar-btn i {
+    .sidebar-btn i,
+    .sidebar-btn svg {
         color: var(--accent-color);
     }
 
@@ -349,18 +357,22 @@
         border-radius: 14px !important;
     }
 
+    /* MODAL BUTTONS (Single Row Layout) */
     .modal-actions {
-        flex-direction: column-reverse !important;
+        flex-direction: row !important;
+        /* Forces row */
+        justify-content: space-between !important;
         gap: 12px !important;
         width: 100% !important;
         margin-top: 24px !important;
     }
 
     .modal-btn {
-        width: 100% !important;
-        padding: 16px !important;
-        font-size: 1.1rem !important;
-        border-radius: 16px !important;
+        flex: 1 !important;
+        /* Equal width distribution */
+        padding: 14px !important;
+        font-size: 1.05rem !important;
+        border-radius: 14px !important;
     }
 
     /* 8. NOTES DASHBOARD */
@@ -371,8 +383,8 @@
     }
 
     .notes-dashboard-box .btn-close-dashboard {
-        top: 16px !important;
-        right: 16px !important;
+        top: 12px !important;
+        right: 12px !important;
         background-color: var(--bg-color) !important;
         border: none !important;
         z-index: 100;
@@ -438,18 +450,49 @@
         transform: translateX(0);
     }
 
+    /* ✨ 9. PREVIEW DASHBOARD ACTION BUTTONS (Icon Only Circular Pills) ✨ */
     .dashboard-actions {
         padding: 12px 20px !important;
-        gap: 8px !important;
+        gap: 12px !important;
         overflow-x: auto;
-        white-space: nowrap;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg) !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        /* Actions to the right */
+        align-items: center !important;
     }
 
-    .pill-btn {
-        padding: 10px 16px !important;
-        font-size: 0.9rem !important;
+    /* Convert Pill buttons to circular Icon-only buttons */
+    .dashboard-actions .pill-btn {
+        font-size: 0 !important;
+        /* Hides text perfectly */
+        width: 44px !important;
+        /* Perfect touch size circle */
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Force icon size inside these circular buttons */
+    .dashboard-actions .pill-btn i,
+    .dashboard-actions .pill-btn svg {
+        width: 20px !important;
+        height: 20px !important;
+        margin: 0 !important;
+    }
+
+    /* Specifically keep Back Button on the far Left */
+    #dash-btn-back {
+        margin-right: auto !important;
+        background-color: var(--hover-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-color) !important;
     }
 
     .dashboard-preview-content {
@@ -458,7 +501,7 @@
         overflow-y: auto;
     }
 
-    /* 9. MINOR MODALS ADJUSTMENTS */
+    /* 10. MINOR MODALS ADJUSTMENTS */
     .delete-modal-box {
         padding-top: 40px !important;
         text-align: center !important;
@@ -472,11 +515,26 @@
         padding-top: 40px !important;
     }
 
-    /* Toast positioning above Safe Area */
+    /* ✨ 11. TOAST NOTIFICATION (Premium Elegant Pill UI) ✨ */
     #toast {
-        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-        width: calc(100% - 48px);
-        left: 24px;
-        right: 24px;
+        bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 32px) !important;
+        left: 50% !important;
+        right: auto !important;
+        margin-left: 0 !important;
+        transform: translate(-50%, 20px) !important;
+        padding: 12px 24px !important;
+        border-radius: 50px !important;
+        /* Beautiful pill shape */
+        font-size: 0.95rem !important;
+        text-align: center !important;
+        white-space: pre-wrap !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    #toast.show {
+        transform: translate(-50%, 0) !important;
     }
 }
