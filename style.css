@@ -1112,13 +1112,13 @@ body.dark-mode .btn-help-cute:hover {
 /* ✨ PREMIUM DOUBLE DASHED DIVIDER ✨ */
 .custom-divider {
     border: none;
-    height: 12px;
+    height: 5px;
     background-image: linear-gradient(to right, var(--accent-color) 60%, transparent 40%), linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
     background-position: top, bottom;
-    background-size: 20px 3px;
+    background-size: 12px 1px;
     background-repeat: repeat-x;
-    margin: 3em 0;
-    opacity: 0.8;
+    margin: 10px 0;
+    opacity: 10;
 }
 
 /* LOADING SPINNER */
