@@ -14,18 +14,15 @@
         display: none !important;
     }
 
-    /* Fix iOS automatic zoom on focus by forcing 16px font size */
     input,
     textarea {
         font-size: 16px !important;
     }
 
-    /* Remove annoying blue tap highlight on mobile browsers */
     * {
         -webkit-tap-highlight-color: transparent !important;
     }
 
-    /* DYNAMIC HEIGHT FIX: Prevents header from jumping when keyboard opens */
     body {
         height: 100dvh !important;
     }
@@ -60,15 +57,46 @@
         text-overflow: ellipsis;
     }
 
+    /* ✨ 3. NEW EYE (PREVIEW) BUTTON IN NAVBAR ✨ */
+    #mobile-view-toggle {
+        background-color: transparent !important;
+        border: 1.5px solid var(--border-color) !important;
+        color: var(--text-color) !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        /* Matches overall UI roundness */
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        box-shadow: none !important;
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+    }
+
+    #mobile-view-toggle i,
+    #mobile-view-toggle svg {
+        width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
+    }
+
+    #mobile-view-toggle:active {
+        background-color: var(--hover-bg) !important;
+        transform: scale(0.95);
+    }
+
     /* ✨ HIDE TEXT IN MOBILE PILL TOGGLES ✨ */
     .mode-tab .tab-text {
         display: none !important;
-        /* Hide text, show only icons */
     }
 
     .mode-tab {
         padding: 10px 0 !important;
-        /* Make pills square/circular for icons */
     }
 
     .mode-tab i,
@@ -78,7 +106,7 @@
         margin: 0 !important;
     }
 
-    /* 3. EDITOR & PREVIEW WORKSPACE */
+    /* 4. EDITOR & PREVIEW WORKSPACE */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -103,40 +131,14 @@
         border-right: none;
     }
 
+    /* ✨ Reclaimed Space (No more FAB at bottom) ✨ */
     .preview-panel {
         flex: 1 !important;
         display: none;
         padding: 20px 16px;
-        padding-bottom: calc(80px + env(safe-area-inset-bottom));
-        /* FAB spacing */
+        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* ✨ EXPLICIT MOBILE TYPOGRAPHY OVERRIDES ✨ */
-    #preview-output h1,
-    #dashboard-preview-output h1 {
-        font-size: 1.8rem !important;
-    }
-
-    #preview-output h2,
-    #dashboard-preview-output h2 {
-        font-size: 1.4rem !important;
-    }
-
-    #preview-output h3,
-    #dashboard-preview-output h3 {
-        font-size: 1.2rem !important;
-    }
-
-    #preview-output p,
-    #dashboard-preview-output p,
-    #preview-output ul,
-    #dashboard-preview-output ul,
-    #preview-output ol,
-    #dashboard-preview-output ol {
-        font-size: 1rem !important;
-    }
-
-    /* Toggle View Logic */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -149,15 +151,12 @@
         display: none !important;
     }
 
-    /* Toolbar hidden in preview mode */
-
     textarea {
         padding: 16px;
-        padding-bottom: 80px;
-        /* Space for FAB */
+        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* 4. TOOLBAR (Compact & Clean) */
+    /* 5. TOOLBAR (Compact & Clean) */
     .editor-toolbar {
         padding: 6px 8px !important;
         gap: 4px !important;
@@ -168,7 +167,6 @@
 
     .tool-btn {
         padding: 6px !important;
-        /* Smaller touch target */
     }
 
     .tool-btn i,
@@ -192,32 +190,7 @@
         justify-content: center;
     }
 
-    /* 5. FLOATING ACTION BUTTON (EYE/FAB - Perfect Placement) */
-    #mobile-view-toggle {
-        position: absolute;
-        /* Safe Area + extra spacing to avoid keyboard overlap */
-        bottom: calc(20px + env(safe-area-inset-bottom)) !important;
-        right: 20px !important;
-        z-index: 50;
-        width: 52px !important;
-        /* Refined size */
-        height: 52px !important;
-        border-radius: 50%;
-        background-color: var(--accent-color);
-        color: var(--btn-text);
-        border: none;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    #mobile-view-toggle:active {
-        transform: scale(0.9);
-    }
-
-    /* 6. MOBILE SIDEBAR (Polished Buttons & Close Icon) */
+    /* 6. MOBILE SIDEBAR */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -259,7 +232,6 @@
 
     .sidebar-header {
         height: 60px !important;
-        /* Proper alignment */
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
@@ -274,7 +246,6 @@
         font-weight: 600;
     }
 
-    /* Beautiful Circular Close Button */
     #close-sidebar-btn {
         background-color: var(--hover-bg) !important;
         border-radius: 50% !important;
@@ -332,7 +303,7 @@
         border-color: var(--accent-color);
     }
 
-    /* 7. BOTTOM SHEET MODALS (Native iOS/Android Feel) */
+    /* 7. BOTTOM SHEET MODALS */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -360,7 +331,6 @@
         transform: translateY(0) !important;
     }
 
-    /* Drag Handle Indicator */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -387,10 +357,8 @@
         border-radius: 14px !important;
     }
 
-    /* MODAL BUTTONS (Single Row Layout) */
     .modal-actions {
         flex-direction: row !important;
-        /* Forces row */
         justify-content: space-between !important;
         gap: 12px !important;
         width: 100% !important;
@@ -399,7 +367,6 @@
 
     .modal-btn {
         flex: 1 !important;
-        /* Equal width distribution */
         padding: 14px !important;
         font-size: 1.05rem !important;
         border-radius: 14px !important;
@@ -480,7 +447,6 @@
         transform: translateX(0);
     }
 
-    /* ✨ 9. PREVIEW DASHBOARD ACTION BUTTONS (Icon Only Circular Pills) ✨ */
     .dashboard-actions {
         padding: 12px 20px !important;
         gap: 12px !important;
@@ -489,16 +455,12 @@
         background-color: var(--nav-bg) !important;
         display: flex !important;
         justify-content: flex-end !important;
-        /* Actions to the right */
         align-items: center !important;
     }
 
-    /* Convert Pill buttons to circular Icon-only buttons */
     .dashboard-actions .pill-btn {
         font-size: 0 !important;
-        /* Hides text perfectly */
         width: 44px !important;
-        /* Perfect touch size circle */
         height: 44px !important;
         padding: 0 !important;
         border-radius: 50% !important;
@@ -509,7 +471,6 @@
         flex-shrink: 0 !important;
     }
 
-    /* Force icon size inside these circular buttons */
     .dashboard-actions .pill-btn i,
     .dashboard-actions .pill-btn svg {
         width: 20px !important;
@@ -517,7 +478,6 @@
         margin: 0 !important;
     }
 
-    /* Specifically keep Back Button on the far Left */
     #dash-btn-back {
         margin-right: auto !important;
         background-color: var(--hover-bg) !important;
@@ -531,7 +491,7 @@
         overflow-y: auto;
     }
 
-    /* 10. MINOR MODALS ADJUSTMENTS */
+    /* 9. MINOR MODALS ADJUSTMENTS */
     .delete-modal-box {
         padding-top: 40px !important;
         text-align: center !important;
@@ -545,7 +505,7 @@
         padding-top: 40px !important;
     }
 
-    /* ✨ 11. TOAST NOTIFICATION (Premium Elegant Pill UI) ✨ */
+    /* 10. TOAST NOTIFICATION */
     #toast {
         bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         width: auto !important;
@@ -557,7 +517,6 @@
         transform: translate(-50%, 20px) !important;
         padding: 12px 24px !important;
         border-radius: 50px !important;
-        /* Beautiful pill shape */
         font-size: 0.95rem !important;
         text-align: center !important;
         white-space: pre-wrap !important;
