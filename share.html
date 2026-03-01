@@ -8,24 +8,41 @@
 
     <title>Shared Note | Markdown Studio</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Delius&display=swap" rel="stylesheet">
-    <link id="theme-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <link id="theme-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" disabled>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Delius&display=swap"
+        rel="stylesheet">
+    <link id="theme-light" rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link id="theme-dark" rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" disabled>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="mobile.css">
-    
+
     <style>
+        /* ✨ STANDALONE SHARE UI STYLES ✨ */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--ui-font);
+            height: 100dvh;
+            /* Mobile jump fix */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         .share-container {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            height: 100%;
             width: 100vw;
             background-color: var(--preview-bg);
-            overflow: hidden;
         }
+
         .share-header {
             height: 60px;
             background-color: var(--nav-bg);
@@ -36,20 +53,62 @@
             padding: 0 24px;
             box-shadow: 0 4px 12px var(--shadow-color);
             z-index: 100;
+            flex-shrink: 0;
         }
+
+        .brand-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: var(--text-color);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-title i {
+            color: #10b981;
+            /* Emerald Green for Security */
+        }
+
+        /* ✨ Premium Edit Button ✨ */
+        #btn-edit-studio {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--accent-color);
+            color: var(--btn-text);
+            border: none;
+            padding: 8px 18px;
+            border-radius: 50px;
+            /* Pill shape */
+            font-family: var(--ui-font);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        #btn-edit-studio:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        #btn-edit-studio:active {
+            transform: scale(0.95);
+        }
+
         .share-content {
             flex: 1;
-            padding: 40px 15%;
+            padding: 40px max(15%, 24px);
+            /* Responsive horizontal padding */
             overflow-y: auto;
             font-family: var(--preview-font);
-            font-size: 1.05rem;
-            line-height: 1.6;
+            line-height: 1.7;
+            -webkit-overflow-scrolling: touch;
         }
-        @media screen and (max-width: 768px) {
-            .share-content {
-                padding: 24px 16px;
-            }
-        }
+
         .loading-state {
             display: flex;
             flex-direction: column;
@@ -59,6 +118,162 @@
             color: var(--text-color);
             opacity: 0.7;
             gap: 16px;
+            text-align: center;
+        }
+
+        .spin {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ✨ FLUID TYPOGRAPHY EXACTLY LIKE MAIN APP ✨ */
+        .share-content h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-top: 1em;
+            margin-bottom: 0.4em;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .share-content h2 {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            margin-top: 1em;
+            margin-bottom: 0.4em;
+            color: var(--accent-color);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .share-content h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin-top: 1em;
+            margin-bottom: 0.4em;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .share-content p,
+        .share-content ul,
+        .share-content ol {
+            margin-bottom: 0.8em;
+            font-size: clamp(1rem, 2vw, 1.05rem);
+        }
+
+        /* ADVANCED LINK STYLING */
+        .share-content a {
+            color: var(--link-color, #2563eb);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .share-content a:hover {
+            color: var(--link-hover, #1d4ed8);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* CODE BLOCK WRAPPING FIX */
+        .share-content pre {
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1em;
+            border: 1px solid var(--border-color);
+            padding: 0;
+        }
+
+        .share-content pre code {
+            font-family: var(--editor-font);
+            font-size: 0.9em;
+            padding: 20px;
+            display: block;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .share-content p code,
+        .share-content li code {
+            background-color: var(--border-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-color);
+        }
+
+        .share-content blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 20px;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1em;
+            font-style: italic;
+            background-color: var(--hover-bg);
+            padding: 12px 20px;
+            border-radius: 0 8px 8px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .share-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1em;
+        }
+
+        .share-content th,
+        .share-content td {
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .share-content th {
+            background-color: var(--hover-bg);
+        }
+
+        /* PREMIUM DOUBLE DASHED DIVIDER */
+        .custom-divider {
+            border: none;
+            height: 12px;
+            background-image: linear-gradient(to right, var(--accent-color) 60%, transparent 40%), linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
+            background-position: top, bottom;
+            background-size: 20px 3px;
+            background-repeat: repeat-x;
+            margin: 3em 0;
+            opacity: 0.8;
+        }
+
+        /* ✨ MOBILE SPECIFIC ADJUSTMENTS ✨ */
+        @media screen and (max-width: 768px) {
+            .share-header {
+                padding: 0 16px;
+                height: 56px;
+            }
+
+            .brand-title {
+                font-size: 1.05rem;
+            }
+
+            #btn-edit-studio {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+                gap: 6px;
+            }
+
+            #btn-edit-studio i {
+                width: 14px;
+                height: 14px;
+            }
+
+            /* Remove extra horizontal padding on small screens */
+            .share-content {
+                padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
@@ -66,6 +281,7 @@
 <body>
     <script>
         (function () {
+            // Initialize Theme smoothly to prevent flash of white
             const savedTheme = localStorage.getItem('theme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
@@ -73,7 +289,8 @@
                 document.getElementById('theme-light').disabled = true;
                 document.getElementById('theme-dark').disabled = false;
             }
-            
+
+            // Apply User's selected custom font
             const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
             document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
         })();
@@ -81,18 +298,18 @@
 
     <div class="share-container">
         <header class="share-header">
-            <div class="brand" style="display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="lock" style="width: 18px; color: #10b981;"></i> Secure Note
+            <div class="brand-title">
+                <i data-lucide="lock" style="width: 18px;"></i> Secure Note
             </div>
-            <button id="btn-edit-studio" class="modal-btn btn-confirm" style="font-size: 0.9rem;">
-                <i data-lucide="external-link" style="width: 16px;"></i> Edit in Studio
+            <button id="btn-edit-studio" title="Open and edit this note in your Studio">
+                <i data-lucide="external-link"></i> Edit in Studio
             </button>
         </header>
 
         <div class="share-content" id="shared-preview">
             <div class="loading-state" id="loading-indicator">
                 <i data-lucide="loader" class="spin" style="width: 32px; height: 32px; color: var(--accent-color);"></i>
-                <p>Decrypting secure payload...</p>
+                <p style="font-weight: 500; font-size: 1.1rem; margin-top: 8px;">Decrypting secure payload...</p>
             </div>
         </div>
     </div>
@@ -105,17 +322,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js"></script>
 
     <script>
+        // Render Icons
         lucide.createIcons();
         window.sharedRawText = "";
 
-        // Shared Parser Utility (Kept local to prevent editor.js dependency)
+        // Shared Parser Utility 
         function customMarkdownParser(rawText) {
             let processedText = rawText;
             processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
             processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-            
+
             marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
             const htmlContent = marked.parse(processedText);
             return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
@@ -129,9 +347,10 @@
             const indicator = document.getElementById('loading-indicator');
 
             if (!gistId || !key) {
-                indicator.innerHTML = `<i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: #ef4444;"></i>
-                                       <h3 style="color: var(--text-color);">Invalid Secure Link</h3>
-                                       <p>The link is missing the Gist ID or the decryption key.</p>`;
+                indicator.innerHTML = `
+                    <i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: #ef4444;"></i>
+                    <h3 style="color: var(--text-color); margin: 0;">Invalid Secure Link</h3>
+                    <p style="opacity: 0.8; font-size: 0.95rem;">The link is missing the Gist ID or the decryption key.</p>`;
                 lucide.createIcons();
                 return;
             }
@@ -141,41 +360,47 @@
                 const res = await fetch(`https://api.github.com/gists/${gistId}`);
                 if (!res.ok) throw new Error("Document not found or removed by owner.");
                 const data = await res.json();
-                
+
                 const files = Object.values(data.files);
                 if (files.length === 0) throw new Error("No readable files found.");
-                
+
                 const encryptedContent = files[0].content;
-                
-                // Decrypt via AES-256
+
+                // Decrypt via AES-256 using the key from URL hash
                 const decryptedBytes = CryptoJS.AES.decrypt(encryptedContent, key);
                 const rawText = decryptedBytes.toString(CryptoJS.enc.Utf8);
-                
+
                 if (!rawText) throw new Error("Decryption failed. The secret key is invalid.");
 
+                // Store globally for Edit button
                 window.sharedRawText = rawText;
 
-                // Render Markdown
+                // Render Markdown smoothly
                 container.innerHTML = customMarkdownParser(rawText);
                 renderMathInElement(container, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
                 container.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
 
             } catch (err) {
-                indicator.innerHTML = `<i data-lucide="x-circle" style="width: 48px; height: 48px; color: #ef4444;"></i>
-                                       <h3 style="color: var(--text-color);">Error Loading Document</h3>
-                                       <p>${err.message}</p>`;
+                indicator.innerHTML = `
+                    <i data-lucide="x-circle" style="width: 48px; height: 48px; color: #ef4444;"></i>
+                    <h3 style="color: var(--text-color); margin: 0;">Error Loading Document</h3>
+                    <p style="opacity: 0.8; font-size: 0.95rem;">${err.message}</p>`;
                 lucide.createIcons();
             }
         }
 
-        // Send back to Editor
+        // Send back to main Editor to save/edit
         document.getElementById('btn-edit-studio').addEventListener('click', () => {
-            if(!window.sharedRawText) return alert("Note is not loaded yet.");
+            if (!window.sharedRawText) return alert("Note is not loaded yet.");
+
+            // Re-encode via Base64 for local transfer to the main app
             const encodedData = btoa(encodeURIComponent(window.sharedRawText));
             window.location.href = `https://apandey-studio.vercel.app/#${encodedData}`;
         });
 
+        // Trigger load on mount
         window.onload = loadEncryptedGist;
     </script>
 </body>
+
 </html>
