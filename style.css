@@ -110,7 +110,7 @@ body {
     gap: 10px;
 }
 
-/* MODE TOGGLE PILL */
+/* ✨ MODE TOGGLE PILL ✨ */
 .mode-toggle {
     display: flex;
     background-color: var(--hover-bg);
@@ -264,7 +264,7 @@ body {
 }
 
 /* BUTTONS */
-.actions>button,
+.actions>button:not(.theme-pill-btn),
 .modal-btn {
     display: flex;
     align-items: center;
@@ -282,22 +282,55 @@ body {
     transition: all 0.2s ease;
 }
 
-.actions>button:hover,
+.actions>button:not(.theme-pill-btn):hover,
 .modal-btn.btn-confirm:hover {
     background-color: var(--accent-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 
-.actions #btn-theme {
+/* ✨ NEW: PREMIUM THEME PILL TOGGLE ✨ */
+.theme-pill-btn {
     background-color: transparent;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
+    color: #f59e0b;
+    /* Light mode Sun Color */
+    width: 38px;
+    height: 38px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    margin-left: 4px;
 }
 
-.actions #btn-theme:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--text-color);
+.theme-pill-btn:hover {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: #f59e0b;
+    transform: rotate(15deg) scale(1.05);
+    /* Satisfying interaction */
+}
+
+body.dark-mode .theme-pill-btn {
+    color: #60a5fa;
+    /* Dark mode Moon Color */
+}
+
+body.dark-mode .theme-pill-btn:hover {
+    background-color: rgba(96, 165, 250, 0.1);
+    border-color: #60a5fa;
+    transform: rotate(-15deg) scale(1.05);
+    /* Counter rotation for moon */
+}
+
+.theme-pill-btn i,
+.theme-pill-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    transition: all 0.3s ease;
 }
 
 /* MAIN WORKSPACE */
@@ -512,7 +545,7 @@ body.view-preview .divider {
     color: var(--accent-color);
 }
 
-/* ✨ FLUID TYPOGRAPHY: Automatically scales between desktop and mobile ✨ */
+/* FLUID TYPOGRAPHY */
 #preview-output h1,
 #dashboard-preview-output h1 {
     font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -539,7 +572,7 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* PRE/CODE WRAPPING FIX FOR BOTH UI & PDF */
+/* PRE/CODE WRAPPING FIX */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
@@ -1117,9 +1150,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* ==========================================================================
-   ✨ EXPORT SPECIFIC STYLES (Strict Paper Typography) ✨
-   ========================================================================== */
+/* ✨ EXPORT SPECIFIC STYLES (Strict Paper Typography) ✨ */
 @media print {
 
     .navbar,
@@ -1167,7 +1198,6 @@ body.dark-mode .btn-help-cute:hover {
     #dashboard-preview-output {
         font-size: 11pt !important;
         color: #000 !important;
-        /* Force black ink */
     }
 
     #preview-output h1,

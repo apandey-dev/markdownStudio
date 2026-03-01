@@ -81,9 +81,9 @@
             <button id="btn-pdf" class="desktop-only" title="Export to PDF">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export
             </button>
-            <button id="btn-theme" title="Toggle Dark/Light Mode"
-                style="padding: 6px; width: 34px; height: 34px; border-radius: 50%;">
-                <i id="theme-icon" style="width: 16px; height: 16px;"></i>
+
+            <button id="btn-theme" class="theme-pill-btn" title="Toggle Dark/Light Mode">
+                <i id="theme-icon"></i>
             </button>
         </div>
     </header>
@@ -95,15 +95,15 @@
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
 
-            <div style="padding: 20px 20px 0;">
+            <div style="padding: 16px 16px 0;">
                 <div class="mode-toggle" id="mobile-mode-toggle" style="width: 100%; justify-content: space-between;">
                     <button class="mode-tab active" data-target="local" id="mob-tab-local"
                         style="flex: 1; justify-content: center;">
-                        <i data-lucide="hard-drive" style="width: 16px; height: 16px;"></i> Local
+                        <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local
                     </button>
                     <button class="mode-tab" data-target="github" id="mob-tab-github"
                         style="flex: 1; justify-content: center;">
-                        <i data-lucide="cloud" style="width: 16px; height: 16px;"></i> Cloud
+                        <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> Cloud
                     </button>
                 </div>
             </div>
@@ -203,7 +203,8 @@
 
             <div class="github-token-section" id="github-token-section" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token</label>
+                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token
+                        (Classic)</label>
                     <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?">
                         <i data-lucide="help-circle"></i> Need Help?
                     </button>
@@ -268,6 +269,7 @@
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+
                         <div class="notes-header-text">
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -278,8 +280,10 @@
                                 <span id="dashboard-mode-badge" class="dashboard-badge"></span>
                             </div>
                         </div>
+
                         <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
                                 data-lucide="plus"></i> Create New Note</button>
+
                         <button class="modal-btn btn-confirm" id="btn-push-github"
                             style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 16px; font-size: 1rem; padding: 12px;">
                             <i data-lucide="cloud-upload"></i> Push Local to Cloud
