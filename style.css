@@ -17,6 +17,14 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
+    /* ✨ NEW: Link Colors for Light Mode ✨ */
+    --link-color: #2563eb;
+    /* Modern Blue */
+    --link-hover: #1d4ed8;
+    /* Darker Blue */
+    --link-active: #1e40af;
+    /* Deepest Blue */
+
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fira Code', monospace;
@@ -35,6 +43,14 @@ body.dark-mode {
     --shadow-color: rgba(255, 255, 255, 0.05);
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
+
+    /* ✨ NEW: Link Colors for Dark Mode ✨ */
+    --link-color: #60a5fa;
+    /* Lighter Blue for contrast */
+    --link-hover: #93c5fd;
+    /* Soft glowing blue */
+    --link-active: #bfdbfe;
+    /* Brightest blue */
 }
 
 * {
@@ -519,7 +535,7 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* ✨ PRE/CODE WRAPPING FIX FOR BOTH UI & PDF ✨ */
+/* ✨ PRE/CODE WRAPPING FIX ✨ */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
@@ -535,8 +551,6 @@ body.view-preview .divider {
     font-size: 0.9em;
     padding: 20px;
     display: block;
-
-    /* Next 3 lines ensure code wraps in the normal UI too! */
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -585,6 +599,28 @@ body.view-preview .divider {
 #preview-output th,
 #dashboard-preview-output th {
     background-color: var(--hover-bg);
+}
+
+/* ✨ ADVANCED LINK STYLING (A tags) ✨ */
+#preview-output a,
+#dashboard-preview-output a {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+#preview-output a:hover,
+#dashboard-preview-output a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+#preview-output a:active,
+#dashboard-preview-output a:active {
+    color: var(--link-active);
+    text-decoration: underline;
 }
 
 /* MODALS CORE */

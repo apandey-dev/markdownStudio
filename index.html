@@ -75,7 +75,7 @@
                 style="background-color: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
             </button>
-            <button id="btn-share" class="desktop-only" title="Generate Shareable Link">
+            <button id="btn-share" class="desktop-only" title="Generate Secure Link">
                 <i data-lucide="link" style="width: 16px; height: 16px;"></i> Share
             </button>
             <button id="btn-pdf" class="desktop-only" title="Export to PDF">
@@ -95,15 +95,15 @@
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
 
-            <div style="padding: 16px 16px 0;">
+            <div style="padding: 20px 20px 0;">
                 <div class="mode-toggle" id="mobile-mode-toggle" style="width: 100%; justify-content: space-between;">
                     <button class="mode-tab active" data-target="local" id="mob-tab-local"
                         style="flex: 1; justify-content: center;">
-                        <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local
+                        <i data-lucide="hard-drive" style="width: 16px; height: 16px;"></i> Local
                     </button>
                     <button class="mode-tab" data-target="github" id="mob-tab-github"
                         style="flex: 1; justify-content: center;">
-                        <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> Cloud
+                        <i data-lucide="cloud" style="width: 16px; height: 16px;"></i> Cloud
                     </button>
                 </div>
             </div>
@@ -111,7 +111,7 @@
             <div class="sidebar-links">
                 <button class="sidebar-btn modal-trigger-notes" id="sidebar-btn-notes"><i data-lucide="folder-open"></i>
                     My Notes</button>
-                <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="link"></i> Share Link</button>
+                <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="link"></i> Secure Share</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
                 <button class="sidebar-btn" id="sidebar-btn-theme"><i data-lucide="moon" id="sidebar-theme-icon"></i>
                     Toggle Theme</button>
@@ -203,8 +203,7 @@
 
             <div class="github-token-section" id="github-token-section" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token
-                        (Classic)</label>
+                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token</label>
                     <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?">
                         <i data-lucide="help-circle"></i> Need Help?
                     </button>
@@ -229,7 +228,7 @@
                 <i data-lucide="book-open"></i> How to get a PAT?
             </h3>
             <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Follow these steps to generate a secure
-                token for syncing.</p>
+                token for syncing and sharing.</p>
 
             <ul class="guide-steps">
                 <li><span class="step-num">1</span>
@@ -243,7 +242,8 @@
                     <div>Click <strong>Generate new token (classic)</strong>.</div>
                 </li>
                 <li><span class="step-num">4</span>
-                    <div>Give it a name, and strictly check the <code>repo</code> checkbox (needed to save files).</div>
+                    <div>Give it a name, and strictly check BOTH the <code>repo</code> AND <code>gist</code> checkboxes.
+                    </div>
                 </li>
                 <li><span class="step-num">5</span>
                     <div>Click <strong>Generate token</strong>, copy it, and paste it here!</div>
@@ -251,7 +251,7 @@
             </ul>
 
             <div class="modal-actions" style="justify-content: space-between; margin-top: 24px;">
-                <a href="https://github.com/settings/tokens/new?scopes=repo&description=Markdown+Studio+Sync"
+                <a href="https://github.com/settings/tokens/new?scopes=repo,gist&description=Markdown+Studio+Sync"
                     target="_blank" class="modal-btn btn-confirm"
                     style="text-decoration: none; background-color: #2ea043; color: white;">
                     <i data-lucide="external-link" style="width: 16px;"></i> Open GitHub
@@ -268,7 +268,6 @@
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-
                         <div class="notes-header-text">
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -279,10 +278,8 @@
                                 <span id="dashboard-mode-badge" class="dashboard-badge"></span>
                             </div>
                         </div>
-
                         <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
                                 data-lucide="plus"></i> Create New Note</button>
-
                         <button class="modal-btn btn-confirm" id="btn-push-github"
                             style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 16px; font-size: 1rem; padding: 12px;">
                             <i data-lucide="cloud-upload"></i> Push Local to Cloud

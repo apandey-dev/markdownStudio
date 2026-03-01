@@ -1,8 +1,11 @@
 /* ==========================================================================
-   MARKDOWN STUDIO - MOBILE RESPONSIVE STYLES
+   MARKDOWN STUDIO - PREMIUM MOBILE UI/UX
+   Description: Native app-like feel, Bottom Sheets, Safe Areas, Smooth Scroll.
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
+
+    /* 1. VISIBILITY UTILITIES */
     .mobile-only {
         display: flex !important;
     }
@@ -11,23 +14,20 @@
         display: none !important;
     }
 
-    /* Fixed Mobile Header Logic */
-    .navbar {
-        padding: 0 12px;
-        gap: 8px;
-        flex-wrap: nowrap;
-        overflow: hidden;
-        width: 100%;
-        flex-shrink: 0;
+    /* Fix iOS automatic zoom on focus by forcing 16px font size */
+    input,
+    textarea {
+        font-size: 16px !important;
     }
 
-    .brand {
-        font-size: 1.15rem;
-        flex-shrink: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-width: 0;
+    /* 2. NAVBAR (Clean & Minimal) */
+    .navbar {
+        padding: 0 16px;
+        height: 56px;
+        gap: 12px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        /* Align left for mobile */
     }
 
     #mobile-menu-btn {
@@ -35,12 +35,20 @@
         border: none;
         color: var(--text-color);
         cursor: pointer;
-        padding: 4px;
-        font-size: 1.2rem;
-        flex-shrink: 0;
+        padding: 8px;
+        margin-left: -8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* Core App Container lock */
+    .brand {
+        font-size: 1.2rem;
+        flex: 1;
+        text-align: left;
+    }
+
+    /* 3. EDITOR & PREVIEW WORKSPACE */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -48,14 +56,12 @@
         min-height: 0;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
     }
 
     .split-workspace {
         flex: 1 !important;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
         position: relative;
         min-height: 0;
     }
@@ -65,17 +71,17 @@
         display: flex !important;
         flex-direction: column;
         border-right: none;
-        overflow: hidden;
     }
 
     .preview-panel {
         flex: 1 !important;
         display: none;
-        padding: 20px 16px;
-        overflow-y: auto;
-        min-height: 0;
+        padding: 24px 20px;
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
+        /* FAB spacing */
     }
 
+    /* Toggle View Logic */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -84,31 +90,63 @@
         display: block !important;
     }
 
-    /* Floating View Toggle Button */
+    textarea {
+        padding: 20px;
+        padding-bottom: 80px;
+        /* Space for FAB */
+    }
+
+    /* 4. TOOLBAR (Touch Friendly Horizontal Scroll) */
+    .editor-toolbar {
+        padding: 8px 12px;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
+        /* Smooth iOS scroll */
+        scroll-behavior: smooth;
+    }
+
+    .tool-btn {
+        padding: 10px;
+        /* Larger touch target */
+    }
+
+    .status-bar {
+        padding: 8px 16px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+        font-size: 0.8rem;
+        justify-content: center;
+        /* Center stats on mobile */
+    }
+
+    /* 5. FLOATING ACTION BUTTON (FAB) for Preview Toggle */
     #mobile-view-toggle {
         position: absolute;
-        bottom: 16px;
-        right: 16px;
+        bottom: 24px;
+        right: 24px;
         z-index: 50;
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         background-color: var(--accent-color);
         color: var(--btn-text);
         border: none;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: transform 0.2s;
-        display: flex;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #mobile-view-toggle:active {
         transform: scale(0.9);
     }
 
-    /* Mobile Sidebar Menu */
+    #mobile-view-toggle i {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* 6. MOBILE SIDEBAR (Drawer Menu) */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -116,11 +154,13 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 4000;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s;
+        transition: opacity 0.3s ease;
     }
 
     .mobile-sidebar-overlay.show {
@@ -131,19 +171,19 @@
     .mobile-sidebar {
         position: absolute;
         top: 0;
-        left: -280px;
+        left: -300px;
         width: 280px;
+        max-width: 85vw;
         height: 100%;
         background-color: var(--nav-bg);
-        border-right: 1px solid var(--border-color);
-        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
         display: flex;
         flex-direction: column;
     }
 
     .mobile-sidebar-overlay.show .mobile-sidebar {
-        transform: translateX(280px);
+        transform: translateX(300px);
     }
 
     .sidebar-header {
@@ -153,127 +193,106 @@
         align-items: center;
         justify-content: space-between;
         padding: 0 20px;
-        color: var(--accent-color);
-    }
-
-    .sidebar-header h3 {
-        font-size: 1.2rem;
-        margin: 0;
-        font-family: var(--ui-font);
-        font-weight: 600;
-    }
-
-    #close-sidebar-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-color);
-        cursor: pointer;
-        padding: 4px;
-        display: flex;
+        padding-top: env(safe-area-inset-top);
     }
 
     .sidebar-links {
-        padding: 16px;
+        padding: 20px;
         display: flex;
         flex-direction: column;
         gap: 12px;
+        overflow-y: auto;
     }
 
     .sidebar-btn {
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 16px;
         padding: 16px;
-        border-radius: 12px;
+        border-radius: 16px;
+        background-color: transparent;
         border: 1px solid var(--border-color);
-        background-color: var(--bg-color);
         color: var(--text-color);
         font-family: var(--ui-font);
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 500;
-        text-align: left;
-    }
-
-    .sidebar-btn:active {
-        background-color: var(--hover-bg);
-        border-color: var(--accent-color);
     }
 
     .sidebar-btn i {
         color: var(--accent-color);
     }
 
-    textarea {
-        padding: 16px;
-        font-size: 14px;
+    .sidebar-btn:active {
+        background-color: var(--hover-bg);
     }
 
-    .status-bar {
-        padding: 8px 16px;
-        font-size: 0.75rem;
+    /* SideBar Pill Toggle */
+    #mobile-mode-toggle {
+        padding: 4px;
+        background-color: var(--bg-color);
+        border-radius: 100px;
+        margin-bottom: 8px;
     }
 
-    /* BOTTOM SHEET MODALS FOR MOBILE */
+    #mobile-mode-toggle .mode-tab {
+        padding: 10px 0;
+        font-size: 0.9rem;
+    }
+
+    /* 7. BOTTOM SHEET MODALS (Native iOS/Android Feel) */
     .modal-overlay {
         align-items: flex-end !important;
+        /* Push to bottom */
         padding: 0 !important;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        display: flex !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 
     .modal-box {
         position: relative;
         width: 100% !important;
         max-width: 100% !important;
-        border-radius: 32px 32px 0 0 !important;
-        padding: 32px 24px 40px !important;
+        max-height: 90vh !important;
+        border-radius: 28px 28px 0 0 !important;
+        padding: 32px 24px calc(24px + env(safe-area-inset-bottom)) !important;
         margin: 0 !important;
         transform: translateY(100%) !important;
-        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
+        transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
         border: none !important;
         border-top: 1px solid var(--border-color) !important;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .modal-overlay.show .modal-box {
         transform: translateY(0) !important;
     }
 
+    /* Drag Handle Indicator */
     .modal-box::before {
         content: '';
         position: absolute;
-        top: 12px;
+        top: 10px;
         left: 50%;
         transform: translateX(-50%);
-        width: 44px;
+        width: 40px;
         height: 5px;
         background-color: var(--text-color);
         opacity: 0.15;
-        border-radius: 5px;
+        border-radius: 10px;
         z-index: 10;
     }
 
     .modal-title {
         font-size: 1.5rem !important;
         margin-bottom: 24px !important;
-        white-space: nowrap !important;
-    }
-
-    .modal-title i {
-        flex-shrink: 0 !important;
-        width: 24px !important;
-        height: 24px !important;
-    }
-
-    .input-group label {
-        font-size: 1rem !important;
     }
 
     .modal-input,
     .dropdown-header {
         padding: 16px !important;
-        font-size: 1.05rem !important;
+        font-size: 1rem !important;
         border-radius: 14px !important;
     }
 
@@ -291,52 +310,62 @@
         border-radius: 16px !important;
     }
 
-    /* Specific Bottom Sheet Adjustments */
+    /* 8. NOTES DASHBOARD (Advanced Sliding Panes UX) */
     .notes-dashboard-box {
-        height: 85vh !important;
-        flex-direction: column !important;
         padding: 0 !important;
+        /* Remove default padding */
+        display: block !important;
+        /* Stack context */
         overflow: hidden !important;
     }
 
     .notes-dashboard-box .btn-close-dashboard {
-        top: 12px !important;
-        right: 12px !important;
-        width: 34px !important;
-        height: 34px !important;
+        top: 16px !important;
+        right: 16px !important;
         background-color: var(--bg-color) !important;
+        border: none !important;
+        z-index: 100;
     }
 
+    /* Left Pane (List View) */
     .notes-dashboard-left {
         width: 100% !important;
-        height: 100%;
+        height: 100% !important;
+        min-height: 50vh;
         border-right: none !important;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s;
         padding-top: 24px !important;
+        display: flex;
+        flex-direction: column;
     }
 
     .notes-dashboard-left-header {
-        padding: 0 24px 16px !important;
-        padding-top: 20px !important;
+        padding: 0 20px 16px !important;
     }
 
     #btn-new-note {
-        width: 100% !important;
-        padding: 16px !important;
-        font-size: 1.1rem !important;
-        border-radius: 16px !important;
+        font-size: 1.05rem !important;
     }
 
     .notes-list {
-        padding: 4px 24px 24px !important;
+        padding: 0 20px 20px !important;
+        flex: 1;
+        overflow-y: auto;
     }
 
     .note-item {
         padding: 18px 20px !important;
         border-radius: 16px !important;
-        background-color: var(--nav-bg) !important;
+        margin-bottom: 12px;
     }
 
+    .note-item.active {
+        border-left: 1px solid var(--border-color) !important;
+        /* Remove heavy left border on mobile */
+        border: 2px solid var(--accent-color) !important;
+    }
+
+    /* Right Pane (Preview / Actions) */
     .notes-dashboard-right {
         position: absolute !important;
         top: 0;
@@ -344,11 +373,15 @@
         width: 100% !important;
         height: 100% !important;
         transform: translateX(100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 5;
-        padding-top: 24px;
+        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+        z-index: 50;
+        background-color: var(--preview-bg) !important;
+        display: flex;
+        flex-direction: column;
+        padding-top: 16px;
     }
 
+    /* Sliding Animation Triggered via JS */
     .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
         transform: translateX(-30%);
         opacity: 0;
@@ -363,35 +396,40 @@
         gap: 8px !important;
         overflow-x: auto;
         white-space: nowrap;
-        flex-shrink: 0;
-        padding-right: 50px !important;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--nav-bg) !important;
     }
 
     .pill-btn {
-        padding: 8px 14px !important;
-        font-size: 0.85rem !important;
+        padding: 10px 16px !important;
+        font-size: 0.9rem !important;
     }
 
     .dashboard-preview-content {
-        padding: 24px 20px !important;
+        padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) !important;
+        flex: 1;
+        overflow-y: auto;
     }
 
+    /* 9. MINOR MODALS ADJUSTMENTS */
     .delete-modal-box {
-        text-align: left !important;
         padding-top: 40px !important;
+        text-align: center !important;
     }
 
     .delete-icon-wrapper {
-        justify-content: flex-start !important;
+        justify-content: center !important;
     }
 
-    .delete-title {
-        font-size: 1.6rem !important;
+    .setup-modal-box {
+        padding-top: 40px !important;
     }
 
-    .pat-guide-box {
-        height: auto !important;
-        max-height: 90vh !important;
-        overflow-y: auto !important;
+    /* Toast positioning above Safe Area */
+    #toast {
+        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+        width: calc(100% - 48px);
+        left: 24px;
+        right: 24px;
     }
 }
