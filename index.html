@@ -47,10 +47,20 @@
         <div class="actions">
             <div class="mode-toggle desktop-only" id="nav-mode-toggle">
                 <button class="mode-tab active" data-target="local" id="nav-tab-local">
-                    <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local
+                    <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> <span
+                        class="tab-text">Local</span>
                 </button>
                 <button class="mode-tab" data-target="github" id="nav-tab-github">
-                    <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> Cloud
+                    <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> <span class="tab-text">Cloud</span>
+                </button>
+            </div>
+
+            <div class="mode-toggle desktop-only" id="theme-toggle-desktop">
+                <button class="mode-tab theme-tab active" data-theme="light">
+                    <i data-lucide="sun" style="width: 14px; height: 14px;"></i> <span class="tab-text">Light</span>
+                </button>
+                <button class="mode-tab theme-tab" data-theme="dark">
+                    <i data-lucide="moon" style="width: 14px; height: 14px;"></i> <span class="tab-text">Dark</span>
                 </button>
             </div>
 
@@ -81,10 +91,6 @@
             <button id="btn-pdf" class="desktop-only" title="Export to PDF">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export
             </button>
-
-            <button id="btn-theme" class="theme-pill-btn" title="Toggle Dark/Light Mode">
-                <i id="theme-icon"></i>
-            </button>
         </div>
     </header>
 
@@ -95,17 +101,32 @@
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
 
-            <div style="padding: 16px 16px 0;">
-                <div class="mode-toggle" id="mobile-mode-toggle" style="width: 100%; justify-content: space-between;">
-                    <button class="mode-tab active" data-target="local" id="mob-tab-local"
-                        style="flex: 1; justify-content: center;">
-                        <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> Local
+            <div style="padding: 20px 20px 0; display: flex; gap: 12px;">
+
+                <div class="mode-toggle" id="mobile-mode-toggle" style="flex: 1;">
+                    <button class="mode-tab active" data-target="local" style="flex: 1; justify-content: center;"
+                        title="Local Mode">
+                        <i data-lucide="hard-drive" style="width: 16px; height: 16px;"></i> <span
+                            class="tab-text">Local</span>
                     </button>
-                    <button class="mode-tab" data-target="github" id="mob-tab-github"
-                        style="flex: 1; justify-content: center;">
-                        <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> Cloud
+                    <button class="mode-tab" data-target="github" style="flex: 1; justify-content: center;"
+                        title="Cloud Mode">
+                        <i data-lucide="cloud" style="width: 16px; height: 16px;"></i> <span
+                            class="tab-text">Cloud</span>
                     </button>
                 </div>
+
+                <div class="mode-toggle" id="mobile-theme-toggle" style="flex: 1;">
+                    <button class="mode-tab theme-tab active" data-theme="light"
+                        style="flex: 1; justify-content: center;" title="Light Mode">
+                        <i data-lucide="sun" style="width: 16px; height: 16px;"></i> <span class="tab-text">Light</span>
+                    </button>
+                    <button class="mode-tab theme-tab" data-theme="dark" style="flex: 1; justify-content: center;"
+                        title="Dark Mode">
+                        <i data-lucide="moon" style="width: 16px; height: 16px;"></i> <span class="tab-text">Dark</span>
+                    </button>
+                </div>
+
             </div>
 
             <div class="sidebar-links">
@@ -113,8 +134,6 @@
                     My Notes</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="link"></i> Secure Share</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
-                <button class="sidebar-btn" id="sidebar-btn-theme"><i data-lucide="moon" id="sidebar-theme-icon"></i>
-                    Toggle Theme</button>
             </div>
         </div>
     </div>
@@ -203,8 +222,7 @@
 
             <div class="github-token-section" id="github-token-section" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token
-                        (Classic)</label>
+                    <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token</label>
                     <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?">
                         <i data-lucide="help-circle"></i> Need Help?
                     </button>
@@ -269,7 +287,6 @@
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-
                         <div class="notes-header-text">
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -280,10 +297,8 @@
                                 <span id="dashboard-mode-badge" class="dashboard-badge"></span>
                             </div>
                         </div>
-
                         <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
                                 data-lucide="plus"></i> Create New Note</button>
-
                         <button class="modal-btn btn-confirm" id="btn-push-github"
                             style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 16px; font-size: 1rem; padding: 12px;">
                             <i data-lucide="cloud-upload"></i> Push Local to Cloud

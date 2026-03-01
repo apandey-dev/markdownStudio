@@ -14,15 +14,18 @@
         display: none !important;
     }
 
+    /* Fix iOS automatic zoom on focus by forcing 16px font size */
     input,
     textarea {
         font-size: 16px !important;
     }
 
+    /* Remove annoying blue tap highlight on mobile browsers */
     * {
         -webkit-tap-highlight-color: transparent !important;
     }
 
+    /* DYNAMIC HEIGHT FIX: Prevents header from jumping when keyboard opens */
     body {
         height: 100dvh !important;
     }
@@ -57,20 +60,25 @@
         text-overflow: ellipsis;
     }
 
-    /* ✨ 3. PRECISE TOUCH TARGET FOR THEME PILL ON MOBILE ✨ */
-    .theme-pill-btn {
-        width: 40px !important;
-        height: 40px !important;
-        margin-left: 0 !important;
+    /* ✨ HIDE TEXT IN MOBILE PILL TOGGLES ✨ */
+    .mode-tab .tab-text {
+        display: none !important;
+        /* Hide text, show only icons */
     }
 
-    .theme-pill-btn i,
-    .theme-pill-btn svg {
-        width: 20px !important;
-        height: 20px !important;
+    .mode-tab {
+        padding: 10px 0 !important;
+        /* Make pills square/circular for icons */
     }
 
-    /* 4. EDITOR & PREVIEW WORKSPACE */
+    .mode-tab i,
+    .mode-tab svg {
+        width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
+    }
+
+    /* 3. EDITOR & PREVIEW WORKSPACE */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -100,8 +108,35 @@
         display: none;
         padding: 20px 16px;
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
+        /* FAB spacing */
     }
 
+    /* ✨ EXPLICIT MOBILE TYPOGRAPHY OVERRIDES ✨ */
+    #preview-output h1,
+    #dashboard-preview-output h1 {
+        font-size: 1.8rem !important;
+    }
+
+    #preview-output h2,
+    #dashboard-preview-output h2 {
+        font-size: 1.4rem !important;
+    }
+
+    #preview-output h3,
+    #dashboard-preview-output h3 {
+        font-size: 1.2rem !important;
+    }
+
+    #preview-output p,
+    #dashboard-preview-output p,
+    #preview-output ul,
+    #dashboard-preview-output ul,
+    #preview-output ol,
+    #dashboard-preview-output ol {
+        font-size: 1rem !important;
+    }
+
+    /* Toggle View Logic */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -114,12 +149,15 @@
         display: none !important;
     }
 
+    /* Toolbar hidden in preview mode */
+
     textarea {
         padding: 16px;
         padding-bottom: 80px;
+        /* Space for FAB */
     }
 
-    /* 5. TOOLBAR (Compact & Clean) */
+    /* 4. TOOLBAR (Compact & Clean) */
     .editor-toolbar {
         padding: 6px 8px !important;
         gap: 4px !important;
@@ -130,6 +168,7 @@
 
     .tool-btn {
         padding: 6px !important;
+        /* Smaller touch target */
     }
 
     .tool-btn i,
@@ -153,13 +192,15 @@
         justify-content: center;
     }
 
-    /* 6. FLOATING ACTION BUTTON */
+    /* 5. FLOATING ACTION BUTTON (EYE/FAB - Perfect Placement) */
     #mobile-view-toggle {
         position: absolute;
+        /* Safe Area + extra spacing to avoid keyboard overlap */
         bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         right: 20px !important;
         z-index: 50;
         width: 52px !important;
+        /* Refined size */
         height: 52px !important;
         border-radius: 50%;
         background-color: var(--accent-color);
@@ -176,7 +217,7 @@
         transform: scale(0.9);
     }
 
-    /* 7. MOBILE SIDEBAR */
+    /* 6. MOBILE SIDEBAR (Polished Buttons & Close Icon) */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -218,6 +259,7 @@
 
     .sidebar-header {
         height: 60px !important;
+        /* Proper alignment */
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
@@ -232,6 +274,7 @@
         font-weight: 600;
     }
 
+    /* Beautiful Circular Close Button */
     #close-sidebar-btn {
         background-color: var(--hover-bg) !important;
         border-radius: 50% !important;
@@ -289,19 +332,7 @@
         border-color: var(--accent-color);
     }
 
-    #mobile-mode-toggle {
-        padding: 4px;
-        background-color: var(--bg-color);
-        border-radius: 100px;
-        margin-bottom: 8px;
-    }
-
-    #mobile-mode-toggle .mode-tab {
-        padding: 10px 0;
-        font-size: 0.9rem;
-    }
-
-    /* 8. BOTTOM SHEET MODALS */
+    /* 7. BOTTOM SHEET MODALS (Native iOS/Android Feel) */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -329,6 +360,7 @@
         transform: translateY(0) !important;
     }
 
+    /* Drag Handle Indicator */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -355,8 +387,10 @@
         border-radius: 14px !important;
     }
 
+    /* MODAL BUTTONS (Single Row Layout) */
     .modal-actions {
         flex-direction: row !important;
+        /* Forces row */
         justify-content: space-between !important;
         gap: 12px !important;
         width: 100% !important;
@@ -365,12 +399,13 @@
 
     .modal-btn {
         flex: 1 !important;
+        /* Equal width distribution */
         padding: 14px !important;
         font-size: 1.05rem !important;
         border-radius: 14px !important;
     }
 
-    /* 9. NOTES DASHBOARD */
+    /* 8. NOTES DASHBOARD */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
@@ -445,6 +480,7 @@
         transform: translateX(0);
     }
 
+    /* ✨ 9. PREVIEW DASHBOARD ACTION BUTTONS (Icon Only Circular Pills) ✨ */
     .dashboard-actions {
         padding: 12px 20px !important;
         gap: 12px !important;
@@ -453,12 +489,16 @@
         background-color: var(--nav-bg) !important;
         display: flex !important;
         justify-content: flex-end !important;
+        /* Actions to the right */
         align-items: center !important;
     }
 
+    /* Convert Pill buttons to circular Icon-only buttons */
     .dashboard-actions .pill-btn {
         font-size: 0 !important;
+        /* Hides text perfectly */
         width: 44px !important;
+        /* Perfect touch size circle */
         height: 44px !important;
         padding: 0 !important;
         border-radius: 50% !important;
@@ -469,6 +509,7 @@
         flex-shrink: 0 !important;
     }
 
+    /* Force icon size inside these circular buttons */
     .dashboard-actions .pill-btn i,
     .dashboard-actions .pill-btn svg {
         width: 20px !important;
@@ -476,6 +517,7 @@
         margin: 0 !important;
     }
 
+    /* Specifically keep Back Button on the far Left */
     #dash-btn-back {
         margin-right: auto !important;
         background-color: var(--hover-bg) !important;
@@ -515,6 +557,7 @@
         transform: translate(-50%, 20px) !important;
         padding: 12px 24px !important;
         border-radius: 50px !important;
+        /* Beautiful pill shape */
         font-size: 0.95rem !important;
         text-align: center !important;
         white-space: pre-wrap !important;

@@ -34,10 +34,6 @@ window.closePatGuideModal = function () { document.getElementById('pat-guide-mod
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    const themeIcon = document.getElementById('theme-icon');
-    const isCurrentlyDark = document.body.classList.contains('dark-mode');
-    if (themeIcon) themeIcon.setAttribute('data-lucide', isCurrentlyDark ? 'sun' : 'moon');
-
     if (window.lucide) lucide.createIcons();
 
     // --- DESKTOP VIEW TOGGLE LOGIC ---
@@ -72,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-
+    
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -93,12 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => {
         sidebarOverlay?.classList.remove('show');
         document.getElementById('btn-pdf')?.click();
-    });
-    document.getElementById('sidebar-btn-theme')?.addEventListener('click', () => {
-        document.getElementById('btn-theme')?.click();
-        const isDark = document.body.classList.contains('dark-mode');
-        document.getElementById('sidebar-theme-icon')?.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-        if (window.lucide) lucide.createIcons();
     });
 
     // --- MOBILE FLOATING VIEW TOGGLE ---
@@ -214,27 +204,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- THEME TOGGLE ---
-    const themeBtn = document.getElementById('btn-theme');
-    const applyTheme = (isDark) => {
+    // ✨ NEW THEME TOGGLE LOGIC (Segment Control) ✨
+    const applyTheme = (themeName) => {
+        const isDark = themeName === 'dark';
+        
         if (isDark) {
             document.body.classList.add('dark-mode');
-            themeIcon?.setAttribute('data-lucide', 'sun');
             document.getElementById('theme-light').disabled = true;
             document.getElementById('theme-dark').disabled = false;
         } else {
             document.body.classList.remove('dark-mode');
-            themeIcon?.setAttribute('data-lucide', 'moon');
             document.getElementById('theme-light').disabled = false;
             document.getElementById('theme-dark').disabled = true;
         }
+        localStorage.setItem('theme', themeName);
+
+        // Sync visual active state on both Desktop & Mobile pills
+        document.querySelectorAll('.theme-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.getAttribute('data-theme') === themeName) {
+                tab.classList.add('active');
+            }
+        });
+        
         if (window.lucide) lucide.createIcons();
     };
 
-    themeBtn?.addEventListener('click', () => {
-        const isDark = !document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        applyTheme(isDark);
+    // Attach event listener to all theme tabs
+    document.querySelectorAll('.theme-tab').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetTheme = e.currentTarget.getAttribute('data-theme');
+            applyTheme(targetTheme);
+        });
+    });
+
+    // Boot Initialization for Theme
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
+    
+    // Set initial class visually correctly
+    document.querySelectorAll('.theme-tab').forEach(tab => {
+        if (tab.getAttribute('data-theme') === initialTheme) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
     });
 
     const pdfBtn = document.getElementById('btn-pdf');

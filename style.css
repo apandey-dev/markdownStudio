@@ -17,7 +17,13 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
-    /* ✨ Link Colors for Light Mode ✨ */
+    /* ✨ Native Segmented Control Variables (Light Mode) ✨ */
+    --toggle-track: #e2e8f0;
+    /* Grayish background for the pill container */
+    --toggle-pill: #ffffff;
+    /* Pure white for the active button */
+    --toggle-shadow: rgba(0, 0, 0, 0.1);
+
     --link-color: #2563eb;
     --link-hover: #1d4ed8;
     --link-active: #1e40af;
@@ -41,7 +47,13 @@ body.dark-mode {
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
 
-    /* ✨ Link Colors for Dark Mode ✨ */
+    /* ✨ Native Segmented Control Variables (Dark Mode) ✨ */
+    --toggle-track: #111827;
+    /* Deep black/gray for track */
+    --toggle-pill: #374151;
+    /* Elevated gray for active button */
+    --toggle-shadow: rgba(0, 0, 0, 0.4);
+
     --link-color: #60a5fa;
     --link-hover: #93c5fd;
     --link-active: #bfdbfe;
@@ -63,7 +75,6 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
 
-    /* DYNAMIC HEIGHT FIX: Prevents header from jumping on mobile */
     height: 100vh;
     height: 100dvh;
 
@@ -110,21 +121,26 @@ body {
     gap: 10px;
 }
 
-/* ✨ MODE TOGGLE PILL ✨ */
+/* ✨ REDESIGNED PILL TOGGLE (Segmented Control) ✨ */
 .mode-toggle {
     display: flex;
-    background-color: var(--hover-bg);
-    border: 1px solid var(--border-color);
+    background-color: var(--toggle-track);
     border-radius: 50px;
-    padding: 3px;
+    padding: 4px;
     gap: 2px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Inner depth */
+}
+
+body.dark-mode .mode-toggle {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .mode-tab {
     background: transparent;
     border: none;
     color: var(--text-color);
-    padding: 6px 14px;
+    padding: 6px 16px;
     border-radius: 50px;
     font-family: var(--ui-font);
     font-size: 0.85rem;
@@ -132,21 +148,33 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     opacity: 0.6;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mode-tab:hover {
     opacity: 0.8;
 }
 
+/* ✨ Elevated Active State (Clearly visible in both modes) ✨ */
 .mode-tab.active {
-    background-color: var(--nav-bg);
+    background-color: var(--toggle-pill);
     color: var(--accent-color);
     opacity: 1;
-    box-shadow: 0 2px 6px var(--shadow-color);
+    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
+
+/* Theme Icon Colors on Active */
+.mode-tab.theme-tab[data-theme="light"].active i {
+    color: #f59e0b;
+}
+
+.mode-tab.theme-tab[data-theme="dark"].active i {
+    color: #60a5fa;
+}
+
 
 /* DROPDOWN */
 .custom-dropdown {
@@ -264,7 +292,7 @@ body {
 }
 
 /* BUTTONS */
-.actions>button:not(.theme-pill-btn),
+.actions>button,
 .modal-btn {
     display: flex;
     align-items: center;
@@ -282,55 +310,11 @@ body {
     transition: all 0.2s ease;
 }
 
-.actions>button:not(.theme-pill-btn):hover,
+.actions>button:hover,
 .modal-btn.btn-confirm:hover {
     background-color: var(--accent-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 10px var(--shadow-color);
-}
-
-/* ✨ NEW: PREMIUM THEME PILL TOGGLE ✨ */
-.theme-pill-btn {
-    background-color: transparent;
-    border: 1.5px solid var(--border-color);
-    color: #f59e0b;
-    /* Light mode Sun Color */
-    width: 38px;
-    height: 38px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    flex-shrink: 0;
-    margin-left: 4px;
-}
-
-.theme-pill-btn:hover {
-    background-color: rgba(245, 158, 11, 0.1);
-    border-color: #f59e0b;
-    transform: rotate(15deg) scale(1.05);
-    /* Satisfying interaction */
-}
-
-body.dark-mode .theme-pill-btn {
-    color: #60a5fa;
-    /* Dark mode Moon Color */
-}
-
-body.dark-mode .theme-pill-btn:hover {
-    background-color: rgba(96, 165, 250, 0.1);
-    border-color: #60a5fa;
-    transform: rotate(-15deg) scale(1.05);
-    /* Counter rotation for moon */
-}
-
-.theme-pill-btn i,
-.theme-pill-btn svg {
-    width: 18px !important;
-    height: 18px !important;
-    transition: all 0.3s ease;
 }
 
 /* MAIN WORKSPACE */
@@ -545,7 +529,6 @@ body.view-preview .divider {
     color: var(--accent-color);
 }
 
-/* FLUID TYPOGRAPHY */
 #preview-output h1,
 #dashboard-preview-output h1 {
     font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -572,7 +555,6 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* PRE/CODE WRAPPING FIX */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
