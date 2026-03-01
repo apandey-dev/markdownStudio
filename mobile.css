@@ -93,6 +93,31 @@
         /* FAB spacing */
     }
 
+    /* ✨ EXPLICIT MOBILE TYPOGRAPHY OVERRIDES ✨ */
+    #preview-output h1,
+    #dashboard-preview-output h1 {
+        font-size: 1.8rem !important;
+    }
+
+    #preview-output h2,
+    #dashboard-preview-output h2 {
+        font-size: 1.4rem !important;
+    }
+
+    #preview-output h3,
+    #dashboard-preview-output h3 {
+        font-size: 1.2rem !important;
+    }
+
+    #preview-output p,
+    #dashboard-preview-output p,
+    #preview-output ul,
+    #dashboard-preview-output ul,
+    #preview-output ol,
+    #dashboard-preview-output ol {
+        font-size: 1rem !important;
+    }
+
     /* Toggle View Logic */
     body.show-preview .editor-panel {
         display: none !important;

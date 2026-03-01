@@ -17,13 +17,10 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
-    /* ✨ NEW: Link Colors for Light Mode ✨ */
+    /* ✨ Link Colors for Light Mode ✨ */
     --link-color: #2563eb;
-    /* Modern Blue */
     --link-hover: #1d4ed8;
-    /* Darker Blue */
     --link-active: #1e40af;
-    /* Deepest Blue */
 
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
@@ -44,13 +41,10 @@ body.dark-mode {
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
 
-    /* ✨ NEW: Link Colors for Dark Mode ✨ */
+    /* ✨ Link Colors for Dark Mode ✨ */
     --link-color: #60a5fa;
-    /* Lighter Blue for contrast */
     --link-hover: #93c5fd;
-    /* Soft glowing blue */
     --link-active: #bfdbfe;
-    /* Brightest blue */
 }
 
 * {
@@ -68,7 +62,11 @@ body {
     font-family: var(--ui-font);
     background-color: var(--bg-color);
     color: var(--text-color);
+
+    /* DYNAMIC HEIGHT FIX: Prevents header from jumping on mobile */
     height: 100vh;
+    height: 100dvh;
+
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -112,7 +110,7 @@ body {
     gap: 10px;
 }
 
-/* ✨ MODE TOGGLE PILL ✨ */
+/* MODE TOGGLE PILL */
 .mode-toggle {
     display: flex;
     background-color: var(--hover-bg);
@@ -514,16 +512,22 @@ body.view-preview .divider {
     color: var(--accent-color);
 }
 
+/* ✨ FLUID TYPOGRAPHY: Automatically scales between desktop and mobile ✨ */
 #preview-output h1,
 #dashboard-preview-output h1 {
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
 }
 
 #preview-output h2,
 #dashboard-preview-output h2 {
-    font-size: 1.8rem;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 6px;
+}
+
+#preview-output h3,
+#dashboard-preview-output h3 {
+    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
 }
 
 #preview-output p,
@@ -535,7 +539,7 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* ✨ PRE/CODE WRAPPING FIX ✨ */
+/* PRE/CODE WRAPPING FIX FOR BOTH UI & PDF */
 #preview-output pre,
 #dashboard-preview-output pre {
     border-radius: 8px;
@@ -601,7 +605,7 @@ body.view-preview .divider {
     background-color: var(--hover-bg);
 }
 
-/* ✨ ADVANCED LINK STYLING (A tags) ✨ */
+/* ADVANCED LINK STYLING */
 #preview-output a,
 #dashboard-preview-output a {
     color: var(--link-color);
@@ -1113,7 +1117,9 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* ✨ EXPORT SPECIFIC STYLES ✨ */
+/* ==========================================================================
+   ✨ EXPORT SPECIFIC STYLES (Strict Paper Typography) ✨
+   ========================================================================== */
 @media print {
 
     .navbar,
@@ -1156,6 +1162,46 @@ body.dark-mode .btn-help-cute:hover {
         margin: 0 !important;
     }
 
+    /* Exact Typography for Paper */
+    #preview-output,
+    #dashboard-preview-output {
+        font-size: 11pt !important;
+        color: #000 !important;
+        /* Force black ink */
+    }
+
+    #preview-output h1,
+    #dashboard-preview-output h1 {
+        font-size: 24pt !important;
+        margin-top: 20pt !important;
+        margin-bottom: 12pt !important;
+    }
+
+    #preview-output h2,
+    #dashboard-preview-output h2 {
+        font-size: 18pt !important;
+        margin-top: 16pt !important;
+        margin-bottom: 8pt !important;
+        border-bottom: 1pt solid #ccc !important;
+        padding-bottom: 4pt !important;
+    }
+
+    #preview-output h3,
+    #dashboard-preview-output h3 {
+        font-size: 14pt !important;
+        margin-top: 14pt !important;
+        margin-bottom: 6pt !important;
+    }
+
+    #preview-output p,
+    #dashboard-preview-output p,
+    #preview-output li,
+    #dashboard-preview-output li {
+        font-size: 11pt !important;
+        line-height: 1.6 !important;
+        margin-bottom: 10pt !important;
+    }
+
     h1,
     h2,
     h3,
@@ -1164,7 +1210,6 @@ body.dark-mode .btn-help-cute:hover {
     h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
-        margin-top: 0.5cm;
     }
 
     pre,
@@ -1185,6 +1230,7 @@ body.dark-mode .btn-help-cute:hover {
         overflow-wrap: break-word !important;
         white-space: -moz-pre-wrap !important;
         white-space: -o-pre-wrap !important;
+        font-size: 9.5pt !important;
     }
 
     * {
