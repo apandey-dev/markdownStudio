@@ -16,13 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // STATE
     let notes = [];
-    let folders = ['All Notes']; 
+    let folders = ['All Notes'];
     let activeFolder = 'All Notes';
     let activeNoteId = null;
-    
+
     let noteToDeleteId = null;
     let highlightedNoteId = null;
-    let pendingNewNoteData = null; 
+    let pendingNewNoteData = null;
 
     let appMode = 'local';
     let isSyncing = false;
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function extractFoldersFromNotes() {
         let fSet = new Set(['All Notes']);
         notes.forEach(n => {
-            if(n.folder) fSet.add(n.folder);
+            if (n.folder) fSet.add(n.folder);
         });
         folders = Array.from(fSet);
     }
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (added) {
                     extractFoldersFromNotes();
                     saveLocalState();
-                    if(document.getElementById('notes-modal').classList.contains('show')) {
+                    if (document.getElementById('notes-modal').classList.contains('show')) {
                         window.renderFoldersList();
                         window.renderNotesList();
                     }
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generatePath(folderName, title) {
         let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
-        if(!safeTitle) safeTitle = 'Untitled Note';
+        if (!safeTitle) safeTitle = 'Untitled Note';
         if (folderName === 'All Notes') return `${safeTitle}.md`;
         return `${folderName}/${safeTitle}.md`;
     }
@@ -302,8 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!note) return;
 
         highlightedNoteId = activeNoteId;
-        activeFolder = note.folder || 'All Notes'; 
-        
+        activeFolder = note.folder || 'All Notes';
+
         editor.disabled = false;
         editor.placeholder = "Start typing your Markdown here...";
         editor.value = note.content || "";
@@ -318,23 +318,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('folders-list-container');
         if (!container) return;
         container.innerHTML = '';
-        
+
         extractFoldersFromNotes();
 
         folders.forEach(folder => {
             const div = document.createElement('div');
             div.className = `folder-item ${folder === activeFolder ? 'active' : ''}`;
-            
+
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', folder === 'All Notes' ? 'library' : 'folder');
-            
+
             const textSpan = document.createElement('span');
             textSpan.textContent = folder;
             textSpan.style.flex = "1";
             textSpan.style.whiteSpace = 'nowrap';
             textSpan.style.overflow = 'hidden';
             textSpan.style.textOverflow = 'ellipsis';
-            
+
             let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
             const countSpan = document.createElement('span');
             countSpan.textContent = count;
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeFolder = folder;
                 window.renderFoldersList();
                 window.renderNotesList();
-                
+
                 if (window.innerWidth <= 768) {
                     document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
                 }
@@ -364,15 +364,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('notes-list-container');
         const folderTitle = document.getElementById('current-folder-name');
         if (!container) return;
-        
+
         container.innerHTML = '';
         if (folderTitle) folderTitle.textContent = activeFolder;
-        
+
         updatePillUI();
 
         let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
 
-        if(displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
+        if (displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
             highlightedNoteId = displayNotes[0].id;
         } else if (displayNotes.length === 0) {
             highlightedNoteId = null;
@@ -384,13 +384,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const titleContainer = document.createElement('div');
             titleContainer.className = 'note-title';
-            
+
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', 'file-text');
-            
+
             const textSpan = document.createElement('span');
             textSpan.textContent = note.title;
-            
+
             titleContainer.appendChild(iconEl);
             titleContainer.appendChild(textSpan);
             div.appendChild(titleContainer);
@@ -416,13 +416,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
     });
 
+    // ✨ UPDATED AUTO THEME ADAPTION FOR WHITE/BLACK COLORS ✨
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
         processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
-        
+
+        // Adaptive Color Mapping for White/Black
+        processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, (match, text, color) => {
+            const c = color.toLowerCase();
+            if (c === 'white' || c === 'black' || c === '#fff' || c === '#ffffff' || c === '#000' || c === '#000000') {
+                return `<span class="adaptive-color">${text}</span>`;
+            }
+            return `<span style="color: ${color};">${text}</span>`;
+        });
+
         const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
         return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
     }
@@ -430,9 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.renderDashboardPreview = function () {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId);
-        
+
         if (!note || !previewEl) {
-            if(previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
+            if (previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
             return;
         }
 
@@ -442,22 +451,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
-        if(!highlightedNoteId) return;
+        if (!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
-        saveLocalState(); 
+        saveLocalState();
         editor.value = getActiveNote().content;
         renderMarkdownCore(editor.value);
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
 
     document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
-        if(!highlightedNoteId) return;
+        if (!highlightedNoteId) return;
         noteToDeleteId = highlightedNoteId;
         document.getElementById('delete-modal').classList.add('show');
     });
 
     document.getElementById('dash-btn-export')?.addEventListener('click', () => {
-        if(!highlightedNoteId) return;
+        if (!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
         saveLocalState();
         editor.value = getActiveNote().content;
@@ -474,17 +483,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!noteToDeleteId) return;
 
         const idx = notes.findIndex(n => n.id === noteToDeleteId);
-        if(idx === -1) return;
-        
+        if (idx === -1) return;
+
         const noteToDelete = notes[idx];
         notes.splice(idx, 1);
 
         if (activeNoteId === noteToDeleteId) {
             activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
-            if(activeNoteId) editor.value = getActiveNote().content;
+            if (activeNoteId) editor.value = getActiveNote().content;
             else editor.value = "";
         }
-        
+
         if (highlightedNoteId === noteToDeleteId) {
             let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
             highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
@@ -494,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
             GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
         }
 
-        if(notes.length === 0) {
+        if (notes.length === 0) {
             const id = Date.now().toString();
             notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
             activeNoteId = id;
@@ -523,20 +532,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
         let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-        if(!folderName) return window.showToast("Folder name cannot be empty.");
-        if(folders.includes(folderName)) return window.showToast("Folder already exists.");
-        
+        if (!folderName) return window.showToast("Folder name cannot be empty.");
+        if (folders.includes(folderName)) return window.showToast("Folder already exists.");
+
         folders.push(folderName);
         activeFolder = folderName;
         window.renderFoldersList();
         window.renderNotesList();
-        
+
         folderPromptModal.classList.remove('show');
         window.showToast(`<i data-lucide='folder'></i> Folder '${folderName}' created!`);
-        
+
         if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
     });
-    
+
     document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => folderPromptModal.classList.remove('show'));
 
     const btnNewNote = document.getElementById('btn-new-note');
@@ -553,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let noteName = promptInput.value.trim() || "Untitled Note";
         const folder = activeFolder;
         const generatedPath = generatePath(folder, noteName);
-        
+
         const existingNote = notes.find(n => n.path === generatedPath);
         const newId = Date.now().toString();
         const content = `# ${noteName}\n\nStart typing here...`;
@@ -604,14 +613,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('conflict-overwrite')?.addEventListener('click', () => {
-        if(!pendingNewNoteData) return;
+        if (!pendingNewNoteData) return;
         let exNote = notes.find(n => n.id === pendingNewNoteData.existingId);
-        if(exNote) {
+        if (exNote) {
             exNote.content = pendingNewNoteData.content;
             activeNoteId = exNote.id;
             highlightedNoteId = exNote.id;
             editor.value = exNote.content;
-            
+
             saveLocalState();
             renderMarkdownCore(exNote.content);
             window.renderNotesList();
@@ -650,12 +659,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function debounce(func, wait) { 
-        let timeout; 
-        return function (...args) { 
-            clearTimeout(timeout); 
-            timeout = setTimeout(() => func.apply(this, args), wait); 
-        }; 
+    function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
     }
 
     function renderMarkdownCore(rawText) {
@@ -681,10 +690,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeNote = getActiveNote();
         if (activeNote) {
             activeNote.content = rawText;
-            saveLocalState(); 
-            triggerCloudSync(); 
+            saveLocalState();
+            triggerCloudSync();
         }
-        renderMarkdownCore(rawText); 
+        renderMarkdownCore(rawText);
     }, 400);
 
     editor.addEventListener('input', () => {
@@ -849,8 +858,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const folder = activeFolder;
             const newPath = generatePath(folder, rawTitle);
             const newId = Date.now().toString();
-            
-            if(notes.find(n => n.path === newPath)) {
+
+            if (notes.find(n => n.path === newPath)) {
                 window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
                 return;
             }

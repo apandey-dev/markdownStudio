@@ -238,6 +238,11 @@
             opacity: 0.8;
         }
 
+        /* ✨ AUTO THEME ADAPTION ✨ */
+        .adaptive-color {
+            color: var(--text-color) !important;
+        }
+
         @media screen and (max-width: 768px) {
             .share-header {
                 padding: 0 16px;
@@ -310,12 +315,21 @@
         lucide.createIcons();
         window.sharedRawText = "";
 
+        // ✨ UPDATED: Support Adaptive Text Color ✨
         function customMarkdownParser(rawText) {
             let processedText = rawText.replace(/\r\n/g, '\n');
             processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-            processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
+
+            // Map white/black variants to adaptive CSS class
+            processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, (match, text, color) => {
+                const c = color.toLowerCase();
+                if (c === 'white' || c === 'black' || c === '#fff' || c === '#ffffff' || c === '#000' || c === '#000000') {
+                    return `<span class="adaptive-color">${text}</span>`;
+                }
+                return `<span style="color: ${color};">${text}</span>`;
+            });
 
             const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
             return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });

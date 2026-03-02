@@ -607,7 +607,7 @@
         padding-top: 32px !important;
     }
 
-    /* ✨ BUG FIX: TOAST Z-INDEX UPDATED TO 99999 TO ALWAYS BE ON TOP ✨ */
+    /* TOAST Z-INDEX FIX */
     #toast {
         bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         width: auto !important;

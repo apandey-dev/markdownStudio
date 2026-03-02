@@ -38,7 +38,6 @@ body.dark-mode {
     --preview-bg: #000000;
     --border-color: #262626;
     --accent-color: #3b82f6;
-    /* Reverted to your custom requested blue */
     --accent-hover: #60a5fa;
     --btn-text: #ffffff;
     --shadow-color: rgba(0, 0, 0, 0.5);
@@ -620,6 +619,11 @@ body.view-preview .divider {
     text-decoration: underline;
 }
 
+/* ✨ AUTO THEME ADAPTION ✨ */
+.adaptive-color {
+    color: var(--text-color) !important;
+}
+
 /* MODALS CORE */
 .modal-overlay {
     position: fixed;
@@ -729,7 +733,7 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ✨ PREMIUM MODALS (New Folder / New Note) ✨ */
+/* PREMIUM MODALS */
 .premium-modal {
     padding: 36px 32px !important;
     border-radius: 28px !important;
@@ -1232,7 +1236,7 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
-/* ✨ BUG FIX: TOAST Z-INDEX UPDATED TO 99999 TO ALWAYS BE ON TOP ✨ */
+/* TOAST Z-INDEX FIX */
 #toast {
     visibility: hidden;
     min-width: 180px;
@@ -1289,7 +1293,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* ✨ BUG FIX: EXPORT SPECIFIC STYLES PROPERLY RESPECTS THEME VARIABLES NOW ✨ */
+/* ✨ PDF EXPORT FIX (Dynamic text color based on theme) ✨ */
 @media print {
 
     .navbar,
@@ -1301,7 +1305,6 @@ body.dark-mode .btn-help-cute:hover {
         display: none !important;
     }
 
-    /* Dynamically adapts to dark/light mode background and text colors */
     body,
     .app-container,
     .split-workspace {
@@ -1333,7 +1336,6 @@ body.dark-mode .btn-help-cute:hover {
         margin: 0 !important;
     }
 
-    /* Removed the hardcoded #000 (Black). Now uses theme text color so dark mode text is visible. */
     #preview-output,
     #dashboard-preview-output {
         font-size: 11pt !important;
@@ -1405,7 +1407,6 @@ body.dark-mode .btn-help-cute:hover {
         color: var(--text-color) !important;
     }
 
-    /* Forces the browser to print the dark background if in dark mode */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
