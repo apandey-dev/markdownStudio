@@ -482,6 +482,7 @@ body.view-preview .divider {
     display: none !important;
 }
 
+/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -627,6 +628,7 @@ body.view-preview .divider {
     text-decoration: underline;
 }
 
+/* MODALS CORE */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -734,6 +736,94 @@ body.view-preview .divider {
 body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
+
+/* ✨ PREMIUM MODALS (New Folder / New Note) ✨ */
+.premium-modal {
+    padding: 36px 32px !important;
+    border-radius: 28px !important;
+    text-align: center;
+    background: linear-gradient(180deg, var(--nav-bg) 0%, var(--bg-color) 100%) !important;
+    max-width: 380px !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
+}
+
+.premium-modal-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.premium-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 12px 24px var(--shadow-color);
+}
+
+.premium-icon-wrapper i {
+    width: 32px;
+    height: 32px;
+}
+
+.folder-icon-theme {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.note-icon-theme {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.premium-modal .modal-title {
+    margin-bottom: 6px !important;
+    font-size: 1.4rem !important;
+    justify-content: center;
+}
+
+.premium-modal .modal-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.premium-input-group .modal-input {
+    padding: 16px 20px !important;
+    border-radius: 16px !important;
+    font-size: 1.05rem !important;
+    background-color: var(--nav-bg) !important;
+    text-align: center;
+    font-weight: 500;
+    border: 2px solid transparent !important;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.premium-input-group .modal-input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-color);
+    border-color: var(--accent-color) !important;
+}
+
+.premium-actions {
+    margin-top: 24px !important;
+    justify-content: center !important;
+    gap: 16px !important;
+}
+
+.premium-actions .modal-btn {
+    flex: 1;
+    padding: 14px !important;
+    font-size: 1.05rem !important;
+    border-radius: 14px !important;
+}
+
 
 .setup-modal-box {
     max-width: 460px;
@@ -1149,26 +1239,6 @@ body.dark-mode .btn-help-cute:hover {
     background-color: #ef4444 !important;
     color: #ffffff !important;
     border: none;
-}
-
-#folder-prompt-modal .modal-box {
-    max-width: 320px;
-    padding: 24px;
-}
-
-#folder-prompt-modal .modal-title {
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-}
-
-#folder-prompt-modal .modal-input {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-}
-
-#folder-prompt-modal .modal-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
 }
 
 #toast {

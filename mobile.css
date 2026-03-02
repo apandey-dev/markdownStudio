@@ -390,6 +390,32 @@
         border-radius: 12px !important;
     }
 
+    /* ✨ PREMIUM MOBILE SPECIFIC OVERRIDES ✨ */
+    .premium-modal {
+        padding-top: 40px !important;
+        border-radius: 32px 32px 0 0 !important;
+    }
+
+    .premium-icon-wrapper {
+        width: 56px !important;
+        height: 56px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .premium-icon-wrapper i {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .premium-modal-header {
+        margin-bottom: 24px !important;
+    }
+
+    .premium-input-group .modal-input {
+        padding: 18px 20px !important;
+        border-radius: 14px !important;
+    }
+
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;

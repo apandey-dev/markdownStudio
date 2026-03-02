@@ -342,31 +342,40 @@
     </div>
 
     <div class="modal-overlay" id="folder-prompt-modal" style="z-index: 2000;">
-        <div class="modal-box prompt-modal-box">
-            <h3 class="modal-title flex-title"><i data-lucide="folder-plus"></i> New Folder</h3>
-            <div class="input-group">
-                <label>Folder Name</label>
-                <input type="text" class="modal-input" id="folder-prompt-input" placeholder="Work, Personal..."
+        <div class="modal-box premium-modal">
+            <div class="premium-modal-header">
+                <div class="premium-icon-wrapper folder-icon-theme">
+                    <i data-lucide="folder-plus"></i>
+                </div>
+                <h3 class="modal-title">Create Folder</h3>
+                <p class="modal-subtitle">Organize your workspace beautifully.</p>
+            </div>
+            <div class="input-group premium-input-group">
+                <input type="text" class="modal-input" id="folder-prompt-input" placeholder="e.g. Work, Personal..."
                     autocomplete="off" />
             </div>
-            <div class="modal-actions">
+            <div class="modal-actions premium-actions">
                 <button class="modal-btn btn-cancel" id="folder-prompt-cancel">Cancel</button>
-                <button class="modal-btn btn-confirm" id="folder-prompt-confirm">Create</button>
+                <button class="modal-btn btn-confirm" id="folder-prompt-confirm">Create Folder</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="prompt-modal" style="z-index: 2000;">
-        <div class="modal-box prompt-modal-box">
-            <h3 class="modal-title flex-title"><i data-lucide="file-plus-2"></i> New Note</h3>
-            <div class="input-group">
-                <label>Note Title (Exact File Name)</label>
+        <div class="modal-box premium-modal">
+            <div class="premium-modal-header">
+                <div class="premium-icon-wrapper note-icon-theme">
+                    <i data-lucide="file-plus-2"></i>
+                </div>
+                <h3 class="modal-title">New Note</h3>
+                <p class="modal-subtitle">Name your new markdown document.</p>
+            </div>
+            <div class="input-group premium-input-group">
                 <input type="text" class="modal-input" id="prompt-input" placeholder="Meeting Notes"
                     autocomplete="off" />
             </div>
-            <div class="modal-actions">
-                <button class="modal-btn btn-cancel" id="prompt-cancel"><i data-lucide="x-circle"
-                        style="width: 18px;"></i> Cancel</button>
+            <div class="modal-actions premium-actions">
+                <button class="modal-btn btn-cancel" id="prompt-cancel">Cancel</button>
                 <button class="modal-btn btn-confirm" id="prompt-confirm">Create Note</button>
             </div>
         </div>
