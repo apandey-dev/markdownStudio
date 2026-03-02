@@ -619,7 +619,6 @@ body.view-preview .divider {
     text-decoration: underline;
 }
 
-/* ✨ AUTO THEME ADAPTION ✨ */
 .adaptive-color {
     color: var(--text-color) !important;
 }
@@ -897,6 +896,7 @@ body.dark-mode .btn-help-cute:hover {
     color: var(--accent-color);
 }
 
+/* DASHBOARD LAYOUT */
 .notes-dashboard-box {
     max-width: 1100px;
     width: 90vw;
@@ -907,37 +907,6 @@ body.dark-mode .btn-help-cute:hover {
     overflow: hidden;
     border-radius: 20px;
     position: relative;
-}
-
-.notes-dashboard-box .btn-close-dashboard {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--nav-bg);
-    border: 1.5px solid var(--border-color);
-    color: var(--text-color);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.notes-dashboard-box .btn-close-dashboard:hover {
-    transform: scale(0.9);
-    background: var(--hover-bg);
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-}
-
-.notes-dashboard-box .btn-close-dashboard i {
-    width: 16px;
-    height: 16px;
 }
 
 .notes-dashboard-folders {
@@ -1109,75 +1078,110 @@ body.dark-mode .btn-help-cute:hover {
     overflow: hidden;
 }
 
+/* ✨ REDESIGNED DASHBOARD ACTIONS (CIRCULAR UNIFORM BUTTONS + CLOSE ALIGNMENT) ✨ */
 .dashboard-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
+    gap: 12px;
+    padding: 12px 68px 12px 20px;
+    /* 68px leaves exact room for the absolute Close button */
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
-    height: 60px;
-    padding-right: 50px;
+    height: 64px;
 }
 
+/* Perfect Circle Action Buttons */
 .pill-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 50px;
-    font-family: var(--ui-font);
-    font-size: 0.85rem;
-    font-weight: 600;
+    justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1.5px solid transparent;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    /* Contrasts against the nav-bg header */
+    color: var(--text-color);
+    padding: 0;
 }
 
 .pill-btn i {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
 }
 
-.pill-btn.btn-edit {
+/* Action Button Specific Hovers */
+.pill-btn.btn-edit:hover {
     background-color: var(--accent-color);
     color: var(--btn-text);
-}
-
-.pill-btn.btn-edit:hover {
-    background-color: var(--accent-hover);
+    border-color: var(--accent-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-.pill-btn.btn-export {
-    border-color: var(--border-color);
-    color: var(--text-color);
-    background-color: transparent;
-}
-
 .pill-btn.btn-export:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
     border-color: var(--text-color);
-    background-color: var(--hover-bg);
-}
-
-.pill-btn.btn-delete {
-    border-color: #ef4444;
-    color: #ef4444;
-    background-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .pill-btn.btn-delete:hover {
     background-color: #ef4444;
     color: #fff;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .pill-btn.btn-back {
-    border-color: var(--border-color);
-    color: var(--text-color);
+    border-color: transparent;
     margin-right: auto;
     background-color: transparent;
+}
+
+.pill-btn.btn-back:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+    transform: translateX(-2px);
+}
+
+/* ✨ IDENTICAL CLOSE BUTTON (Aligned to perfectly match action buttons) ✨ */
+.notes-dashboard-box .btn-close-dashboard {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notes-dashboard-box .btn-close-dashboard:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    border-color: var(--text-color);
+    transform: translateY(-2px) rotate(90deg);
+    /* Beautiful rotate on hover */
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.notes-dashboard-box .btn-close-dashboard i {
+    width: 18px;
+    height: 18px;
 }
 
 .dashboard-preview-content {
@@ -1236,7 +1240,6 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
-/* TOAST Z-INDEX FIX */
 #toast {
     visibility: hidden;
     min-width: 180px;
@@ -1293,7 +1296,6 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* ✨ PDF EXPORT FIX (Dynamic text color based on theme) ✨ */
 @media print {
 
     .navbar,
