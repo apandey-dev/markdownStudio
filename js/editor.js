@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ✨ FAILSAFE: Save data if user instantly closes tab mid-typing ✨
     window.addEventListener('beforeunload', () => {
         if (getActiveNote() && editor.value) {
             getActiveNote().content = editor.value;
@@ -651,7 +650,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ✨ PERFORMANCE ENGINE (Debounce implementation) ✨
     function debounce(func, wait) { 
         let timeout; 
         return function (...args) { 
@@ -679,19 +677,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
     }
 
-    // Debounce rendering & saving so main thread isn't blocked while typing 100k+ words
     const debouncedRenderAndSave = debounce((rawText) => {
         const activeNote = getActiveNote();
         if (activeNote) {
             activeNote.content = rawText;
-            saveLocalState(); // Local storage update
-            triggerCloudSync(); // Background Github push
+            saveLocalState(); 
+            triggerCloudSync(); 
         }
-        renderMarkdownCore(rawText); // Heavy DOM parser
+        renderMarkdownCore(rawText); 
     }, 400);
 
     editor.addEventListener('input', () => {
-        // Typing is now instantly responsive, UI processes slightly later
         debouncedRenderAndSave(editor.value);
     });
 

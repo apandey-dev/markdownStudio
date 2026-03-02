@@ -37,15 +37,16 @@ body.dark-mode {
     --editor-bg: #0a0a0a;
     --preview-bg: #000000;
     --border-color: #262626;
-    --accent-color: #ffffff;
-    --accent-hover: #cccccc;
-    --btn-text: #000000;
-    --shadow-color: rgba(255, 255, 255, 0.05);
+    --accent-color: #3b82f6;
+    /* Reverted to your custom requested blue */
+    --accent-hover: #60a5fa;
+    --btn-text: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.5);
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
 
-    --toggle-track: #111827;
-    --toggle-pill: #374151;
+    --toggle-track: #0f172a;
+    --toggle-pill: #334155;
     --toggle-shadow: rgba(0, 0, 0, 0.4);
 
     --link-color: #60a5fa;
@@ -152,14 +153,6 @@ body.dark-mode .mode-toggle {
     color: var(--accent-color);
     opacity: 1;
     box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.mode-tab.theme-tab[data-theme="light"].active i {
-    color: #f59e0b;
-}
-
-.mode-tab.theme-tab[data-theme="dark"].active i {
-    color: #60a5fa;
 }
 
 .custom-dropdown {
@@ -482,7 +475,6 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -824,7 +816,6 @@ body.dark-mode .btn-cancel:hover {
     border-radius: 14px !important;
 }
 
-
 .setup-modal-box {
     max-width: 460px;
     padding: 32px 24px;
@@ -872,33 +863,33 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 .guide-steps li {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--text-color);
-    margin-bottom: 10px;
-    line-height: 1.4;
+    margin-bottom: 12px;
+    line-height: 1.5;
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 .guide-steps li .step-num {
     background: #3b82f6;
     color: #ffffff;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     flex-shrink: 0;
 }
 
 .guide-steps li code {
     background: var(--border-color);
-    padding: 2px 4px;
+    padding: 2px 6px;
     border-radius: 4px;
-    font-size: 0.8em;
+    font-size: 0.85em;
     color: var(--accent-color);
 }
 
@@ -1241,6 +1232,7 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
+/* ✨ BUG FIX: TOAST Z-INDEX UPDATED TO 99999 TO ALWAYS BE ON TOP ✨ */
 #toast {
     visibility: hidden;
     min-width: 180px;
@@ -1250,7 +1242,7 @@ body.dark-mode .btn-help-cute:hover {
     border-radius: 8px;
     padding: 10px 16px;
     position: fixed;
-    z-index: 2000;
+    z-index: 99999 !important;
     right: 24px;
     bottom: 24px;
     font-size: 0.85rem;
@@ -1297,6 +1289,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
+/* ✨ BUG FIX: EXPORT SPECIFIC STYLES PROPERLY RESPECTS THEME VARIABLES NOW ✨ */
 @media print {
 
     .navbar,
@@ -1308,6 +1301,7 @@ body.dark-mode .btn-help-cute:hover {
         display: none !important;
     }
 
+    /* Dynamically adapts to dark/light mode background and text colors */
     body,
     .app-container,
     .split-workspace {
@@ -1339,10 +1333,11 @@ body.dark-mode .btn-help-cute:hover {
         margin: 0 !important;
     }
 
+    /* Removed the hardcoded #000 (Black). Now uses theme text color so dark mode text is visible. */
     #preview-output,
     #dashboard-preview-output {
         font-size: 11pt !important;
-        color: #000 !important;
+        color: var(--text-color) !important;
     }
 
     #preview-output h1,
@@ -1350,6 +1345,7 @@ body.dark-mode .btn-help-cute:hover {
         font-size: 24pt !important;
         margin-top: 20pt !important;
         margin-bottom: 12pt !important;
+        color: var(--accent-color) !important;
     }
 
     #preview-output h2,
@@ -1357,8 +1353,9 @@ body.dark-mode .btn-help-cute:hover {
         font-size: 18pt !important;
         margin-top: 16pt !important;
         margin-bottom: 8pt !important;
-        border-bottom: 1pt solid #ccc !important;
+        border-bottom: 1pt solid var(--border-color) !important;
         padding-bottom: 4pt !important;
+        color: var(--accent-color) !important;
     }
 
     #preview-output h3,
@@ -1366,6 +1363,7 @@ body.dark-mode .btn-help-cute:hover {
         font-size: 14pt !important;
         margin-top: 14pt !important;
         margin-bottom: 6pt !important;
+        color: var(--accent-color) !important;
     }
 
     #preview-output p,
@@ -1403,8 +1401,11 @@ body.dark-mode .btn-help-cute:hover {
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
         font-size: 9.5pt !important;
+        background-color: var(--hover-bg) !important;
+        color: var(--text-color) !important;
     }
 
+    /* Forces the browser to print the dark background if in dark mode */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;

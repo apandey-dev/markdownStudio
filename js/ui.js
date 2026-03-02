@@ -27,13 +27,12 @@ window.closeDeleteModal = function () { document.getElementById('delete-modal')?
 window.closePromptModal = function () { document.getElementById('prompt-modal')?.classList.remove('show'); };
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 
-// ✨ UPDATED: Resets to Collapsed state on close ✨
 window.closeNotesModal = function () {
     document.getElementById('notes-modal')?.classList.remove('show');
     const dashboardBox = document.querySelector('.notes-dashboard-box');
     if (dashboardBox) {
         dashboardBox.classList.remove('show-preview-pane');
-        dashboardBox.classList.add('folders-collapsed'); // Reset to default state
+        dashboardBox.classList.add('folders-collapsed');
     }
 };
 
@@ -41,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) lucide.createIcons();
 
-    // --- DESKTOP VIEW TOGGLE LOGIC ---
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
@@ -57,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- MODAL TRIGGERS ---
     document.querySelectorAll('.modal-trigger-notes').forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('notes-modal')?.classList.add('show');
@@ -79,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
 
-    // --- MOBILE SIDEBAR LOGIC ---
     const sidebarOverlay = document.getElementById('mobile-sidebar-overlay');
     document.getElementById('mobile-menu-btn')?.addEventListener('click', () => sidebarOverlay?.classList.add('show'));
     document.getElementById('close-sidebar-btn')?.addEventListener('click', () => sidebarOverlay?.classList.remove('show'));
@@ -97,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-pdf')?.click();
     });
 
-    // --- MOBILE FLOATING VIEW TOGGLE ---
     const mobileViewToggle = document.getElementById('mobile-view-toggle');
     if (mobileViewToggle) {
         mobileViewToggle.addEventListener('click', () => {
@@ -108,39 +103,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✨ BULLETPROOF ESCAPE KEY LOGIC (Top-most modals close first!) ✨
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
 
-            // Priority 1: Highest z-index conflict modal
             if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
 
-            // Priority 2: Input Modals
             if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
             if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
 
-            // Priority 3: Setup Modals
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
 
-            // Priority 4: Base Notes Modal
             if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
         }
     });
 
-    // --- TOGGLE COLLAPSIBLE FOLDERS PANE (Desktop) ---
     const toggleFoldersBtn = document.getElementById('toggle-folders-btn');
     const dashboardBox = document.querySelector('.notes-dashboard-box');
     toggleFoldersBtn?.addEventListener('click', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
-    // --- DROPDOWN LOGIC ---
     function setupDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -195,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.selectedPageSize = val;
     });
 
-    // --- DRAGGABLE SPLIT PANE ---
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
     const container = document.getElementById('split-workspace');
@@ -225,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✨ NEW THEME TOGGLE LOGIC (Segment Control) ✨
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
 

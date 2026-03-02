@@ -390,7 +390,6 @@
         border-radius: 12px !important;
     }
 
-    /* ✨ PREMIUM MOBILE SPECIFIC OVERRIDES ✨ */
     .premium-modal {
         padding-top: 40px !important;
         border-radius: 32px 32px 0 0 !important;
@@ -608,6 +607,7 @@
         padding-top: 32px !important;
     }
 
+    /* ✨ BUG FIX: TOAST Z-INDEX UPDATED TO 99999 TO ALWAYS BE ON TOP ✨ */
     #toast {
         bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         width: auto !important;
@@ -623,6 +623,7 @@
         text-align: center !important;
         white-space: pre-wrap !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+        z-index: 99999 !important;
     }
 
     #toast.show {
