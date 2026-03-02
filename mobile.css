@@ -26,7 +26,6 @@
         height: 100dvh !important;
     }
 
-    /* NAVBAR */
     .navbar {
         padding: 0 16px;
         height: 56px;
@@ -56,7 +55,6 @@
         text-overflow: ellipsis;
     }
 
-    /* EYE (PREVIEW) BUTTON IN NAVBAR */
     #mobile-view-toggle {
         background-color: transparent !important;
         border: 1.5px solid var(--border-color) !important;
@@ -87,7 +85,6 @@
         transform: scale(0.95);
     }
 
-    /* HIDE TEXT IN MOBILE PILL TOGGLES */
     .mode-tab .tab-text {
         display: none !important;
     }
@@ -102,7 +99,6 @@
         margin: 0 !important;
     }
 
-    /* EDITOR & PREVIEW WORKSPACE */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -151,7 +147,6 @@
         padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* MOBILE TYPOGRAPHY OVERRIDES */
     #preview-output h1,
     #dashboard-preview-output h1 {
         font-size: 1.6rem !important;
@@ -176,7 +171,6 @@
         font-size: 0.95rem !important;
     }
 
-    /* TOOLBAR */
     .editor-toolbar {
         padding: 6px 8px !important;
         gap: 4px !important;
@@ -209,7 +203,6 @@
         justify-content: center;
     }
 
-    /* MOBILE SIDEBAR */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -329,7 +322,6 @@
         border-radius: 100px;
     }
 
-    /* BOTTOM SHEET MODALS */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -398,7 +390,6 @@
         border-radius: 12px !important;
     }
 
-    /* ✨ DRILL-DOWN NOTES DASHBOARD (Mobile specific 3-pane simulation) ✨ */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
@@ -413,7 +404,11 @@
         z-index: 100;
     }
 
-    /* Folders Pane */
+    .notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
+        width: 100% !important;
+        opacity: 1;
+    }
+
     .notes-dashboard-folders {
         width: 100% !important;
         height: 100% !important;
@@ -428,7 +423,6 @@
         background: var(--bg-color);
     }
 
-    /* Notes Pane */
     .notes-dashboard-left {
         width: 100% !important;
         height: 100% !important;
@@ -444,7 +438,6 @@
         transform: translateX(100%);
     }
 
-    /* Preview Pane */
     .notes-dashboard-right {
         position: absolute !important;
         top: 0;
@@ -460,7 +453,6 @@
         padding-top: 16px;
     }
 
-    /* Slide Triggers (Added classes for deep navigation) */
     .notes-dashboard-box.show-notes-pane .notes-dashboard-folders {
         transform: translateX(-30%);
         opacity: 0;
@@ -484,7 +476,6 @@
         padding: 0 20px 16px !important;
     }
 
-    /* Mobile Back Buttons for drill down */
     .mobile-back-to-folders {
         display: flex;
         align-items: center;
@@ -534,7 +525,6 @@
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* Preview Dashboard Action Buttons */
     .dashboard-actions {
         padding: 12px 20px !important;
         gap: 10px !important;

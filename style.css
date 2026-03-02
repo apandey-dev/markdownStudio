@@ -17,7 +17,6 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
-    /* Native Segmented Control Variables */
     --toggle-track: #e2e8f0;
     --toggle-pill: #ffffff;
     --toggle-shadow: rgba(0, 0, 0, 0.1);
@@ -86,7 +85,6 @@ body {
     display: none;
 }
 
-/* NAVBAR */
 .navbar {
     height: 52px;
     background-color: var(--nav-bg);
@@ -114,7 +112,6 @@ body {
     gap: 10px;
 }
 
-/* PILL TOGGLE */
 .mode-toggle {
     display: flex;
     background-color: var(--toggle-track);
@@ -165,7 +162,6 @@ body.dark-mode .mode-toggle {
     color: #60a5fa;
 }
 
-/* DROPDOWN */
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
@@ -281,7 +277,6 @@ body.dark-mode .mode-toggle {
     border-radius: 0 4px 4px 0;
 }
 
-/* BUTTONS */
 .actions>button,
 .modal-btn {
     display: flex;
@@ -307,7 +302,6 @@ body.dark-mode .mode-toggle {
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 
-/* MAIN WORKSPACE */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -488,7 +482,6 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -634,7 +627,6 @@ body.view-preview .divider {
     text-decoration: underline;
 }
 
-/* MODALS CORE */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -661,7 +653,7 @@ body.view-preview .divider {
     background-color: var(--nav-bg);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    padding: 32px;
+    padding: 24px;
     width: 100%;
     max-width: 400px;
     transform: translateY(20px) scale(0.95);
@@ -674,9 +666,9 @@ body.view-preview .divider {
 }
 
 .modal-title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     color: var(--accent-color);
 }
 
@@ -687,26 +679,26 @@ body.view-preview .divider {
 }
 
 .input-group {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .input-group label {
     display: block;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
     color: var(--text-color);
     font-weight: 500;
 }
 
 .modal-input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: var(--ui-font);
-    font-size: 1rem;
+    font-size: 0.95rem;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -719,7 +711,7 @@ body.view-preview .divider {
 .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 10px;
 }
 
 .btn-cancel {
@@ -743,10 +735,9 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* MINOR MODALS */
 .setup-modal-box {
     max-width: 460px;
-    padding: 40px 32px;
+    padding: 32px 24px;
 }
 
 .btn-help-cute {
@@ -786,42 +777,41 @@ body.dark-mode .btn-help-cute:hover {
 .guide-steps {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px 0;
+    margin: 0 0 16px 0;
     text-align: left;
 }
 
 .guide-steps li {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--text-color);
-    margin-bottom: 12px;
-    line-height: 1.5;
+    margin-bottom: 10px;
+    line-height: 1.4;
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
 .guide-steps li .step-num {
     background: #3b82f6;
     color: #ffffff;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     flex-shrink: 0;
 }
 
 .guide-steps li code {
     background: var(--border-color);
-    padding: 2px 6px;
+    padding: 2px 4px;
     border-radius: 4px;
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: var(--accent-color);
 }
 
-/* ✨ REDESIGNED NOTES DASHBOARD (3-PANE DESKTOP) ✨ */
 .notes-dashboard-box {
     max-width: 1100px;
     width: 90vw;
@@ -865,7 +855,6 @@ body.dark-mode .btn-help-cute:hover {
     height: 16px;
 }
 
-/* ✨ COLLAPSIBLE FOLDERS PANE ✨ */
 .notes-dashboard-folders {
     width: 20%;
     min-width: 180px;
@@ -878,7 +867,6 @@ body.dark-mode .btn-help-cute:hover {
     overflow: hidden;
 }
 
-/* Collapsed State Class */
 .notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
     width: 0 !important;
     min-width: 0 !important;
@@ -933,7 +921,6 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.8;
 }
 
-/* Pane 2: Notes List */
 .notes-dashboard-left {
     width: 30%;
     min-width: 240px;
@@ -1029,7 +1016,6 @@ body.dark-mode .btn-help-cute:hover {
     flex-shrink: 0;
 }
 
-/* Pane 3: Preview */
 .notes-dashboard-right {
     flex: 1;
     display: flex;
@@ -1117,7 +1103,6 @@ body.dark-mode .btn-help-cute:hover {
     font-size: 0.95rem;
 }
 
-/* SMALLER MODALS */
 .delete-modal-box {
     max-width: 340px;
     text-align: center;
@@ -1186,7 +1171,6 @@ body.dark-mode .btn-help-cute:hover {
     font-size: 0.85rem;
 }
 
-/* TOAST */
 #toast {
     visibility: hidden;
     min-width: 180px;
@@ -1243,7 +1227,6 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* EXPORT SPECIFIC STYLES */
 @media print {
 
     .navbar,

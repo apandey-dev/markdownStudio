@@ -21,7 +21,6 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* ✨ STANDALONE SHARE UI STYLES ✨ */
         body {
             margin: 0;
             padding: 0;
@@ -29,7 +28,6 @@
             color: var(--text-color);
             font-family: var(--ui-font);
             height: 100dvh;
-            /* Mobile jump fix */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -68,10 +66,8 @@
 
         .brand-title i {
             color: #10b981;
-            /* Emerald Green for Security */
         }
 
-        /* ✨ Premium Edit Button ✨ */
         #btn-edit-studio {
             display: flex;
             align-items: center;
@@ -81,7 +77,6 @@
             border: none;
             padding: 8px 18px;
             border-radius: 50px;
-            /* Pill shape */
             font-family: var(--ui-font);
             font-size: 0.95rem;
             font-weight: 600;
@@ -102,7 +97,6 @@
         .share-content {
             flex: 1;
             padding: 40px max(15%, 24px);
-            /* Responsive horizontal padding */
             overflow-y: auto;
             font-family: var(--preview-font);
             line-height: 1.7;
@@ -131,7 +125,6 @@
             }
         }
 
-        /* ✨ FLUID TYPOGRAPHY EXACTLY LIKE MAIN APP ✨ */
         .share-content h1 {
             font-size: clamp(1.8rem, 4vw, 2.5rem);
             margin-top: 1em;
@@ -165,7 +158,6 @@
             font-size: clamp(1rem, 2vw, 1.05rem);
         }
 
-        /* ADVANCED LINK STYLING */
         .share-content a {
             color: var(--link-color, #2563eb);
             text-decoration: none;
@@ -179,7 +171,6 @@
             text-underline-offset: 3px;
         }
 
-        /* CODE BLOCK WRAPPING FIX */
         .share-content pre {
             border-radius: 8px;
             overflow: hidden;
@@ -236,19 +227,17 @@
             background-color: var(--hover-bg);
         }
 
-        /* PREMIUM DOUBLE DASHED DIVIDER */
         .custom-divider {
             border: none;
-            height: 5px;
+            height: 12px;
             background-image: linear-gradient(to right, var(--accent-color) 60%, transparent 40%), linear-gradient(to right, var(--accent-color) 60%, transparent 40%);
             background-position: top, bottom;
-            background-size: 12px 1px;
+            background-size: 20px 3px;
             background-repeat: repeat-x;
-            margin: 10px 0;
+            margin: 3em 0;
             opacity: 0.8;
         }
 
-        /* ✨ MOBILE SPECIFIC ADJUSTMENTS ✨ */
         @media screen and (max-width: 768px) {
             .share-header {
                 padding: 0 16px;
@@ -270,7 +259,6 @@
                 height: 14px;
             }
 
-            /* Remove extra horizontal padding on small screens */
             .share-content {
                 padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
             }
@@ -281,7 +269,6 @@
 <body>
     <script>
         (function () {
-            // Initialize Theme smoothly to prevent flash of white
             const savedTheme = localStorage.getItem('theme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
@@ -289,8 +276,6 @@
                 document.getElementById('theme-light').disabled = true;
                 document.getElementById('theme-dark').disabled = false;
             }
-
-            // Apply User's selected custom font
             const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
             document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
         })();
@@ -322,20 +307,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js"></script>
 
     <script>
-        // Render Icons
         lucide.createIcons();
         window.sharedRawText = "";
 
-        // Shared Parser Utility 
         function customMarkdownParser(rawText) {
-            let processedText = rawText;
+            let processedText = rawText.replace(/\r\n/g, '\n');
             processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
             processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, '<span style="color: $2;">$1</span>');
 
-            marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
-            const htmlContent = marked.parse(processedText);
+            const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
             return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
         }
 
@@ -356,7 +338,6 @@
             }
 
             try {
-                // Fetch public/secret gist via GitHub API
                 const res = await fetch(`https://api.github.com/gists/${gistId}`);
                 if (!res.ok) throw new Error("Document not found or removed by owner.");
                 const data = await res.json();
@@ -365,17 +346,13 @@
                 if (files.length === 0) throw new Error("No readable files found.");
 
                 const encryptedContent = files[0].content;
-
-                // Decrypt via AES-256 using the key from URL hash
                 const decryptedBytes = CryptoJS.AES.decrypt(encryptedContent, key);
                 const rawText = decryptedBytes.toString(CryptoJS.enc.Utf8);
 
                 if (!rawText) throw new Error("Decryption failed. The secret key is invalid.");
 
-                // Store globally for Edit button
                 window.sharedRawText = rawText;
 
-                // Render Markdown smoothly
                 container.innerHTML = customMarkdownParser(rawText);
                 renderMathInElement(container, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
                 container.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -389,16 +366,12 @@
             }
         }
 
-        // Send back to main Editor to save/edit
         document.getElementById('btn-edit-studio').addEventListener('click', () => {
             if (!window.sharedRawText) return alert("Note is not loaded yet.");
-
-            // Re-encode via Base64 for local transfer to the main app
             const encodedData = btoa(encodeURIComponent(window.sharedRawText));
             window.location.href = `https://apandey-studio.vercel.app/#${encodedData}`;
         });
 
-        // Trigger load on mount
         window.onload = loadEncryptedGist;
     </script>
 </body>
