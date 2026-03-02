@@ -1,6 +1,6 @@
 /* ==========================================================================
-   EDITOR CONTROLLER (Local-First Architecture & Zero Data Loss)
-   Handles storage modes, parsing, scrolling, shortcuts, and custom syntax.
+   EDITOR CONTROLLER (Local-First Architecture & Folder System)
+   Handles storage modes, parsing, folders, duplicate checks, and syncing.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,24 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editor.disabled = true;
 
+    // STATE
     let notes = [];
+    let folders = ['All Notes']; // 'All Notes' is the root equivalent
+    let activeFolder = 'All Notes';
     let activeNoteId = null;
+    
     let noteToDeleteId = null;
     let highlightedNoteId = null;
+    let pendingNewNoteData = null; // Temp holds data when duplicate found
+
     let appMode = 'local';
     let isSyncing = false;
     let pendingSync = false;
     let syncTimer = null;
-    let cloudSaveTimeout = null;
 
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖨️ Native PDF Export:** Click "Export" to perfectly scale vector PDFs.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\` to add color.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\` before any text!\n* **➖ Spaced Divider:** Type \`===\` on a new line for a wide-spaced horizontal rule.\n\n/center **This heading is perfectly centered!**\n\n===\n\n> Click **📂 Notes** to create a new one!`;
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **📂 Folders:** Organize notes neatly.\n* **🖨️ Native PDF Export:** Scalable vector PDFs.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\`.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\`.\n\n/center **Enjoy writing!**`;
 
-    // --- 1. SETUP & MODE SWITCHING ---
-
+    // --- 1. UI & STATUS BAR MANAGEMENT ---
     function updatePillUI() {
         const isGithub = appMode === 'github';
 
-        // ✨ BUG FIX: Only remove active state from storage toggle pills, NOT theme pills!
         document.querySelectorAll('[data-target]').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll(`[data-target="${appMode}"]`).forEach(tab => tab.classList.add('active'));
 
@@ -56,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dashboardBadge = document.getElementById('dashboard-mode-badge');
         if (dashboardBadge) {
             if (isGithub) {
-                dashboardBadge.innerHTML = '<i data-lucide="cloud" style="width: 12px; height: 12px;"></i> GITHUB CLOUD';
+                dashboardBadge.innerHTML = '<i data-lucide="cloud" style="width: 12px; height: 12px;"></i> CLOUD';
                 dashboardBadge.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
                 dashboardBadge.style.color = '#10b981';
                 dashboardBadge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
@@ -80,6 +83,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) lucide.createIcons();
     }
 
+    // --- 2. LOCAL-FIRST DATA LAYER ---
+    function extractFoldersFromNotes() {
+        let fSet = new Set(['All Notes']);
+        notes.forEach(n => {
+            if(n.folder) fSet.add(n.folder);
+        });
+        folders = Array.from(fSet);
+    }
+
     function saveLocalState() {
         if (appMode === 'local') {
             localStorage.setItem('md_notes_local', JSON.stringify(notes));
@@ -90,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- 3. BACKGROUND CLOUD SYNC ENGINE ---
     function triggerCloudSync() {
         if (appMode !== 'github') return;
         pendingSync = true;
@@ -129,12 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- 4. BOOTSTRAP & MODE SWITCHING ---
     async function initGitHubMode(token) {
         const localCache = localStorage.getItem('md_notes_github');
         if (localCache) {
             try {
                 notes = JSON.parse(localCache);
-                activeNoteId = localStorage.getItem('md_active_github') || notes[0].id;
+                extractFoldersFromNotes();
+                activeNoteId = localStorage.getItem('md_active_github') || notes[0]?.id;
                 finishAppLoad();
             } catch (e) { }
         } else {
@@ -150,10 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     notes = cloudNotes;
                     activeNoteId = notes[0].id;
                 } else {
-                    const result = await GitHubBackend.saveNote('new', null, "Welcome", defaultWelcomeNote);
-                    notes = [{ id: result?.sha || 'temp', path: result?.path || 'welcome.md', title: "Welcome", content: defaultWelcomeNote }];
+                    const result = await GitHubBackend.saveNote('new', 'Welcome.md', "Welcome", defaultWelcomeNote);
+                    notes = [{ id: result?.sha || 'temp', path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
                     activeNoteId = notes[0].id;
                 }
+                extractFoldersFromNotes();
                 saveLocalState();
                 finishAppLoad();
                 updatePillUI();
@@ -167,8 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 if (added) {
+                    extractFoldersFromNotes();
                     saveLocalState();
-                    window.renderNotesList();
+                    if(document.getElementById('notes-modal').classList.contains('show')) {
+                        window.renderFoldersList();
+                        window.renderNotesList();
+                    }
                 }
                 triggerCloudSync();
             }
@@ -182,11 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (localCache) {
             try {
                 notes = JSON.parse(localCache);
-                activeNoteId = localStorage.getItem('md_active_local') || notes[0].id;
+                extractFoldersFromNotes();
+                activeNoteId = localStorage.getItem('md_active_local') || notes[0]?.id;
             } catch (e) { }
         } else {
             const id = Date.now().toString();
-            notes = [{ id: id, path: 'welcome.md', title: "Welcome to Local Storage", content: defaultWelcomeNote }];
+            notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
+            folders = ['All Notes'];
             activeNoteId = id;
             saveLocalState();
         }
@@ -252,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- UTILITIES ---
     function getActiveNote() {
         let n = notes.find(n => n.id === activeNoteId);
         if (!n && notes.length > 0) {
@@ -264,13 +287,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.getActiveNoteTitle = function () { const note = getActiveNote(); return note ? note.title : "Document"; };
 
-    function extractTitle(content) {
-        const match = content.match(/^#+\s+(.*)/m);
-        if (match && match[1]) {
-            let extracted = match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').trim();
-            return extracted.length > 30 ? extracted.substring(0, 30) + '...' : extracted;
-        }
-        return "Untitled Note";
+    function generatePath(folderName, title) {
+        // Sanitize title slightly but keep exact casing
+        let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
+        if(!safeTitle) safeTitle = 'Untitled Note';
+        
+        if (folderName === 'All Notes') return `${safeTitle}.md`;
+        return `${folderName}/${safeTitle}.md`;
     }
 
     function finishAppLoad() {
@@ -278,75 +301,102 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!note) return;
 
         highlightedNoteId = activeNoteId;
+        // set active folder to where the active note is
+        activeFolder = note.folder || 'All Notes'; 
+        
         editor.disabled = false;
         editor.placeholder = "Start typing your Markdown here...";
         editor.value = note.content || "";
         renderMarkdownCore(editor.value);
 
+        if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
         if (typeof window.renderNotesList === 'function') window.renderNotesList();
         if (window.lucide) lucide.createIcons();
     }
 
-    // --- PUSH LOCAL TO GITHUB BUTTON LOGIC ---
-    document.getElementById('btn-push-github')?.addEventListener('click', async () => {
-        const token = localStorage.getItem('md_github_token');
-        if (!token) return window.showToast("Please link your GitHub PAT in Setup first!");
+    // --- DASHBOARD RENDERING (FOLDERS & NOTES) ---
 
-        const success = await GitHubBackend.init(token);
-        if (success) {
-            window.showToast("<i data-lucide='loader'></i> Pushing notes to Cloud...");
-            document.getElementById('btn-push-github').disabled = true;
-            document.getElementById('btn-push-github').innerHTML = "Pushing...";
+    window.renderFoldersList = function () {
+        const container = document.getElementById('folders-list-container');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        extractFoldersFromNotes();
 
-            for (let note of notes) {
-                const res = await GitHubBackend.saveNote('new', null, note.title, note.content);
-                if (res) { note.id = res.sha; note.path = res.path; }
-            }
+        folders.forEach(folder => {
+            const div = document.createElement('div');
+            div.className = `folder-item ${folder === activeFolder ? 'active' : ''}`;
+            
+            const iconEl = document.createElement('i');
+            iconEl.setAttribute('data-lucide', folder === 'All Notes' ? 'library' : 'folder');
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = folder;
+            textSpan.style.flex = "1";
+            textSpan.style.whiteSpace = 'nowrap';
+            textSpan.style.overflow = 'hidden';
+            textSpan.style.textOverflow = 'ellipsis';
+            
+            // Count notes in this folder
+            let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
+            const countSpan = document.createElement('span');
+            countSpan.textContent = count;
+            countSpan.style.fontSize = "0.75rem";
+            countSpan.style.opacity = "0.6";
 
-            appMode = 'github';
-            localStorage.setItem('md_app_mode', 'github');
-            saveLocalState();
-            updatePillUI();
+            div.appendChild(iconEl);
+            div.appendChild(textSpan);
+            div.appendChild(countSpan);
 
-            document.getElementById('btn-push-github').style.display = 'none';
-            document.getElementById('btn-push-github').innerHTML = `<i data-lucide="cloud-upload"></i> Push Local to Cloud`;
-            document.getElementById('btn-push-github').disabled = false;
-            window.showToast("<i data-lucide='check'></i> Successfully pushed to GitHub!");
-        }
-    });
+            div.addEventListener('click', () => {
+                activeFolder = folder;
+                window.renderFoldersList();
+                window.renderNotesList();
+                
+                // Mobile Drill down
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+                }
+            });
+
+            container.appendChild(div);
+        });
+        if (window.lucide) lucide.createIcons();
+    };
 
     window.renderNotesList = function () {
         const container = document.getElementById('notes-list-container');
+        const folderTitle = document.getElementById('current-folder-name');
         if (!container) return;
+        
         container.innerHTML = '';
-        if (!highlightedNoteId) highlightedNoteId = activeNoteId;
-
+        if (folderTitle) folderTitle.textContent = activeFolder;
+        
         updatePillUI();
 
-        notes.forEach(note => {
+        // Filter notes by active folder
+        let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
+
+        // Auto select first note if highlighted is missing from this view
+        if(displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
+            highlightedNoteId = displayNotes[0].id;
+        } else if (displayNotes.length === 0) {
+            highlightedNoteId = null;
+        }
+
+        displayNotes.forEach(note => {
             const div = document.createElement('div');
             div.className = `note-item ${note.id === highlightedNoteId ? 'active' : ''}`;
 
             const titleContainer = document.createElement('div');
             titleContainer.className = 'note-title';
-            titleContainer.style.display = 'flex';
-            titleContainer.style.alignItems = 'center';
-            titleContainer.style.gap = '12px';
-            titleContainer.style.overflow = 'hidden';
-
+            
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', 'file-text');
-            iconEl.style.width = '18px';
-            iconEl.style.height = '18px';
-            iconEl.style.opacity = '0.7';
-            iconEl.style.flexShrink = '0';
-
+            
             const textSpan = document.createElement('span');
             textSpan.textContent = note.title;
-            textSpan.style.whiteSpace = 'nowrap';
-            textSpan.style.overflow = 'hidden';
-            textSpan.style.textOverflow = 'ellipsis';
-
+            
             titleContainer.appendChild(iconEl);
             titleContainer.appendChild(textSpan);
             div.appendChild(titleContainer);
@@ -363,10 +413,17 @@ document.addEventListener('DOMContentLoaded', () => {
             div.addEventListener('dblclick', () => { document.getElementById('dash-btn-edit')?.click(); });
             container.appendChild(div);
         });
+
         if (window.lucide) lucide.createIcons();
         window.renderDashboardPreview();
     };
 
+    // Mobile Back Button logic
+    document.getElementById('mob-back-folders')?.addEventListener('click', () => {
+        document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
+    });
+
+    // --- PREVIEW HTML PARSER ---
     function customMarkdownParser(rawText) {
         let processedText = rawText;
         processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
@@ -379,28 +436,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.renderDashboardPreview = function () {
         const previewEl = document.getElementById('dashboard-preview-output');
-        const note = notes.find(n => n.id === highlightedNoteId) || notes[0];
-        if (!note || !previewEl) return;
+        const note = notes.find(n => n.id === highlightedNoteId);
+        
+        if (!note || !previewEl) {
+            if(previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
+            return;
+        }
 
         previewEl.innerHTML = customMarkdownParser(note.content);
         renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
     };
 
+    // --- ACTIONS ---
     document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
+        if(!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
-        saveLocalState();
+        saveLocalState(); 
         editor.value = getActiveNote().content;
         renderMarkdownCore(editor.value);
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
 
     document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
+        if(!highlightedNoteId) return;
         noteToDeleteId = highlightedNoteId;
         document.getElementById('delete-modal').classList.add('show');
     });
 
     document.getElementById('dash-btn-export')?.addEventListener('click', () => {
+        if(!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
         saveLocalState();
         editor.value = getActiveNote().content;
@@ -416,37 +481,75 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('delete-confirm')?.addEventListener('click', async () => {
         if (!noteToDeleteId) return;
 
-        if (notes.length === 1) {
-            notes[0].content = "# Untitled Note\n";
-            notes[0].title = "Untitled Note";
+        const idx = notes.findIndex(n => n.id === noteToDeleteId);
+        if(idx === -1) return;
+        
+        const noteToDelete = notes[idx];
+        notes.splice(idx, 1);
+
+        if (activeNoteId === noteToDeleteId) {
+            activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
+            if(activeNoteId) editor.value = getActiveNote().content;
+            else editor.value = "";
+        }
+        
+        if (highlightedNoteId === noteToDeleteId) {
+            let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
+            highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
+        }
+
+        if (appMode === 'github' && noteToDelete.path) {
+            GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
+        }
+
+        // If last note deleted, create a temp one
+        if(notes.length === 0) {
+            const id = Date.now().toString();
+            notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
+            activeNoteId = id;
             editor.value = notes[0].content;
-            triggerCloudSync();
-        } else {
-            const idx = notes.findIndex(n => n.id === noteToDeleteId);
-            const noteToDelete = notes[idx];
-            notes.splice(idx, 1);
-
-            if (activeNoteId === noteToDeleteId) {
-                activeNoteId = notes[Math.max(0, idx - 1)].id;
-                editor.value = getActiveNote().content;
-            }
-            if (highlightedNoteId === noteToDeleteId) {
-                highlightedNoteId = activeNoteId;
-            }
-
-            if (appMode === 'github' && noteToDelete.path) {
-                GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
-            }
         }
 
         saveLocalState();
         renderMarkdownCore(editor.value);
+        window.renderFoldersList();
         window.renderNotesList();
 
         noteToDeleteId = null;
         if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
         window.showToast("<i data-lucide='trash-2'></i> Note deleted");
     });
+
+    // --- FOLDER & NOTE CREATION (WITH DUPLICATE CHECK) ---
+    const btnNewFolder = document.getElementById('btn-new-folder');
+    const folderPromptModal = document.getElementById('folder-prompt-modal');
+    const folderPromptInput = document.getElementById('folder-prompt-input');
+
+    btnNewFolder?.addEventListener('click', () => {
+        folderPromptInput.value = '';
+        folderPromptModal.classList.add('show');
+        setTimeout(() => { folderPromptInput.focus(); }, 100);
+    });
+
+    document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
+        let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
+        if(!folderName) return window.showToast("Folder name cannot be empty.");
+        if(folders.includes(folderName)) return window.showToast("Folder already exists.");
+        
+        folders.push(folderName);
+        activeFolder = folderName;
+        window.renderFoldersList();
+        window.renderNotesList();
+        
+        folderPromptModal.classList.remove('show');
+        window.showToast(`<i data-lucide='folder'></i> Folder '${folderName}' created!`);
+        
+        // Mobile UX: slide to new empty folder
+        if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+    });
+    
+    document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => folderPromptModal.classList.remove('show'));
+
 
     const btnNewNote = document.getElementById('btn-new-note');
     const promptModal = document.getElementById('prompt-modal');
@@ -458,47 +561,117 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { promptInput.focus(); }, 100);
     });
 
-    const createNoteFromPrompt = async () => {
+    const createNoteFlow = async () => {
         let noteName = promptInput.value.trim() || "Untitled Note";
+        const folder = activeFolder;
+        const generatedPath = generatePath(folder, noteName);
+        
+        // Check Duplicate Exact Path
+        const existingNote = notes.find(n => n.path === generatedPath);
+        
         const newId = Date.now().toString();
         const content = `# ${noteName}\n\nStart typing here...`;
 
-        let safeTitle = noteName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        if (!safeTitle) safeTitle = 'untitled';
-        let path = `${safeTitle}_${Date.now().toString().slice(-4)}.md`;
+        if (existingNote) {
+            // Trigger Conflict Modal
+            pendingNewNoteData = { id: newId, path: generatedPath, folder: folder, title: noteName, content: content, existingId: existingNote.id };
+            document.getElementById('conflict-filename').textContent = noteName + ".md";
+            promptModal.classList.remove('show');
+            document.getElementById('conflict-modal').classList.add('show');
+            return;
+        }
 
-        notes.unshift({ id: newId, path: path, title: noteName, content: content });
-        activeNoteId = newId;
-        highlightedNoteId = newId;
-        editor.value = content;
+        // Safe to create
+        executeNoteCreation({ id: newId, path: generatedPath, folder: folder, title: noteName, content: content });
+    };
+
+    function executeNoteCreation(noteData) {
+        notes.unshift(noteData);
+        activeNoteId = noteData.id;
+        highlightedNoteId = noteData.id;
+        editor.value = noteData.content;
 
         saveLocalState();
-        renderMarkdownCore(content);
+        renderMarkdownCore(noteData.content);
+        window.renderFoldersList();
         window.renderNotesList();
 
         promptModal.classList.remove('show');
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
 
         if (appMode === 'github') triggerCloudSync();
-
-        window.showToast("<i data-lucide='check-circle'></i> " + noteName + " created!");
-    };
-
-    document.getElementById('prompt-confirm')?.addEventListener('click', createNoteFromPrompt);
-    promptInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') createNoteFromPrompt(); });
-    document.getElementById('prompt-cancel')?.addEventListener('click', () => { promptModal.classList.remove('show'); });
-
-    function updateLiveStats(text) {
-        const chars = text.length;
-        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-        document.getElementById('stat-words').textContent = `${words} Words`;
-        document.getElementById('stat-chars').textContent = `${chars} Characters`;
-        document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
+        window.showToast("<i data-lucide='check-circle'></i> " + noteData.title + " created!");
     }
 
-    marked.setOptions({ breaks: true, gfm: true, headerIds: true, mangle: false });
-    function debounce(func, wait) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
+    document.getElementById('prompt-confirm')?.addEventListener('click', createNoteFlow);
+    promptInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') createNoteFlow(); });
+    document.getElementById('prompt-cancel')?.addEventListener('click', () => { promptModal.classList.remove('show'); });
 
+    // Conflict Modal Actions
+    document.getElementById('conflict-cancel')?.addEventListener('click', () => {
+        document.getElementById('conflict-modal').classList.remove('show');
+        pendingNewNoteData = null;
+    });
+
+    document.getElementById('conflict-rename')?.addEventListener('click', () => {
+        document.getElementById('conflict-modal').classList.remove('show');
+        promptInput.value = pendingNewNoteData.title + " (New)";
+        promptModal.classList.add('show');
+        pendingNewNoteData = null;
+    });
+
+    document.getElementById('conflict-overwrite')?.addEventListener('click', () => {
+        if(!pendingNewNoteData) return;
+        // Find existing and overwrite its content
+        let exNote = notes.find(n => n.id === pendingNewNoteData.existingId);
+        if(exNote) {
+            exNote.content = pendingNewNoteData.content;
+            activeNoteId = exNote.id;
+            highlightedNoteId = exNote.id;
+            editor.value = exNote.content;
+            
+            saveLocalState();
+            renderMarkdownCore(exNote.content);
+            window.renderNotesList();
+            if (appMode === 'github') triggerCloudSync();
+            window.showToast("<i data-lucide='copy'></i> Note Overwritten!");
+        }
+        document.getElementById('conflict-modal').classList.remove('show');
+        if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
+        pendingNewNoteData = null;
+    });
+
+    // PUSH ALL
+    document.getElementById('btn-push-github')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('md_github_token');
+        if (!token) return window.showToast("Please link your GitHub PAT in Setup first!");
+
+        const success = await GitHubBackend.init(token);
+        if (success) {
+            window.showToast("<i data-lucide='loader'></i> Pushing notes to Cloud...");
+            document.getElementById('btn-push-github').disabled = true;
+            document.getElementById('btn-push-github').innerHTML = "Pushing...";
+
+            for (let note of notes) {
+                // Background push all
+                const res = await GitHubBackend.saveNote('new', note.path, note.title, note.content);
+                if (res) { note.id = res.sha; note.path = res.path; }
+            }
+
+            appMode = 'github';
+            localStorage.setItem('md_app_mode', 'github');
+            saveLocalState();
+            updatePillUI();
+
+            document.getElementById('btn-push-github').style.display = 'none';
+            document.getElementById('btn-push-github').innerHTML = `<i data-lucide="cloud-upload"></i> Push Local to Cloud`;
+            document.getElementById('btn-push-github').disabled = false;
+            window.showToast("<i data-lucide='check'></i> Successfully pushed to GitHub!");
+        }
+    });
+
+
+    // --- TYPING & SCROLLING ---
     function renderMarkdownCore(rawText) {
         updateLiveStats(rawText);
         preview.innerHTML = customMarkdownParser(rawText);
@@ -510,13 +683,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateLiveStats(text) {
+        const chars = text.length;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+        document.getElementById('stat-words').textContent = `${words} Words`;
+        document.getElementById('stat-chars').textContent = `${chars} Characters`;
+        document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
+    }
+
     editor.addEventListener('input', () => {
         const rawText = editor.value;
         const activeNote = getActiveNote();
 
         if (activeNote) {
             activeNote.content = rawText;
-            activeNote.title = extractTitle(rawText);
+            
+            // Auto-rename path logic removed. Title is strictly what user inputted.
+            // If they want to rename, they create a new file or we add rename feature later.
+            // activeNote.title = extractTitle(rawText); 
+            
             saveLocalState();
             triggerCloudSync();
         }
@@ -661,7 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        let safeTitle = getActiveNote().title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        let safeTitle = getActiveNote().title.replace(/[/\\?%*:|"<>]/g, '_').toLowerCase();
         if (safeTitle === 'untitled_note' || !safeTitle) safeTitle = 'markdown_document';
         a.download = `${safeTitle}.md`;
         a.click();
@@ -677,19 +862,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const content = e.target.result;
-            const newId = Date.now().toString();
             const rawTitle = file.name.replace('.md', '').replace('.txt', '');
-            const safePath = `${rawTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'imported'}_${Date.now().toString().slice(-4)}.md`;
+            const folder = activeFolder;
+            const newPath = generatePath(folder, rawTitle);
+            const newId = Date.now().toString();
+            
+            // Check Duplicate on Import
+            if(notes.find(n => n.path === newPath)) {
+                window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
+                return;
+            }
 
-            notes.unshift({ id: newId, path: safePath, title: rawTitle, content: content });
+            notes.unshift({ id: newId, path: newPath, folder: folder, title: rawTitle, content: content });
             activeNoteId = newId;
             highlightedNoteId = newId;
             editor.value = content;
 
             saveLocalState();
             renderMarkdownCore(content);
+            if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
             if (typeof window.renderNotesList === 'function') window.renderNotesList();
-            window.showToast("<i data-lucide='file-up'></i> Document imported locally!");
+            window.showToast("<i data-lucide='file-up'></i> Document imported!");
 
             if (appMode === 'github') triggerCloudSync();
         };
@@ -703,9 +896,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const decodedText = decodeURIComponent(atob(encodedData));
             const sharedId = Date.now().toString();
             const sharedTitle = extractTitle(decodedText) || "Shared Note";
-            const sharedPath = `${sharedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now().toString().slice(-4)}.md`;
+            const sharedPath = generatePath('All Notes', sharedTitle);
 
-            notes.unshift({ id: sharedId, path: sharedPath, title: sharedTitle, content: decodedText });
+            notes.unshift({ id: sharedId, path: sharedPath, folder: 'All Notes', title: sharedTitle, content: decodedText });
             activeNoteId = sharedId;
             highlightedNoteId = sharedId;
             saveLocalState();

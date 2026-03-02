@@ -1,22 +1,23 @@
 /* ==========================================================================
    GITHUB SYNC CONTROLLER (Zero-Backend)
    Handles API calls for Repos (Storage) and Gists (Secure Sharing)
+   Supports Nested Folders (1-level deep)
    ========================================================================== */
 
 const GitHubBackend = {
     token: null,
     repoOwner: '',
-    repoName: 'markdown-studio-notes', 
+    repoName: 'markdown-studio-notes',
     isConfigured: false,
 
     utf8_to_b64(str) {
         return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
             function toSolidBytes(match, p1) {
                 return String.fromCharCode('0x' + p1);
-        }));
+            }));
     },
     b64_to_utf8(str) {
-        return decodeURIComponent(atob(str).split('').map(function(c) {
+        return decodeURIComponent(atob(str).split('').map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     },
@@ -27,9 +28,9 @@ const GitHubBackend = {
             const userRes = await fetch('https://api.github.com/user', {
                 headers: { 'Authorization': `token ${this.token}` }
             });
-            
+
             if (!userRes.ok) throw new Error('Invalid Token');
-            
+
             const userData = await userRes.json();
             this.repoOwner = userData.login;
 
@@ -51,7 +52,7 @@ const GitHubBackend = {
         if (res.status === 404) {
             await fetch('https://api.github.com/user/repos', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Authorization': `token ${this.token}`,
                     'Content-Type': 'application/json'
                 },
@@ -72,55 +73,72 @@ const GitHubBackend = {
                 headers: { 'Authorization': `token ${this.token}` }
             });
             if (!res.ok) return [];
-            
-            const files = await res.json();
-            const mdFiles = files.filter(f => f.name.endsWith('.md'));
-            
+
+            const rootItems = await res.json();
+            let allMdFiles = [];
+
+            // 1. Get files in root
+            rootItems.forEach(item => {
+                if (item.type === 'file' && item.name.endsWith('.md')) {
+                    item.folder = 'root';
+                    allMdFiles.push(item);
+                }
+            });
+
+            // 2. Fetch contents of folders (1 level deep)
+            const folders = rootItems.filter(item => item.type === 'dir');
+            for (let folder of folders) {
+                const folderRes = await fetch(folder.url, { headers: { 'Authorization': `token ${this.token}` } });
+                if (folderRes.ok) {
+                    const folderItems = await folderRes.json();
+                    folderItems.forEach(item => {
+                        if (item.type === 'file' && item.name.endsWith('.md')) {
+                            item.folder = folder.name;
+                            allMdFiles.push(item);
+                        }
+                    });
+                }
+            }
+
             let notes = [];
-            for (let file of mdFiles) {
+            for (let file of allMdFiles) {
                 const contentRes = await fetch(file.url, { headers: { 'Authorization': `token ${this.token}` } });
                 const contentData = await contentRes.json();
-                
+
                 const rawContent = this.b64_to_utf8(contentData.content);
-                const match = rawContent.match(/^#+\s+(.*)/m);
-                let title = file.name.replace('.md', '');
-                
-                if (match && match[1]) {
-                    let extracted = match[1].replace(/\[([^\]]+)\]\s*\{\s*[a-zA-Z0-9#]+\s*\}/g, '$1').trim();
-                    title = extracted.length > 30 ? extracted.substring(0, 30) + '...' : extracted;
-                }
-                
-                notes.push({ id: file.sha, title: title, content: rawContent, path: file.path, lastUpdated: Date.now() });
+                const title = file.name.replace('.md', '');
+
+                notes.push({
+                    id: file.sha,
+                    title: title,
+                    content: rawContent,
+                    path: file.path,
+                    folder: file.folder === 'root' ? 'All Notes' : file.folder,
+                    lastUpdated: Date.now()
+                });
             }
             return notes.reverse();
         } catch (error) {
+            console.error("Fetch Notes Error:", error);
             return [];
         }
     },
 
-    // ✨ SMART SAVE WITH CONFLICT RESOLUTION ✨
-    async saveNote(noteId, existingPath, title, content) {
+    async saveNote(noteId, exactPath, title, content) {
         if (!this.isConfigured) return null;
-        
-        let path = existingPath;
-        if (!path) {
-            let safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            if (!safeTitle) safeTitle = 'untitled';
-            path = `${safeTitle}_${Date.now().toString().slice(-4)}.md`; 
-        }
 
         const attemptSave = async (sha) => {
             const bodyData = { message: `Auto-saved note: ${title}`, content: this.utf8_to_b64(content) };
-            if (sha && sha !== 'new' && sha !== 'temp') bodyData.sha = sha; 
+            if (sha && sha !== 'new' && sha !== 'temp') bodyData.sha = sha;
 
-            const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${path}`, {
+            const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${exactPath}`, {
                 method: 'PUT',
                 headers: { 'Authorization': `token ${this.token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(bodyData)
             });
-            
-            if (res.status === 409) return 'conflict'; // SHA mismatch handled
-            
+
+            if (res.status === 409) return 'conflict';
+
             if (res.ok) {
                 const data = await res.json();
                 return { sha: data.content.sha, path: data.content.path };
@@ -130,10 +148,9 @@ const GitHubBackend = {
 
         let result = await attemptSave(noteId);
 
-        // If GitHub rejects because of old SHA, auto-fetch latest SHA and FORCE push local edits
         if (result === 'conflict') {
             try {
-                const getRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${path}`, {
+                const getRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${exactPath}`, {
                     headers: { 'Authorization': `token ${this.token}` }
                 });
                 if (getRes.ok) {
@@ -158,7 +175,7 @@ const GitHubBackend = {
                 body: JSON.stringify({ message: "Deleted via Markdown Studio", sha: sha })
             });
             return true;
-        } catch(e) { return false; }
+        } catch (e) { return false; }
     },
 
     async createSecretGist(encryptedContent) {
@@ -176,11 +193,11 @@ const GitHubBackend = {
                     files: { "shared_document.enc": { content: encryptedContent } }
                 })
             });
-            
-            if(!res.ok) return { error: "Permission missing (Needs 'gist' scope)" };
+
+            if (!res.ok) return { error: "Permission missing (Needs 'gist' scope)" };
             const data = await res.json();
-            return { id: data.id }; 
-            
+            return { id: data.id };
+
         } catch (err) {
             return { error: err.message };
         }

@@ -1,11 +1,10 @@
 /* ==========================================================================
    MARKDOWN STUDIO - PREMIUM MOBILE UI/UX
-   Description: Native app-like feel, Bottom Sheets, Safe Areas, Smooth Scroll.
+   Description: Native app-like feel, Bottom Sheets, Safe Areas, Drill-down UI.
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
 
-    /* ✨ 1. VISIBILITY & NATIVE APP FEEL UTILITIES ✨ */
     .mobile-only {
         display: flex !important;
     }
@@ -27,7 +26,7 @@
         height: 100dvh !important;
     }
 
-    /* 2. NAVBAR (Clean & Minimal) */
+    /* NAVBAR */
     .navbar {
         padding: 0 16px;
         height: 56px;
@@ -57,7 +56,7 @@
         text-overflow: ellipsis;
     }
 
-    /* ✨ 3. NEW EYE (PREVIEW) BUTTON IN NAVBAR ✨ */
+    /* EYE (PREVIEW) BUTTON IN NAVBAR */
     #mobile-view-toggle {
         background-color: transparent !important;
         border: 1.5px solid var(--border-color) !important;
@@ -65,7 +64,6 @@
         width: 36px !important;
         height: 36px !important;
         border-radius: 8px !important;
-        /* Matches overall UI roundness */
         display: flex !important;
         align-items: center;
         justify-content: center;
@@ -78,8 +76,7 @@
         flex-shrink: 0;
     }
 
-    #mobile-view-toggle i,
-    #mobile-view-toggle svg {
+    #mobile-view-toggle i {
         width: 18px !important;
         height: 18px !important;
         margin: 0 !important;
@@ -90,23 +87,22 @@
         transform: scale(0.95);
     }
 
-    /* ✨ HIDE TEXT IN MOBILE PILL TOGGLES ✨ */
+    /* HIDE TEXT IN MOBILE PILL TOGGLES */
     .mode-tab .tab-text {
         display: none !important;
     }
 
     .mode-tab {
-        padding: 10px 0 !important;
+        padding: 8px 0 !important;
     }
 
-    .mode-tab i,
-    .mode-tab svg {
-        width: 18px !important;
-        height: 18px !important;
+    .mode-tab i {
+        width: 16px !important;
+        height: 16px !important;
         margin: 0 !important;
     }
 
-    /* 4. EDITOR & PREVIEW WORKSPACE */
+    /* EDITOR & PREVIEW WORKSPACE */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -131,7 +127,6 @@
         border-right: none;
     }
 
-    /* ✨ Reclaimed Space (No more FAB at bottom) ✨ */
     .preview-panel {
         flex: 1 !important;
         display: none;
@@ -156,7 +151,32 @@
         padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* 5. TOOLBAR (Compact & Clean) */
+    /* MOBILE TYPOGRAPHY OVERRIDES */
+    #preview-output h1,
+    #dashboard-preview-output h1 {
+        font-size: 1.6rem !important;
+    }
+
+    #preview-output h2,
+    #dashboard-preview-output h2 {
+        font-size: 1.3rem !important;
+    }
+
+    #preview-output h3,
+    #dashboard-preview-output h3 {
+        font-size: 1.1rem !important;
+    }
+
+    #preview-output p,
+    #dashboard-preview-output p,
+    #preview-output ul,
+    #dashboard-preview-output ul,
+    #preview-output ol,
+    #dashboard-preview-output ol {
+        font-size: 0.95rem !important;
+    }
+
+    /* TOOLBAR */
     .editor-toolbar {
         padding: 6px 8px !important;
         gap: 4px !important;
@@ -169,8 +189,7 @@
         padding: 6px !important;
     }
 
-    .tool-btn i,
-    .tool-btn svg {
+    .tool-btn i {
         width: 16px !important;
         height: 16px !important;
     }
@@ -186,11 +205,11 @@
     .status-bar {
         padding: 8px 16px;
         padding-bottom: calc(8px + env(safe-area-inset-bottom));
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         justify-content: center;
     }
 
-    /* 6. MOBILE SIDEBAR */
+    /* MOBILE SIDEBAR */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -240,7 +259,7 @@
     }
 
     .sidebar-header h3 {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         margin: 0;
         font-family: var(--ui-font);
         font-weight: 600;
@@ -260,10 +279,9 @@
         transition: background 0.2s !important;
     }
 
-    #close-sidebar-btn i,
-    #close-sidebar-btn svg {
-        width: 18px !important;
-        height: 18px !important;
+    #close-sidebar-btn i {
+        width: 16px !important;
+        height: 16px !important;
     }
 
     #close-sidebar-btn:active {
@@ -274,7 +292,7 @@
         padding: 20px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
         overflow-y: auto;
     }
 
@@ -282,20 +300,21 @@
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px;
+        gap: 12px;
+        padding: 14px 16px;
         border-radius: 12px;
         background-color: transparent;
         border: 1px solid var(--border-color);
         color: var(--text-color);
         font-family: var(--ui-font);
-        font-size: 1.05rem;
+        font-size: 1rem;
         font-weight: 500;
     }
 
-    .sidebar-btn i,
-    .sidebar-btn svg {
+    .sidebar-btn i {
         color: var(--accent-color);
+        width: 18px;
+        height: 18px;
     }
 
     .sidebar-btn:active {
@@ -303,7 +322,14 @@
         border-color: var(--accent-color);
     }
 
-    /* 7. BOTTOM SHEET MODALS */
+    #mobile-mode-toggle,
+    #mobile-theme-toggle {
+        padding: 4px;
+        background-color: var(--toggle-track);
+        border-radius: 100px;
+    }
+
+    /* BOTTOM SHEET MODALS */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -317,7 +343,7 @@
         max-width: 100% !important;
         max-height: 90vh !important;
         border-radius: 28px 28px 0 0 !important;
-        padding: 32px 24px calc(24px + env(safe-area-inset-bottom)) !important;
+        padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) !important;
         margin: 0 !important;
         transform: translateY(100%) !important;
         transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
@@ -346,33 +372,33 @@
     }
 
     .modal-title {
-        font-size: 1.5rem !important;
-        margin-bottom: 24px !important;
+        font-size: 1.3rem !important;
+        margin-bottom: 20px !important;
     }
 
     .modal-input,
     .dropdown-header {
-        padding: 16px !important;
-        font-size: 1rem !important;
-        border-radius: 14px !important;
+        padding: 12px 14px !important;
+        font-size: 0.95rem !important;
+        border-radius: 12px !important;
     }
 
     .modal-actions {
         flex-direction: row !important;
         justify-content: space-between !important;
-        gap: 12px !important;
+        gap: 10px !important;
         width: 100% !important;
-        margin-top: 24px !important;
+        margin-top: 20px !important;
     }
 
     .modal-btn {
         flex: 1 !important;
-        padding: 14px !important;
-        font-size: 1.05rem !important;
-        border-radius: 14px !important;
+        padding: 12px !important;
+        font-size: 1rem !important;
+        border-radius: 12px !important;
     }
 
-    /* 8. NOTES DASHBOARD */
+    /* ✨ DRILL-DOWN NOTES DASHBOARD (Mobile specific 3-pane simulation) ✨ */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
@@ -387,42 +413,38 @@
         z-index: 100;
     }
 
+    /* Folders Pane */
+    .notes-dashboard-folders {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 50vh;
+        border-right: none !important;
+        padding-top: 24px !important;
+        transition: transform 0.3s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 30;
+        background: var(--bg-color);
+    }
+
+    /* Notes Pane */
     .notes-dashboard-left {
         width: 100% !important;
         height: 100% !important;
         min-height: 50vh;
         border-right: none !important;
-        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s;
+        transition: transform 0.3s ease;
         padding-top: 24px !important;
-        display: flex;
-        flex-direction: column;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 40;
+        background: var(--nav-bg);
+        transform: translateX(100%);
     }
 
-    .notes-dashboard-left-header {
-        padding: 0 20px 16px !important;
-    }
-
-    #btn-new-note {
-        font-size: 1.05rem !important;
-    }
-
-    .notes-list {
-        padding: 0 20px 20px !important;
-        flex: 1;
-        overflow-y: auto;
-    }
-
-    .note-item {
-        padding: 18px 20px !important;
-        border-radius: 16px !important;
-        margin-bottom: 12px;
-    }
-
-    .note-item.active {
-        border-left: 1px solid var(--border-color) !important;
-        border: 2px solid var(--accent-color) !important;
-    }
-
+    /* Preview Pane */
     .notes-dashboard-right {
         position: absolute !important;
         top: 0;
@@ -430,12 +452,22 @@
         width: 100% !important;
         height: 100% !important;
         transform: translateX(100%);
-        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+        transition: transform 0.3s ease;
         z-index: 50;
         background-color: var(--preview-bg) !important;
         display: flex;
         flex-direction: column;
         padding-top: 16px;
+    }
+
+    /* Slide Triggers (Added classes for deep navigation) */
+    .notes-dashboard-box.show-notes-pane .notes-dashboard-folders {
+        transform: translateX(-30%);
+        opacity: 0;
+    }
+
+    .notes-dashboard-box.show-notes-pane .notes-dashboard-left {
+        transform: translateX(0);
     }
 
     .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
@@ -447,21 +479,78 @@
         transform: translateX(0);
     }
 
+    .folders-header,
+    .notes-dashboard-left-header {
+        padding: 0 20px 16px !important;
+    }
+
+    /* Mobile Back Buttons for drill down */
+    .mobile-back-to-folders {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: none;
+        color: var(--text-color);
+        font-family: var(--ui-font);
+        font-weight: 600;
+        padding: 8px 0;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+    .mobile-back-to-folders i {
+        width: 16px;
+        height: 16px;
+    }
+
+    #btn-new-note {
+        font-size: 0.95rem !important;
+    }
+
+    .folders-list,
+    .notes-list {
+        padding: 0 20px 20px !important;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .folder-item {
+        padding: 14px 16px !important;
+        border-radius: 12px !important;
+        margin-bottom: 8px;
+        background: var(--nav-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .note-item {
+        padding: 14px 16px !important;
+        border-radius: 12px !important;
+        margin-bottom: 10px;
+    }
+
+    .note-item.active {
+        border-left: 1px solid var(--border-color) !important;
+        border: 2px solid var(--accent-color) !important;
+    }
+
+    /* Preview Dashboard Action Buttons */
     .dashboard-actions {
         padding: 12px 20px !important;
-        gap: 12px !important;
+        gap: 10px !important;
         overflow-x: auto;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg) !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
+        height: 60px !important;
     }
 
     .dashboard-actions .pill-btn {
         font-size: 0 !important;
-        width: 44px !important;
-        height: 44px !important;
+        width: 40px !important;
+        height: 40px !important;
         padding: 0 !important;
         border-radius: 50% !important;
         display: flex !important;
@@ -471,10 +560,9 @@
         flex-shrink: 0 !important;
     }
 
-    .dashboard-actions .pill-btn i,
-    .dashboard-actions .pill-btn svg {
-        width: 20px !important;
-        height: 20px !important;
+    .dashboard-actions .pill-btn i {
+        width: 18px !important;
+        height: 18px !important;
         margin: 0 !important;
     }
 
@@ -486,14 +574,13 @@
     }
 
     .dashboard-preview-content {
-        padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) !important;
+        padding: 20px 20px calc(24px + env(safe-area-inset-bottom)) !important;
         flex: 1;
         overflow-y: auto;
     }
 
-    /* 9. MINOR MODALS ADJUSTMENTS */
     .delete-modal-box {
-        padding-top: 40px !important;
+        padding-top: 32px !important;
         text-align: center !important;
     }
 
@@ -502,10 +589,9 @@
     }
 
     .setup-modal-box {
-        padding-top: 40px !important;
+        padding-top: 32px !important;
     }
 
-    /* 10. TOAST NOTIFICATION */
     #toast {
         bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         width: auto !important;
@@ -515,9 +601,9 @@
         right: auto !important;
         margin-left: 0 !important;
         transform: translate(-50%, 20px) !important;
-        padding: 12px 24px !important;
+        padding: 10px 20px !important;
         border-radius: 50px !important;
-        font-size: 0.95rem !important;
+        font-size: 0.85rem !important;
         text-align: center !important;
         white-space: pre-wrap !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;

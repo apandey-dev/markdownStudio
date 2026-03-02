@@ -17,11 +17,9 @@
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
 
-    /* ✨ Native Segmented Control Variables (Light Mode) ✨ */
+    /* Native Segmented Control Variables */
     --toggle-track: #e2e8f0;
-    /* Grayish background for the pill container */
     --toggle-pill: #ffffff;
-    /* Pure white for the active button */
     --toggle-shadow: rgba(0, 0, 0, 0.1);
 
     --link-color: #2563eb;
@@ -47,11 +45,8 @@ body.dark-mode {
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
 
-    /* ✨ Native Segmented Control Variables (Dark Mode) ✨ */
     --toggle-track: #111827;
-    /* Deep black/gray for track */
     --toggle-pill: #374151;
-    /* Elevated gray for active button */
     --toggle-shadow: rgba(0, 0, 0, 0.4);
 
     --link-color: #60a5fa;
@@ -74,10 +69,8 @@ body {
     font-family: var(--ui-font);
     background-color: var(--bg-color);
     color: var(--text-color);
-
     height: 100vh;
     height: 100dvh;
-
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -121,7 +114,7 @@ body {
     gap: 10px;
 }
 
-/* ✨ REDESIGNED PILL TOGGLE (Segmented Control) ✨ */
+/* PILL TOGGLE */
 .mode-toggle {
     display: flex;
     background-color: var(--toggle-track);
@@ -129,7 +122,6 @@ body {
     padding: 4px;
     gap: 2px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    /* Inner depth */
 }
 
 body.dark-mode .mode-toggle {
@@ -158,7 +150,6 @@ body.dark-mode .mode-toggle {
     opacity: 0.8;
 }
 
-/* ✨ Elevated Active State (Clearly visible in both modes) ✨ */
 .mode-tab.active {
     background-color: var(--toggle-pill);
     color: var(--accent-color);
@@ -166,7 +157,6 @@ body.dark-mode .mode-toggle {
     box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Theme Icon Colors on Active */
 .mode-tab.theme-tab[data-theme="light"].active i {
     color: #f59e0b;
 }
@@ -174,7 +164,6 @@ body.dark-mode .mode-toggle {
 .mode-tab.theme-tab[data-theme="dark"].active i {
     color: #60a5fa;
 }
-
 
 /* DROPDOWN */
 .custom-dropdown {
@@ -251,7 +240,7 @@ body.dark-mode .mode-toggle {
 }
 
 .dropdown-item {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
@@ -262,6 +251,7 @@ body.dark-mode .mode-toggle {
     margin-bottom: 2px;
     position: relative;
     overflow: hidden;
+    font-size: 0.85rem;
 }
 
 .dropdown-item:last-child {
@@ -305,7 +295,7 @@ body.dark-mode .mode-toggle {
     border-radius: 8px;
     cursor: pointer;
     font-family: var(--ui-font);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
 }
@@ -380,7 +370,7 @@ body.dark-mode .mode-toggle {
     color: var(--text-color);
     opacity: 0.6;
     cursor: pointer;
-    padding: 6px;
+    padding: 4px 6px;
     border-radius: 6px;
     transition: all 0.2s;
     display: flex;
@@ -401,13 +391,13 @@ body.dark-mode .mode-toggle {
 }
 
 .tool-btn i {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .toolbar-divider {
     width: 1px;
-    height: 18px;
+    height: 16px;
     background-color: var(--border-color);
     margin: 0 4px;
 }
@@ -426,7 +416,7 @@ textarea {
     background-color: transparent;
     color: var(--text-color);
     font-family: var(--editor-font);
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.7;
     outline: none;
     overflow-y: auto;
@@ -472,7 +462,7 @@ textarea:disabled {
     background-color: var(--preview-bg);
     padding: 32px 48px;
     font-family: var(--preview-font);
-    font-size: 1.05rem;
+    font-size: 1rem;
     overflow-y: auto;
     min-height: 0;
 }
@@ -531,19 +521,19 @@ body.view-preview .divider {
 
 #preview-output h1,
 #dashboard-preview-output h1 {
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
 }
 
 #preview-output h2,
 #dashboard-preview-output h2 {
-    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    font-size: clamp(1.3rem, 2.5vw, 1.6rem);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 6px;
 }
 
 #preview-output h3,
 #dashboard-preview-output h3 {
-    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
 }
 
 #preview-output p,
@@ -567,8 +557,8 @@ body.view-preview .divider {
 #preview-output pre code,
 #dashboard-preview-output pre code {
     font-family: var(--editor-font);
-    font-size: 0.9em;
-    padding: 20px;
+    font-size: 0.85em;
+    padding: 16px;
     display: block;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -583,20 +573,22 @@ body.view-preview .divider {
     padding: 2px 6px;
     border-radius: 4px;
     color: var(--accent-color);
+    font-size: 0.9em;
 }
 
 #preview-output blockquote,
 #dashboard-preview-output blockquote {
     border-left: 4px solid var(--accent-color);
-    padding-left: 20px;
+    padding-left: 16px;
     color: var(--text-color);
     opacity: 0.8;
     margin-bottom: 1em;
     font-style: italic;
     background-color: var(--hover-bg);
-    padding: 12px 20px;
+    padding: 12px 16px;
     border-radius: 0 8px 8px 0;
     border: 1px solid var(--border-color);
+    font-size: 0.95em;
 }
 
 #preview-output table,
@@ -604,6 +596,7 @@ body.view-preview .divider {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1em;
+    font-size: 0.9em;
 }
 
 #preview-output th,
@@ -611,7 +604,7 @@ body.view-preview .divider {
 #preview-output td,
 #dashboard-preview-output td {
     border: 1px solid var(--border-color);
-    padding: 10px 14px;
+    padding: 8px 12px;
     text-align: left;
 }
 
@@ -620,7 +613,6 @@ body.view-preview .divider {
     background-color: var(--hover-bg);
 }
 
-/* ADVANCED LINK STYLING */
 #preview-output a,
 #dashboard-preview-output a {
     color: var(--link-color);
@@ -751,13 +743,12 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ✨ SETUP / LOGIN MODAL ✨ */
+/* MINOR MODALS */
 .setup-modal-box {
     max-width: 460px;
     padding: 40px 32px;
 }
 
-/* ✨ CUTE HELP BUTTON ✨ */
 .btn-help-cute {
     background-color: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
@@ -788,7 +779,6 @@ body.dark-mode .btn-help-cute:hover {
     background-color: rgba(96, 165, 250, 0.25);
 }
 
-/* ✨ GUIDE MODAL STEPS ✨ */
 .pat-guide-box {
     max-width: 450px;
 }
@@ -831,9 +821,10 @@ body.dark-mode .btn-help-cute:hover {
     color: var(--accent-color);
 }
 
-/* NOTES DASHBOARD */
+/* ✨ REDESIGNED NOTES DASHBOARD (3-PANE DESKTOP) ✨ */
 .notes-dashboard-box {
-    max-width: 1000px;
+    max-width: 1100px;
+    width: 90vw;
     height: 85vh;
     padding: 0;
     display: flex;
@@ -845,13 +836,13 @@ body.dark-mode .btn-help-cute:hover {
 
 .notes-dashboard-box .btn-close-dashboard {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 12px;
+    right: 12px;
     background: var(--nav-bg);
     border: 1.5px solid var(--border-color);
     color: var(--text-color);
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -869,75 +860,158 @@ body.dark-mode .btn-help-cute:hover {
     color: var(--accent-color);
 }
 
-.notes-dashboard-left {
-    width: 35%;
-    min-width: 280px;
+.notes-dashboard-box .btn-close-dashboard i {
+    width: 16px;
+    height: 16px;
+}
+
+/* ✨ COLLAPSIBLE FOLDERS PANE ✨ */
+.notes-dashboard-folders {
+    width: 20%;
+    min-width: 180px;
     display: flex;
     flex-direction: column;
     background-color: var(--bg-color);
     border-right: 1px solid var(--border-color);
     padding-top: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+/* Collapsed State Class */
+.notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
+    width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0;
+    border-right: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.folders-header {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.folders-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+}
+
+.folder-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.folder-item:hover {
+    background-color: var(--hover-bg);
+    color: var(--accent-color);
+}
+
+.folder-item.active {
+    background-color: var(--nav-bg);
+    color: var(--accent-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    font-weight: 600;
+}
+
+.folder-item i {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-color);
+    opacity: 0.8;
+}
+
+/* Pane 2: Notes List */
+.notes-dashboard-left {
+    width: 30%;
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--nav-bg);
+    border-right: 1px solid var(--border-color);
 }
 
 .notes-dashboard-left-header {
-    padding: 16px 24px 16px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-/* ✨ DASHBOARD BADGE STYLES ✨ */
+.notes-header-text h3 {
+    font-size: 1.1rem;
+}
+
 .dashboard-badge {
-    font-size: 0.7rem;
-    padding: 4px 10px;
+    font-size: 0.65rem;
+    padding: 4px 8px;
     border-radius: 50px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     transition: all 0.3s ease;
 }
 
+.dashboard-badge i {
+    width: 10px;
+    height: 10px;
+}
+
 #btn-new-note {
-    border-radius: 16px;
+    border-radius: 12px;
     width: 100%;
-    height: 50px;
-    font-size: 1rem;
+    height: 40px;
+    font-size: 0.9rem;
+    margin-top: 12px;
 }
 
 .notes-list {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
     overflow-y: auto;
-    padding: 4px 24px 24px;
+    padding: 12px;
+    gap: 8px;
 }
 
 .note-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    background-color: var(--nav-bg);
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background-color: var(--bg-color);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .note-item:hover {
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px var(--shadow-color);
-}
-
-.note-item.active {
-    border-left: 5px solid var(--accent-color);
+    border-color: var(--border-color);
     background-color: var(--hover-bg);
 }
 
+.note-item.active {
+    border-color: var(--accent-color);
+    background-color: var(--hover-bg);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
 .note-title {
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-color);
     white-space: nowrap;
@@ -945,9 +1019,17 @@ body.dark-mode .btn-help-cute:hover {
     text-overflow: ellipsis;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
+.note-title i {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* Pane 3: Preview */
 .notes-dashboard-right {
     flex: 1;
     display: flex;
@@ -960,26 +1042,31 @@ body.dark-mode .btn-help-cute:hover {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 10px;
-    padding: 16px 24px;
+    gap: 8px;
+    padding: 12px 20px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
-    height: 70px;
-    padding-right: 70px;
+    height: 60px;
+    padding-right: 50px;
 }
 
 .pill-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 18px;
+    gap: 6px;
+    padding: 6px 14px;
     border-radius: 50px;
     font-family: var(--ui-font);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     border: 1.5px solid transparent;
+}
+
+.pill-btn i {
+    width: 14px;
+    height: 14px;
 }
 
 .pill-btn.btn-edit {
@@ -1024,46 +1111,47 @@ body.dark-mode .btn-help-cute:hover {
 
 .dashboard-preview-content {
     flex: 1;
-    padding: 32px 48px;
+    padding: 24px 32px;
     overflow-y: auto;
     font-family: var(--preview-font);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 
-/* MINOR MODALS */
+/* SMALLER MODALS */
 .delete-modal-box {
-    max-width: 360px;
+    max-width: 340px;
     text-align: center;
-    padding: 40px 32px;
+    padding: 32px 24px;
 }
 
 .delete-icon-wrapper {
     color: #ef4444;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: flex;
     justify-content: center;
 }
 
 .delete-icon-wrapper i {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
 }
 
 .delete-title {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
 }
 
 .delete-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--text-color);
     opacity: 0.8;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     line-height: 1.5;
 }
 
 .delete-actions {
     justify-content: center;
-    gap: 16px;
+    gap: 12px;
     margin-top: 0;
     display: flex;
 }
@@ -1078,20 +1166,40 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
+#folder-prompt-modal .modal-box {
+    max-width: 320px;
+    padding: 24px;
+}
+
+#folder-prompt-modal .modal-title {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+}
+
+#folder-prompt-modal .modal-input {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+#folder-prompt-modal .modal-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+}
+
 /* TOAST */
 #toast {
     visibility: hidden;
-    min-width: 200px;
+    min-width: 180px;
     background-color: var(--accent-color);
     color: var(--btn-text);
     text-align: center;
     border-radius: 8px;
-    padding: 12px 20px;
+    padding: 10px 16px;
     position: fixed;
     z-index: 2000;
     right: 24px;
     bottom: 24px;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 500;
     opacity: 0;
     transition: opacity 0.3s, transform 0.3s;
@@ -1103,13 +1211,17 @@ body.dark-mode .btn-help-cute:hover {
     gap: 8px;
 }
 
+#toast i {
+    width: 16px;
+    height: 16px;
+}
+
 #toast.show {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
 }
 
-/* ✨ PREMIUM DOUBLE DASHED DIVIDER ✨ */
 .custom-divider {
     border: none;
     height: 5px;
@@ -1121,7 +1233,6 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 10;
 }
 
-/* LOADING SPINNER */
 @keyframes spin {
     100% {
         transform: rotate(360deg);
@@ -1132,7 +1243,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* ✨ EXPORT SPECIFIC STYLES (Strict Paper Typography) ✨ */
+/* EXPORT SPECIFIC STYLES */
 @media print {
 
     .navbar,
@@ -1175,7 +1286,6 @@ body.dark-mode .btn-help-cute:hover {
         margin: 0 !important;
     }
 
-    /* Exact Typography for Paper */
     #preview-output,
     #dashboard-preview-output {
         font-size: 11pt !important;
@@ -1234,14 +1344,11 @@ body.dark-mode .btn-help-cute:hover {
         break-inside: avoid !important;
     }
 
-    /* Strict Wrapping for Code Blocks in PDF */
     pre,
     pre code {
         white-space: pre-wrap !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
-        white-space: -moz-pre-wrap !important;
-        white-space: -o-pre-wrap !important;
         font-size: 9.5pt !important;
     }
 

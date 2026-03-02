@@ -284,41 +284,76 @@
         <div class="modal-box notes-dashboard-box">
             <button class="btn-close-dashboard" id="notes-modal-close" title="Close Dashboard"><i
                     data-lucide="x"></i></button>
+
+            <div class="notes-dashboard-folders" id="notes-folders-pane">
+                <div class="folders-header">
+                    <span
+                        style="font-weight: 600; font-size: 0.9rem; color: var(--text-color); opacity: 0.8; letter-spacing: 0.5px;">FOLDERS</span>
+                    <button class="tool-btn" id="btn-new-folder" title="New Folder" style="padding: 4px;"><i
+                            data-lucide="folder-plus"></i></button>
+                </div>
+                <div class="folders-list" id="folders-list-container">
+                </div>
+            </div>
+
             <div class="notes-dashboard-left">
                 <div class="notes-dashboard-left-header">
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                    <button class="mobile-back-to-folders mobile-only" id="mob-back-folders"><i
+                            data-lucide="chevron-left"></i> Folders</button>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div class="notes-header-text">
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                                 <h3 class="modal-title"
                                     style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                                    <i data-lucide="library"></i> My Notes
+                                    <button class="tool-btn desktop-only" id="toggle-folders-btn"
+                                        style="padding: 4px; margin-left: -8px;" title="Toggle Folders Pane">
+                                        <i data-lucide="panel-left"></i>
+                                    </button>
+                                    <span id="current-folder-name">All Notes</span>
                                 </h3>
                                 <span id="dashboard-mode-badge" class="dashboard-badge"></span>
                             </div>
                         </div>
-                        <button class="modal-btn btn-confirm" id="btn-new-note" style="width: 100%;"><i
-                                data-lucide="plus"></i> Create New Note</button>
+                        <button class="modal-btn btn-confirm" id="btn-new-note"><i data-lucide="file-plus"></i> New Note
+                            Here</button>
                         <button class="modal-btn btn-confirm" id="btn-push-github"
-                            style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 16px; font-size: 1rem; padding: 12px;">
-                            <i data-lucide="cloud-upload"></i> Push Local to Cloud
+                            style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 12px; font-size: 0.9rem; padding: 8px;">
+                            <i data-lucide="cloud-upload" style="width: 14px;"></i> Push Local to Cloud
                         </button>
                     </div>
                 </div>
-                <div class="notes-list" id="notes-list-container"></div>
+                <div class="notes-list" id="notes-list-container">
+                </div>
             </div>
+
             <div class="notes-dashboard-right">
                 <div class="dashboard-actions">
-                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i data-lucide="arrow-left"
-                            style="width: 16px;"></i> Back</button>
-                    <button class="pill-btn btn-edit" id="dash-btn-edit"><i data-lucide="edit-3"
-                            style="width: 16px;"></i> Edit Note</button>
-                    <button class="pill-btn btn-export desktop-only" id="dash-btn-export"><i data-lucide="printer"
-                            style="width: 16px;"></i> Export PDF</button>
-                    <button class="pill-btn btn-delete" id="dash-btn-delete"><i data-lucide="trash-2"
-                            style="width: 16px;"></i> Delete</button>
+                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i
+                            data-lucide="chevron-left"></i></button>
+                    <button class="pill-btn btn-edit" id="dash-btn-edit" title="Edit Note"><i
+                            data-lucide="edit-3"></i></button>
+                    <button class="pill-btn btn-export desktop-only" id="dash-btn-export" title="Export PDF"><i
+                            data-lucide="printer"></i></button>
+                    <button class="pill-btn btn-delete" id="dash-btn-delete" title="Delete Note"><i
+                            data-lucide="trash-2"></i></button>
                 </div>
                 <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="folder-prompt-modal" style="z-index: 2000;">
+        <div class="modal-box prompt-modal-box">
+            <h3 class="modal-title flex-title"><i data-lucide="folder-plus"></i> New Folder</h3>
+            <div class="input-group">
+                <label>Folder Name</label>
+                <input type="text" class="modal-input" id="folder-prompt-input" placeholder="Work, Personal..."
+                    autocomplete="off" />
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" id="folder-prompt-cancel">Cancel</button>
+                <button class="modal-btn btn-confirm" id="folder-prompt-confirm">Create</button>
             </div>
         </div>
     </div>
@@ -327,14 +362,30 @@
         <div class="modal-box prompt-modal-box">
             <h3 class="modal-title flex-title"><i data-lucide="file-plus-2"></i> New Note</h3>
             <div class="input-group">
-                <label>Note Name</label>
-                <input type="text" class="modal-input" id="prompt-input" placeholder="Untitled Note"
+                <label>Note Title (Exact File Name)</label>
+                <input type="text" class="modal-input" id="prompt-input" placeholder="Meeting Notes"
                     autocomplete="off" />
             </div>
             <div class="modal-actions">
                 <button class="modal-btn btn-cancel" id="prompt-cancel"><i data-lucide="x-circle"
                         style="width: 18px;"></i> Cancel</button>
                 <button class="modal-btn btn-confirm" id="prompt-confirm">Create Note</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="conflict-modal" style="z-index: 2500;">
+        <div class="modal-box delete-modal-box">
+            <div class="delete-icon-wrapper" style="color: #f59e0b;"><i data-lucide="alert-circle"></i></div>
+            <h3 class="modal-title delete-title">File Exists!</h3>
+            <p class="delete-subtitle">A note named "<span id="conflict-filename" style="font-weight:bold;"></span>"
+                already exists in this folder.</p>
+            <div class="modal-actions delete-actions" style="flex-direction: column; gap: 8px;">
+                <button class="modal-btn btn-confirm" id="conflict-rename" style="width: 100%;"><i
+                        data-lucide="edit-2"></i> Rename New Note</button>
+                <button class="modal-btn btn-danger" id="conflict-overwrite" style="width: 100%;"><i
+                        data-lucide="copy"></i> Overwrite Existing</button>
+                <button class="modal-btn btn-cancel" id="conflict-cancel" style="width: 100%;">Cancel</button>
             </div>
         </div>
     </div>

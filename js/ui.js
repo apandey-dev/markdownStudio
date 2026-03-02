@@ -1,6 +1,6 @@
 /* ==========================================================================
    UI CONTROLLER
-   Handles interactions, modals, themes, fonts, and workspace layout safely.
+   Handles interactions, modals, themes, folders collapse, fonts, layout safely.
    ========================================================================== */
 
 window.selectedPageSize = 'A4';
@@ -22,7 +22,6 @@ window.showToast = function (message, duration = 3000) {
     window.toastTimeout = setTimeout(() => toastEl.classList.remove('show'), duration);
 };
 
-// --- MODAL CLOSURE EXPORTS ---
 window.closePdfModal = function () { document.getElementById('pdf-modal')?.classList.remove('show'); };
 window.closeDeleteModal = function () { document.getElementById('delete-modal')?.classList.remove('show'); };
 window.closeNotesModal = function () {
@@ -56,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.modal-trigger-notes').forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('notes-modal')?.classList.add('show');
+            if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
             if (typeof window.renderNotesList === 'function') window.renderNotesList();
             document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         });
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-    
+
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -102,21 +102,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ESCAPE KEY LOGIC ---
+    // ✨ BULLETPROOF ESCAPE KEY LOGIC (Top-most modals close first!) ✨
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
-            const setupModal = document.getElementById('setup-modal');
-            if (setupModal?.classList.contains('show')) { setupModal.classList.remove('show'); return; }
 
-            if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { window.closePatGuideModal(); return; }
-            if (document.getElementById('prompt-modal')?.classList.contains('show')) { window.closePromptModal(); return; }
-            if (document.getElementById('delete-modal')?.classList.contains('show')) { window.closeDeleteModal(); return; }
-            if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
-            if (document.getElementById('pdf-modal')?.classList.contains('show')) { window.closePdfModal(); return; }
+            // Priority 1: Highest z-index conflict modal
+            if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
+
+            // Priority 2: Input Modals
+            if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
+            if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
+            if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
+            if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
+
+            // Priority 3: Setup Modals
+            if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
+            if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
+
+            // Priority 4: Base Notes Modal
+            if (document.getElementById('notes-modal')?.classList.contains('show')) { document.getElementById('notes-modal-close')?.click(); return; }
         }
+    });
+
+    // --- TOGGLE COLLAPSIBLE FOLDERS PANE (Desktop) ---
+    const toggleFoldersBtn = document.getElementById('toggle-folders-btn');
+    const dashboardBox = document.querySelector('.notes-dashboard-box');
+    toggleFoldersBtn?.addEventListener('click', () => {
+        dashboardBox.classList.toggle('folders-collapsed');
     });
 
     // --- DROPDOWN LOGIC ---
@@ -207,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ✨ NEW THEME TOGGLE LOGIC (Segment Control) ✨
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-        
+
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -219,18 +234,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('theme', themeName);
 
-        // Sync visual active state on both Desktop & Mobile pills
         document.querySelectorAll('.theme-tab').forEach(tab => {
             tab.classList.remove('active');
             if (tab.getAttribute('data-theme') === themeName) {
                 tab.classList.add('active');
             }
         });
-        
+
         if (window.lucide) lucide.createIcons();
     };
 
-    // Attach event listener to all theme tabs
     document.querySelectorAll('.theme-tab').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const targetTheme = e.currentTarget.getAttribute('data-theme');
@@ -238,12 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Boot Initialization for Theme
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-    
-    // Set initial class visually correctly
+
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');
