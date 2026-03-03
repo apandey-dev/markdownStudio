@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="mobile.css">
 </head>
 
-<body class="is-loading">
+<body class="sidebar-open is-loading">
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
@@ -194,21 +194,24 @@
 
         <div class="split-workspace" id="split-workspace">
             <div class="panel editor-panel" id="editor-panel-wrapper">
-                <textarea id="markdown-input" placeholder="Loading workspace..." spellcheck="false" disabled></textarea>
+                <textarea id="markdown-input" class="app-fade" placeholder="Loading workspace..." spellcheck="false"
+                    disabled></textarea>
             </div>
             <div class="divider desktop-only" id="drag-divider"></div>
             <div class="panel preview-panel" id="preview-panel">
-                <div id="preview-output">
-                    <div class="skeleton-box">
-                        <div class="sk-title"></div>
-                        <div class="sk-line"></div>
-                        <div class="sk-line short"></div>
-                        <div class="sk-line"></div>
-                        <div class="sk-img"></div>
-                        <div class="sk-line shorter"></div>
-                        <div class="sk-line"></div>
-                    </div>
+
+                <div id="preview-skeleton" class="skeleton-box">
+                    <div class="sk-title"></div>
+                    <div class="sk-line"></div>
+                    <div class="sk-line short"></div>
+                    <div class="sk-line"></div>
+                    <div class="sk-img"></div>
+                    <div class="sk-line shorter"></div>
+                    <div class="sk-line"></div>
                 </div>
+
+                <div id="preview-output" class="app-fade"></div>
+
             </div>
         </div>
 

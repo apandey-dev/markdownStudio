@@ -79,7 +79,8 @@ body {
     display: none;
 }
 
-/* ✨ FULL APP SKELETON LOADER (Navbar, Toolbar, Status Bar) ✨ */
+
+/* ✨ FULL APP SKELETON LOADER ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -94,6 +95,7 @@ body {
     }
 }
 
+/* Base skeleton style for UI blocks */
 body.is-loading .brand,
 body.is-loading .mode-toggle,
 body.is-loading .custom-dropdown,
@@ -111,88 +113,47 @@ body.is-loading #mobile-view-toggle {
     user-select: none !important;
 }
 
-/* Hide inner text/icons while loading so button sizes stay intact but content is invisible */
+/* 🚀 MAGIC FIX: Make inner items invisible but KEEP their dimensions so buttons don't resize/shift */
 body.is-loading svg,
 body.is-loading i,
 body.is-loading .tab-text,
-body.is-loading .dropdown-header span,
-body.is-loading .actions>button text {
+body.is-loading .dropdown-header span {
     opacity: 0 !important;
     visibility: hidden !important;
-    display: none !important;
 }
 
-/* Explicit widths to maintain layout while inner elements are hidden */
-body.is-loading .brand {
-    width: 140px;
-    height: 28px;
-    border-radius: 6px;
+/* Global smooth transition for when the class is removed */
+.brand,
+.mode-toggle,
+.custom-dropdown,
+.actions>button,
+.tool-btn,
+.status-bar span,
+#mobile-menu-btn,
+#mobile-view-toggle,
+svg,
+i,
+.tab-text,
+.dropdown-header span {
+    transition: opacity 0.4s ease, background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, transform 0.2s ease !important;
 }
 
-body.is-loading .mode-toggle {
-    width: 120px;
-    height: 32px;
-    border-radius: 50px;
+/* 🚀 SMOOTH CROSS-FADE FOR EDITOR AND PREVIEW */
+.app-fade {
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
 }
 
-body.is-loading .custom-dropdown {
-    width: 120px;
-    height: 32px;
-    border-radius: 8px;
+body.is-loading .app-fade {
+    opacity: 0;
 }
 
-body.is-loading #btn-docs {
-    width: 70px;
-    height: 32px;
-    border-radius: 8px;
+#preview-skeleton {
+    transition: opacity 0.4s ease;
 }
 
-body.is-loading #btn-notes-desktop {
-    width: 80px;
-    height: 32px;
-    border-radius: 8px;
-}
-
-body.is-loading #btn-share {
-    width: 75px;
-    height: 32px;
-    border-radius: 8px;
-}
-
-body.is-loading #btn-pdf {
-    width: 80px;
-    height: 32px;
-    border-radius: 8px;
-}
-
-body.is-loading .tool-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-}
-
-body.is-loading .status-bar span {
-    width: 70px;
-    height: 14px;
-    border-radius: 4px;
-    display: inline-block;
-}
-
-body.is-loading .toolbar-divider {
-    opacity: 0.2;
-}
-
-body.is-loading #mobile-menu-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    margin-left: 0;
-}
-
-body.is-loading #mobile-view-toggle {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+body:not(.is-loading) #preview-skeleton {
+    display: none;
 }
 
 
@@ -596,7 +557,7 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* ✨ PREVIEW SKELETON ✨ */
+/* PREVIEW SKELETON */
 .skeleton-box {
     display: flex;
     flex-direction: column;
@@ -1604,6 +1565,16 @@ body.dark-mode .btn-help-cute:hover {
     background-repeat: repeat-x;
     margin: 10px 0;
     opacity: 0.3;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 2s linear infinite;
 }
 
 @media print {
