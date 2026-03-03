@@ -1,7 +1,7 @@
 /* ==========================================================================
    EDITOR CONTROLLER (Local-First Architecture & Folder System)
    Handles storage modes, parsing, folders, duplicate checks, and syncing.
-   Includes Performance Engine for 300k+ words & Custom Image Syntax.
+   Includes Performance Engine for 300k+ words & Custom Image/SVG Syntax.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,20 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // STATE
     let notes = [];
-    let folders = ['All Notes'];
+    let folders = ['All Notes']; 
     let activeFolder = 'All Notes';
     let activeNoteId = null;
-
+    
     let noteToDeleteId = null;
     let highlightedNoteId = null;
-    let pendingNewNoteData = null;
+    let pendingNewNoteData = null; 
 
     let appMode = 'local';
     let isSyncing = false;
     let pendingSync = false;
     let syncTimer = null;
 
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **📂 Folders:** Organize notes neatly.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\`.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\`.\n\n/center **Enjoy writing!**`;
+    // ✨ UPDATED DEFAULT NOTE: Includes Testing examples for Images & SVGs ✨
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🎨 Custom SVG:** Paste raw SVG directly!\n* **📂 Folders & 🎨 Colors:** Organize and style your notes.\n\n## 🧪 Testing Zone\n\n**1. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax. It works perfectly for articles!\n\n**2. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
 
     function updatePillUI() {
         const isGithub = appMode === 'github';
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function extractFoldersFromNotes() {
         let fSet = new Set(['All Notes']);
         notes.forEach(n => {
-            if (n.folder) fSet.add(n.folder);
+            if(n.folder) fSet.add(n.folder);
         });
         folders = Array.from(fSet);
     }
@@ -189,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (added) {
                     extractFoldersFromNotes();
                     saveLocalState();
-                    if (document.getElementById('notes-modal').classList.contains('show')) {
+                    if(document.getElementById('notes-modal').classList.contains('show')) {
                         window.renderFoldersList();
                         window.renderNotesList();
                     }
@@ -292,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generatePath(folderName, title) {
         let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
-        if (!safeTitle) safeTitle = 'Untitled Note';
+        if(!safeTitle) safeTitle = 'Untitled Note';
         if (folderName === 'All Notes') return `${safeTitle}.md`;
         return `${folderName}/${safeTitle}.md`;
     }
@@ -302,8 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!note) return;
 
         highlightedNoteId = activeNoteId;
-        activeFolder = note.folder || 'All Notes';
-
+        activeFolder = note.folder || 'All Notes'; 
+        
         editor.disabled = false;
         editor.placeholder = "Start typing your Markdown here...";
         editor.value = note.content || "";
@@ -318,23 +319,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('folders-list-container');
         if (!container) return;
         container.innerHTML = '';
-
+        
         extractFoldersFromNotes();
 
         folders.forEach(folder => {
             const div = document.createElement('div');
             div.className = `folder-item ${folder === activeFolder ? 'active' : ''}`;
-
+            
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', folder === 'All Notes' ? 'library' : 'folder');
-
+            
             const textSpan = document.createElement('span');
             textSpan.textContent = folder;
             textSpan.style.flex = "1";
             textSpan.style.whiteSpace = 'nowrap';
             textSpan.style.overflow = 'hidden';
             textSpan.style.textOverflow = 'ellipsis';
-
+            
             let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
             const countSpan = document.createElement('span');
             countSpan.textContent = count;
@@ -349,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeFolder = folder;
                 window.renderFoldersList();
                 window.renderNotesList();
-
+                
                 if (window.innerWidth <= 768) {
                     document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
                 }
@@ -364,15 +365,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('notes-list-container');
         const folderTitle = document.getElementById('current-folder-name');
         if (!container) return;
-
+        
         container.innerHTML = '';
         if (folderTitle) folderTitle.textContent = activeFolder;
-
+        
         updatePillUI();
 
         let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
 
-        if (displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
+        if(displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
             highlightedNoteId = displayNotes[0].id;
         } else if (displayNotes.length === 0) {
             highlightedNoteId = null;
@@ -384,13 +385,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const titleContainer = document.createElement('div');
             titleContainer.className = 'note-title';
-
+            
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', 'file-text');
-
+            
             const textSpan = document.createElement('span');
             textSpan.textContent = note.title;
-
+            
             titleContainer.appendChild(iconEl);
             titleContainer.appendChild(textSpan);
             div.appendChild(titleContainer);
@@ -416,11 +417,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
     });
 
-    // ✨ UPDATED: Added Robust Image Parser with Alignment & Sizing ✨
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
-
-        // Custom Image Parser: ![alt](url){300x400, center}
+        
+        // Custom Image Parser
         processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
             let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
             let isCenter = false;
@@ -434,13 +434,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         style += 'float: left; margin-right: 16px; margin-bottom: 16px; ';
                     } else if (part === 'right') {
                         style += 'float: right; margin-left: 16px; margin-bottom: 16px; ';
-                    } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/)) {
-                        const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/);
+                    } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/)) {
+                        const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/);
                         let w = dimMatch[1];
-                        if (!isNaN(w)) w += 'px';
+                        if (!isNaN(w)) w += 'px'; 
                         style += `width: ${w}; `;
-
-                        if (dimMatch[2]) {
+                        
+                        if (dimMatch[2] && dimMatch[2] !== 'auto') {
                             let h = dimMatch[2];
                             if (!isNaN(h)) h += 'px';
                             style += `height: ${h}; object-fit: cover; `;
@@ -452,19 +452,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const imgTag = `<img src="${url}" alt="${alt}" style="${style}" class="custom-md-image" />`;
-
-            if (isCenter) {
-                return `<div style="text-align: center; width: 100%; clear: both; margin: 16px 0;">${imgTag}</div>`;
-            }
+            if (isCenter) return `<div style="text-align: center; width: 100%; clear: both; margin: 16px 0;">${imgTag}</div>`;
             return imgTag;
         });
 
-        // Other Custom Parsers
         processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-
-        // Adaptive Color Mapping for White/Black
+        
         processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, (match, text, color) => {
             const c = color.toLowerCase();
             if (c === 'white' || c === 'black' || c === '#fff' || c === '#ffffff' || c === '#000' || c === '#000000') {
@@ -472,17 +467,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return `<span style="color: ${color};">${text}</span>`;
         });
-
+        
         const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
-        return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
+        
+        // ✨ UPDATED: DOMPurify Config strictly allows SVG and drawing tags ✨
+        return DOMPurify.sanitize(htmlContent, { 
+            ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
+            ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
+        });
     }
 
     window.renderDashboardPreview = function () {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId);
-
+        
         if (!note || !previewEl) {
-            if (previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
+            if(previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
             return;
         }
 
@@ -492,22 +492,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
-        if (!highlightedNoteId) return;
+        if(!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
-        saveLocalState();
+        saveLocalState(); 
         editor.value = getActiveNote().content;
         renderMarkdownCore(editor.value);
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
 
     document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
-        if (!highlightedNoteId) return;
+        if(!highlightedNoteId) return;
         noteToDeleteId = highlightedNoteId;
         document.getElementById('delete-modal').classList.add('show');
     });
 
     document.getElementById('dash-btn-export')?.addEventListener('click', () => {
-        if (!highlightedNoteId) return;
+        if(!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
         saveLocalState();
         editor.value = getActiveNote().content;
@@ -524,17 +524,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!noteToDeleteId) return;
 
         const idx = notes.findIndex(n => n.id === noteToDeleteId);
-        if (idx === -1) return;
-
+        if(idx === -1) return;
+        
         const noteToDelete = notes[idx];
         notes.splice(idx, 1);
 
         if (activeNoteId === noteToDeleteId) {
             activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
-            if (activeNoteId) editor.value = getActiveNote().content;
+            if(activeNoteId) editor.value = getActiveNote().content;
             else editor.value = "";
         }
-
+        
         if (highlightedNoteId === noteToDeleteId) {
             let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
             highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
             GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
         }
 
-        if (notes.length === 0) {
+        if(notes.length === 0) {
             const id = Date.now().toString();
             notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
             activeNoteId = id;
@@ -573,20 +573,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
         let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-        if (!folderName) return window.showToast("Folder name cannot be empty.");
-        if (folders.includes(folderName)) return window.showToast("Folder already exists.");
-
+        if(!folderName) return window.showToast("Folder name cannot be empty.");
+        if(folders.includes(folderName)) return window.showToast("Folder already exists.");
+        
         folders.push(folderName);
         activeFolder = folderName;
         window.renderFoldersList();
         window.renderNotesList();
-
+        
         folderPromptModal.classList.remove('show');
         window.showToast(`<i data-lucide='folder'></i> Folder '${folderName}' created!`);
-
+        
         if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
     });
-
+    
     document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => folderPromptModal.classList.remove('show'));
 
     const btnNewNote = document.getElementById('btn-new-note');
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let noteName = promptInput.value.trim() || "Untitled Note";
         const folder = activeFolder;
         const generatedPath = generatePath(folder, noteName);
-
+        
         const existingNote = notes.find(n => n.path === generatedPath);
         const newId = Date.now().toString();
         const content = `# ${noteName}\n\nStart typing here...`;
@@ -654,14 +654,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('conflict-overwrite')?.addEventListener('click', () => {
-        if (!pendingNewNoteData) return;
+        if(!pendingNewNoteData) return;
         let exNote = notes.find(n => n.id === pendingNewNoteData.existingId);
-        if (exNote) {
+        if(exNote) {
             exNote.content = pendingNewNoteData.content;
             activeNoteId = exNote.id;
             highlightedNoteId = exNote.id;
             editor.value = exNote.content;
-
+            
             saveLocalState();
             renderMarkdownCore(exNote.content);
             window.renderNotesList();
@@ -700,12 +700,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
+    function debounce(func, wait) { 
+        let timeout; 
+        return function (...args) { 
+            clearTimeout(timeout); 
+            timeout = setTimeout(() => func.apply(this, args), wait); 
+        }; 
     }
 
     function renderMarkdownCore(rawText) {
@@ -731,10 +731,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeNote = getActiveNote();
         if (activeNote) {
             activeNote.content = rawText;
-            saveLocalState();
-            triggerCloudSync();
+            saveLocalState(); 
+            triggerCloudSync(); 
         }
-        renderMarkdownCore(rawText);
+        renderMarkdownCore(rawText); 
     }, 400);
 
     editor.addEventListener('input', () => {
@@ -808,10 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
             else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
             else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
-
-            // ✨ UPDATED: Image template reveals the sizing and alignment syntax instantly! ✨
-            else if (action === 'image') { prefix = '!['; suffix = '](https://example.com/image.jpg){center, 400xauto}'; defaultText = 'alt text'; }
-
+            else if (action === 'image') { prefix = '!['; suffix = '](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){center, 400xauto}'; defaultText = 'alt text'; }
             else if (action === 'table') {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';
@@ -902,8 +899,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const folder = activeFolder;
             const newPath = generatePath(folder, rawTitle);
             const newId = Date.now().toString();
-
-            if (notes.find(n => n.path === newPath)) {
+            
+            if(notes.find(n => n.path === newPath)) {
                 window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
                 return;
             }

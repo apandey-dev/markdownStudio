@@ -317,7 +317,6 @@
         function customMarkdownParser(rawText) {
             let processedText = rawText.replace(/\r\n/g, '\n');
 
-            // Replicate Image parsing for Share logic
             processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
                 let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
                 let isCenter = false;
@@ -331,13 +330,13 @@
                             style += 'float: left; margin-right: 16px; margin-bottom: 16px; ';
                         } else if (part === 'right') {
                             style += 'float: right; margin-left: 16px; margin-bottom: 16px; ';
-                        } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/)) {
-                            const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/);
+                        } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/)) {
+                            const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/);
                             let w = dimMatch[1];
                             if (!isNaN(w)) w += 'px';
                             style += `width: ${w}; `;
 
-                            if (dimMatch[2]) {
+                            if (dimMatch[2] && dimMatch[2] !== 'auto') {
                                 let h = dimMatch[2];
                                 if (!isNaN(h)) h += 'px';
                                 style += `height: ${h}; object-fit: cover; `;
@@ -366,7 +365,12 @@
             });
 
             const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
-            return DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['style', 'class'] });
+
+            // ✨ SVG Support in Share mode ✨
+            return DOMPurify.sanitize(htmlContent, {
+                ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
+                ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
+            });
         }
 
         async function loadEncryptedGist() {

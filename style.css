@@ -474,7 +474,6 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -482,7 +481,6 @@ body.view-preview .divider {
     line-height: 1.6;
 }
 
-/* Clearfix for floating images */
 #preview-output::after,
 #dashboard-preview-output::after {
     content: "";
@@ -539,7 +537,6 @@ body.view-preview .divider {
     margin-bottom: 0.8em;
 }
 
-/* ✨ Custom Resized & Aligned Image Styling ✨ */
 .custom-md-image {
     box-shadow: 0 4px 12px var(--shadow-color);
     border: 1px solid var(--border-color);
@@ -1133,7 +1130,7 @@ body.dark-mode .btn-help-cute:hover {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     padding: 12px 68px 12px 20px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
@@ -1195,45 +1192,6 @@ body.dark-mode .btn-help-cute:hover {
     background-color: var(--hover-bg);
     border-color: var(--border-color);
     transform: translateX(-2px);
-}
-
-.notes-dashboard-box .btn-close-dashboard {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.notes-dashboard-box .btn-close-dashboard:hover {
-    background-color: var(--text-color);
-    color: var(--bg-color);
-    border-color: var(--text-color);
-    transform: translateY(-2px) rotate(90deg);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.notes-dashboard-box .btn-close-dashboard i {
-    width: 18px;
-    height: 18px;
-}
-
-.dashboard-preview-content {
-    flex: 1;
-    padding: 24px 32px;
-    overflow-y: auto;
-    font-family: var(--preview-font);
-    font-size: 0.95rem;
 }
 
 .delete-modal-box {
