@@ -46,12 +46,9 @@ body.dark-mode {
 
     /* ✨ Grayscale Text & White Accent ✨ */
     --text-color: #a1a1aa;
-    /* Soft gray for easy long-form reading */
     --accent-color: #ffffff;
-    /* Pure White for icons/active states */
     --accent-hover: #e5e5e5;
     --btn-text: #000000;
-    /* Black text on white buttons */
 
     /* ✨ Grayscale Toggles ✨ */
     --toggle-track: #0a0a0a;
@@ -509,7 +506,6 @@ body.view-preview .divider {
     margin-top: 0;
 }
 
-/* Headings Neutral Color */
 #preview-output h1,
 #dashboard-preview-output h1,
 #preview-output h2,
@@ -578,11 +574,13 @@ body.view-preview .divider {
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
+/* ✨ TEXT PUSHED DOWN TO CLEAR THE BUTTON ✨ */
 #preview-output pre code,
 #dashboard-preview-output pre code {
     font-family: var(--editor-font);
     font-size: 0.85em;
-    padding: 20px 16px 16px 16px;
+    padding: 48px 16px 16px 16px;
+    /* Top padding is 48px to prevent overlap */
     display: block;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -601,11 +599,13 @@ body.view-preview .divider {
     font-size: 0.9em;
 }
 
+/* ✨ IMPROVED CONTRAST FOR COPY BUTTON ✨ */
 .copy-code-btn {
     position: absolute;
     top: 8px;
     right: 8px;
-    background-color: var(--bg-color);
+    background-color: var(--hover-bg);
+    /* Better contrast */
     border: 1px solid var(--border-color);
     color: var(--text-color);
     border-radius: 8px;
@@ -618,6 +618,8 @@ body.view-preview .divider {
     opacity: 0;
     transition: all 0.2s ease;
     z-index: 10;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    /* Depth */
 }
 
 #preview-output pre:hover .copy-code-btn,
@@ -626,7 +628,7 @@ body.view-preview .divider {
 }
 
 .copy-code-btn:hover {
-    background-color: var(--hover-bg);
+    background-color: var(--border-color);
     color: var(--accent-color);
     border-color: var(--accent-color);
     transform: translateY(-1px);

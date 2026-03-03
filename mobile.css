@@ -171,13 +171,16 @@
         font-size: 0.95rem !important;
     }
 
-    /* ✨ MOBILE OVERRIDE: ALWAYS SHOW COPY BUTTON ✨ */
+    /* ✨ MOBILE OVERRIDE: ALWAYS SHOW COPY BUTTON WITH PROPER CONTRAST ✨ */
     .copy-code-btn {
         opacity: 1 !important;
+        /* ALWAYS VISIBLE ON MOBILE */
         width: 36px !important;
-        /* Larger touch target for mobile */
         height: 36px !important;
-        background-color: var(--bg-color) !important;
+        background-color: var(--hover-bg) !important;
+        /* STANDS OUT IN DARK MODE */
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 4px 12px var(--shadow-color) !important;
     }
 
     .copy-code-btn:active {
