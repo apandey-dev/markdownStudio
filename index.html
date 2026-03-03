@@ -111,7 +111,6 @@
             </div>
 
             <div style="padding: 20px 20px 0; display: flex; gap: 12px;">
-
                 <div class="mode-toggle" id="mobile-mode-toggle" style="flex: 1;">
                     <button class="mode-tab active" data-target="local" style="flex: 1; justify-content: center;"
                         title="Local Mode">
@@ -124,7 +123,6 @@
                             class="tab-text">Cloud</span>
                     </button>
                 </div>
-
                 <div class="mode-toggle" id="mobile-theme-toggle" style="flex: 1;">
                     <button class="mode-tab theme-tab active" data-theme="light"
                         style="flex: 1; justify-content: center;" title="Light Mode">
@@ -135,12 +133,13 @@
                         <i data-lucide="moon" style="width: 16px; height: 16px;"></i> <span class="tab-text">Dark</span>
                     </button>
                 </div>
-
             </div>
 
             <div class="sidebar-links">
-                <button class="sidebar-btn modal-trigger-notes" id="sidebar-btn-notes"><i data-lucide="folder-open"></i>
-                    My Notes</button>
+                <div class="sidebar-section-title">WORKSPACE</div>
+                <div id="dynamic-sidebar-folders" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+                <div class="sidebar-section-title" style="margin-top: 16px;">TOOLS</div>
                 <button class="sidebar-btn" id="sidebar-btn-docs-mobile"><i data-lucide="book"></i>
                     Documentation</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="link"></i> Secure Share</button>
@@ -199,7 +198,6 @@
             </div>
             <div class="divider desktop-only" id="drag-divider"></div>
             <div class="panel preview-panel" id="preview-panel">
-
                 <div id="preview-skeleton" class="skeleton-box">
                     <div class="sk-title"></div>
                     <div class="sk-line"></div>
@@ -209,9 +207,7 @@
                     <div class="sk-line shorter"></div>
                     <div class="sk-line"></div>
                 </div>
-
                 <div id="preview-output" class="app-fade"></div>
-
             </div>
         </div>
 

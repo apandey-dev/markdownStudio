@@ -180,7 +180,6 @@ const OfflineQueue = {
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // Initialize Database before app boots
     await StorageManager.init();
 
     const editor = document.getElementById('markdown-input');
@@ -262,12 +261,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (window.lucide) lucide.createIcons();
     }
 
+    // ✨ LOAD FOLDERS FROM STORAGE ✨
+    function loadFolders() {
+        try {
+            let saved = localStorage.getItem(`md_folders_${appMode}`);
+            if (saved) folders = JSON.parse(saved);
+            else folders = ['All Notes'];
+        } catch(e) { folders = ['All Notes']; }
+    }
+
+    // ✨ SAVE FOLDERS TO STORAGE ✨
+    function saveFolders() {
+        StorageManager.safeSetLocal(`md_folders_${appMode}`, JSON.stringify(folders));
+    }
+
+    // ✨ EXTRACT FOLDERS BUT KEEP EMPTY ONES ✨
     function extractFoldersFromNotes() {
-        let fSet = new Set(['All Notes']);
+        let fSet = new Set(folders); 
+        fSet.add('All Notes');
         notes.forEach(n => {
             if(n.folder) fSet.add(n.folder);
         });
         folders = Array.from(fSet);
+        saveFolders();
     }
 
     async function saveLocalState() {
@@ -352,6 +368,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function initGitHubMode(token) {
+        loadFolders(); 
         const cachedNotes = await StorageManager.getAllNotes('github');
         if (cachedNotes) {
             notes = cachedNotes;
@@ -403,6 +420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function loadLocalMode() {
+        loadFolders();
         const cachedNotes = await StorageManager.getAllNotes('local');
         if (cachedNotes && cachedNotes.length > 0) {
             notes = cachedNotes;
@@ -414,6 +432,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             folders = ['All Notes'];
             activeNoteId = id;
             await saveLocalState();
+            saveFolders();
         }
         finishAppLoad();
         updatePillUI();
@@ -504,6 +523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         highlightedNoteId = activeNoteId;
         activeFolder = note.folder || 'All Notes'; 
+        if (!folders.includes(activeFolder)) activeFolder = 'All Notes';
         
         editor.disabled = false;
         editor.placeholder = "Start typing your Markdown here...";
@@ -527,6 +547,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // ✨ RENDER DYNAMIC MAIN SIDEBAR FOLDERS ✨
+    window.renderMainSidebarFolders = function() {
+        const container = document.getElementById('dynamic-sidebar-folders');
+        if(!container) return;
+        container.innerHTML = '';
+        
+        folders.forEach(folder => {
+            const btn = document.createElement('button');
+            btn.className = `sidebar-btn sidebar-folder-btn ${folder === activeFolder ? 'active' : ''}`;
+            
+            let iconType = folder === 'All Notes' ? 'library' : 'folder';
+            let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
+            
+            btn.innerHTML = `<i data-lucide="${iconType}"></i> <span style="flex:1; text-align:left;">${folder}</span> <span style="font-size: 0.75rem; opacity: 0.6; background: var(--shadow-color); padding: 2px 8px; border-radius: 10px;">${count}</span>`;
+
+            btn.addEventListener('click', () => {
+                activeFolder = folder;
+                document.getElementById('mobile-sidebar-overlay').classList.remove('show');
+                document.getElementById('notes-modal').classList.add('show');
+                window.renderFoldersList();
+                window.renderNotesList();
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+                }
+            });
+            container.appendChild(btn);
+        });
+        if(window.lucide) lucide.createIcons();
+    }
+
+    // ✨ FOLDERS MODAL RENDER & TRASH ICON FOR EMPTY FOLDERS ✨
     window.renderFoldersList = function () {
         const container = document.getElementById('folders-list-container');
         if (!container) return;
@@ -558,6 +609,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             div.appendChild(textSpan);
             div.appendChild(countSpan);
 
+            // ✨ ADD TRASH ICON TO DELETE CUSTOM FOLDERS ✨
+            if (folder !== 'All Notes') {
+                const delBtn = document.createElement('i');
+                delBtn.setAttribute('data-lucide', 'trash-2');
+                delBtn.style.width = '14px';
+                delBtn.style.height = '14px';
+                delBtn.style.opacity = '0.5';
+                delBtn.style.cursor = 'pointer';
+                delBtn.style.padding = '4px'; 
+                delBtn.style.marginLeft = '8px';
+                
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const folderNotes = notes.filter(n => n.folder === folder);
+                    if (folderNotes.length > 0) {
+                        window.showToast("<i data-lucide='alert-circle'></i> Cannot delete. Move notes first.");
+                        return;
+                    }
+                    folders = folders.filter(f => f !== folder);
+                    if (activeFolder === folder) activeFolder = 'All Notes';
+                    saveFolders();
+                    window.renderFoldersList();
+                    window.renderNotesList();
+                    window.showToast("Folder deleted.");
+                });
+                div.appendChild(delBtn);
+            }
+
             div.addEventListener('click', () => {
                 activeFolder = folder;
                 window.renderFoldersList();
@@ -570,6 +649,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             container.appendChild(div);
         });
+        
+        window.renderMainSidebarFolders(); // Keep main sidebar synced
         if (window.lucide) lucide.createIcons();
     };
 
@@ -801,7 +882,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         await saveLocalState(); 
-        
         await StorageManager.deleteNote(noteToDeleteId);
         
         renderMarkdownCore(editor.value);
@@ -823,6 +903,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { folderPromptInput.focus(); }, 100);
     });
 
+    // ✨ CREATE FOLDER AND SAVE IT EXPLICITLY ✨
     document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
         let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
         if(!folderName) return window.showToast("Folder name cannot be empty.");
@@ -830,6 +911,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         folders.push(folderName);
         activeFolder = folderName;
+        saveFolders(); 
+        
         window.renderFoldersList();
         window.renderNotesList();
         

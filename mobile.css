@@ -1,6 +1,5 @@
 /* ==========================================================================
    MARKDOWN STUDIO - PREMIUM MOBILE UI/UX
-   Description: Native app-like feel, Bottom Sheets, Safe Areas, Drill-down UI.
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
@@ -171,14 +170,11 @@
         font-size: 0.95rem !important;
     }
 
-    /* ✨ MOBILE OVERRIDE: ALWAYS SHOW COPY BUTTON WITH PROPER CONTRAST ✨ */
     .copy-code-btn {
         opacity: 1 !important;
-        /* ALWAYS VISIBLE ON MOBILE */
         width: 36px !important;
         height: 36px !important;
         background-color: var(--hover-bg) !important;
-        /* STANDS OUT IN DARK MODE */
         border: 1px solid var(--border-color) !important;
         box-shadow: 0 4px 12px var(--shadow-color) !important;
     }
@@ -219,7 +215,6 @@
         justify-content: center;
     }
 
-    /* SIDEBAR */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -339,7 +334,6 @@
         border-radius: 100px;
     }
 
-    /* BOTTOM SHEET MODALS */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -433,7 +427,6 @@
         border-radius: 14px !important;
     }
 
-    /* DASHBOARD */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
@@ -642,7 +635,6 @@
         overflow-y: auto;
     }
 
-    /* ✨ DOCS MODAL MOBILE OVERRIDES ✨ */
     .docs-modal-box {
         padding: 0 !important;
         display: flex !important;

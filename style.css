@@ -79,8 +79,6 @@ body {
     display: none;
 }
 
-
-/* ✨ FULL APP SKELETON LOADER ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -95,7 +93,6 @@ body {
     }
 }
 
-/* Base skeleton style for UI blocks */
 body.is-loading .brand,
 body.is-loading .mode-toggle,
 body.is-loading .custom-dropdown,
@@ -113,7 +110,6 @@ body.is-loading #mobile-view-toggle {
     user-select: none !important;
 }
 
-/* 🚀 MAGIC FIX: Make inner items invisible but KEEP their dimensions so buttons don't resize/shift */
 body.is-loading svg,
 body.is-loading i,
 body.is-loading .tab-text,
@@ -122,7 +118,6 @@ body.is-loading .dropdown-header span {
     visibility: hidden !important;
 }
 
-/* Global smooth transition for when the class is removed */
 .brand,
 .mode-toggle,
 .custom-dropdown,
@@ -138,7 +133,6 @@ i,
     transition: opacity 0.4s ease, background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, transform 0.2s ease !important;
 }
 
-/* 🚀 SMOOTH CROSS-FADE FOR EDITOR AND PREVIEW */
 .app-fade {
     opacity: 1;
     transition: opacity 0.4s ease-in-out;
@@ -155,7 +149,6 @@ body.is-loading .app-fade {
 body:not(.is-loading) #preview-skeleton {
     display: none;
 }
-
 
 /* NAVBAR */
 .navbar {
@@ -557,7 +550,6 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* PREVIEW SKELETON */
 .skeleton-box {
     display: flex;
     flex-direction: column;
@@ -675,7 +667,6 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
-/* CODE BLOCKS & COPY BUTTON */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -812,6 +803,33 @@ body.view-preview .divider {
     color: var(--text-color) !important;
 }
 
+/* ✨ SIDEBAR TITLES & BUTTONS ✨ */
+.sidebar-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.5;
+    margin: 8px 0 4px 8px;
+    letter-spacing: 1px;
+}
+
+.sidebar-folder-btn {
+    justify-content: flex-start !important;
+    padding: 10px 16px !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.sidebar-folder-btn:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+.sidebar-folder-btn.active {
+    background-color: var(--hover-bg) !important;
+    color: var(--accent-color) !important;
+    font-weight: 600 !important;
+}
+
 /* MODALS */
 .modal-overlay {
     position: fixed;
@@ -923,7 +941,7 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* WIDER DOCS MODAL */
+/* DOCS MODAL */
 .docs-modal-box {
     max-width: 960px !important;
     width: 95vw;
