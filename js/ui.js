@@ -27,6 +27,9 @@ window.closeDeleteModal = function () { document.getElementById('delete-modal')?
 window.closePromptModal = function () { document.getElementById('prompt-modal')?.classList.remove('show'); };
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 
+// ✨ ADDED DOCS CLOSURE ✨
+window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
+
 window.closeNotesModal = function () {
     document.getElementById('notes-modal')?.classList.remove('show');
     const dashboardBox = document.querySelector('.notes-dashboard-box');
@@ -65,6 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
+
+    // ✨ DOCS MODAL TRIGGERS ✨
+    document.getElementById('btn-docs')?.addEventListener('click', () => {
+        document.getElementById('docs-modal')?.classList.add('show');
+    });
+    document.getElementById('sidebar-btn-docs-mobile')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('docs-modal')?.classList.add('show');
+    });
+    document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
+
 
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -118,6 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
+            
+            // ✨ ADDED DOCS MODAL ESCAPE ✨
+            if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             
             if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
         }

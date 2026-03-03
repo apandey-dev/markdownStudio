@@ -473,10 +473,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✨ ADDED: Function to inject Code Copy buttons ✨
     function injectCopyButtons(container) {
         container.querySelectorAll('pre').forEach((pre) => {
-            if (pre.querySelector('.copy-code-btn')) return; // Check if already added
+            if (pre.querySelector('.copy-code-btn')) return;
             
             const btn = document.createElement('button');
             btn.className = 'copy-code-btn';
@@ -490,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         btn.innerHTML = '<i data-lucide="check" style="color: #10b981;"></i>';
                         if(window.lucide) lucide.createIcons();
                         
-                        // Reset button after 2 seconds
                         setTimeout(() => {
                             btn.innerHTML = '<i data-lucide="copy"></i>';
                             if(window.lucide) lucide.createIcons();
@@ -516,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
         previewEl.innerHTML = customMarkdownParser(note.content);
         renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         
-        // ✨ INJECT COPY BUTTONS BEFORE SYNTAX HIGHLIGHTING ✨
         injectCopyButtons(previewEl);
         
         previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -745,7 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
         preview.innerHTML = customMarkdownParser(rawText);
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
         
-        // ✨ INJECT COPY BUTTONS BEFORE SYNTAX HIGHLIGHTING ✨
         injectCopyButtons(preview);
 
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));

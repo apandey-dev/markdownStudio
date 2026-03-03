@@ -85,6 +85,11 @@
                 </div>
             </div>
 
+            <button id="btn-docs" class="desktop-only" title="View Documentation"
+                style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
+                <i data-lucide="book" style="width: 16px; height: 16px;"></i> Docs
+            </button>
+
             <button id="btn-notes-desktop" class="modal-trigger-notes desktop-only" title="Manage Notes"
                 style="background-color: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
@@ -136,6 +141,8 @@
             <div class="sidebar-links">
                 <button class="sidebar-btn modal-trigger-notes" id="sidebar-btn-notes"><i data-lucide="folder-open"></i>
                     My Notes</button>
+                <button class="sidebar-btn" id="sidebar-btn-docs-mobile"><i data-lucide="book"></i>
+                    Documentation</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="link"></i> Secure Share</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
             </div>
@@ -207,6 +214,102 @@
             <span id="stat-reading-time">0 min read</span>
         </div>
     </main>
+
+    <div class="modal-overlay" id="docs-modal" style="z-index: 4000;">
+        <div class="modal-box docs-modal-box">
+            <button class="btn-close-dashboard" id="docs-modal-close" title="Close"><i data-lucide="x"></i></button>
+            <div class="docs-header">
+                <h2><i data-lucide="book-open" style="color: var(--accent-color);"></i> Markdown Studio Guide</h2>
+                <p>Everything you need to master your premium workspace.</p>
+            </div>
+            <div class="docs-body">
+
+                <div class="docs-section">
+                    <h3><i data-lucide="cloud"></i> 1. First-Time Setup & Syncing</h3>
+                    <p>By default, Studio runs in <strong>Local Storage</strong> (your data never leaves your browser).
+                        To enable cross-device syncing, you can connect your GitHub account.</p>
+                    <ul>
+                        <li>Click <strong>Cloud</strong> in the top navbar.</li>
+                        <li>You will be prompted for a GitHub Personal Access Token (PAT).</li>
+                        <li>Click "Need Help?" to see instructions on generating a token. <strong>Ensure you check both
+                                <code>repo</code> and <code>gist</code> scopes.</strong></li>
+                        <li>Once connected, all your notes and folders are securely synced to a private repository named
+                            <code>markdown-studio-notes</code> on your GitHub.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="docs-section">
+                    <h3><i data-lucide="wand-2"></i> 2. Custom Pro Syntax & Shortcuts</h3>
+                    <p>Studio extends standard Markdown with powerful custom features tailored for writers and
+                        designers.</p>
+
+                    <h4>🎨 Text Colors</h4>
+                    <p>Wrap text in brackets and specify a color inside braces.</p>
+                    <code class="docs-code">[This is red text]{red}</code>
+                    <code class="docs-code">[Custom Hex Color]{#10b981}</code>
+                    <code
+                        class="docs-code">[Adaptive White/Black]{white} -> Changes based on Dark/Light theme automatically!</code>
+
+                    <h4>🖼️ Advanced Image Control</h4>
+                    <p>Control the size and alignment of images instantly.</p>
+                    <code
+                        class="docs-code">![Alt](image_url.jpg){300x400, center} -> Width 300px, Height 400px (Center)</code>
+                    <code
+                        class="docs-code">![Alt](image_url.jpg){500, left} -> Width 500px, Auto Height, floats left</code>
+                    <code class="docs-code">![Alt](image_url.jpg){100%, center} -> Full responsive width</code>
+
+                    <h4>↔️ Text Alignment</h4>
+                    <p>Use slash commands at the start of a line or to wrap blocks.</p>
+                    <code class="docs-code">/center This text will be centered</code>
+                    <code class="docs-code">/right This text aligns right</code>
+
+                    <h4>➖ Premium Dividers</h4>
+                    <p>Type three equals signs on a new line to generate a double-dashed stylish separator.</p>
+                    <code class="docs-code">===</code>
+
+                    <h4>📐 Raw SVG Injection</h4>
+                    <p>Unlike standard editors, you can paste raw scalable vector graphics directly into the editor.
+                        They will render beautifully without security blockage.</p>
+                    <code class="docs-code">&lt;svg xmlns="..."&gt;...&lt;/svg&gt;</code>
+                </div>
+
+                <div class="docs-section">
+                    <h3><i data-lucide="zap"></i> 3. Features & Buttons</h3>
+                    <ul>
+                        <li><strong>📂 Folder System:</strong> Organize notes into folders. On Cloud mode, these map
+                            directly to sub-directories in your GitHub repo.</li>
+                        <li><strong>🖨️ PDF Export:</strong> Highly optimized print engine. Choose between A4
+                            (Standard), A2 (Large), or Infinity (Single continuous page). Text auto-adapts color based
+                            on theme.</li>
+                        <li><strong>🔒 Secure Share:</strong> Generates a highly secure link using AES-256 encryption
+                            stored in a Secret Gist. The decryption key is embedded in the URL hash (never sent to the
+                            server).</li>
+                        <li><strong>📄 Import/Export:</strong> Click the ⬇️ button to download your raw <code>.md</code>
+                            file, or ⬆️ to import any text/markdown file locally.</li>
+                    </ul>
+                </div>
+
+                <div class="docs-section">
+                    <h3><i data-lucide="eye-off"></i> 4. Hidden Features (Pro Tips)</h3>
+                    <ul>
+                        <li><strong>Zero-Lag Engine:</strong> Studio uses a custom 400ms Debounce Engine. You can write
+                            a 300,000+ word book and the typing will remain 100% smooth without blocking the main
+                            thread.</li>
+                        <li><strong>Code Copy:</strong> Hover over any rendered code block in the preview pane to reveal
+                            a sleek "Copy" button.</li>
+                        <li><strong>Draggable Pane:</strong> On Desktop, drag the vertical line between the editor and
+                            preview to resize your workspace.</li>
+                        <li><strong>Tab Indentation:</strong> Pressing <code>Tab</code> in the editor inserts actual
+                            spaces instead of trapping focus.</li>
+                        <li><strong>Failsafe Save:</strong> Closing the tab accidentally mid-typing will trigger an
+                            emergency state-save.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="setup-modal" style="z-index: 3000;">
         <div class="modal-box setup-modal-box">
