@@ -1,10 +1,8 @@
 /* ==========================================================================
    MARKDOWN STUDIO - CORE STYLESHEET
-   Description: Main UI styling for the editor, toolbar, modals, and themes.
    ========================================================================== */
 
 :root {
-    /* ✨ Light Mode (Clean & Bright) ✨ */
     --bg-color: #f3f4f6;
     --nav-bg: #ffffff;
     --text-color: #1f2937;
@@ -17,45 +15,33 @@
     --shadow-color: rgba(0, 0, 0, 0.06);
     --dropdown-bg: #ffffff;
     --hover-bg: #f9fafb;
-
     --toggle-track: #e2e8f0;
     --toggle-pill: #ffffff;
     --toggle-shadow: rgba(0, 0, 0, 0.1);
-
     --link-color: #000000;
     --link-hover: #374151;
     --link-active: #6b7280;
-
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fira Code', monospace;
 }
 
 body.dark-mode {
-    /* ✨ Pure Black & Grays ✨ */
     --bg-color: #000000;
     --nav-bg: #0a0a0a;
     --editor-bg: #000000;
     --preview-bg: #000000;
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
-
-    /* ✨ Subtle Monochrome Borders ✨ */
     --border-color: #262626;
     --shadow-color: rgba(0, 0, 0, 0.8);
-
-    /* ✨ Grayscale Text & White Accent ✨ */
     --text-color: #a1a1aa;
     --accent-color: #ffffff;
     --accent-hover: #e5e5e5;
     --btn-text: #000000;
-
-    /* ✨ Grayscale Toggles ✨ */
     --toggle-track: #0a0a0a;
     --toggle-pill: #262626;
     --toggle-shadow: rgba(0, 0, 0, 0.4);
-
-    /* ✨ Monochrome Links ✨ */
     --link-color: #ffffff;
     --link-hover: #a1a1aa;
     --link-active: #52525b;
@@ -92,6 +78,123 @@ body {
 .mobile-sidebar {
     display: none;
 }
+
+/* ✨ FULL APP SKELETON LOADER (Navbar, Toolbar, Status Bar) ✨ */
+@keyframes skeleton-pulse {
+    0% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 0.3;
+    }
+}
+
+body.is-loading .brand,
+body.is-loading .mode-toggle,
+body.is-loading .custom-dropdown,
+body.is-loading .actions>button,
+body.is-loading .tool-btn,
+body.is-loading .status-bar span,
+body.is-loading #mobile-menu-btn,
+body.is-loading #mobile-view-toggle {
+    color: transparent !important;
+    background-color: var(--border-color) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    animation: skeleton-pulse 1.5s infinite ease-in-out !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* Hide inner text/icons while loading so button sizes stay intact but content is invisible */
+body.is-loading svg,
+body.is-loading i,
+body.is-loading .tab-text,
+body.is-loading .dropdown-header span,
+body.is-loading .actions>button text {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    display: none !important;
+}
+
+/* Explicit widths to maintain layout while inner elements are hidden */
+body.is-loading .brand {
+    width: 140px;
+    height: 28px;
+    border-radius: 6px;
+}
+
+body.is-loading .mode-toggle {
+    width: 120px;
+    height: 32px;
+    border-radius: 50px;
+}
+
+body.is-loading .custom-dropdown {
+    width: 120px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+body.is-loading #btn-docs {
+    width: 70px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+body.is-loading #btn-notes-desktop {
+    width: 80px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+body.is-loading #btn-share {
+    width: 75px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+body.is-loading #btn-pdf {
+    width: 80px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+body.is-loading .tool-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+}
+
+body.is-loading .status-bar span {
+    width: 70px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+body.is-loading .toolbar-divider {
+    opacity: 0.2;
+}
+
+body.is-loading #mobile-menu-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    margin-left: 0;
+}
+
+body.is-loading #mobile-view-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+}
+
 
 /* NAVBAR */
 .navbar {
@@ -164,7 +267,7 @@ body.dark-mode .mode-toggle {
     box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* ✨ FIXED: DROPDOWN STYLING TO PERFECTLY MATCH BUTTONS ✨ */
+/* DROPDOWNS */
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
@@ -175,9 +278,7 @@ body.dark-mode .mode-toggle {
 
 .dropdown-header {
     padding: 6px 12px;
-    /* Matched to .actions > button */
     border-radius: 8px;
-    /* Matched to .actions > button */
     border: 1px solid var(--border-color);
     background-color: transparent;
     color: var(--text-color);
@@ -188,7 +289,6 @@ body.dark-mode .mode-toggle {
     gap: 8px;
     transition: all 0.25s;
     font-size: 0.85rem;
-    /* Matched to .actions > button */
 }
 
 .dropdown-header:hover {
@@ -429,7 +529,6 @@ textarea:disabled {
     cursor: not-allowed;
 }
 
-/* ✨ SKELETON LOADER ANIMATION FOR EDITOR PLACEHOLDER ✨ */
 textarea:disabled::placeholder {
     animation: skeleton-pulse 1.5s infinite ease-in-out;
     opacity: 0.5;
@@ -497,23 +596,8 @@ body.view-preview .divider {
     display: none !important;
 }
 
-/* ✨ SKELETON PREVIEW LOADING ANIMATION ✨ */
-@keyframes skeleton-pulse {
-    0% {
-        opacity: 0.3;
-    }
-
-    50% {
-        opacity: 0.7;
-    }
-
-    100% {
-        opacity: 0.3;
-    }
-}
-
+/* ✨ PREVIEW SKELETON ✨ */
 .skeleton-box {
-    animation: skeleton-pulse 1.5s infinite ease-in-out;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -527,6 +611,7 @@ body.view-preview .divider {
     background-color: var(--border-color);
     border-radius: 8px;
     margin-bottom: 12px;
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
 }
 
 .sk-line {
@@ -534,6 +619,7 @@ body.view-preview .divider {
     width: 100%;
     background-color: var(--border-color);
     border-radius: 6px;
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
 }
 
 .sk-line.short {
@@ -550,6 +636,7 @@ body.view-preview .divider {
     background-color: var(--border-color);
     border-radius: 12px;
     margin: 12px 0;
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
 }
 
 /* MARKDOWN RENDER OUTPUT */
@@ -764,7 +851,7 @@ body.view-preview .divider {
     color: var(--text-color) !important;
 }
 
-/* ✨ SMOOTH MODALS ✨ */
+/* MODALS */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -875,7 +962,7 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ✨ WIDER DOCS MODAL ✨ */
+/* WIDER DOCS MODAL */
 .docs-modal-box {
     max-width: 960px !important;
     width: 95vw;
