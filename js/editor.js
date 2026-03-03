@@ -1,10 +1,188 @@
 /* ==========================================================================
-   EDITOR CONTROLLER (Local-First Architecture & Folder System)
-   Handles storage modes, parsing, folders, duplicate checks, and syncing.
-   Includes Performance Engine & Custom Image/SVG Syntax.
+   STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
+const StorageManager = {
+    dbName: "markdownStudioDB",
+    storeName: "notes",
+    db: null,
+    useIDB: false,
 
-document.addEventListener('DOMContentLoaded', () => {
+    async init() {
+        return new Promise((resolve) => {
+            const request = indexedDB.open(this.dbName, 1);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) {
+                    db.createObjectStore(this.storeName, { keyPath: "id" });
+                }
+            };
+            request.onsuccess = (e) => {
+                this.db = e.target.result;
+                this.useIDB = localStorage.getItem('md_storage_preference') === 'indexedDB';
+                resolve(true);
+            };
+            request.onerror = (e) => {
+                console.error("IndexedDB init failed", e);
+                resolve(false);
+            };
+        });
+    },
+
+    safeSetLocal(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                if (window.showToast) {
+                    window.showToast("<i data-lucide='alert-triangle'></i> Critical: Storage limit reached (~5MB). Please export your notes or enable Cloud Sync immediately to prevent data loss.", 7000);
+                }
+            } else {
+                console.error("Storage error:", e);
+            }
+            return false;
+        }
+    },
+
+    async checkMigrationThreshold(notesArray, newNoteContent = "") {
+        if (this.useIDB || !this.db) return;
+
+        const totalSize = new Blob([JSON.stringify(notesArray)]).size;
+        const currentNoteSize = new Blob([newNoteContent]).size;
+
+        if (totalSize > 4 * 1024 * 1024 || currentNoteSize > 500 * 1024) {
+            await this.migrateToIDB(notesArray);
+        }
+    },
+
+    async migrateToIDB(notesArray) {
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(this.storeName, "readwrite");
+            const store = tx.objectStore(this.storeName);
+            notesArray.forEach(note => store.put(note));
+
+            tx.oncomplete = () => {
+                this.useIDB = true;
+                this.safeSetLocal('md_storage_preference', 'indexedDB');
+                localStorage.removeItem('md_notes_local');
+                localStorage.removeItem('md_notes_github');
+                if (window.showToast) window.showToast("<i data-lucide='database'></i> Large document detected. Migrated safely to IndexedDB.");
+                resolve(true);
+            };
+            tx.onerror = (e) => reject(e);
+        });
+    },
+
+    async saveNotes(notesArray, mode = 'local') {
+        await this.checkMigrationThreshold(notesArray);
+
+        if (this.useIDB && this.db) {
+            return new Promise((resolve) => {
+                const tx = this.db.transaction(this.storeName, "readwrite");
+                const store = tx.objectStore(this.storeName);
+                notesArray.forEach(note => {
+                    note._mode = mode;
+                    store.put(note);
+                });
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+            });
+        } else {
+            const key = mode === 'local' ? 'md_notes_local' : 'md_notes_github';
+            return this.safeSetLocal(key, JSON.stringify(notesArray));
+        }
+    },
+
+    async getAllNotes(mode = 'local') {
+        if (this.useIDB && this.db) {
+            return new Promise((resolve) => {
+                const tx = this.db.transaction(this.storeName, "readonly");
+                const store = tx.objectStore(this.storeName);
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const all = req.result || [];
+                    const filtered = all.filter(n => n._mode === mode);
+                    resolve(filtered.length > 0 ? filtered.reverse() : null);
+                };
+                req.onerror = () => resolve(null);
+            });
+        } else {
+            const key = mode === 'local' ? 'md_notes_local' : 'md_notes_github';
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+    },
+
+    async deleteNote(id) {
+        if (this.useIDB && this.db) {
+            return new Promise((resolve) => {
+                const tx = this.db.transaction(this.storeName, "readwrite");
+                tx.objectStore(this.storeName).delete(id);
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+            });
+        }
+        return true;
+    }
+};
+
+/* ==========================================================================
+   OFFLINE QUEUE SYSTEM (Safety Mechanisms for GitHub Deletes)
+   ========================================================================== */
+const OfflineQueue = {
+    key: 'md_offline_queue',
+    isProcessing: false,
+
+    get() {
+        try { return JSON.parse(localStorage.getItem(this.key) || '[]'); }
+        catch { return []; }
+    },
+
+    add(type, payload) {
+        const q = this.get();
+        if (type === 'delete' && q.some(op => op.type === 'delete' && op.payload.path === payload.path)) {
+            return;
+        }
+        q.push({ type, payload, timestamp: Date.now() });
+        StorageManager.safeSetLocal(this.key, JSON.stringify(q));
+    },
+
+    async process() {
+        if (!navigator.onLine || !GitHubBackend.isConfigured || this.isProcessing) return;
+        const q = this.get();
+        if (q.length === 0) return;
+
+        this.isProcessing = true;
+        let remaining = [];
+
+        for (let op of q) {
+            try {
+                if (op.type === 'delete') {
+                    await GitHubBackend.deleteNote(op.payload.path, op.payload.sha);
+                }
+            } catch (e) {
+                console.error("Failed to process offline op:", e);
+                remaining.push(op);
+            }
+        }
+
+        StorageManager.safeSetLocal(this.key, JSON.stringify(remaining));
+        this.isProcessing = false;
+    }
+};
+
+/* ==========================================================================
+   EDITOR CONTROLLER (Local-First Architecture & Folder System)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // Initialize Database before app boots
+    await StorageManager.init();
+
     const editor = document.getElementById('markdown-input');
     const previewPanel = document.getElementById('preview-panel');
     const preview = document.getElementById('preview-output');
@@ -15,18 +193,20 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.disabled = true;
 
     let notes = [];
-    let folders = ['All Notes']; 
+    let folders = ['All Notes'];
     let activeFolder = 'All Notes';
     let activeNoteId = null;
-    
+
     let noteToDeleteId = null;
     let highlightedNoteId = null;
-    let pendingNewNoteData = null; 
+    let pendingNewNoteData = null;
 
     let appMode = 'local';
     let isSyncing = false;
     let pendingSync = false;
     let syncTimer = null;
+    let syncRetries = 0;
+    const MAX_SYNC_RETRIES = 3;
 
     const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🎨 Custom SVG:** Paste raw SVG directly!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax. It works perfectly for articles!\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
 
@@ -85,25 +265,31 @@ document.addEventListener('DOMContentLoaded', () => {
     function extractFoldersFromNotes() {
         let fSet = new Set(['All Notes']);
         notes.forEach(n => {
-            if(n.folder) fSet.add(n.folder);
+            if (n.folder) fSet.add(n.folder);
         });
         folders = Array.from(fSet);
     }
 
-    function saveLocalState() {
-        if (appMode === 'local') {
-            localStorage.setItem('md_notes_local', JSON.stringify(notes));
-            localStorage.setItem('md_active_local', activeNoteId);
-        } else {
-            localStorage.setItem('md_notes_github', JSON.stringify(notes));
-            localStorage.setItem('md_active_github', activeNoteId);
-        }
+    async function saveLocalState() {
+        const mode = appMode;
+        StorageManager.safeSetLocal(`md_active_${mode}`, activeNoteId);
+        await StorageManager.saveNotes(notes, mode);
     }
 
     window.addEventListener('beforeunload', () => {
         if (getActiveNote() && editor.value) {
             getActiveNote().content = editor.value;
-            saveLocalState();
+            // Synchronous emergency backup to raw localStorage in case async IDB fails during unload
+            const key = appMode === 'local' ? 'md_notes_local' : 'md_notes_github';
+            StorageManager.safeSetLocal(key, JSON.stringify(notes));
+            StorageManager.safeSetLocal(`md_active_${appMode}`, activeNoteId);
+        }
+    });
+
+    window.addEventListener('online', () => {
+        if (appMode === 'github') {
+            OfflineQueue.process();
+            triggerCloudSync();
         }
     });
 
@@ -120,41 +306,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function performCloudSync() {
-        if (!pendingSync || appMode !== 'github') return;
+        if (!pendingSync || appMode !== 'github' || isSyncing) return;
+
+        if (!navigator.onLine) {
+            pendingSync = true;
+            updatePillUI();
+            return;
+        }
+
         isSyncing = true;
         updatePillUI();
+
+        await OfflineQueue.process();
 
         try {
             const currentNote = getActiveNote();
             if (currentNote) {
                 const result = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
-                if (result) {
+                if (result && result !== 'conflict') {
                     currentNote.id = result.sha;
                     currentNote.path = result.path;
-                    saveLocalState();
+                    await saveLocalState();
                     pendingSync = false;
-                } else {
-                    pendingSync = true;
+                    syncRetries = 0;
+                } else if (result === 'conflict') {
+                    throw new Error("Conflict detected");
                 }
             }
         } catch (e) {
             console.error("Sync Error:", e);
+            pendingSync = true;
+            syncRetries++;
+
+            if (syncRetries <= MAX_SYNC_RETRIES) {
+                const backoffTime = Math.pow(2, syncRetries) * 1000;
+                clearTimeout(syncTimer);
+                syncTimer = setTimeout(performCloudSync, backoffTime);
+            } else {
+                if (window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Cloud Sync temporarily unavailable.");
+            }
         } finally {
             isSyncing = false;
             updatePillUI();
-            if (pendingSync) triggerCloudSync();
+            if (pendingSync && syncRetries === 0) triggerCloudSync();
         }
     }
 
     async function initGitHubMode(token) {
-        const localCache = localStorage.getItem('md_notes_github');
-        if (localCache) {
-            try {
-                notes = JSON.parse(localCache);
-                extractFoldersFromNotes();
-                activeNoteId = localStorage.getItem('md_active_github') || notes[0]?.id;
-                finishAppLoad();
-            } catch (e) { }
+        const cachedNotes = await StorageManager.getAllNotes('github');
+        if (cachedNotes) {
+            notes = cachedNotes;
+            extractFoldersFromNotes();
+            activeNoteId = localStorage.getItem('md_active_github') || notes[0]?.id;
+            finishAppLoad();
         } else {
             window.showToast("<i data-lucide='loader'></i> Fetching from Cloud...");
         }
@@ -163,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (success) {
             const cloudNotes = await GitHubBackend.getAllNotes();
 
-            if (!localCache || notes.length === 0) {
+            if (!cachedNotes || notes.length === 0) {
                 if (cloudNotes.length > 0) {
                     notes = cloudNotes;
                     activeNoteId = notes[0].id;
@@ -173,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     activeNoteId = notes[0].id;
                 }
                 extractFoldersFromNotes();
-                saveLocalState();
+                await saveLocalState();
                 finishAppLoad();
                 updatePillUI();
             } else {
@@ -187,8 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (added) {
                     extractFoldersFromNotes();
-                    saveLocalState();
-                    if(document.getElementById('notes-modal').classList.contains('show')) {
+                    await saveLocalState();
+                    if (document.getElementById('notes-modal').classList.contains('show')) {
                         window.renderFoldersList();
                         window.renderNotesList();
                     }
@@ -200,20 +404,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function loadLocalMode() {
-        const localCache = localStorage.getItem('md_notes_local');
-        if (localCache) {
-            try {
-                notes = JSON.parse(localCache);
-                extractFoldersFromNotes();
-                activeNoteId = localStorage.getItem('md_active_local') || notes[0]?.id;
-            } catch (e) { }
+    async function loadLocalMode() {
+        const cachedNotes = await StorageManager.getAllNotes('local');
+        if (cachedNotes && cachedNotes.length > 0) {
+            notes = cachedNotes;
+            extractFoldersFromNotes();
+            activeNoteId = localStorage.getItem('md_active_local') || notes[0]?.id;
         } else {
             const id = Date.now().toString();
             notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
             folders = ['All Notes'];
             activeNoteId = id;
-            saveLocalState();
+            await saveLocalState();
         }
         finishAppLoad();
         updatePillUI();
@@ -222,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function switchToMode(targetMode) {
         if (appMode === targetMode && editor.disabled === false) return;
 
-        if (notes.length > 0) saveLocalState();
+        if (notes.length > 0) await saveLocalState();
 
         if (targetMode === 'github') {
             const token = localStorage.getItem('md_github_token');
@@ -242,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appMode = 'local';
             localStorage.setItem('md_app_mode', 'local');
             editor.disabled = true;
-            loadLocalMode();
+            await loadLocalMode();
         }
     }
 
@@ -262,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenInput.value = '';
             document.getElementById('setup-modal').classList.remove('show');
             window.showToast("<i data-lucide='check'></i> Successfully Connected!");
-            switchToMode('github');
+            await switchToMode('github');
         } else {
             window.showToast("Invalid Token. Check scope and try again.");
         }
@@ -271,9 +473,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('[data-target]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', async (e) => {
             const target = e.currentTarget.getAttribute('data-target');
-            switchToMode(target);
+            await switchToMode(target);
         });
     });
 
@@ -291,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generatePath(folderName, title) {
         let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
-        if(!safeTitle) safeTitle = 'Untitled Note';
+        if (!safeTitle) safeTitle = 'Untitled Note';
         if (folderName === 'All Notes') return `${safeTitle}.md`;
         return `${folderName}/${safeTitle}.md`;
     }
@@ -301,8 +503,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!note) return;
 
         highlightedNoteId = activeNoteId;
-        activeFolder = note.folder || 'All Notes'; 
-        
+        activeFolder = note.folder || 'All Notes';
+
         editor.disabled = false;
         editor.placeholder = "Start typing your Markdown here...";
         editor.value = note.content || "";
@@ -317,23 +519,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('folders-list-container');
         if (!container) return;
         container.innerHTML = '';
-        
+
         extractFoldersFromNotes();
 
         folders.forEach(folder => {
             const div = document.createElement('div');
             div.className = `folder-item ${folder === activeFolder ? 'active' : ''}`;
-            
+
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', folder === 'All Notes' ? 'library' : 'folder');
-            
+
             const textSpan = document.createElement('span');
             textSpan.textContent = folder;
             textSpan.style.flex = "1";
             textSpan.style.whiteSpace = 'nowrap';
             textSpan.style.overflow = 'hidden';
             textSpan.style.textOverflow = 'ellipsis';
-            
+
             let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
             const countSpan = document.createElement('span');
             countSpan.textContent = count;
@@ -348,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeFolder = folder;
                 window.renderFoldersList();
                 window.renderNotesList();
-                
+
                 if (window.innerWidth <= 768) {
                     document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
                 }
@@ -363,15 +565,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('notes-list-container');
         const folderTitle = document.getElementById('current-folder-name');
         if (!container) return;
-        
+
         container.innerHTML = '';
         if (folderTitle) folderTitle.textContent = activeFolder;
-        
+
         updatePillUI();
 
         let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
 
-        if(displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
+        if (displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
             highlightedNoteId = displayNotes[0].id;
         } else if (displayNotes.length === 0) {
             highlightedNoteId = null;
@@ -383,13 +585,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const titleContainer = document.createElement('div');
             titleContainer.className = 'note-title';
-            
+
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', 'file-text');
-            
+
             const textSpan = document.createElement('span');
             textSpan.textContent = note.title;
-            
+
             titleContainer.appendChild(iconEl);
             titleContainer.appendChild(textSpan);
             div.appendChild(titleContainer);
@@ -417,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
-        
+
         processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
             let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
             let isCenter = false;
@@ -434,9 +636,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/)) {
                         const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/);
                         let w = dimMatch[1];
-                        if (!isNaN(w)) w += 'px'; 
+                        if (!isNaN(w)) w += 'px';
                         style += `width: ${w}; `;
-                        
+
                         if (dimMatch[2] && dimMatch[2] !== 'auto') {
                             let h = dimMatch[2];
                             if (!isNaN(h)) h += 'px';
@@ -456,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
         processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-        
+
         processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, (match, text, color) => {
             const c = color.toLowerCase();
             if (c === 'white' || c === 'black' || c === '#fff' || c === '#ffffff' || c === '#000' || c === '#000000') {
@@ -464,10 +666,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return `<span style="color: ${color};">${text}</span>`;
         });
-        
+
         const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
-        
-        return DOMPurify.sanitize(htmlContent, { 
+
+        return DOMPurify.sanitize(htmlContent, {
             ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
             ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
         });
@@ -476,25 +678,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function injectCopyButtons(container) {
         container.querySelectorAll('pre').forEach((pre) => {
             if (pre.querySelector('.copy-code-btn')) return;
-            
+
             const btn = document.createElement('button');
             btn.className = 'copy-code-btn';
             btn.innerHTML = '<i data-lucide="copy"></i>';
             btn.title = "Copy Code";
-            
+
             btn.addEventListener('click', () => {
                 const codeBlock = pre.querySelector('code');
-                if(codeBlock) {
+                if (codeBlock) {
                     navigator.clipboard.writeText(codeBlock.innerText).then(() => {
                         btn.innerHTML = '<i data-lucide="check" style="color: #10b981;"></i>';
-                        if(window.lucide) lucide.createIcons();
-                        
+                        if (window.lucide) lucide.createIcons();
+
                         setTimeout(() => {
                             btn.innerHTML = '<i data-lucide="copy"></i>';
-                            if(window.lucide) lucide.createIcons();
+                            if (window.lucide) lucide.createIcons();
                         }, 2000);
-                        
-                        if(window.showToast) window.showToast("<i data-lucide='check-circle'></i> Code copied!");
+
+                        if (window.showToast) window.showToast("<i data-lucide='check-circle'></i> Code copied!");
                     });
                 }
             });
@@ -505,40 +707,40 @@ document.addEventListener('DOMContentLoaded', () => {
     window.renderDashboardPreview = function () {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId);
-        
+
         if (!note || !previewEl) {
-            if(previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
+            if (previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
             return;
         }
 
         previewEl.innerHTML = customMarkdownParser(note.content);
         renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
-        
+
         injectCopyButtons(previewEl);
-        
+
         previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
         if (window.lucide) lucide.createIcons();
     };
 
-    document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
-        if(!highlightedNoteId) return;
+    document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
+        if (!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
-        saveLocalState(); 
+        await saveLocalState();
         editor.value = getActiveNote().content;
         renderMarkdownCore(editor.value);
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
 
     document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
-        if(!highlightedNoteId) return;
+        if (!highlightedNoteId) return;
         noteToDeleteId = highlightedNoteId;
         document.getElementById('delete-modal').classList.add('show');
     });
 
-    document.getElementById('dash-btn-export')?.addEventListener('click', () => {
-        if(!highlightedNoteId) return;
+    document.getElementById('dash-btn-export')?.addEventListener('click', async () => {
+        if (!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
-        saveLocalState();
+        await saveLocalState();
         editor.value = getActiveNote().content;
         renderMarkdownCore(editor.value);
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
@@ -553,41 +755,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!noteToDeleteId) return;
 
         const idx = notes.findIndex(n => n.id === noteToDeleteId);
-        if(idx === -1) return;
-        
+        if (idx === -1) return;
+
         const noteToDelete = notes[idx];
         notes.splice(idx, 1);
 
         if (activeNoteId === noteToDeleteId) {
             activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
-            if(activeNoteId) editor.value = getActiveNote().content;
+            if (activeNoteId) editor.value = getActiveNote().content;
             else editor.value = "";
         }
-        
+
         if (highlightedNoteId === noteToDeleteId) {
             let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
             highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
         }
 
         if (appMode === 'github' && noteToDelete.path) {
-            GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id);
+            if (navigator.onLine) {
+                GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
+                    OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
+                });
+            } else {
+                OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
+            }
         }
 
-        if(notes.length === 0) {
+        if (notes.length === 0) {
             const id = Date.now().toString();
             notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
             activeNoteId = id;
             editor.value = notes[0].content;
         }
 
-        saveLocalState();
+        await saveLocalState();
+
+        await StorageManager.deleteNote(noteToDeleteId);
+
         renderMarkdownCore(editor.value);
         window.renderFoldersList();
         window.renderNotesList();
 
         noteToDeleteId = null;
         if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
-        window.showToast("<i data-lucide='trash-2'></i> Note deleted");
+        if (window.showToast) window.showToast("<i data-lucide='trash-2'></i> Note deleted");
     });
 
     const btnNewFolder = document.getElementById('btn-new-folder');
@@ -602,20 +813,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
         let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-        if(!folderName) return window.showToast("Folder name cannot be empty.");
-        if(folders.includes(folderName)) return window.showToast("Folder already exists.");
-        
+        if (!folderName) return window.showToast("Folder name cannot be empty.");
+        if (folders.includes(folderName)) return window.showToast("Folder already exists.");
+
         folders.push(folderName);
         activeFolder = folderName;
         window.renderFoldersList();
         window.renderNotesList();
-        
+
         folderPromptModal.classList.remove('show');
         window.showToast(`<i data-lucide='folder'></i> Folder '${folderName}' created!`);
-        
+
         if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
     });
-    
+
     document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => folderPromptModal.classList.remove('show'));
 
     const btnNewNote = document.getElementById('btn-new-note');
@@ -632,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let noteName = promptInput.value.trim() || "Untitled Note";
         const folder = activeFolder;
         const generatedPath = generatePath(folder, noteName);
-        
+
         const existingNote = notes.find(n => n.path === generatedPath);
         const newId = Date.now().toString();
         const content = `# ${noteName}\n\nStart typing here...`;
@@ -645,16 +856,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        executeNoteCreation({ id: newId, path: generatedPath, folder: folder, title: noteName, content: content });
+        await executeNoteCreation({ id: newId, path: generatedPath, folder: folder, title: noteName, content: content });
     };
 
-    function executeNoteCreation(noteData) {
+    async function executeNoteCreation(noteData) {
         notes.unshift(noteData);
         activeNoteId = noteData.id;
         highlightedNoteId = noteData.id;
         editor.value = noteData.content;
 
-        saveLocalState();
+        await saveLocalState();
         renderMarkdownCore(noteData.content);
         window.renderFoldersList();
         window.renderNotesList();
@@ -682,16 +893,16 @@ document.addEventListener('DOMContentLoaded', () => {
         pendingNewNoteData = null;
     });
 
-    document.getElementById('conflict-overwrite')?.addEventListener('click', () => {
-        if(!pendingNewNoteData) return;
+    document.getElementById('conflict-overwrite')?.addEventListener('click', async () => {
+        if (!pendingNewNoteData) return;
         let exNote = notes.find(n => n.id === pendingNewNoteData.existingId);
-        if(exNote) {
+        if (exNote) {
             exNote.content = pendingNewNoteData.content;
             activeNoteId = exNote.id;
             highlightedNoteId = exNote.id;
             editor.value = exNote.content;
-            
-            saveLocalState();
+
+            await saveLocalState();
             renderMarkdownCore(exNote.content);
             window.renderNotesList();
             if (appMode === 'github') triggerCloudSync();
@@ -719,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             appMode = 'github';
             localStorage.setItem('md_app_mode', 'github');
-            saveLocalState();
+            await saveLocalState();
             updatePillUI();
 
             document.getElementById('btn-push-github').style.display = 'none';
@@ -729,19 +940,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function debounce(func, wait) { 
-        let timeout; 
-        return function (...args) { 
-            clearTimeout(timeout); 
-            timeout = setTimeout(() => func.apply(this, args), wait); 
-        }; 
+    function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
     }
 
     function renderMarkdownCore(rawText) {
         updateLiveStats(rawText);
         preview.innerHTML = customMarkdownParser(rawText);
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
-        
+
         injectCopyButtons(preview);
 
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -760,14 +971,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
     }
 
-    const debouncedRenderAndSave = debounce((rawText) => {
+    const debouncedRenderAndSave = debounce(async (rawText) => {
         const activeNote = getActiveNote();
         if (activeNote) {
             activeNote.content = rawText;
-            saveLocalState(); 
-            triggerCloudSync(); 
+            await saveLocalState();
+            triggerCloudSync();
         }
-        renderMarkdownCore(rawText); 
+        renderMarkdownCore(rawText);
     }, 400);
 
     editor.addEventListener('input', () => {
@@ -841,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
             else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
             else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
-            else if (action === 'image') { prefix = '!['; suffix = '](https://example.com/image.jpg){center, 400xauto}'; defaultText = 'alt text'; }
+            else if (action === 'image') { prefix = '!['; suffix = '](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){center, 400xauto}'; defaultText = 'alt text'; }
             else if (action === 'table') {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';
@@ -926,14 +1137,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             const content = e.target.result;
             const rawTitle = file.name.replace('.md', '').replace('.txt', '');
             const folder = activeFolder;
             const newPath = generatePath(folder, rawTitle);
             const newId = Date.now().toString();
-            
-            if(notes.find(n => n.path === newPath)) {
+
+            if (notes.find(n => n.path === newPath)) {
                 window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
                 return;
             }
@@ -943,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             highlightedNoteId = newId;
             editor.value = content;
 
-            saveLocalState();
+            await saveLocalState();
             renderMarkdownCore(content);
             if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
             if (typeof window.renderNotesList === 'function') window.renderNotesList();
@@ -966,9 +1177,10 @@ document.addEventListener('DOMContentLoaded', () => {
             notes.unshift({ id: sharedId, path: sharedPath, folder: 'All Notes', title: sharedTitle, content: decodedText });
             activeNoteId = sharedId;
             highlightedNoteId = sharedId;
-            saveLocalState();
-            window.showToast("<i data-lucide='download'></i> Shared document saved!");
-            history.replaceState(null, null, ' ');
+            saveLocalState().then(() => {
+                window.showToast("<i data-lucide='download'></i> Shared document saved!");
+                history.replaceState(null, null, ' ');
+            });
         } catch (e) { console.error("Invalid import link", e); }
     }
 
