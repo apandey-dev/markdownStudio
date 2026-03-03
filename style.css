@@ -4,6 +4,7 @@
    ========================================================================== */
 
 :root {
+    /* ✨ Light Mode (Clean & Bright) ✨ */
     --bg-color: #f3f4f6;
     --nav-bg: #ffffff;
     --text-color: #1f2937;
@@ -21,9 +22,9 @@
     --toggle-pill: #ffffff;
     --toggle-shadow: rgba(0, 0, 0, 0.1);
 
-    --link-color: #2563eb;
-    --link-hover: #1d4ed8;
-    --link-active: #1e40af;
+    --link-color: #000000;
+    --link-hover: #374151;
+    --link-active: #6b7280;
 
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
@@ -31,26 +32,36 @@
 }
 
 body.dark-mode {
+    /* ✨ Pure Black & Grays ✨ */
     --bg-color: #000000;
     --nav-bg: #0a0a0a;
-    --text-color: #e5e5e5;
-    --editor-bg: #0a0a0a;
+    --editor-bg: #000000;
     --preview-bg: #000000;
-    --border-color: #262626;
-    --accent-color: #3b82f6;
-    --accent-hover: #60a5fa;
-    --btn-text: #ffffff;
-    --shadow-color: rgba(0, 0, 0, 0.5);
     --dropdown-bg: #0a0a0a;
     --hover-bg: #1a1a1a;
 
-    --toggle-track: #0f172a;
-    --toggle-pill: #334155;
+    /* ✨ Subtle Monochrome Borders ✨ */
+    --border-color: #262626;
+    --shadow-color: rgba(0, 0, 0, 0.8);
+
+    /* ✨ Grayscale Text & White Accent ✨ */
+    --text-color: #a1a1aa;
+    /* Soft gray for easy long-form reading */
+    --accent-color: #ffffff;
+    /* Pure White for icons/active states */
+    --accent-hover: #e5e5e5;
+    --btn-text: #000000;
+    /* Black text on white buttons */
+
+    /* ✨ Grayscale Toggles ✨ */
+    --toggle-track: #0a0a0a;
+    --toggle-pill: #262626;
     --toggle-shadow: rgba(0, 0, 0, 0.4);
 
-    --link-color: #60a5fa;
-    --link-hover: #93c5fd;
-    --link-active: #bfdbfe;
+    /* ✨ Monochrome Links ✨ */
+    --link-color: #ffffff;
+    --link-hover: #a1a1aa;
+    --link-active: #52525b;
 }
 
 * {
@@ -85,6 +96,7 @@ body {
     display: none;
 }
 
+/* NAVBAR */
 .navbar {
     height: 52px;
     background-color: var(--nav-bg);
@@ -112,6 +124,7 @@ body {
     gap: 10px;
 }
 
+/* TOGGLES */
 .mode-toggle {
     display: flex;
     background-color: var(--toggle-track);
@@ -154,6 +167,7 @@ body.dark-mode .mode-toggle {
     box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+/* DROPDOWNS */
 .custom-dropdown {
     position: relative;
     font-family: var(--ui-font);
@@ -294,6 +308,7 @@ body.dark-mode .mode-toggle {
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 
+/* WORKSPACE */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -474,6 +489,7 @@ body.view-preview .divider {
     display: none !important;
 }
 
+/* MARKDOWN RENDER OUTPUT */
 #preview-output,
 #dashboard-preview-output {
     width: 100%;
@@ -493,7 +509,7 @@ body.view-preview .divider {
     margin-top: 0;
 }
 
-/* ✨ UPDATED: Headings are now neutral (text-color) in both modes, NOT blue ✨ */
+/* Headings Neutral Color */
 #preview-output h1,
 #dashboard-preview-output h1,
 #preview-output h2,
@@ -549,6 +565,7 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
+/* CODE BLOCKS & COPY BUTTON */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -684,7 +701,7 @@ body.view-preview .divider {
     color: var(--text-color) !important;
 }
 
-/* ✨ UPDATED: SMOOTH MODAL ANIMATIONS & OVERLAYS ✨ */
+/* ✨ SMOOTH MODALS ✨ */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -795,10 +812,9 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ✨ UPDATED: WIDER DOCS MODAL WITH NEUTRAL COLORS ✨ */
+/* ✨ WIDER DOCS MODAL ✨ */
 .docs-modal-box {
     max-width: 960px !important;
-    /* Made significantly wider */
     width: 95vw;
     height: 85vh;
     padding: 0;
@@ -847,7 +863,6 @@ body.dark-mode .btn-cancel:hover {
     align-items: center;
     gap: 10px;
     color: var(--text-color);
-    /* Removed Blue */
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 16px;
@@ -886,7 +901,6 @@ body.dark-mode .btn-cancel:hover {
     font-size: 0.85em;
     margin: 8px 0 16px 0;
     color: var(--text-color);
-    /* Removed Blue */
     overflow-x: auto;
 }
 
@@ -1004,12 +1018,12 @@ body.dark-mode .btn-cancel:hover {
 }
 
 body.dark-mode .btn-help-cute {
-    background-color: rgba(96, 165, 250, 0.15);
-    color: #60a5fa;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
 body.dark-mode .btn-help-cute:hover {
-    background-color: rgba(96, 165, 250, 0.25);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .pat-guide-box {
@@ -1033,8 +1047,8 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 .guide-steps li .step-num {
-    background: #3b82f6;
-    color: #ffffff;
+    background: var(--text-color);
+    color: var(--bg-color);
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -1054,6 +1068,7 @@ body.dark-mode .btn-help-cute:hover {
     color: var(--text-color);
 }
 
+/* DASHBOARD */
 .notes-dashboard-box {
     max-width: 1100px;
     width: 90vw;

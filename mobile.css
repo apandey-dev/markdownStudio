@@ -171,9 +171,11 @@
         font-size: 0.95rem !important;
     }
 
+    /* ✨ MOBILE OVERRIDE: ALWAYS SHOW COPY BUTTON ✨ */
     .copy-code-btn {
         opacity: 1 !important;
         width: 36px !important;
+        /* Larger touch target for mobile */
         height: 36px !important;
         background-color: var(--bg-color) !important;
     }
@@ -214,6 +216,7 @@
         justify-content: center;
     }
 
+    /* SIDEBAR */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -323,7 +326,7 @@
 
     .sidebar-btn:active {
         background-color: var(--hover-bg);
-        border-color: var(--accent-color);
+        border-color: var(--text-color);
     }
 
     #mobile-mode-toggle,
@@ -333,6 +336,7 @@
         border-radius: 100px;
     }
 
+    /* BOTTOM SHEET MODALS */
     .modal-overlay {
         align-items: flex-end !important;
         padding: 0 !important;
@@ -426,6 +430,7 @@
         border-radius: 14px !important;
     }
 
+    /* DASHBOARD */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
