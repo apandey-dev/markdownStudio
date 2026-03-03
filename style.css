@@ -667,6 +667,7 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
+/* CODE BLOCKS & COPY BUTTON */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -1278,11 +1279,13 @@ body.dark-mode .btn-help-cute:hover {
     padding: 8px 12px;
 }
 
+/* ✨ RED HOVER FOR FOLDER DELETE BUTTON ✨ */
 .folder-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
@@ -1308,6 +1311,40 @@ body.dark-mode .btn-help-cute:hover {
     height: 16px;
     color: var(--text-color);
     opacity: 0.8;
+}
+
+.folder-del-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.3;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-left: 4px;
+}
+
+.folder-del-btn i {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    pointer-events: none;
+}
+
+.folder-item:hover .folder-del-btn {
+    opacity: 0.7;
+}
+
+.folder-del-btn:hover {
+    opacity: 1 !important;
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
 }
 
 .notes-dashboard-left {
