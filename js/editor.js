@@ -1,7 +1,7 @@
 /* ==========================================================================
    EDITOR CONTROLLER (Local-First Architecture & Folder System)
    Handles storage modes, parsing, folders, duplicate checks, and syncing.
-   Includes Performance Engine for 300k+ words.
+   Includes Performance Engine for 300k+ words & Custom Image Syntax.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingSync = false;
     let syncTimer = null;
 
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **📂 Folders:** Organize notes neatly.\n* **🖨️ Native PDF Export:** Scalable vector PDFs.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\`.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\`.\n\n/center **Enjoy writing!**`;
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **📂 Folders:** Organize notes neatly.\n* **🎨 Custom Colors:** Use syntax \`[Text]{red}\`.\n* **↔️ Alignment:** Type \`/center\`, \`/right\`, \`/left\`.\n\n/center **Enjoy writing!**`;
 
     function updatePillUI() {
         const isGithub = appMode === 'github';
@@ -416,9 +416,50 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
     });
 
-    // ✨ UPDATED AUTO THEME ADAPTION FOR WHITE/BLACK COLORS ✨
+    // ✨ UPDATED: Added Robust Image Parser with Alignment & Sizing ✨
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
+
+        // Custom Image Parser: ![alt](url){300x400, center}
+        processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
+            let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
+            let isCenter = false;
+
+            if (options) {
+                const parts = options.split(',').map(p => p.trim().toLowerCase());
+                parts.forEach(part => {
+                    if (part === 'center') {
+                        isCenter = true;
+                    } else if (part === 'left') {
+                        style += 'float: left; margin-right: 16px; margin-bottom: 16px; ';
+                    } else if (part === 'right') {
+                        style += 'float: right; margin-left: 16px; margin-bottom: 16px; ';
+                    } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/)) {
+                        const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/);
+                        let w = dimMatch[1];
+                        if (!isNaN(w)) w += 'px';
+                        style += `width: ${w}; `;
+
+                        if (dimMatch[2]) {
+                            let h = dimMatch[2];
+                            if (!isNaN(h)) h += 'px';
+                            style += `height: ${h}; object-fit: cover; `;
+                        } else {
+                            style += `height: auto; `;
+                        }
+                    }
+                });
+            }
+
+            const imgTag = `<img src="${url}" alt="${alt}" style="${style}" class="custom-md-image" />`;
+
+            if (isCenter) {
+                return `<div style="text-align: center; width: 100%; clear: both; margin: 16px 0;">${imgTag}</div>`;
+            }
+            return imgTag;
+        });
+
+        // Other Custom Parsers
         processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
@@ -767,7 +808,10 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
             else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
             else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
-            else if (action === 'image') { prefix = '!['; suffix = '](image_url)'; defaultText = 'alt text'; }
+
+            // ✨ UPDATED: Image template reveals the sizing and alignment syntax instantly! ✨
+            else if (action === 'image') { prefix = '!['; suffix = '](https://example.com/image.jpg){center, 400xauto}'; defaultText = 'alt text'; }
+
             else if (action === 'table') {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';

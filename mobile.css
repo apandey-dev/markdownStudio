@@ -488,21 +488,18 @@
         transform: translateX(0);
     }
 
-    /* ✨ ADDED RIGHT PADDING SO TEXT/ICONS DON'T OVERLAP WITH CLOSE BUTTON ✨ */
     .folders-header,
     .notes-dashboard-left-header {
         padding: 0 56px 16px 20px !important;
     }
 
-    /* ✨ FLAT, CLEAN CLOSE BUTTON PERFECTLY ALIGNED ✨ */
+    /* ✨ ALIGNED CLOSE BUTTON ✨ */
     .notes-dashboard-box .btn-close-dashboard {
         top: 22px !important;
-        /* Perfect vertical alignment with the folder/notes header icons */
         right: 16px !important;
         width: 32px !important;
         height: 32px !important;
         background-color: transparent !important;
-        /* Flat UI without circle background */
         border: none !important;
         box-shadow: none !important;
         color: var(--text-color) !important;
@@ -516,13 +513,11 @@
         height: 22px !important;
     }
 
-    /* Hover/Active states look like a native app press */
     .notes-dashboard-box .btn-close-dashboard:active {
         transform: scale(0.9) !important;
         background-color: var(--hover-bg) !important;
         opacity: 1 !important;
         border-radius: 8px !important;
-        /* Smooth rounded square feedback on touch */
     }
 
     .mobile-back-to-folders {
@@ -574,9 +569,8 @@
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* ACTION BUTTONS */
     .dashboard-actions {
-        padding: 12px 20px !important;
+        padding: 12px 64px 12px 16px !important;
         gap: 12px !important;
         overflow-x: auto;
         border-bottom: 1px solid var(--border-color);
@@ -640,7 +634,6 @@
         padding-top: 32px !important;
     }
 
-    /* TOAST Z-INDEX FIX */
     #toast {
         bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         width: auto !important;

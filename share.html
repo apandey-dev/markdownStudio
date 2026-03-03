@@ -238,7 +238,6 @@
             opacity: 0.8;
         }
 
-        /* ✨ AUTO THEME ADAPTION ✨ */
         .adaptive-color {
             color: var(--text-color) !important;
         }
@@ -315,14 +314,49 @@
         lucide.createIcons();
         window.sharedRawText = "";
 
-        // ✨ UPDATED: Support Adaptive Text Color ✨
         function customMarkdownParser(rawText) {
             let processedText = rawText.replace(/\r\n/g, '\n');
+
+            // Replicate Image parsing for Share logic
+            processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
+                let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
+                let isCenter = false;
+
+                if (options) {
+                    const parts = options.split(',').map(p => p.trim().toLowerCase());
+                    parts.forEach(part => {
+                        if (part === 'center') {
+                            isCenter = true;
+                        } else if (part === 'left') {
+                            style += 'float: left; margin-right: 16px; margin-bottom: 16px; ';
+                        } else if (part === 'right') {
+                            style += 'float: right; margin-left: 16px; margin-bottom: 16px; ';
+                        } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/)) {
+                            const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?))?$/);
+                            let w = dimMatch[1];
+                            if (!isNaN(w)) w += 'px';
+                            style += `width: ${w}; `;
+
+                            if (dimMatch[2]) {
+                                let h = dimMatch[2];
+                                if (!isNaN(h)) h += 'px';
+                                style += `height: ${h}; object-fit: cover; `;
+                            } else {
+                                style += `height: auto; `;
+                            }
+                        }
+                    });
+                }
+
+                const imgTag = `<img src="${url}" alt="${alt}" style="${style}" class="custom-md-image" />`;
+                if (isCenter) return `<div style="text-align: center; width: 100%; clear: both; margin: 16px 0;">${imgTag}</div>`;
+                return imgTag;
+            });
+
             processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
             processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
 
-            // Map white/black variants to adaptive CSS class
             processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, (match, text, color) => {
                 const c = color.toLowerCase();
                 if (c === 'white' || c === 'black' || c === '#fff' || c === '#ffffff' || c === '#000' || c === '#000000') {
