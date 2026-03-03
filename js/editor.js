@@ -1,7 +1,7 @@
 /* ==========================================================================
    STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
-const StorageManager = {
+   const StorageManager = {
     dbName: "markdownStudioDB",
     storeName: "notes",
     db: null,
@@ -37,19 +37,17 @@ const StorageManager = {
                 if (window.showToast) {
                     window.showToast("<i data-lucide='alert-triangle'></i> Critical: Storage limit reached (~5MB). Please export your notes or enable Cloud Sync immediately to prevent data loss.", 7000);
                 }
-            } else {
-                console.error("Storage error:", e);
             }
             return false;
         }
     },
 
     async checkMigrationThreshold(notesArray, newNoteContent = "") {
-        if (this.useIDB || !this.db) return;
-
+        if (this.useIDB || !this.db) return; 
+        
         const totalSize = new Blob([JSON.stringify(notesArray)]).size;
         const currentNoteSize = new Blob([newNoteContent]).size;
-
+        
         if (totalSize > 4 * 1024 * 1024 || currentNoteSize > 500 * 1024) {
             await this.migrateToIDB(notesArray);
         }
@@ -60,7 +58,7 @@ const StorageManager = {
             const tx = this.db.transaction(this.storeName, "readwrite");
             const store = tx.objectStore(this.storeName);
             notesArray.forEach(note => store.put(note));
-
+            
             tx.oncomplete = () => {
                 this.useIDB = true;
                 this.safeSetLocal('md_storage_preference', 'indexedDB');
@@ -75,6 +73,11 @@ const StorageManager = {
 
     async saveNotes(notesArray, mode = 'local') {
         await this.checkMigrationThreshold(notesArray);
+
+        // Ensure timestamp exists for safe merging
+        notesArray.forEach(n => {
+            if(!n.lastUpdated) n.lastUpdated = Date.now();
+        });
 
         if (this.useIDB && this.db) {
             return new Promise((resolve) => {
@@ -102,7 +105,8 @@ const StorageManager = {
                 req.onsuccess = () => {
                     const all = req.result || [];
                     const filtered = all.filter(n => n._mode === mode);
-                    resolve(filtered.length > 0 ? filtered.reverse() : null);
+                    // Sort by newest first
+                    resolve(filtered.length > 0 ? filtered.sort((a,b) => (b.lastUpdated || 0) - (a.lastUpdated || 0)) : null);
                 };
                 req.onerror = () => resolve(null);
             });
@@ -110,8 +114,10 @@ const StorageManager = {
             const key = mode === 'local' ? 'md_notes_local' : 'md_notes_github';
             try {
                 const data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : null;
-            } catch (e) {
+                let parsed = data ? JSON.parse(data) : null;
+                if (parsed) parsed = parsed.sort((a,b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
+                return parsed;
+            } catch(e) {
                 return null;
             }
         }
@@ -131,7 +137,7 @@ const StorageManager = {
 };
 
 /* ==========================================================================
-   OFFLINE QUEUE SYSTEM (Safety Mechanisms for GitHub Deletes)
+   OFFLINE QUEUE SYSTEM
    ========================================================================== */
 const OfflineQueue = {
     key: 'md_offline_queue',
@@ -145,7 +151,7 @@ const OfflineQueue = {
     add(type, payload) {
         const q = this.get();
         if (type === 'delete' && q.some(op => op.type === 'delete' && op.payload.path === payload.path)) {
-            return;
+            return; 
         }
         q.push({ type, payload, timestamp: Date.now() });
         StorageManager.safeSetLocal(this.key, JSON.stringify(q));
@@ -166,7 +172,7 @@ const OfflineQueue = {
                 }
             } catch (e) {
                 console.error("Failed to process offline op:", e);
-                remaining.push(op);
+                remaining.push(op); 
             }
         }
 
@@ -176,10 +182,10 @@ const OfflineQueue = {
 };
 
 /* ==========================================================================
-   EDITOR CONTROLLER (Local-First Architecture & Folder System)
+   EDITOR CONTROLLER
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', async () => {
-
+    
     await StorageManager.init();
 
     const editor = document.getElementById('markdown-input');
@@ -192,13 +198,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     editor.disabled = true;
 
     let notes = [];
-    let folders = ['All Notes'];
+    let folders = ['All Notes']; 
     let activeFolder = 'All Notes';
     let activeNoteId = null;
-
+    
     let noteToDeleteId = null;
     let highlightedNoteId = null;
-    let pendingNewNoteData = null;
+    let pendingNewNoteData = null; 
 
     let appMode = 'local';
     let isSyncing = false;
@@ -266,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let saved = localStorage.getItem(`md_folders_${appMode}`);
             if (saved) folders = JSON.parse(saved);
             else folders = ['All Notes'];
-        } catch (e) { folders = ['All Notes']; }
+        } catch(e) { folders = ['All Notes']; }
     }
 
     function saveFolders() {
@@ -274,10 +280,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function extractFoldersFromNotes() {
-        let fSet = new Set(folders);
+        let fSet = new Set(folders); 
         fSet.add('All Notes');
         notes.forEach(n => {
-            if (n.folder) fSet.add(n.folder);
+            if(n.folder) fSet.add(n.folder);
         });
         folders = Array.from(fSet);
         saveFolders();
@@ -292,6 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('beforeunload', () => {
         if (getActiveNote() && editor.value) {
             getActiveNote().content = editor.value;
+            getActiveNote().lastUpdated = Date.now();
             const key = appMode === 'local' ? 'md_notes_local' : 'md_notes_github';
             StorageManager.safeSetLocal(key, JSON.stringify(notes));
             StorageManager.safeSetLocal(`md_active_${appMode}`, activeNoteId);
@@ -319,7 +326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function performCloudSync() {
         if (!pendingSync || appMode !== 'github' || isSyncing) return;
-
+        
         if (!navigator.onLine) {
             pendingSync = true;
             updatePillUI();
@@ -340,7 +347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     currentNote.path = result.path;
                     await saveLocalState();
                     pendingSync = false;
-                    syncRetries = 0;
+                    syncRetries = 0; 
                 } else if (result === 'conflict') {
                     throw new Error("Conflict detected");
                 }
@@ -349,13 +356,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Sync Error:", e);
             pendingSync = true;
             syncRetries++;
-
+            
             if (syncRetries <= MAX_SYNC_RETRIES) {
                 const backoffTime = Math.pow(2, syncRetries) * 1000;
                 clearTimeout(syncTimer);
                 syncTimer = setTimeout(performCloudSync, backoffTime);
             } else {
-                if (window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Cloud Sync temporarily unavailable.");
+                if(window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Cloud Sync temporarily unavailable.");
             }
         } finally {
             isSyncing = false;
@@ -364,11 +371,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // ✨ FIXED: BULLETPROOF SMART MERGING SYSTEM ✨
+    // Ab jab GitHub se load hoga toh local unsynced notes delete nahi honge!
     async function initGitHubMode(token) {
-        loadFolders();
-        const cachedNotes = await StorageManager.getAllNotes('github');
-        if (cachedNotes) {
-            notes = cachedNotes;
+        loadFolders(); 
+        const localCachedNotes = await StorageManager.getAllNotes('github') || [];
+        
+        if (localCachedNotes.length > 0) {
+            notes = localCachedNotes;
             extractFoldersFromNotes();
             activeNoteId = localStorage.getItem('md_active_github') || notes[0]?.id;
             finishAppLoad();
@@ -378,38 +388,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (success) {
             const cloudNotes = await GitHubBackend.getAllNotes();
 
-            if (!cachedNotes || notes.length === 0) {
+            if (localCachedNotes.length === 0) {
                 if (cloudNotes.length > 0) {
                     notes = cloudNotes;
-                    activeNoteId = notes[0].id;
                 } else {
                     const result = await GitHubBackend.saveNote('new', 'Welcome.md', "Welcome", defaultWelcomeNote);
-                    notes = [{ id: result?.sha || 'temp', path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
-                    activeNoteId = notes[0].id;
+                    notes = [{ id: result?.sha || 'temp', path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote, lastUpdated: Date.now() }];
                 }
-                extractFoldersFromNotes();
-                await saveLocalState();
-                finishAppLoad();
-                updatePillUI();
+                activeNoteId = notes[0]?.id;
             } else {
-                let added = false;
-                for (let cNote of cloudNotes) {
-                    const localNote = notes.find(n => n.path === cNote.path);
-                    if (!localNote) {
-                        notes.push(cNote);
-                        added = true;
+                // SMART MERGE LOGIC
+                let mergedMap = new Map();
+                
+                // Add all local notes first
+                localCachedNotes.forEach(n => mergedMap.set(n.path, n));
+                
+                // Compare and merge with cloud notes
+                let addedOrUpdated = false;
+                cloudNotes.forEach(cn => {
+                    const ln = mergedMap.get(cn.path);
+                    // Agar note cloud me naya hai, YA cloud wala note local se zyada naya (updated) hai
+                    if (!ln || (cn.lastUpdated && ln.lastUpdated && cn.lastUpdated > ln.lastUpdated)) {
+                        mergedMap.set(cn.path, cn);
+                        addedOrUpdated = true;
                     }
-                }
-                if (added) {
-                    extractFoldersFromNotes();
-                    await saveLocalState();
-                    if (document.getElementById('notes-modal').classList.contains('show')) {
+                });
+
+                notes = Array.from(mergedMap.values()).sort((a,b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
+
+                if (addedOrUpdated) {
+                    if (!notes.find(n => n.id === activeNoteId)) activeNoteId = notes[0]?.id;
+                    if(document.getElementById('notes-modal').classList.contains('show')) {
                         window.renderFoldersList();
                         window.renderNotesList();
                     }
                 }
-                triggerCloudSync();
             }
+
+            extractFoldersFromNotes();
+            await saveLocalState();
+            finishAppLoad();
+            updatePillUI();
+            triggerCloudSync();
+
         } else {
             window.showToast("Token invalid or offline. Working purely locally.");
             finishAppLoad();
@@ -425,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             activeNoteId = localStorage.getItem('md_active_local') || notes[0]?.id;
         } else {
             const id = Date.now().toString();
-            notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
+            notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote, lastUpdated: Date.now() }];
             folders = ['All Notes'];
             activeNoteId = id;
             await saveLocalState();
@@ -509,7 +530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function generatePath(folderName, title) {
         let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
-        if (!safeTitle) safeTitle = 'Untitled Note';
+        if(!safeTitle) safeTitle = 'Untitled Note';
         if (folderName === 'All Notes') return `${safeTitle}.md`;
         return `${folderName}/${safeTitle}.md`;
     }
@@ -519,13 +540,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!note) return;
 
         highlightedNoteId = activeNoteId;
-        activeFolder = note.folder || 'All Notes';
+        activeFolder = note.folder || 'All Notes'; 
         if (!folders.includes(activeFolder)) activeFolder = 'All Notes';
-
+        
         editor.disabled = false;
         editor.placeholder = "Start typing your Markdown here...";
         editor.value = note.content || "";
-
+        
         renderMarkdownCore(editor.value);
 
         if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
@@ -536,26 +557,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 document.body.classList.remove('is-loading');
                 const skel = document.getElementById('preview-skeleton');
-                if (skel) {
+                if(skel) {
                     skel.style.opacity = '0';
-                    setTimeout(() => skel.style.display = 'none', 400);
+                    setTimeout(() => skel.style.display = 'none', 400); 
                 }
             }, 300);
         });
     }
 
-    window.renderMainSidebarFolders = function () {
+    window.renderMainSidebarFolders = function() {
         const container = document.getElementById('dynamic-sidebar-folders');
-        if (!container) return;
+        if(!container) return;
         container.innerHTML = '';
-
+        
         folders.forEach(folder => {
             const btn = document.createElement('button');
             btn.className = `sidebar-btn sidebar-folder-btn ${folder === activeFolder ? 'active' : ''}`;
-
+            
             let iconType = folder === 'All Notes' ? 'library' : 'folder';
             let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
-
+            
             btn.innerHTML = `<i data-lucide="${iconType}"></i> <span style="flex:1; text-align:left;">${folder}</span> <span style="font-size: 0.75rem; opacity: 0.6; background: var(--shadow-color); padding: 2px 8px; border-radius: 10px;">${count}</span>`;
 
             btn.addEventListener('click', () => {
@@ -570,31 +591,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             container.appendChild(btn);
         });
-        if (window.lucide) lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     }
 
-    // ✨ PROPER DELETE BUTTON ON FOLDERS ✨
     window.renderFoldersList = function () {
         const container = document.getElementById('folders-list-container');
         if (!container) return;
         container.innerHTML = '';
-
+        
         extractFoldersFromNotes();
 
         folders.forEach(folder => {
             const div = document.createElement('div');
             div.className = `folder-item ${folder === activeFolder ? 'active' : ''}`;
-
+            
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', folder === 'All Notes' ? 'library' : 'folder');
-
+            
             const textSpan = document.createElement('span');
             textSpan.textContent = folder;
             textSpan.style.flex = "1";
             textSpan.style.whiteSpace = 'nowrap';
             textSpan.style.overflow = 'hidden';
             textSpan.style.textOverflow = 'ellipsis';
-
+            
             let count = folder === 'All Notes' ? notes.length : notes.filter(n => n.folder === folder).length;
             const countSpan = document.createElement('span');
             countSpan.textContent = count;
@@ -605,13 +625,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             div.appendChild(textSpan);
             div.appendChild(countSpan);
 
-            // Creates a semantic button instead of just an icon
             if (folder !== 'All Notes') {
                 const delBtn = document.createElement('button');
                 delBtn.className = 'folder-del-btn';
                 delBtn.innerHTML = '<i data-lucide="trash-2"></i>';
                 delBtn.title = "Delete Folder";
-
+                
                 delBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const folderNotes = notes.filter(n => n.folder === folder);
@@ -633,7 +652,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 activeFolder = folder;
                 window.renderFoldersList();
                 window.renderNotesList();
-
+                
                 if (window.innerWidth <= 768) {
                     document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
                 }
@@ -641,8 +660,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             container.appendChild(div);
         });
-
-        window.renderMainSidebarFolders();
+        
+        window.renderMainSidebarFolders(); 
         if (window.lucide) lucide.createIcons();
     };
 
@@ -650,15 +669,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const container = document.getElementById('notes-list-container');
         const folderTitle = document.getElementById('current-folder-name');
         if (!container) return;
-
+        
         container.innerHTML = '';
         if (folderTitle) folderTitle.textContent = activeFolder;
-
+        
         updatePillUI();
 
         let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
 
-        if (displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
+        if(displayNotes.length > 0 && !displayNotes.find(n => n.id === highlightedNoteId)) {
             highlightedNoteId = displayNotes[0].id;
         } else if (displayNotes.length === 0) {
             highlightedNoteId = null;
@@ -670,13 +689,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const titleContainer = document.createElement('div');
             titleContainer.className = 'note-title';
-
+            
             const iconEl = document.createElement('i');
             iconEl.setAttribute('data-lucide', 'file-text');
-
+            
             const textSpan = document.createElement('span');
             textSpan.textContent = note.title;
-
+            
             titleContainer.appendChild(iconEl);
             titleContainer.appendChild(textSpan);
             div.appendChild(titleContainer);
@@ -704,7 +723,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
-
+        
         processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
             let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
             let isCenter = false;
@@ -721,9 +740,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     } else if (part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/)) {
                         const dimMatch = part.match(/^(\d+(?:px|rem|em|%)?)(?:x(\d+(?:px|rem|em|%)?|auto))?$/);
                         let w = dimMatch[1];
-                        if (!isNaN(w)) w += 'px';
+                        if (!isNaN(w)) w += 'px'; 
                         style += `width: ${w}; `;
-
+                        
                         if (dimMatch[2] && dimMatch[2] !== 'auto') {
                             let h = dimMatch[2];
                             if (!isNaN(h)) h += 'px';
@@ -743,7 +762,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         processedText = processedText.replace(/^={3,}\s*$/gm, '\n\n<hr class="custom-divider" />\n\n');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s*\n([\s\S]*?)\n\/end/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
         processedText = processedText.replace(/^\/(center|right|left|justify)\s+(.+)$/gm, '<div style="text-align: $1;">\n\n$2\n\n</div>');
-
+        
         processedText = processedText.replace(/\[([^\]]+)\]\s*\{\s*([a-zA-Z0-9#]+)\s*\}/g, (match, text, color) => {
             const c = color.toLowerCase();
             if (c === 'white' || c === 'black' || c === '#fff' || c === '#ffffff' || c === '#000' || c === '#000000') {
@@ -751,10 +770,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             return `<span style="color: ${color};">${text}</span>`;
         });
-
+        
         const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
-
-        return DOMPurify.sanitize(htmlContent, {
+        
+        return DOMPurify.sanitize(htmlContent, { 
             ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
             ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
         });
@@ -763,25 +782,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     function injectCopyButtons(container) {
         container.querySelectorAll('pre').forEach((pre) => {
             if (pre.querySelector('.copy-code-btn')) return;
-
+            
             const btn = document.createElement('button');
             btn.className = 'copy-code-btn';
             btn.innerHTML = '<i data-lucide="copy"></i>';
             btn.title = "Copy Code";
-
+            
             btn.addEventListener('click', () => {
                 const codeBlock = pre.querySelector('code');
-                if (codeBlock) {
+                if(codeBlock) {
                     navigator.clipboard.writeText(codeBlock.innerText).then(() => {
                         btn.innerHTML = '<i data-lucide="check" style="color: #10b981;"></i>';
-                        if (window.lucide) lucide.createIcons();
-
+                        if(window.lucide) lucide.createIcons();
+                        
                         setTimeout(() => {
                             btn.innerHTML = '<i data-lucide="copy"></i>';
-                            if (window.lucide) lucide.createIcons();
+                            if(window.lucide) lucide.createIcons();
                         }, 2000);
-
-                        if (window.showToast) window.showToast("<i data-lucide='check-circle'></i> Code copied!");
+                        
+                        if(window.showToast) window.showToast("<i data-lucide='check-circle'></i> Code copied!");
                     });
                 }
             });
@@ -789,41 +808,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    window.renderDashboardPreview = function () {
+    // ✨ PERFORMANCE FIX: ASYNC YIELDING FOR MASSIVE FILES ✨
+    window.renderDashboardPreview = async function () {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId);
-
+        
         if (!note || !previewEl) {
-            if (previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
+            if(previewEl) previewEl.innerHTML = `<div style="opacity:0.5; text-align:center; margin-top:20px;">No note selected</div>`;
             return;
         }
 
+        // Unblock main thread before massive parse
+        await new Promise(res => setTimeout(res, 0));
+
         previewEl.innerHTML = customMarkdownParser(note.content);
         renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
-
+        
         injectCopyButtons(previewEl);
-
+        
         previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
         if (window.lucide) lucide.createIcons();
     };
 
     document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
-        if (!highlightedNoteId) return;
+        if(!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
-        await saveLocalState();
+        await saveLocalState(); 
         editor.value = getActiveNote().content;
         renderMarkdownCore(editor.value);
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
     });
 
     document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
-        if (!highlightedNoteId) return;
+        if(!highlightedNoteId) return;
         noteToDeleteId = highlightedNoteId;
         document.getElementById('delete-modal').classList.add('show');
     });
 
     document.getElementById('dash-btn-export')?.addEventListener('click', async () => {
-        if (!highlightedNoteId) return;
+        if(!highlightedNoteId) return;
         activeNoteId = highlightedNoteId;
         await saveLocalState();
         editor.value = getActiveNote().content;
@@ -840,17 +863,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!noteToDeleteId) return;
 
         const idx = notes.findIndex(n => n.id === noteToDeleteId);
-        if (idx === -1) return;
-
+        if(idx === -1) return;
+        
         const noteToDelete = notes[idx];
         notes.splice(idx, 1);
 
         if (activeNoteId === noteToDeleteId) {
             activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
-            if (activeNoteId) editor.value = getActiveNote().content;
+            if(activeNoteId) editor.value = getActiveNote().content;
             else editor.value = "";
         }
-
+        
         if (highlightedNoteId === noteToDeleteId) {
             let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
             highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
@@ -866,16 +889,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        if (notes.length === 0) {
+        if(notes.length === 0) {
             const id = Date.now().toString();
-            notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote }];
+            notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote, lastUpdated: Date.now() }];
             activeNoteId = id;
             editor.value = notes[0].content;
         }
 
-        await saveLocalState();
+        await saveLocalState(); 
         await StorageManager.deleteNote(noteToDeleteId);
-
+        
         renderMarkdownCore(editor.value);
         window.renderFoldersList();
         window.renderNotesList();
@@ -897,22 +920,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
         let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-        if (!folderName) return window.showToast("Folder name cannot be empty.");
-        if (folders.includes(folderName)) return window.showToast("Folder already exists.");
-
+        if(!folderName) return window.showToast("Folder name cannot be empty.");
+        if(folders.includes(folderName)) return window.showToast("Folder already exists.");
+        
         folders.push(folderName);
         activeFolder = folderName;
-        saveFolders();
-
+        saveFolders(); 
+        
         window.renderFoldersList();
         window.renderNotesList();
-
+        
         folderPromptModal.classList.remove('show');
         window.showToast(`<i data-lucide='folder'></i> Folder '${folderName}' created!`);
-
+        
         if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
     });
-
+    
     document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => folderPromptModal.classList.remove('show'));
 
     const btnNewNote = document.getElementById('btn-new-note');
@@ -929,7 +952,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let noteName = promptInput.value.trim() || "Untitled Note";
         const folder = activeFolder;
         const generatedPath = generatePath(folder, noteName);
-
+        
         const existingNote = notes.find(n => n.path === generatedPath);
         const newId = Date.now().toString();
         const content = `# ${noteName}\n\nStart typing here...`;
@@ -942,7 +965,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        await executeNoteCreation({ id: newId, path: generatedPath, folder: folder, title: noteName, content: content });
+        await executeNoteCreation({ id: newId, path: generatedPath, folder: folder, title: noteName, content: content, lastUpdated: Date.now() });
     };
 
     async function executeNoteCreation(noteData) {
@@ -980,14 +1003,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.getElementById('conflict-overwrite')?.addEventListener('click', async () => {
-        if (!pendingNewNoteData) return;
+        if(!pendingNewNoteData) return;
         let exNote = notes.find(n => n.id === pendingNewNoteData.existingId);
-        if (exNote) {
+        if(exNote) {
             exNote.content = pendingNewNoteData.content;
+            exNote.lastUpdated = Date.now();
             activeNoteId = exNote.id;
             highlightedNoteId = exNote.id;
             editor.value = exNote.content;
-
+            
             await saveLocalState();
             renderMarkdownCore(exNote.content);
             window.renderNotesList();
@@ -1026,19 +1050,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
+    // ✨ DYNAMIC PERFORMANCE DEBOUNCER ✨
+    // Agar book size bohot bada hai (e.g. >100k chars), toh typing lag hatane ke liye timeout badh jayega.
+    function getDynamicDebounceTime(textLength) {
+        if (textLength > 200000) return 1500; // 1.5s for massive books
+        if (textLength > 50000) return 800;   // 0.8s for chapters
+        return 300;                           // 0.3s normal
     }
 
-    function renderMarkdownCore(rawText) {
-        updateLiveStats(rawText);
-        preview.innerHTML = customMarkdownParser(rawText);
-        renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+    let debounceTimeout;
+    function dynamicDebounce(rawText) {
+        clearTimeout(debounceTimeout);
+        const waitTime = getDynamicDebounceTime(rawText.length);
+        
+        debounceTimeout = setTimeout(async () => {
+            const activeNote = getActiveNote();
+            if (activeNote) {
+                activeNote.content = rawText;
+                activeNote.lastUpdated = Date.now();
+                await saveLocalState(); 
+                triggerCloudSync(); 
+            }
+            renderMarkdownCore(rawText);
+        }, waitTime);
+    }
 
+    // ✨ ASYNC RENDER CORE TO UNBLOCK UI THREAD ✨
+    async function renderMarkdownCore(rawText) {
+        updateLiveStats(rawText);
+        
+        // Allow the browser to repaint the typed character before doing heavy parsing
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        preview.innerHTML = customMarkdownParser(rawText);
+        
+        // Allow browser to breathe again before KaTeX math render
+        await new Promise(resolve => setTimeout(resolve, 0));
+        renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        
         injectCopyButtons(preview);
 
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1057,18 +1106,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
     }
 
-    const debouncedRenderAndSave = debounce(async (rawText) => {
-        const activeNote = getActiveNote();
-        if (activeNote) {
-            activeNote.content = rawText;
-            await saveLocalState();
-            triggerCloudSync();
-        }
-        renderMarkdownCore(rawText);
-    }, 400);
-
     editor.addEventListener('input', () => {
-        debouncedRenderAndSave(editor.value);
+        dynamicDebounce(editor.value);
     });
 
     editor.addEventListener('keydown', function (e) {
@@ -1229,13 +1268,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const folder = activeFolder;
             const newPath = generatePath(folder, rawTitle);
             const newId = Date.now().toString();
-
-            if (notes.find(n => n.path === newPath)) {
+            
+            if(notes.find(n => n.path === newPath)) {
                 window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
                 return;
             }
 
-            notes.unshift({ id: newId, path: newPath, folder: folder, title: rawTitle, content: content });
+            notes.unshift({ id: newId, path: newPath, folder: folder, title: rawTitle, content: content, lastUpdated: Date.now() });
             activeNoteId = newId;
             highlightedNoteId = newId;
             editor.value = content;
@@ -1260,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const sharedTitle = extractTitle(decodedText) || "Shared Note";
             const sharedPath = generatePath('All Notes', sharedTitle);
 
-            notes.unshift({ id: sharedId, path: sharedPath, folder: 'All Notes', title: sharedTitle, content: decodedText });
+            notes.unshift({ id: sharedId, path: sharedPath, folder: 'All Notes', title: sharedTitle, content: decodedText, lastUpdated: Date.now() });
             activeNoteId = sharedId;
             highlightedNoteId = sharedId;
             saveLocalState().then(() => {
@@ -1279,17 +1318,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const style = document.createElement('style');
         let pageCss = "";
 
-        if (window.selectedPageSize === 'A4') {
-            pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
+        if (window.selectedPageSize === 'A4') { 
+            pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`; 
         }
-        else if (window.selectedPageSize === 'A2') {
-            pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
+        else if (window.selectedPageSize === 'A2') { 
+            pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
         }
         else if (window.selectedPageSize === 'Infinity') {
-
+            
             const previewEl = document.getElementById('preview-output');
             const previewPanel = document.getElementById('preview-panel');
-
+            
             const isHidden = window.getComputedStyle(previewPanel).display === 'none';
             if (isHidden) {
                 previewPanel.style.setProperty('display', 'block', 'important');
@@ -1307,11 +1346,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 previewPanel.style.removeProperty('z-index');
             }
 
-            const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
-
+            const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
+            
             pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
         }
-
+        
         style.innerHTML = pageCss;
         document.head.appendChild(style);
 
@@ -1323,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.title = originalTitle;
             document.head.removeChild(style);
             if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Export Successful!");
-        }, 400);
+        }, 400); 
     });
 
     shareBtn?.addEventListener('click', async () => {
