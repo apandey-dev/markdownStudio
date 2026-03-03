@@ -171,6 +171,19 @@
         font-size: 0.95rem !important;
     }
 
+    /* ✨ MOBILE OVERRIDE: ALWAYS SHOW COPY BUTTON ✨ */
+    .copy-code-btn {
+        opacity: 1 !important;
+        width: 36px !important;
+        /* Larger touch target */
+        height: 36px !important;
+        background-color: var(--bg-color) !important;
+    }
+
+    .copy-code-btn:active {
+        transform: scale(0.9) !important;
+    }
+
     .editor-toolbar {
         padding: 6px 8px !important;
         gap: 4px !important;

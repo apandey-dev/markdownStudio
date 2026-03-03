@@ -172,21 +172,25 @@
         }
 
         .share-content pre {
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             margin-bottom: 1em;
             border: 1px solid var(--border-color);
             padding: 0;
+            background-color: var(--nav-bg);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            position: relative;
         }
 
         .share-content pre code {
             font-family: var(--editor-font);
             font-size: 0.9em;
-            padding: 20px;
+            padding: 24px 16px 16px 16px;
             display: block;
             white-space: pre-wrap;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            background-color: transparent !important;
         }
 
         .share-content p code,
@@ -303,6 +307,10 @@
         </div>
     </div>
 
+    <div id="toast"
+        style="visibility: hidden; min-width: 180px; background-color: var(--accent-color); color: var(--btn-text); text-align: center; border-radius: 8px; padding: 10px 16px; position: fixed; z-index: 99999 !important; left: 50%; bottom: 24px; font-size: 0.85rem; font-weight: 500; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translate(-50%, 20px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        Notification</div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
@@ -313,6 +321,23 @@
     <script>
         lucide.createIcons();
         window.sharedRawText = "";
+        window.toastTimeout = null;
+
+        function showToast(message, duration = 3000) {
+            const toastEl = document.getElementById('toast');
+            if (!toastEl) return;
+            clearTimeout(window.toastTimeout);
+            toastEl.innerHTML = message;
+            if (window.lucide) lucide.createIcons();
+            toastEl.style.visibility = 'visible';
+            toastEl.style.opacity = '1';
+            toastEl.style.transform = 'translate(-50%, 0)';
+            window.toastTimeout = setTimeout(() => {
+                toastEl.style.opacity = '0';
+                toastEl.style.transform = 'translate(-50%, 20px)';
+                setTimeout(() => toastEl.style.visibility = 'hidden', 300);
+            }, duration);
+        };
 
         function customMarkdownParser(rawText) {
             let processedText = rawText.replace(/\r\n/g, '\n');
@@ -366,10 +391,39 @@
 
             const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
 
-            // ✨ SVG Support in Share mode ✨
             return DOMPurify.sanitize(htmlContent, {
                 ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
                 ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
+            });
+        }
+
+        // ✨ INJECT COPY BUTTONS ✨
+        function injectCopyButtons(container) {
+            container.querySelectorAll('pre').forEach((pre) => {
+                if (pre.querySelector('.copy-code-btn')) return;
+
+                const btn = document.createElement('button');
+                btn.className = 'copy-code-btn';
+                btn.innerHTML = '<i data-lucide="copy"></i>';
+                btn.title = "Copy Code";
+
+                btn.addEventListener('click', () => {
+                    const codeBlock = pre.querySelector('code');
+                    if (codeBlock) {
+                        navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                            btn.innerHTML = '<i data-lucide="check" style="color: #10b981;"></i>';
+                            if (window.lucide) lucide.createIcons();
+
+                            setTimeout(() => {
+                                btn.innerHTML = '<i data-lucide="copy"></i>';
+                                if (window.lucide) lucide.createIcons();
+                            }, 2000);
+
+                            showToast("<i data-lucide='check-circle'></i> Code copied!");
+                        });
+                    }
+                });
+                pre.appendChild(btn);
             });
         }
 
@@ -407,7 +461,12 @@
 
                 container.innerHTML = customMarkdownParser(rawText);
                 renderMathInElement(container, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+
+                // Invoke injection here too
+                injectCopyButtons(container);
+
                 container.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                lucide.createIcons();
 
             } catch (err) {
                 indicator.innerHTML = `

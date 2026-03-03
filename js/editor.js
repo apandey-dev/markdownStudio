@@ -1,7 +1,7 @@
 /* ==========================================================================
    EDITOR CONTROLLER (Local-First Architecture & Folder System)
    Handles storage modes, parsing, folders, duplicate checks, and syncing.
-   Includes Performance Engine for 300k+ words & Custom Image/SVG Syntax.
+   Includes Performance Engine & Custom Image/SVG Syntax.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editor.disabled = true;
 
-    // STATE
     let notes = [];
     let folders = ['All Notes']; 
     let activeFolder = 'All Notes';
@@ -29,8 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingSync = false;
     let syncTimer = null;
 
-    // ✨ UPDATED DEFAULT NOTE: Includes Testing examples for Images & SVGs ✨
-    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🎨 Custom SVG:** Paste raw SVG directly!\n* **📂 Folders & 🎨 Colors:** Organize and style your notes.\n\n## 🧪 Testing Zone\n\n**1. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax. It works perfectly for articles!\n\n**2. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
+    const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🎨 Custom SVG:** Paste raw SVG directly!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax. It works perfectly for articles!\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
 
     function updatePillUI() {
         const isGithub = appMode === 'github';
@@ -420,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
         
-        // Custom Image Parser
         processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{([^}]+)\})?/g, (match, alt, url, options) => {
             let style = 'max-width: 100%; border-radius: 8px; transition: all 0.3s ease; ';
             let isCenter = false;
@@ -470,10 +467,40 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
         
-        // ✨ UPDATED: DOMPurify Config strictly allows SVG and drawing tags ✨
         return DOMPurify.sanitize(htmlContent, { 
             ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
             ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
+        });
+    }
+
+    // ✨ ADDED: Function to inject Code Copy buttons ✨
+    function injectCopyButtons(container) {
+        container.querySelectorAll('pre').forEach((pre) => {
+            if (pre.querySelector('.copy-code-btn')) return; // Check if already added
+            
+            const btn = document.createElement('button');
+            btn.className = 'copy-code-btn';
+            btn.innerHTML = '<i data-lucide="copy"></i>';
+            btn.title = "Copy Code";
+            
+            btn.addEventListener('click', () => {
+                const codeBlock = pre.querySelector('code');
+                if(codeBlock) {
+                    navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                        btn.innerHTML = '<i data-lucide="check" style="color: #10b981;"></i>';
+                        if(window.lucide) lucide.createIcons();
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            btn.innerHTML = '<i data-lucide="copy"></i>';
+                            if(window.lucide) lucide.createIcons();
+                        }, 2000);
+                        
+                        if(window.showToast) window.showToast("<i data-lucide='check-circle'></i> Code copied!");
+                    });
+                }
+            });
+            pre.appendChild(btn);
         });
     }
 
@@ -488,7 +515,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         previewEl.innerHTML = customMarkdownParser(note.content);
         renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        
+        // ✨ INJECT COPY BUTTONS BEFORE SYNTAX HIGHLIGHTING ✨
+        injectCopyButtons(previewEl);
+        
         previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        if (window.lucide) lucide.createIcons();
     };
 
     document.getElementById('dash-btn-edit')?.addEventListener('click', () => {
@@ -712,7 +744,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateLiveStats(rawText);
         preview.innerHTML = customMarkdownParser(rawText);
         renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        
+        // ✨ INJECT COPY BUTTONS BEFORE SYNTAX HIGHLIGHTING ✨
+        injectCopyButtons(preview);
+
         preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        if (window.lucide) lucide.createIcons();
 
         if (highlightedNoteId === activeNoteId && document.getElementById('notes-modal')?.classList.contains('show')) {
             window.renderDashboardPreview();
@@ -808,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
             else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
             else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
-            else if (action === 'image') { prefix = '!['; suffix = '](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){center, 400xauto}'; defaultText = 'alt text'; }
+            else if (action === 'image') { prefix = '!['; suffix = '](https://example.com/image.jpg){center, 400xauto}'; defaultText = 'alt text'; }
             else if (action === 'table') {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';

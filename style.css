@@ -548,24 +548,29 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
+/* ✨ UPDATED: Code Block Styling (Beautiful, Clean & Supports Copy Button) ✨ */
 #preview-output pre,
 #dashboard-preview-output pre {
-    border-radius: 8px;
+    position: relative;
+    border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 1em;
+    margin-bottom: 1.5em;
     border: 1px solid var(--border-color);
     padding: 0;
+    background-color: var(--nav-bg);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 #preview-output pre code,
 #dashboard-preview-output pre code {
     font-family: var(--editor-font);
     font-size: 0.85em;
-    padding: 16px;
+    padding: 20px 16px 16px 16px;
     display: block;
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    background-color: transparent !important;
 }
 
 #preview-output p code,
@@ -577,6 +582,45 @@ body.view-preview .divider {
     border-radius: 4px;
     color: var(--accent-color);
     font-size: 0.9em;
+}
+
+/* ✨ THE COPY BUTTON ✨ */
+.copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+#preview-output pre:hover .copy-code-btn,
+#dashboard-preview-output pre:hover .copy-code-btn {
+    opacity: 1;
+}
+
+.copy-code-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.copy-code-btn i {
+    width: 14px;
+    height: 14px;
+    margin: 0;
 }
 
 #preview-output blockquote,
@@ -926,37 +970,6 @@ body.dark-mode .btn-help-cute:hover {
     position: relative;
 }
 
-.notes-dashboard-box .btn-close-dashboard {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--nav-bg);
-    border: 1.5px solid var(--border-color);
-    color: var(--text-color);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.notes-dashboard-box .btn-close-dashboard:hover {
-    transform: scale(0.9);
-    background: var(--hover-bg);
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-}
-
-.notes-dashboard-box .btn-close-dashboard i {
-    width: 16px;
-    height: 16px;
-}
-
 .notes-dashboard-folders {
     width: 20%;
     min-width: 180px;
@@ -1130,7 +1143,7 @@ body.dark-mode .btn-help-cute:hover {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     padding: 12px 68px 12px 20px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
@@ -1192,6 +1205,45 @@ body.dark-mode .btn-help-cute:hover {
     background-color: var(--hover-bg);
     border-color: var(--border-color);
     transform: translateX(-2px);
+}
+
+.notes-dashboard-box .btn-close-dashboard {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notes-dashboard-box .btn-close-dashboard:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    border-color: var(--text-color);
+    transform: translateY(-2px) rotate(90deg);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.notes-dashboard-box .btn-close-dashboard i {
+    width: 18px;
+    height: 18px;
+}
+
+.dashboard-preview-content {
+    flex: 1;
+    padding: 24px 32px;
+    overflow-y: auto;
+    font-family: var(--preview-font);
+    font-size: 0.95rem;
 }
 
 .delete-modal-box {
@@ -1415,5 +1467,10 @@ body.dark-mode .btn-help-cute:hover {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
+    }
+
+    /* ✨ Hide copy button in PDF export ✨ */
+    .copy-code-btn {
+        display: none !important;
     }
 }
