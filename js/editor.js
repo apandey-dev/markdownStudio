@@ -1052,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
             else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
             else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
-            else if (action === 'image') { prefix = '!['; suffix = '](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){center, 400xauto}'; defaultText = 'alt text'; }
+            else if (action === 'image') { prefix = '!['; suffix = '](https://example.com/image.jpg){center, 400xauto}'; defaultText = 'alt text'; }
             else if (action === 'table') {
                 prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
                 suffix = ''; defaultText = '';
@@ -1186,6 +1186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     inputFilename?.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnConfirmPdf.click(); });
 
+    // ✨ FIXED PDF PADDING: Injected CSS now has larger left/right padding ✨
     btnConfirmPdf?.addEventListener('click', () => {
         let fileName = inputFilename.value.trim() || getActiveNote().title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();
@@ -1193,13 +1194,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const style = document.createElement('style');
         let pageCss = "";
 
-        if (window.selectedPageSize === 'A4') { pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 5px !important; }`; }
-        else if (window.selectedPageSize === 'A2') { pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 5px !important; font-size: 1.2rem !important; }`; }
+        if (window.selectedPageSize === 'A4') {
+            pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
+        }
+        else if (window.selectedPageSize === 'A2') {
+            pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
+        }
         else if (window.selectedPageSize === 'Infinity') {
             const contentHeightPx = document.getElementById('preview-output').scrollHeight;
-            const contentHeightMm = Math.ceil(contentHeightPx * 0.264583) + 10;
-            pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 5px !important; }`;
+            const contentHeightMm = Math.ceil(contentHeightPx * 0.264583) + 20;
+            pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
         }
+
         style.innerHTML = pageCss;
         document.head.appendChild(style);
 
