@@ -341,6 +341,7 @@ body.dark-mode .mode-toggle {
     border-radius: 0 4px 4px 0;
 }
 
+/* UNIFIED NAVBAR BUTTONS */
 .nav-action-btn {
     display: flex;
     align-items: center;
@@ -1752,7 +1753,7 @@ body.dark-mode .btn-help-cute:hover {
     height: 24px !important;
     border: 2px solid var(--border-color);
     border-radius: 50% !important;
-    /* Circular Checkbox Fix */
+    /* Perfect circle */
     background-color: var(--nav-bg);
     cursor: pointer;
     position: relative;
