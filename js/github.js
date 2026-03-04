@@ -1,7 +1,7 @@
+/* js/github.js */
 /* ==========================================================================
    GITHUB SYNC CONTROLLER (Zero-Backend)
-   Handles API calls for Repos (Storage) and Gists (Secure Sharing)
-   Supports Nested Folders (1-level deep)
+   Advanced Chunked Tree API loading for handling large repos without blocking.
    ========================================================================== */
 
 const GitHubBackend = {
@@ -66,54 +66,61 @@ const GitHubBackend = {
         }
     },
 
+    // ✨ ADVANCED FAST GITHUB TREE FETCHING ✨
+    async getTree() {
+        const branchRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}`, {
+            headers: { 'Authorization': `token ${this.token}` }
+        });
+        if (!branchRes.ok) return [];
+        const repoData = await branchRes.json();
+        const defaultBranch = repoData.default_branch;
+
+        const treeRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/trees/${defaultBranch}?recursive=1`, {
+            headers: { 'Authorization': `token ${this.token}` }
+        });
+        if (!treeRes.ok) return [];
+        const treeData = await treeRes.json();
+        
+        return treeData.tree.filter(item => item.type === 'blob' && item.path.endsWith('.md'));
+    },
+
     async getAllNotes() {
         if (!this.isConfigured) return [];
         try {
-            const res = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents`, {
-                headers: { 'Authorization': `token ${this.token}` }
-            });
-            if (!res.ok) return [];
-            
-            const rootItems = await res.json();
-            let allMdFiles = [];
-
-            rootItems.forEach(item => {
-                if (item.type === 'file' && item.name.endsWith('.md')) {
-                    item.folder = 'root';
-                    allMdFiles.push(item);
-                }
-            });
-
-            const folders = rootItems.filter(item => item.type === 'dir');
-            for (let folder of folders) {
-                const folderRes = await fetch(folder.url, { headers: { 'Authorization': `token ${this.token}` } });
-                if (folderRes.ok) {
-                    const folderItems = await folderRes.json();
-                    folderItems.forEach(item => {
-                        if (item.type === 'file' && item.name.endsWith('.md')) {
-                            item.folder = folder.name; 
-                            allMdFiles.push(item);
-                        }
-                    });
-                }
-            }
-            
+            const fileTree = await this.getTree();
             let notes = [];
-            for (let file of allMdFiles) {
-                const contentRes = await fetch(file.url, { headers: { 'Authorization': `token ${this.token}` } });
-                const contentData = await contentRes.json();
+            
+            // ✨ CHUNKED PARALLEL FETCH TO PREVENT BROWSER FREEZE & RATE LIMITS ✨
+            const chunkSize = 5; 
+            for (let i = 0; i < fileTree.length; i += chunkSize) {
+                const chunk = fileTree.slice(i, i + chunkSize);
                 
-                const rawContent = this.b64_to_utf8(contentData.content);
-                const title = file.name.replace('.md', ''); 
-                
-                notes.push({ 
-                    id: file.sha, 
-                    title: title, 
-                    content: rawContent, 
-                    path: file.path, 
-                    folder: file.folder === 'root' ? 'All Notes' : file.folder, 
-                    lastUpdated: Date.now() 
+                const promises = chunk.map(async file => {
+                    const contentRes = await fetch(file.url, { 
+                        headers: { 'Authorization': `token ${this.token}` } 
+                    }); 
+                    const contentData = await contentRes.json();
+                    const rawContent = this.b64_to_utf8(contentData.content);
+                    
+                    const parts = file.path.split('/');
+                    const title = parts.pop().replace('.md', '');
+                    const folder = parts.length > 0 ? parts.join('/') : 'All Notes';
+                    
+                    return { 
+                        id: file.sha, 
+                        title: title, 
+                        content: rawContent, 
+                        path: file.path, 
+                        folder: folder, 
+                        lastUpdated: Date.now() // Fetched notes are fresh from cloud
+                    };
                 });
+                
+                const chunkResults = await Promise.all(promises);
+                notes.push(...chunkResults);
+                
+                // Yield to main UI thread so loading screen animates smoothly
+                await new Promise(resolve => setTimeout(resolve, 20));
             }
             return notes.reverse();
         } catch (error) {

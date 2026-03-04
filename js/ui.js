@@ -1,3 +1,4 @@
+/* js/ui.js */
 /* ==========================================================================
    UI CONTROLLER
    Handles interactions, modals, themes, folders collapse, fonts, layout safely.
