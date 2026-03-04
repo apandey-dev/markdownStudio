@@ -85,24 +85,24 @@
                 </div>
             </div>
 
-            <button id="btn-sync-current" class="desktop-only" title="Sync Current Note to Cloud"
-                style="display: none; background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+            <button id="btn-sync-current" class="nav-action-btn desktop-only" title="Sync Current Note to Cloud"
+                style="display: none;">
                 <i data-lucide="cloud-upload" style="width: 16px; height: 16px;"></i> Sync Current
             </button>
 
-            <button id="btn-notes-desktop" class="modal-trigger-notes desktop-only" title="Manage Notes"
-                style="background-color: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);">
+            <button id="btn-notes-desktop" class="nav-action-btn modal-trigger-notes desktop-only" title="Manage Notes">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
             </button>
-            <button id="btn-share" class="desktop-only" title="Generate Secure Link">
+
+            <button id="btn-share" class="nav-action-btn desktop-only" title="Generate Secure Link">
                 <i data-lucide="link" style="width: 16px; height: 16px;"></i> Share
             </button>
-            <button id="btn-pdf" class="desktop-only" title="Export to PDF">
+
+            <button id="btn-pdf" class="nav-action-btn desktop-only" title="Export to PDF">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export
             </button>
 
-            <button id="btn-docs" class="desktop-only" title="View Documentation"
-                style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
+            <button id="btn-docs" class="nav-action-btn desktop-only" title="View Documentation">
                 <i data-lucide="book" style="width: 16px; height: 16px;"></i> Docs
             </button>
         </div>
@@ -231,18 +231,15 @@
     <div class="modal-overlay" id="bulk-sync-modal" style="z-index: 3000;">
         <div class="modal-box"
             style="width: 90vw; max-width: 500px; height: 75vh; max-height: 600px; display: flex; flex-direction: column; padding: 24px;">
-
             <div style="flex-shrink: 0;">
                 <h3 class="modal-title flex-title"><i data-lucide="cloud-upload" style="color: #10b981;"></i> Select
                     Notes to Sync</h3>
                 <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 16px;">Choose which local notes you want to
                     upload to your GitHub Workspace.</p>
             </div>
-
             <div id="bulk-sync-list"
                 style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-right: 8px;">
             </div>
-
             <div class="modal-actions" style="flex-shrink: 0; flex-direction: row; justify-content: space-between;">
                 <div style="display: flex; gap: 8px;">
                     <button class="modal-btn" id="bulk-sync-all"
