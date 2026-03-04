@@ -76,6 +76,11 @@
                 </div>
             </div>
 
+            <button id="btn-sync-current" class="nav-action-btn desktop-only" title="Sync Current Note to Cloud"
+                style="display: none;">
+                <i data-lucide="cloud-upload" style="width: 16px; height: 16px;"></i> Sync Current
+            </button>
+
             <button id="btn-notes-desktop" class="nav-action-btn modal-trigger-notes desktop-only" title="Manage Notes">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
             </button>
@@ -239,6 +244,73 @@
         </div>
     </main>
 
+    <div class="modal-overlay" id="notes-modal" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div class="modal-box notes-dashboard-box folders-collapsed">
+            <button class="btn-close-dashboard" id="notes-modal-close" title="Close Workspace"><i
+                    data-lucide="x"></i></button>
+
+            <div class="notes-dashboard-folders" id="notes-folders-pane">
+                <div class="folders-header">
+                    <span class="pane-title">WORKSPACE</span>
+                    <button class="tool-btn hover-pop" id="btn-new-folder" title="New Folder"><i
+                            data-lucide="folder-plus"></i></button>
+                </div>
+                <div class="folders-list" id="folders-list-container"></div>
+            </div>
+
+            <div class="notes-dashboard-left">
+                <div class="notes-dashboard-left-header">
+                    <button class="mobile-back-to-folders mobile-only" id="mob-back-folders"><i
+                            data-lucide="chevron-left"></i> Folders</button>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div class="notes-header-text">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                <h3 class="modal-title"
+                                    style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
+                                    <button class="tool-btn desktop-only hover-pop" id="toggle-folders-btn"
+                                        style="padding: 6px; margin-left: -8px; background: var(--bg-color);"
+                                        title="Toggle Folders">
+                                        <i data-lucide="sidebar"></i>
+                                    </button>
+                                    <span id="current-folder-name" style="font-weight: 700;">All Notes</span>
+                                </h3>
+                                <span id="dashboard-mode-badge" class="dashboard-badge"></span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="modal-btn btn-confirm" id="btn-new-note"
+                                style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New
+                                Note</button>
+                            <button class="modal-btn btn-confirm" id="btn-push-github"
+                                style="display: none; background-color: #10b981; color: white; border-radius: 10px; height: 42px; padding: 0 16px;"
+                                title="Bulk Upload to Cloud">
+                                <i data-lucide="cloud-upload"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-list" id="notes-list-container"></div>
+            </div>
+
+            <div class="notes-dashboard-right">
+                <div class="dashboard-actions">
+                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i data-lucide="chevron-left"></i>
+                        Back</button>
+                    <div class="dash-action-group">
+                        <button class="dash-pro-btn btn-edit" id="dash-btn-edit" title="Edit Note"><i
+                                data-lucide="edit-3"></i> Edit</button>
+                        <button class="dash-pro-btn btn-export desktop-only" id="dash-btn-export" title="Export PDF"><i
+                                data-lucide="printer"></i> Print</button>
+                        <button class="dash-pro-btn btn-delete" id="dash-btn-delete" title="Delete Note"><i
+                                data-lucide="trash-2"></i></button>
+                    </div>
+                </div>
+                <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="bulk-sync-modal" style="z-index: 3000;">
         <div class="modal-box"
             style="width: 90vw; max-width: 500px; height: 75vh; max-height: 600px; display: flex; flex-direction: column; padding: 24px;">
@@ -284,43 +356,13 @@
                         <li>Click <strong>Cloud</strong> in the top navbar.</li>
                         <li>You will be prompted for a GitHub Personal Access Token (PAT).</li>
                         <li>Ensure you check both <strong><code>repo</code> and <code>gist</code> scopes.</strong></li>
-                        <li>Once connected, all your notes and folders are securely synced to a private repository named
-                            <code>markdown-studio-notes</code> on your GitHub.
-                        </li>
                     </ul>
                 </div>
                 <div class="docs-section">
                     <h3><i data-lucide="wand-2"></i> 2. Custom Pro Syntax & Shortcuts</h3>
-                    <p>Studio extends standard Markdown with powerful custom features tailored for writers and
-                        designers.</p>
-                    <h4>🎨 Text Colors</h4>
                     <code class="docs-code">[This is red text]{red}</code>
-                    <code class="docs-code">[Custom Hex Color]{#10b981}</code>
-                    <code
-                        class="docs-code">[Adaptive White/Black]{white} -> Changes based on Dark/Light theme automatically!</code>
-                    <h4>🖼️ Advanced Image Control</h4>
-                    <code
-                        class="docs-code">![Alt](image_url.jpg){300x400, center} -> Width 300px, Height 400px (Center)</code>
-                    <code
-                        class="docs-code">![Alt](image_url.jpg){500, left} -> Width 500px, Auto Height, floats left</code>
-                    <h4>↔️ Text Alignment</h4>
+                    <code class="docs-code">![Alt](image_url.jpg){300x400, center}</code>
                     <code class="docs-code">/center This text will be centered</code>
-                    <code class="docs-code">/right This text aligns right</code>
-                    <h4>➖ Premium Dividers</h4>
-                    <code class="docs-code">===</code>
-                    <h4>📐 Raw SVG Injection</h4>
-                    <code class="docs-code">&lt;svg xmlns="..."&gt;...&lt;/svg&gt;</code>
-                </div>
-                <div class="docs-section">
-                    <h3><i data-lucide="zap"></i> 3. Features & Buttons</h3>
-                    <ul>
-                        <li><strong>📂 Folder System:</strong> Organize notes into folders. On Cloud mode, these map
-                            directly to sub-directories in your GitHub repo.</li>
-                        <li><strong>🖨️ PDF Export:</strong> Highly optimized print engine. Choose between A4, A2, or
-                            Infinity.</li>
-                        <li><strong>🔒 Secure Share:</strong> Generates a highly secure link using AES-256 encryption
-                            stored in a Secret Gist.</li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -386,66 +428,6 @@
                     <i data-lucide="external-link" style="width: 16px;"></i> Open GitHub
                 </a>
                 <button class="modal-btn btn-cancel" id="pat-guide-close">Got it</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="notes-modal">
-        <div class="modal-box notes-dashboard-box folders-collapsed">
-            <button class="btn-close-dashboard" id="notes-modal-close" title="Close Dashboard"><i
-                    data-lucide="x"></i></button>
-
-            <div class="notes-dashboard-folders" id="notes-folders-pane">
-                <div class="folders-header">
-                    <span
-                        style="font-weight: 600; font-size: 0.9rem; color: var(--text-color); opacity: 0.8; letter-spacing: 0.5px;">FOLDERS</span>
-                    <button class="tool-btn" id="btn-new-folder" title="New Folder" style="padding: 4px;"><i
-                            data-lucide="folder-plus"></i></button>
-                </div>
-                <div class="folders-list" id="folders-list-container"></div>
-            </div>
-
-            <div class="notes-dashboard-left">
-                <div class="notes-dashboard-left-header">
-                    <button class="mobile-back-to-folders mobile-only" id="mob-back-folders"><i
-                            data-lucide="chevron-left"></i> Folders</button>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div class="notes-header-text">
-                            <div
-                                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                <h3 class="modal-title"
-                                    style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                                    <button class="tool-btn desktop-only" id="toggle-folders-btn"
-                                        style="padding: 4px; margin-left: -8px;" title="Toggle Folders Pane"><i
-                                            data-lucide="panel-left"></i></button>
-                                    <span id="current-folder-name">All Notes</span>
-                                </h3>
-                                <span id="dashboard-mode-badge" class="dashboard-badge"></span>
-                            </div>
-                        </div>
-                        <button class="modal-btn btn-confirm" id="btn-new-note"><i data-lucide="file-plus"></i> New Note
-                            Here</button>
-                        <button class="modal-btn btn-confirm" id="btn-push-github"
-                            style="display: none; width: 100%; background-color: #10b981; color: white; border-radius: 12px; font-size: 0.9rem; padding: 8px;">
-                            <i data-lucide="cloud-upload" style="width: 14px;"></i> Push Local to Cloud
-                        </button>
-                    </div>
-                </div>
-                <div class="notes-list" id="notes-list-container"></div>
-            </div>
-
-            <div class="notes-dashboard-right">
-                <div class="dashboard-actions">
-                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i
-                            data-lucide="chevron-left"></i></button>
-                    <button class="pill-btn btn-edit" id="dash-btn-edit" title="Edit Note"><i
-                            data-lucide="edit-3"></i></button>
-                    <button class="pill-btn btn-export desktop-only" id="dash-btn-export" title="Export PDF"><i
-                            data-lucide="printer"></i></button>
-                    <button class="pill-btn btn-delete" id="dash-btn-delete" title="Delete Note"><i
-                            data-lucide="trash-2"></i></button>
-                </div>
-                <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
             </div>
         </div>
     </div>

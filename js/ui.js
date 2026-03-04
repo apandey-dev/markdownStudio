@@ -78,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
-
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('pat-guide-modal')?.classList.add('show');

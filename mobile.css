@@ -209,6 +209,13 @@
         min-width: 8px !important;
     }
 
+    .status-bar {
+        padding: 8px 16px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+        font-size: 0.7rem;
+        justify-content: center;
+    }
+
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -421,10 +428,12 @@
         border-radius: 14px !important;
     }
 
+    /* ✨ MOBILE DASHBOARD FIXES ✨ */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
         overflow: hidden !important;
+        border-radius: 20px 20px 0 0 !important;
     }
 
     .notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
@@ -499,6 +508,7 @@
         padding: 0 56px 16px 20px !important;
     }
 
+    /* Top Right Close button for Dashboard */
     .notes-dashboard-box .btn-close-dashboard,
     .docs-modal-box .btn-close-dashboard {
         top: 22px !important;
@@ -572,7 +582,7 @@
     }
 
     .folder-item {
-        padding: 10px 12px !important;
+        padding: 12px 14px !important;
         border-radius: 12px !important;
         margin-bottom: 8px;
         background: var(--nav-bg);
@@ -586,11 +596,9 @@
     }
 
     .note-item.active {
-        border-left: 1px solid var(--border-color) !important;
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
         padding: 12px 64px 12px 16px !important;
         gap: 12px !important;
@@ -603,38 +611,32 @@
         height: 64px !important;
     }
 
-    .dashboard-actions .pill-btn {
-        font-size: 0 !important;
-        width: 40px !important;
-        height: 40px !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 0 !important;
-        flex-shrink: 0 !important;
-        border: 1px solid var(--border-color) !important;
-        background-color: transparent !important;
-        color: var(--text-color) !important;
+    /* Make Action Buttons perfectly sized on mobile */
+    .dash-pro-btn {
+        padding: 8px 12px !important;
+        font-size: 0.8rem !important;
     }
 
-    .dashboard-actions .pill-btn i {
-        width: 20px !important;
-        height: 20px !important;
-        margin: 0 !important;
+    .dash-pro-btn i {
+        width: 16px !important;
+        height: 16px !important;
     }
 
-    .dashboard-actions .pill-btn:active {
-        transform: scale(0.9) !important;
-        box-shadow: none !important;
+    .pill-btn.btn-back {
+        border-color: transparent;
+        margin-right: auto;
+        background-color: transparent;
+        font-family: var(--ui-font);
+        font-weight: 600;
+        font-size: 0.9rem !important;
+        width: auto !important;
+        padding: 0 8px !important;
+        border-radius: 8px !important;
     }
 
-    #dash-btn-back {
-        margin-right: auto !important;
-        background-color: transparent !important;
-        border: 1px solid var(--border-color) !important;
-        color: var(--text-color) !important;
+    .pill-btn.btn-back i {
+        width: 18px !important;
+        height: 18px !important;
     }
 
     .dashboard-preview-content {
