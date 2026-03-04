@@ -59,15 +59,6 @@
                 </button>
             </div>
 
-            <div class="mode-toggle desktop-only" id="theme-toggle-desktop">
-                <button class="mode-tab theme-tab active" data-theme="light">
-                    <i data-lucide="sun" style="width: 14px; height: 14px;"></i> <span class="tab-text">Light</span>
-                </button>
-                <button class="mode-tab theme-tab" data-theme="dark">
-                    <i data-lucide="moon" style="width: 14px; height: 14px;"></i> <span class="tab-text">Dark</span>
-                </button>
-            </div>
-
             <div class="custom-dropdown desktop-only" id="font-dropdown">
                 <div class="dropdown-header">
                     <span id="font-selected-text">Preview: Fredoka</span>
@@ -84,11 +75,6 @@
                     <div class="dropdown-item" data-value="Delius" style="font-family: 'Delius', cursive;">Delius</div>
                 </div>
             </div>
-
-            <button id="btn-sync-current" class="nav-action-btn desktop-only" title="Sync Current Note to Cloud"
-                style="display: none;">
-                <i data-lucide="cloud-upload" style="width: 16px; height: 16px;"></i> Sync Current
-            </button>
 
             <button id="btn-notes-desktop" class="nav-action-btn modal-trigger-notes desktop-only" title="Manage Notes">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
@@ -217,14 +203,39 @@
         </div>
 
         <div class="status-bar">
-            <span id="active-mode-indicator" style="font-weight: 600; color: var(--accent-color);"><i
-                    data-lucide="hard-drive" style="width:12px; height:12px;"></i> Local Storage</span>
-            <div class="toolbar-divider" style="height: 12px; margin: 0 12px;"></div>
-            <span id="stat-words">0 Words</span>
-            <div class="toolbar-divider" style="height: 12px; margin: 0 12px;"></div>
-            <span id="stat-chars" class="desktop-only">0 Characters</span>
-            <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0 12px;"></div>
-            <span id="stat-reading-time">0 min read</span>
+            <div class="sb-section">
+                <span id="active-mode-indicator"
+                    style="font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local
+                </span>
+
+                <div class="toolbar-divider" style="height: 14px; margin: 0 8px;"></div>
+
+                <button id="btn-sync-current" class="sb-action-btn" title="Sync Current Note to Cloud"
+                    style="display: none;">
+                    <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> <span
+                        class="desktop-only">Sync Note</span>
+                </button>
+            </div>
+
+            <div class="sb-section">
+                <span id="stat-words">0 Words</span>
+                <div class="toolbar-divider" style="height: 12px; margin: 0 6px;"></div>
+                <span id="stat-chars" class="desktop-only">0 Characters</span>
+                <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0 6px;"></div>
+                <span id="stat-reading-time" class="desktop-only">0 min read</span>
+
+                <div class="toolbar-divider desktop-only" style="height: 14px; margin: 0 12px;"></div>
+
+                <div class="mode-toggle sb-theme-toggle desktop-only" id="theme-toggle-desktop">
+                    <button class="mode-tab theme-tab active" data-theme="light">
+                        <i data-lucide="sun" style="width: 12px; height: 12px;"></i> Light
+                    </button>
+                    <button class="mode-tab theme-tab" data-theme="dark">
+                        <i data-lucide="moon" style="width: 12px; height: 12px;"></i> Dark
+                    </button>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -278,7 +289,6 @@
                         </li>
                     </ul>
                 </div>
-
                 <div class="docs-section">
                     <h3><i data-lucide="wand-2"></i> 2. Custom Pro Syntax & Shortcuts</h3>
                     <p>Studio extends standard Markdown with powerful custom features tailored for writers and
@@ -288,24 +298,19 @@
                     <code class="docs-code">[Custom Hex Color]{#10b981}</code>
                     <code
                         class="docs-code">[Adaptive White/Black]{white} -> Changes based on Dark/Light theme automatically!</code>
-
                     <h4>🖼️ Advanced Image Control</h4>
                     <code
                         class="docs-code">![Alt](image_url.jpg){300x400, center} -> Width 300px, Height 400px (Center)</code>
                     <code
                         class="docs-code">![Alt](image_url.jpg){500, left} -> Width 500px, Auto Height, floats left</code>
-
                     <h4>↔️ Text Alignment</h4>
                     <code class="docs-code">/center This text will be centered</code>
                     <code class="docs-code">/right This text aligns right</code>
-
                     <h4>➖ Premium Dividers</h4>
                     <code class="docs-code">===</code>
-
                     <h4>📐 Raw SVG Injection</h4>
                     <code class="docs-code">&lt;svg xmlns="..."&gt;...&lt;/svg&gt;</code>
                 </div>
-
                 <div class="docs-section">
                     <h3><i data-lucide="zap"></i> 3. Features & Buttons</h3>
                     <ul>
@@ -563,9 +568,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js"></script>
 
-    <script src="js/ui.js"></script>
-    <script src="js/github.js"></script>
-    <script src="js/editor.js"></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/github.js" defer></script>
+    <script src="js/editor.js" defer></script>
 </body>
 
 </html>

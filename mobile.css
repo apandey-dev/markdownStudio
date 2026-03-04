@@ -209,13 +209,6 @@
         min-width: 8px !important;
     }
 
-    .status-bar {
-        padding: 8px 16px;
-        padding-bottom: calc(8px + env(safe-area-inset-bottom));
-        font-size: 0.7rem;
-        justify-content: center;
-    }
-
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -597,6 +590,7 @@
         border: 2px solid var(--accent-color) !important;
     }
 
+    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
         padding: 12px 64px 12px 16px !important;
         gap: 12px !important;

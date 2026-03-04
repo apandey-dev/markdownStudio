@@ -79,6 +79,7 @@ body {
     display: none;
 }
 
+/* ✨ SKELETON LOADER (ZERO FLICKER FIX) ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -99,6 +100,7 @@ body.is-loading .custom-dropdown,
 body.is-loading .nav-action-btn,
 body.is-loading .tool-btn,
 body.is-loading .status-bar span,
+body.is-loading .sb-action-btn,
 body.is-loading #mobile-menu-btn,
 body.is-loading #mobile-view-toggle {
     color: transparent !important;
@@ -124,6 +126,7 @@ body.is-loading .dropdown-header span {
 .nav-action-btn,
 .tool-btn,
 .status-bar span,
+.sb-action-btn,
 #mobile-menu-btn,
 #mobile-view-toggle,
 svg,
@@ -338,7 +341,7 @@ body.dark-mode .mode-toggle {
     border-radius: 0 4px 4px 0;
 }
 
-/* ✨ COMPLETELY UNIFIED NAVBAR BUTTONS ✨ */
+/* UNIFIED NAVBAR BUTTONS */
 .nav-action-btn {
     display: flex;
     align-items: center;
@@ -409,20 +412,68 @@ body.dark-mode .mode-toggle {
     flex-shrink: 0;
 }
 
+/* ✨ UPGRADED STATUS BAR (BOTTOM) ✨ */
 .status-bar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
     padding: 6px 24px;
     background-color: var(--nav-bg);
     border-top: 1px solid var(--border-color);
     font-size: 0.75rem;
     color: var(--text-color);
-    opacity: 0.7;
     font-family: var(--ui-font);
     font-weight: 500;
     flex-shrink: 0;
 }
+
+.sb-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sb-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 10px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: var(--ui-font);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.sb-action-btn:hover {
+    background: rgba(16, 185, 129, 0.1);
+    transform: translateY(-1px);
+    border-color: #10b981;
+}
+
+.sb-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sb-theme-toggle {
+    padding: 2px;
+    border-radius: 50px;
+    gap: 0;
+}
+
+.sb-theme-toggle .mode-tab {
+    border-radius: 50px;
+    gap: 4px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+}
+
 
 .split-workspace {
     display: flex;
@@ -702,7 +753,6 @@ body.view-preview .divider {
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-/* ✨ FIXED PADDING FOR TEXT VISIBILITY ✨ */
 #preview-output pre code,
 #dashboard-preview-output pre code {
     font-family: var(--editor-font);
@@ -726,7 +776,6 @@ body.view-preview .divider {
     font-size: 0.9em;
 }
 
-/* ✨ FIXED CONTRAST FOR COPY BUTTON ✨ */
 .copy-code-btn {
     position: absolute;
     top: 8px;
@@ -1496,7 +1545,7 @@ body.dark-mode .btn-help-cute:hover {
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
+    background-color: transparent;
     color: var(--text-color);
     padding: 0;
 }
@@ -1507,17 +1556,8 @@ body.dark-mode .btn-help-cute:hover {
     margin: 0;
 }
 
-.pill-btn.btn-edit:hover {
-    background-color: var(--accent-color);
-    color: var(--btn-text);
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.pill-btn.btn-export:hover {
-    background-color: var(--text-color);
-    color: var(--bg-color);
+.pill-btn:hover {
+    background-color: var(--hover-bg);
     border-color: var(--text-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px var(--shadow-color);
@@ -1646,7 +1686,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* ✨ BULK SYNC CHECKBOX LIST ✨ */
+/* BULK SYNC CHECKBOX LIST */
 .sync-item {
     display: flex;
     align-items: center;
@@ -1695,7 +1735,7 @@ body.dark-mode .btn-help-cute:hover {
     gap: 4px;
 }
 
-/* ✨ GOOGLE DRIVE STYLE PROGRESS WIDGET ✨ */
+/* GOOGLE DRIVE STYLE PROGRESS WIDGET */
 .progress-widget {
     position: fixed;
     bottom: 24px;
@@ -1771,6 +1811,73 @@ body.dark-mode .btn-help-cute:hover {
 
 .spin {
     animation: spin 2s linear infinite;
+}
+
+/* ✨ PREMIUM EXPORT (PDF) MODAL STYLING (DESKTOP ONLY) ✨ */
+@media screen and (min-width: 769px) {
+    #pdf-modal .modal-box {
+        max-width: 480px;
+        padding: 32px 40px;
+        border-top: 4px solid var(--accent-color);
+        background: linear-gradient(180deg, var(--nav-bg) 0%, var(--bg-color) 100%);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
+    }
+
+    #pdf-modal .modal-title {
+        font-size: 1.4rem;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    #pdf-modal .input-group {
+        margin-bottom: 24px;
+    }
+
+    #pdf-modal .input-group label {
+        font-size: 0.85rem;
+        color: var(--text-color);
+        opacity: 0.7;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 700;
+    }
+
+    #pdf-modal .modal-input,
+    #pdf-modal .dropdown-header {
+        padding: 14px 16px;
+        font-size: 1rem;
+        border-radius: 10px;
+        background-color: var(--bg-color);
+        border: 2px solid transparent;
+        box-shadow: inset 0 2px 4px var(--shadow-color), 0 0 0 1px var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    #pdf-modal .modal-input:focus,
+    #pdf-modal .custom-dropdown.open .dropdown-header {
+        background-color: var(--nav-bg);
+        border-color: var(--accent-color);
+        box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    #pdf-modal .modal-actions {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-color);
+        gap: 12px;
+    }
+
+    #pdf-modal .modal-btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    #pdf-modal .btn-cancel {
+        border: 2px solid var(--border-color);
+    }
 }
 
 @media print {
@@ -1894,75 +2001,5 @@ body.dark-mode .btn-help-cute:hover {
 
     .copy-code-btn {
         display: none !important;
-    }
-}
-
-/* ==========================================================================
-   ✨ PREMIUM EXPORT (PDF) MODAL STYLING (DESKTOP ONLY) ✨
-   ========================================================================== */
-
-@media screen and (min-width: 769px) {
-    #pdf-modal .modal-box {
-        max-width: 480px; 
-        padding: 32px 40px; 
-        border-top: 4px solid var(--accent-color); /* Premium top accent line */
-        background: linear-gradient(180deg, var(--nav-bg) 0%, var(--bg-color) 100%);
-        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
-    }
-
-    #pdf-modal .modal-title {
-        font-size: 1.4rem;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    #pdf-modal .input-group {
-        margin-bottom: 24px;
-    }
-
-    #pdf-modal .input-group label {
-        font-size: 0.85rem;
-        color: var(--text-color);
-        opacity: 0.7;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-weight: 700;
-    }
-
-    #pdf-modal .modal-input, 
-    #pdf-modal .dropdown-header {
-        padding: 14px 16px;
-        font-size: 1rem;
-        border-radius: 10px;
-        background-color: var(--bg-color);
-        border: 2px solid transparent;
-        box-shadow: inset 0 2px 4px var(--shadow-color), 0 0 0 1px var(--border-color);
-        transition: all 0.3s ease;
-    }
-
-    #pdf-modal .modal-input:focus,
-    #pdf-modal .custom-dropdown.open .dropdown-header {
-        background-color: var(--nav-bg);
-        border-color: var(--accent-color);
-        box-shadow: 0 4px 12px var(--shadow-color);
-    }
-    
-    #pdf-modal .modal-actions {
-        margin-top: 32px;
-        padding-top: 24px;
-        border-top: 1px solid var(--border-color);
-        gap: 12px;
-    }
-
-    #pdf-modal .modal-btn {
-        padding: 12px 24px;
-        font-size: 0.95rem;
-        border-radius: 10px;
-    }
-    
-    #pdf-modal .btn-cancel {
-        border: 2px solid var(--border-color);
     }
 }
