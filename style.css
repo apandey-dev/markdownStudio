@@ -79,6 +79,7 @@ body {
     display: none;
 }
 
+/* ✨ SKELETON LOADER (ZERO FLICKER FIX) ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -410,6 +411,7 @@ body.dark-mode .mode-toggle {
     flex-shrink: 0;
 }
 
+/* ✨ UPGRADED STATUS BAR (BOTTOM) ✨ */
 .status-bar {
     display: flex;
     justify-content: space-between;
@@ -453,6 +455,17 @@ body.dark-mode .mode-toggle {
     border-color: #10b981;
 }
 
+/* ✨ Push All Button Styling ✨ */
+.sb-action-btn.push-all-btn {
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.sb-action-btn.push-all-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+}
+
 .sb-action-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -470,6 +483,7 @@ body.dark-mode .mode-toggle {
     padding: 4px 12px;
     font-size: 0.75rem;
 }
+
 
 .split-workspace {
     display: flex;
@@ -734,7 +748,6 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
-/* ✨ UPDATED PRE & COPY BLOCKS ✨ */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -752,7 +765,6 @@ body.view-preview .divider {
     font-family: var(--editor-font);
     font-size: 0.85em;
     padding: 48px 16px 16px 16px;
-    /* ✨ Top Padding ensures text NEVER overlaps button ✨ */
     display: block;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -862,12 +874,6 @@ body.view-preview .divider {
     text-underline-offset: 3px;
 }
 
-#preview-output a:active,
-#dashboard-preview-output a:active {
-    color: var(--link-active);
-    text-decoration: underline;
-}
-
 .adaptive-color {
     color: var(--text-color) !important;
 }
@@ -945,7 +951,6 @@ body.view-preview .divider {
 
 .notes-dashboard-box {
     max-width: 1300px;
-    /* Wider and Pro Feel */
     width: 95vw;
     height: 88vh;
     padding: 0;
@@ -953,13 +958,12 @@ body.view-preview .divider {
     flex-direction: row;
     overflow: hidden;
     border-radius: 24px;
-    /* Smooth rounded corners */
     background-color: var(--bg-color);
     box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
     position: relative;
 }
 
-/* FOLDERS PANE (Slightly darker/lighter to look like a true sidebar) */
+/* FOLDERS PANE */
 .notes-dashboard-folders {
     width: 22%;
     min-width: 200px;
@@ -1144,7 +1148,6 @@ body.view-preview .divider {
     flex-shrink: 0;
 }
 
-/* Magic targeting to invert text color when active */
 .note-item.active .note-title,
 .note-item.active span,
 .note-item.active i {
@@ -1161,11 +1164,12 @@ body.view-preview .divider {
     overflow: hidden;
 }
 
+/* ✨ OVERLAP FIX: Added extra padding-right (80px) so buttons don't hide under the absolute Close button ✨ */
 .dashboard-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 32px;
+    padding: 16px 80px 16px 32px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
     height: 72px;
@@ -1231,30 +1235,32 @@ body.view-preview .divider {
     font-size: 1rem;
 }
 
-/* Close Modal Button Placement */
+/* ✨ BEAUTIFUL NOTES MODAL CLOSE BUTTON ✨ */
 .notes-dashboard-box .btn-close-dashboard {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: var(--bg-color);
+    top: 16px;
+    right: 16px;
+    background: var(--nav-bg);
     border: 1px solid var(--border-color);
     color: var(--text-color);
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 100;
-    transition: all 0.2s;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .notes-dashboard-box .btn-close-dashboard:hover {
-    transform: scale(0.9);
-    background: var(--text-color);
-    color: var(--bg-color);
+    transform: rotate(90deg) scale(1.1);
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
 }
 
 /* ========================================================================== */
@@ -1447,7 +1453,6 @@ body.dark-mode .btn-cancel:hover {
     color: var(--text-color);
 }
 
-
 /* PREMIUM MODALS */
 .premium-modal {
     padding: 36px 32px !important;
@@ -1631,16 +1636,12 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 .delete-modal-box {
-    max-width: 340px;
-    text-align: center;
-    padding: 32px 24px;
+    padding-top: 32px !important;
+    text-align: center !important;
 }
 
 .delete-icon-wrapper {
-    color: #ef4444;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: center;
+    justify-content: center !important;
 }
 
 .delete-icon-wrapper i {
@@ -1725,28 +1726,57 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* BULK SYNC CHECKBOX LIST */
+/* ✨ UPGRADED CIRCULAR BULK SYNC CHECKBOXES ✨ */
 .sync-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
+    gap: 16px;
+    padding: 12px 16px;
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .sync-item:hover {
     border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-.sync-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #10b981;
+.sync-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px !important;
+    height: 24px !important;
+    border: 2px solid var(--border-color);
+    border-radius: 50% !important;
+    /* Circular Checkbox Fix */
+    background-color: var(--nav-bg);
     cursor: pointer;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 !important;
+    flex-shrink: 0;
+}
+
+.sync-checkbox:checked {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.sync-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 }
 
 .sync-item-info {
@@ -1772,6 +1802,7 @@ body.dark-mode .btn-help-cute:hover {
     display: flex;
     align-items: center;
     gap: 4px;
+    margin-top: 2px;
 }
 
 /* GOOGLE DRIVE STYLE PROGRESS WIDGET */
@@ -1852,7 +1883,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* ✨ PREMIUM EXPORT (PDF) MODAL STYLING (DESKTOP ONLY) ✨ */
+/* EXPORT PDF MODAL */
 @media screen and (min-width: 769px) {
     #pdf-modal .modal-box {
         max-width: 480px;
@@ -1916,129 +1947,5 @@ body.dark-mode .btn-help-cute:hover {
 
     #pdf-modal .btn-cancel {
         border: 2px solid var(--border-color);
-    }
-}
-
-@media print {
-
-    .navbar,
-    .divider,
-    .modal-overlay,
-    #toast,
-    .editor-toolbar,
-    .status-bar {
-        display: none !important;
-    }
-
-    body,
-    .app-container,
-    .split-workspace {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: visible !important;
-        display: block !important;
-        background-color: var(--preview-bg) !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .editor-panel {
-        display: none !important;
-    }
-
-    .preview-panel {
-        display: block !important;
-        width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        background-color: var(--preview-bg) !important;
-        color: var(--text-color) !important;
-        overflow: visible !important;
-    }
-
-    #preview-output {
-        max-width: none !important;
-        margin: 0 !important;
-    }
-
-    #preview-output,
-    #dashboard-preview-output {
-        font-size: 11pt !important;
-        color: var(--text-color) !important;
-    }
-
-    #preview-output h1,
-    #dashboard-preview-output h1 {
-        font-size: 24pt !important;
-        margin-top: 20pt !important;
-        margin-bottom: 12pt !important;
-        color: var(--text-color) !important;
-    }
-
-    #preview-output h2,
-    #dashboard-preview-output h2 {
-        font-size: 18pt !important;
-        margin-top: 16pt !important;
-        margin-bottom: 8pt !important;
-        border-bottom: 1pt solid #ccc !important;
-        padding-bottom: 4pt !important;
-        color: var(--text-color) !important;
-    }
-
-    #preview-output h3,
-    #dashboard-preview-output h3 {
-        font-size: 14pt !important;
-        margin-top: 14pt !important;
-        margin-bottom: 6pt !important;
-        color: var(--text-color) !important;
-    }
-
-    #preview-output p,
-    #dashboard-preview-output p,
-    #preview-output li,
-    #dashboard-preview-output li {
-        font-size: 11pt !important;
-        line-height: 1.6 !important;
-        margin-bottom: 10pt !important;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        page-break-after: avoid !important;
-        break-after: avoid !important;
-    }
-
-    pre,
-    blockquote,
-    table,
-    img,
-    tr,
-    td {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    pre,
-    pre code {
-        white-space: pre-wrap !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-        font-size: 9.5pt !important;
-        background-color: var(--hover-bg) !important;
-        color: var(--text-color) !important;
-    }
-
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
-    }
-
-    .copy-code-btn {
-        display: none !important;
     }
 }

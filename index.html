@@ -76,11 +76,6 @@
                 </div>
             </div>
 
-            <button id="btn-sync-current" class="nav-action-btn desktop-only" title="Sync Current Note to Cloud"
-                style="display: none;">
-                <i data-lucide="cloud-upload" style="width: 16px; height: 16px;"></i> Sync Current
-            </button>
-
             <button id="btn-notes-desktop" class="nav-action-btn modal-trigger-notes desktop-only" title="Manage Notes">
                 <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i> Notes
             </button>
@@ -221,6 +216,10 @@
                     <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> <span
                         class="desktop-only">Sync Note</span>
                 </button>
+                <button id="btn-push-github" class="sb-action-btn" title="Bulk Upload to Cloud" style="display: none;">
+                    <i data-lucide="folder-up" style="width: 14px; height: 14px;"></i> <span class="desktop-only">Bulk
+                        Sync</span>
+                </button>
             </div>
 
             <div class="sb-section">
@@ -282,11 +281,6 @@
                             <button class="modal-btn btn-confirm" id="btn-new-note"
                                 style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New
                                 Note</button>
-                            <button class="modal-btn btn-confirm" id="btn-push-github"
-                                style="display: none; background-color: #10b981; color: white; border-radius: 10px; height: 42px; padding: 0 16px;"
-                                title="Bulk Upload to Cloud">
-                                <i data-lucide="cloud-upload"></i>
-                            </button>
                         </div>
                     </div>
                 </div>

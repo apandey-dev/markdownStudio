@@ -170,7 +170,6 @@
         font-size: 0.95rem !important;
     }
 
-    /* ✨ COPY BUTTON FIX FOR MOBILE: ALWAYS VISIBLE ✨ */
     .copy-code-btn {
         opacity: 1 !important;
         width: 36px !important;
@@ -428,7 +427,6 @@
         border-radius: 14px !important;
     }
 
-    /* ✨ MOBILE DASHBOARD FIXES ✨ */
     .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
