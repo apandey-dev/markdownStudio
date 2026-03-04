@@ -85,9 +85,9 @@
                 </div>
             </div>
 
-            <button id="btn-docs" class="desktop-only" title="View Documentation"
-                style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
-                <i data-lucide="book" style="width: 16px; height: 16px;"></i> Docs
+            <button id="btn-sync-current" class="desktop-only" title="Sync Current Note to Cloud"
+                style="display: none; background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <i data-lucide="cloud-upload" style="width: 16px; height: 16px;"></i> Sync Current
             </button>
 
             <button id="btn-notes-desktop" class="modal-trigger-notes desktop-only" title="Manage Notes"
@@ -99,6 +99,11 @@
             </button>
             <button id="btn-pdf" class="desktop-only" title="Export to PDF">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Export
+            </button>
+
+            <button id="btn-docs" class="desktop-only" title="View Documentation"
+                style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
+                <i data-lucide="book" style="width: 16px; height: 16px;"></i> Docs
             </button>
         </div>
     </header>
@@ -215,7 +220,6 @@
             <span id="active-mode-indicator" style="font-weight: 600; color: var(--accent-color);"><i
                     data-lucide="hard-drive" style="width:12px; height:12px;"></i> Local Storage</span>
             <div class="toolbar-divider" style="height: 12px; margin: 0 12px;"></div>
-
             <span id="stat-words">0 Words</span>
             <div class="toolbar-divider" style="height: 12px; margin: 0 12px;"></div>
             <span id="stat-chars" class="desktop-only">0 Characters</span>
@@ -223,6 +227,38 @@
             <span id="stat-reading-time">0 min read</span>
         </div>
     </main>
+
+    <div class="modal-overlay" id="bulk-sync-modal" style="z-index: 3000;">
+        <div class="modal-box"
+            style="width: 90vw; max-width: 500px; height: 75vh; max-height: 600px; display: flex; flex-direction: column; padding: 24px;">
+
+            <div style="flex-shrink: 0;">
+                <h3 class="modal-title flex-title"><i data-lucide="cloud-upload" style="color: #10b981;"></i> Select
+                    Notes to Sync</h3>
+                <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 16px;">Choose which local notes you want to
+                    upload to your GitHub Workspace.</p>
+            </div>
+
+            <div id="bulk-sync-list"
+                style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-right: 8px;">
+            </div>
+
+            <div class="modal-actions" style="flex-shrink: 0; flex-direction: row; justify-content: space-between;">
+                <div style="display: flex; gap: 8px;">
+                    <button class="modal-btn" id="bulk-sync-all"
+                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">Select
+                        All</button>
+                    <button class="modal-btn" id="bulk-sync-none"
+                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">None</button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="modal-btn btn-cancel" id="bulk-sync-cancel">Cancel</button>
+                    <button class="modal-btn btn-confirm" id="bulk-sync-confirm"
+                        style="background-color: #10b981; color: white;">Start Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="docs-modal" style="z-index: 4000;">
         <div class="modal-box docs-modal-box">
@@ -232,16 +268,14 @@
                 <p>Everything you need to master your premium workspace.</p>
             </div>
             <div class="docs-body">
-
                 <div class="docs-section">
                     <h3><i data-lucide="cloud"></i> 1. First-Time Setup & Syncing</h3>
-                    <p>By default, Studio runs in <strong>Local Storage</strong> (your data never leaves your browser).
-                        To enable cross-device syncing, you can connect your GitHub account.</p>
+                    <p>By default, Studio runs in <strong>Local Storage</strong>. To enable cross-device syncing, you
+                        can connect your GitHub account.</p>
                     <ul>
                         <li>Click <strong>Cloud</strong> in the top navbar.</li>
                         <li>You will be prompted for a GitHub Personal Access Token (PAT).</li>
-                        <li>Click "Need Help?" to see instructions on generating a token. <strong>Ensure you check both
-                                <code>repo</code> and <code>gist</code> scopes.</strong></li>
+                        <li>Ensure you check both <strong><code>repo</code> and <code>gist</code> scopes.</strong></li>
                         <li>Once connected, all your notes and folders are securely synced to a private repository named
                             <code>markdown-studio-notes</code> on your GitHub.
                         </li>
@@ -252,34 +286,26 @@
                     <h3><i data-lucide="wand-2"></i> 2. Custom Pro Syntax & Shortcuts</h3>
                     <p>Studio extends standard Markdown with powerful custom features tailored for writers and
                         designers.</p>
-
                     <h4>🎨 Text Colors</h4>
-                    <p>Wrap text in brackets and specify a color inside braces.</p>
                     <code class="docs-code">[This is red text]{red}</code>
                     <code class="docs-code">[Custom Hex Color]{#10b981}</code>
                     <code
                         class="docs-code">[Adaptive White/Black]{white} -> Changes based on Dark/Light theme automatically!</code>
 
                     <h4>🖼️ Advanced Image Control</h4>
-                    <p>Control the size and alignment of images instantly.</p>
                     <code
                         class="docs-code">![Alt](image_url.jpg){300x400, center} -> Width 300px, Height 400px (Center)</code>
                     <code
                         class="docs-code">![Alt](image_url.jpg){500, left} -> Width 500px, Auto Height, floats left</code>
-                    <code class="docs-code">![Alt](image_url.jpg){100%, center} -> Full responsive width</code>
 
                     <h4>↔️ Text Alignment</h4>
-                    <p>Use slash commands at the start of a line or to wrap blocks.</p>
                     <code class="docs-code">/center This text will be centered</code>
                     <code class="docs-code">/right This text aligns right</code>
 
                     <h4>➖ Premium Dividers</h4>
-                    <p>Type three equals signs on a new line to generate a double-dashed stylish separator.</p>
                     <code class="docs-code">===</code>
 
                     <h4>📐 Raw SVG Injection</h4>
-                    <p>Unlike standard editors, you can paste raw scalable vector graphics directly into the editor.
-                        They will render beautifully without security blockage.</p>
                     <code class="docs-code">&lt;svg xmlns="..."&gt;...&lt;/svg&gt;</code>
                 </div>
 
@@ -288,34 +314,12 @@
                     <ul>
                         <li><strong>📂 Folder System:</strong> Organize notes into folders. On Cloud mode, these map
                             directly to sub-directories in your GitHub repo.</li>
-                        <li><strong>🖨️ PDF Export:</strong> Highly optimized print engine. Choose between A4
-                            (Standard), A2 (Large), or Infinity (Single continuous page). Text auto-adapts color based
-                            on theme.</li>
+                        <li><strong>🖨️ PDF Export:</strong> Highly optimized print engine. Choose between A4, A2, or
+                            Infinity.</li>
                         <li><strong>🔒 Secure Share:</strong> Generates a highly secure link using AES-256 encryption
-                            stored in a Secret Gist. The decryption key is embedded in the URL hash (never sent to the
-                            server).</li>
-                        <li><strong>📄 Import/Export:</strong> Click the ⬇️ button to download your raw <code>.md</code>
-                            file, or ⬆️ to import any text/markdown file locally.</li>
+                            stored in a Secret Gist.</li>
                     </ul>
                 </div>
-
-                <div class="docs-section">
-                    <h3><i data-lucide="eye-off"></i> 4. Hidden Features (Pro Tips)</h3>
-                    <ul>
-                        <li><strong>Zero-Lag Engine:</strong> Studio uses a custom 400ms Debounce Engine. You can write
-                            a 300,000+ word book and the typing will remain 100% smooth without blocking the main
-                            thread.</li>
-                        <li><strong>Code Copy:</strong> Hover over any rendered code block in the preview pane to reveal
-                            a sleek "Copy" button.</li>
-                        <li><strong>Draggable Pane:</strong> On Desktop, drag the vertical line between the editor and
-                            preview to resize your workspace.</li>
-                        <li><strong>Tab Indentation:</strong> Pressing <code>Tab</code> in the editor inserts actual
-                            spaces instead of trapping focus.</li>
-                        <li><strong>Failsafe Save:</strong> Closing the tab accidentally mid-typing will trigger an
-                            emergency state-save.</li>
-                    </ul>
-                </div>
-
             </div>
         </div>
     </div>
@@ -331,36 +335,29 @@
                 <p class="modal-subtitle" style="opacity: 0.8; font-size: 0.95rem;">Link your account to sync notes to
                     the cloud.</p>
             </div>
-
             <div class="github-token-section" id="github-token-section" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token</label>
-                    <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?">
-                        <i data-lucide="help-circle"></i> Need Help?
-                    </button>
+                    <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?"><i
+                            data-lucide="help-circle"></i> Need Help?</button>
                 </div>
                 <input type="password" id="github-token-input" class="modal-input" placeholder="ghp_xxxx..."
                     autocomplete="off" spellcheck="false" />
             </div>
-
             <div class="modal-actions" style="margin-top: 24px; flex-direction: row; gap: 12px;">
                 <button class="modal-btn btn-cancel" id="btn-cancel-setup" style="flex: 1;">Cancel</button>
                 <button class="modal-btn btn-confirm" id="btn-start-app"
-                    style="flex: 1; padding: 14px; font-size: 1.1rem;">
-                    Connect
-                </button>
+                    style="flex: 1; padding: 14px; font-size: 1.1rem;">Connect</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="pat-guide-modal" style="z-index: 4000;">
         <div class="modal-box pat-guide-box">
-            <h3 class="modal-title flex-title" style="color: #3b82f6; margin-bottom: 16px;">
-                <i data-lucide="book-open"></i> How to get a PAT?
-            </h3>
+            <h3 class="modal-title flex-title" style="color: #3b82f6; margin-bottom: 16px;"><i
+                    data-lucide="book-open"></i> How to get a PAT?</h3>
             <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Follow these steps to generate a secure
                 token for syncing and sharing.</p>
-
             <ul class="guide-steps">
                 <li><span class="step-num">1</span>
                     <div>Go to GitHub <strong>Settings</strong> > <strong>Developer settings</strong>.</div>
@@ -380,7 +377,6 @@
                     <div>Click <strong>Generate token</strong>, copy it, and paste it here!</div>
                 </li>
             </ul>
-
             <div class="modal-actions" style="justify-content: space-between; margin-top: 24px;">
                 <a href="https://github.com/settings/tokens/new?scopes=repo,gist&description=Markdown+Studio+Sync"
                     target="_blank" class="modal-btn btn-confirm"
@@ -418,9 +414,8 @@
                                 <h3 class="modal-title"
                                     style="margin: 0; display: flex; align-items: center; gap: 8px;">
                                     <button class="tool-btn desktop-only" id="toggle-folders-btn"
-                                        style="padding: 4px; margin-left: -8px;" title="Toggle Folders Pane">
-                                        <i data-lucide="panel-left"></i>
-                                    </button>
+                                        style="padding: 4px; margin-left: -8px;" title="Toggle Folders Pane"><i
+                                            data-lucide="panel-left"></i></button>
                                     <span id="current-folder-name">All Notes</span>
                                 </h3>
                                 <span id="dashboard-mode-badge" class="dashboard-badge"></span>
@@ -456,9 +451,7 @@
     <div class="modal-overlay" id="folder-prompt-modal" style="z-index: 2000;">
         <div class="modal-box premium-modal">
             <div class="premium-modal-header">
-                <div class="premium-icon-wrapper folder-icon-theme">
-                    <i data-lucide="folder-plus"></i>
-                </div>
+                <div class="premium-icon-wrapper folder-icon-theme"><i data-lucide="folder-plus"></i></div>
                 <h3 class="modal-title">Create Folder</h3>
                 <p class="modal-subtitle">Organize your workspace beautifully.</p>
             </div>
@@ -476,9 +469,7 @@
     <div class="modal-overlay" id="prompt-modal" style="z-index: 2000;">
         <div class="modal-box premium-modal">
             <div class="premium-modal-header">
-                <div class="premium-icon-wrapper note-icon-theme">
-                    <i data-lucide="file-plus-2"></i>
-                </div>
+                <div class="premium-icon-wrapper note-icon-theme"><i data-lucide="file-plus-2"></i></div>
                 <h3 class="modal-title">New Note</h3>
                 <p class="modal-subtitle">Name your new markdown document.</p>
             </div>
@@ -553,6 +544,20 @@
     </div>
 
     <div id="toast" style="z-index: 99999 !important;">Notification</div>
+
+    <div id="upload-progress-widget" class="progress-widget hidden">
+        <div class="pw-header">
+            <span class="pw-title" id="pw-title">Uploading to Cloud</span>
+            <i data-lucide="loader" class="spin" id="pw-spinner" style="color: #10b981; width: 18px; height: 18px;"></i>
+            <i data-lucide="check-circle" id="pw-success"
+                style="color: #10b981; width: 18px; height: 18px; display: none;"></i>
+        </div>
+        <div class="pw-filename" id="pw-filename">Starting...</div>
+        <div class="pw-status" id="pw-status">0 out of 0 done</div>
+        <div class="pw-bar-track">
+            <div class="pw-bar-fill" id="pw-fill"></div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>

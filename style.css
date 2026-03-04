@@ -667,7 +667,6 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
-/* CODE BLOCKS & COPY BUTTON */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -804,7 +803,7 @@ body.view-preview .divider {
     color: var(--text-color) !important;
 }
 
-/* ✨ SIDEBAR TITLES & BUTTONS ✨ */
+/* SIDEBAR TITLES & BUTTONS */
 .sidebar-section-title {
     font-size: 0.75rem;
     font-weight: 600;
@@ -942,7 +941,7 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* DOCS MODAL */
+/* WIDER DOCS MODAL */
 .docs-modal-box {
     max-width: 960px !important;
     width: 95vw;
@@ -1279,7 +1278,7 @@ body.dark-mode .btn-help-cute:hover {
     padding: 8px 12px;
 }
 
-/* ✨ RED HOVER FOR FOLDER DELETE BUTTON ✨ */
+/* RED HOVER FOR FOLDER DELETE BUTTON */
 .folder-item {
     position: relative;
     display: flex;
@@ -1620,6 +1619,123 @@ body.dark-mode .btn-help-cute:hover {
     background-repeat: repeat-x;
     margin: 10px 0;
     opacity: 0.3;
+}
+
+/* ✨ BULK SYNC CHECKBOX LIST ✨ */
+.sync-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sync-item:hover {
+    border-color: var(--accent-color);
+}
+
+.sync-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #10b981;
+    cursor: pointer;
+}
+
+.sync-item-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sync-item-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sync-item-folder {
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ✨ GOOGLE DRIVE STYLE PROGRESS WIDGET ✨ */
+.progress-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 320px;
+    background-color: var(--nav-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    font-family: var(--ui-font);
+}
+
+.progress-widget.hidden {
+    transform: translateY(150px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pw-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.pw-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.pw-filename {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pw-status {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    color: var(--text-color);
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.pw-bar-track {
+    width: 100%;
+    height: 6px;
+    background-color: var(--bg-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pw-bar-fill {
+    width: 0%;
+    height: 100%;
+    background-color: #10b981;
+    transition: width 0.3s ease;
+    border-radius: 10px;
 }
 
 @keyframes spin {

@@ -26,9 +26,8 @@ window.closePdfModal = function () { document.getElementById('pdf-modal')?.class
 window.closeDeleteModal = function () { document.getElementById('delete-modal')?.classList.remove('show'); };
 window.closePromptModal = function () { document.getElementById('prompt-modal')?.classList.remove('show'); };
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
-
-// ✨ ADDED DOCS CLOSURE ✨
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
+window.closeBulkSyncModal = function () { document.getElementById('bulk-sync-modal')?.classList.remove('show'); };
 
 window.closeNotesModal = function () {
     document.getElementById('notes-modal')?.classList.remove('show');
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
 
-    // ✨ DOCS MODAL TRIGGERS ✨
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
     });
@@ -124,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
             
             if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
-            
             if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
             if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
@@ -132,9 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
-            
-            // ✨ ADDED DOCS MODAL ESCAPE ✨
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
+            if (document.getElementById('bulk-sync-modal')?.classList.contains('show')) { window.closeBulkSyncModal(); return; }
             
             if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
         }

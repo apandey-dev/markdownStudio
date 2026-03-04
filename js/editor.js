@@ -1,7 +1,7 @@
 /* ==========================================================================
    STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
-   const StorageManager = {
+const StorageManager = {
     dbName: "markdownStudioDB",
     storeName: "notes",
     db: null,
@@ -35,7 +35,7 @@
         } catch (e) {
             if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
                 if (window.showToast) {
-                    window.showToast("<i data-lucide='alert-triangle'></i> Critical: Storage limit reached (~5MB). Please export your notes or enable Cloud Sync immediately to prevent data loss.", 7000);
+                    window.showToast("<i data-lucide='alert-triangle'></i> Critical: Storage limit reached (~5MB). Please export your notes or enable Cloud Sync immediately.", 7000);
                 }
             }
             return false;
@@ -74,7 +74,6 @@
     async saveNotes(notesArray, mode = 'local') {
         await this.checkMigrationThreshold(notesArray);
 
-        // Ensure timestamp exists for safe merging
         notesArray.forEach(n => {
             if(!n.lastUpdated) n.lastUpdated = Date.now();
         });
@@ -105,7 +104,6 @@
                 req.onsuccess = () => {
                     const all = req.result || [];
                     const filtered = all.filter(n => n._mode === mode);
-                    // Sort by newest first
                     resolve(filtered.length > 0 ? filtered.sort((a,b) => (b.lastUpdated || 0) - (a.lastUpdated || 0)) : null);
                 };
                 req.onerror = () => resolve(null);
@@ -182,7 +180,7 @@ const OfflineQueue = {
 };
 
 /* ==========================================================================
-   EDITOR CONTROLLER
+   EDITOR CONTROLLER & UI LOGIC
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', async () => {
     
@@ -252,6 +250,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dashboardBadge.style.backgroundColor = 'var(--shadow-color)';
                 dashboardBadge.style.color = 'var(--text-color)';
                 dashboardBadge.style.border = '1px solid var(--border-color)';
+            }
+        }
+
+        const btnSyncCurrent = document.getElementById('btn-sync-current');
+        if (btnSyncCurrent) {
+            if (!isGithub && localStorage.getItem('md_github_token') && notes.length > 0) {
+                btnSyncCurrent.style.display = 'flex';
+            } else {
+                btnSyncCurrent.style.display = 'none';
             }
         }
 
@@ -371,8 +378,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ✨ FIXED: BULLETPROOF SMART MERGING SYSTEM ✨
-    // Ab jab GitHub se load hoga toh local unsynced notes delete nahi honge!
     async function initGitHubMode(token) {
         loadFolders(); 
         const localCachedNotes = await StorageManager.getAllNotes('github') || [];
@@ -397,17 +402,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 activeNoteId = notes[0]?.id;
             } else {
-                // SMART MERGE LOGIC
                 let mergedMap = new Map();
-                
-                // Add all local notes first
                 localCachedNotes.forEach(n => mergedMap.set(n.path, n));
                 
-                // Compare and merge with cloud notes
                 let addedOrUpdated = false;
                 cloudNotes.forEach(cn => {
                     const ln = mergedMap.get(cn.path);
-                    // Agar note cloud me naya hai, YA cloud wala note local se zyada naya (updated) hai
                     if (!ln || (cn.lastUpdated && ln.lastUpdated && cn.lastUpdated > ln.lastUpdated)) {
                         mergedMap.set(cn.path, cn);
                         addedOrUpdated = true;
@@ -721,6 +721,146 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
     });
 
+    /* ==========================================================================
+       ✨ BULK UPLOAD & SINGLE SYNC LOGIC ✨
+       ========================================================================== */
+       
+    document.getElementById('btn-sync-current')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('md_github_token');
+        if (!token) return window.showToast("Please connect your GitHub PAT first.");
+        
+        const currentNote = getActiveNote();
+        if(!currentNote) return window.showToast("No active note to sync.");
+
+        const btn = document.getElementById('btn-sync-current');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:16px;"></i> Syncing`;
+        btn.disabled = true;
+        if(window.lucide) lucide.createIcons();
+
+        const success = await GitHubBackend.init(token);
+        if (success) {
+            try {
+                const res = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
+                if (res && res !== 'conflict') {
+                    currentNote.id = res.sha;
+                    currentNote.path = res.path;
+                    currentNote.lastUpdated = Date.now();
+                    await saveLocalState();
+                    window.showToast(`<i data-lucide='check-circle'></i> ${currentNote.title} synced successfully!`);
+                } else if (res === 'conflict') {
+                    window.showToast("Conflict detected. Note already modified on cloud.");
+                } else {
+                    window.showToast("Failed to sync current note.");
+                }
+            } catch(e) { window.showToast("Upload error occurred."); }
+        }
+        
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        if(window.lucide) lucide.createIcons();
+    });
+
+    const bulkSyncModal = document.getElementById('bulk-sync-modal');
+    const bulkSyncList = document.getElementById('bulk-sync-list');
+
+    document.getElementById('btn-push-github')?.addEventListener('click', () => {
+        const token = localStorage.getItem('md_github_token');
+        if (!token) return window.showToast("Please link your GitHub PAT in Setup first!");
+
+        bulkSyncList.innerHTML = '';
+        notes.forEach((note, index) => {
+            const item = document.createElement('label');
+            item.className = 'sync-item';
+            
+            item.innerHTML = `
+                <input type="checkbox" class="sync-checkbox" value="${index}" checked />
+                <div class="sync-item-info">
+                    <span class="sync-item-title">${note.title}</span>
+                    <span class="sync-item-folder"><i data-lucide="folder" style="width:10px;"></i> ${note.folder || 'All Notes'}</span>
+                </div>
+            `;
+            bulkSyncList.appendChild(item);
+        });
+        if(window.lucide) lucide.createIcons();
+
+        document.getElementById('notes-modal').classList.remove('show');
+        bulkSyncModal.classList.add('show');
+    });
+
+    document.getElementById('bulk-sync-cancel')?.addEventListener('click', () => bulkSyncModal.classList.remove('show'));
+    
+    document.getElementById('bulk-sync-all')?.addEventListener('click', () => {
+        document.querySelectorAll('.sync-checkbox').forEach(cb => cb.checked = true);
+    });
+    
+    document.getElementById('bulk-sync-none')?.addEventListener('click', () => {
+        document.querySelectorAll('.sync-checkbox').forEach(cb => cb.checked = false);
+    });
+
+    document.getElementById('bulk-sync-confirm')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('md_github_token');
+        const checkboxes = document.querySelectorAll('.sync-checkbox:checked');
+        
+        if (checkboxes.length === 0) return window.showToast("Please select at least one note to upload.");
+        
+        const success = await GitHubBackend.init(token);
+        if (!success) return window.showToast("Token invalid or offline.");
+
+        bulkSyncModal.classList.remove('show');
+        const widget = document.getElementById('upload-progress-widget');
+        const pTitle = document.getElementById('pw-title');
+        const pFile = document.getElementById('pw-filename');
+        const pStatus = document.getElementById('pw-status');
+        const pFill = document.getElementById('pw-fill');
+        const spinner = document.getElementById('pw-spinner');
+        const successIcon = document.getElementById('pw-success');
+
+        widget.classList.remove('hidden');
+        pTitle.textContent = "Uploading to Cloud";
+        spinner.style.display = 'block';
+        successIcon.style.display = 'none';
+        
+        const total = checkboxes.length;
+        let completed = 0;
+
+        const selectedNotes = Array.from(checkboxes).map(cb => notes[cb.value]);
+
+        for (let note of selectedNotes) {
+            pFile.textContent = `Uploading: ${note.title}...`;
+            pStatus.textContent = `${completed} out of ${total} done`;
+            pFill.style.width = `${(completed / total) * 100}%`;
+
+            try {
+                const res = await GitHubBackend.saveNote('new', note.path, note.title, note.content);
+                if (res && res !== 'conflict') {
+                    note.id = res.sha; 
+                    note.path = res.path; 
+                    note.lastUpdated = Date.now();
+                }
+            } catch(e) { console.log(`Failed to upload ${note.title}`); }
+
+            completed++;
+            pStatus.textContent = `${completed} out of ${total} done`;
+            pFill.style.width = `${(completed / total) * 100}%`;
+        }
+
+        spinner.style.display = 'none';
+        successIcon.style.display = 'block';
+        pTitle.textContent = "Upload Complete!";
+        pFile.textContent = "All selected notes synced.";
+
+        appMode = 'github';
+        localStorage.setItem('md_app_mode', 'github');
+        await saveLocalState();
+        updatePillUI();
+
+        setTimeout(() => {
+            widget.classList.add('hidden');
+            window.showToast("<i data-lucide='check'></i> Successfully switched to Cloud!");
+        }, 3000);
+    });
+
     function customMarkdownParser(rawText) {
         let processedText = rawText.replace(/\r\n/g, '\n');
         
@@ -808,7 +948,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ✨ PERFORMANCE FIX: ASYNC YIELDING FOR MASSIVE FILES ✨
     window.renderDashboardPreview = async function () {
         const previewEl = document.getElementById('dashboard-preview-output');
         const note = notes.find(n => n.id === highlightedNoteId);
@@ -818,15 +957,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Unblock main thread before massive parse
         await new Promise(res => setTimeout(res, 0));
 
         previewEl.innerHTML = customMarkdownParser(note.content);
-        renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(previewEl, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        }
         
         injectCopyButtons(previewEl);
         
-        previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        if (typeof hljs !== 'undefined') {
+            previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        }
         if (window.lucide) lucide.createIcons();
     };
 
@@ -1023,39 +1165,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         pendingNewNoteData = null;
     });
 
-    document.getElementById('btn-push-github')?.addEventListener('click', async () => {
-        const token = localStorage.getItem('md_github_token');
-        if (!token) return window.showToast("Please link your GitHub PAT in Setup first!");
-
-        const success = await GitHubBackend.init(token);
-        if (success) {
-            window.showToast("<i data-lucide='loader'></i> Pushing notes to Cloud...");
-            document.getElementById('btn-push-github').disabled = true;
-            document.getElementById('btn-push-github').innerHTML = "Pushing...";
-
-            for (let note of notes) {
-                const res = await GitHubBackend.saveNote('new', note.path, note.title, note.content);
-                if (res) { note.id = res.sha; note.path = res.path; }
-            }
-
-            appMode = 'github';
-            localStorage.setItem('md_app_mode', 'github');
-            await saveLocalState();
-            updatePillUI();
-
-            document.getElementById('btn-push-github').style.display = 'none';
-            document.getElementById('btn-push-github').innerHTML = `<i data-lucide="cloud-upload"></i> Push Local to Cloud`;
-            document.getElementById('btn-push-github').disabled = false;
-            window.showToast("<i data-lucide='check'></i> Successfully pushed to GitHub!");
-        }
-    });
-
-    // ✨ DYNAMIC PERFORMANCE DEBOUNCER ✨
-    // Agar book size bohot bada hai (e.g. >100k chars), toh typing lag hatane ke liye timeout badh jayega.
     function getDynamicDebounceTime(textLength) {
-        if (textLength > 200000) return 1500; // 1.5s for massive books
-        if (textLength > 50000) return 800;   // 0.8s for chapters
-        return 300;                           // 0.3s normal
+        if (textLength > 200000) return 1500; 
+        if (textLength > 50000) return 800;   
+        return 300;                           
     }
 
     let debounceTimeout;
@@ -1075,35 +1188,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, waitTime);
     }
 
-    // ✨ ASYNC RENDER CORE TO UNBLOCK UI THREAD ✨
+    function updateLiveStats(text) {
+        if (typeof text !== 'string') return;
+        const chars = text.length;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+        
+        const wEl = document.getElementById('stat-words');
+        const cEl = document.getElementById('stat-chars');
+        const rEl = document.getElementById('stat-reading-time');
+        
+        if (wEl) wEl.textContent = `${words} Words`;
+        if (cEl) cEl.textContent = `${chars} Characters`;
+        if (rEl) rEl.textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
+    }
+
     async function renderMarkdownCore(rawText) {
         updateLiveStats(rawText);
         
-        // Allow the browser to repaint the typed character before doing heavy parsing
         await new Promise(resolve => setTimeout(resolve, 0));
         
         preview.innerHTML = customMarkdownParser(rawText);
         
-        // Allow browser to breathe again before KaTeX math render
         await new Promise(resolve => setTimeout(resolve, 0));
-        renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
+        }
         
         injectCopyButtons(preview);
 
-        preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        if (typeof hljs !== 'undefined') {
+            preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+        }
         if (window.lucide) lucide.createIcons();
 
         if (highlightedNoteId === activeNoteId && document.getElementById('notes-modal')?.classList.contains('show')) {
             window.renderDashboardPreview();
         }
-    }
-
-    function updateLiveStats(text) {
-        const chars = text.length;
-        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-        document.getElementById('stat-words').textContent = `${words} Words`;
-        document.getElementById('stat-chars').textContent = `${chars} Characters`;
-        document.getElementById('stat-reading-time').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
     }
 
     editor.addEventListener('input', () => {
@@ -1325,7 +1445,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
         }
         else if (window.selectedPageSize === 'Infinity') {
-            
             const previewEl = document.getElementById('preview-output');
             const previewPanel = document.getElementById('preview-panel');
             
@@ -1347,7 +1466,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
-            
             pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
         }
         
