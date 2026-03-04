@@ -1,3 +1,4 @@
+/* js/editor.js */
 /* ==========================================================================
    STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
@@ -9,6 +10,10 @@ const StorageManager = {
 
     async init() {
         return new Promise((resolve) => {
+            if (!window.indexedDB) {
+                resolve(false);
+                return;
+            }
             const request = indexedDB.open(this.dbName, 1);
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
@@ -42,14 +47,19 @@ const StorageManager = {
         }
     },
 
-    async checkMigrationThreshold(notesArray, newNoteContent = "") {
+    // ✨ FIXED: Calculate size safely via loop instead of JSON stringifying huge arrays
+    async checkMigrationThreshold(notesArray) {
         if (this.useIDB || !this.db) return;
-
-        const totalSize = new Blob([JSON.stringify(notesArray)]).size;
-        const currentNoteSize = new Blob([newNoteContent]).size;
-
-        if (totalSize > 4 * 1024 * 1024 || currentNoteSize > 500 * 1024) {
-            await this.migrateToIDB(notesArray);
+        try {
+            let totalSize = 0;
+            for (const n of notesArray) {
+                totalSize += n.content ? n.content.length : 0;
+            }
+            if (totalSize > 3 * 1024 * 1024) { // 3MB Threshold
+                await this.migrateToIDB(notesArray);
+            }
+        } catch (e) {
+            console.error("Failed to check migration threshold", e);
         }
     },
 
@@ -72,20 +82,19 @@ const StorageManager = {
     },
 
     async saveNotes(notesArray, mode = 'local') {
-        await this.checkMigrationThreshold(notesArray);
-
+        // ✨ FIXED: _mode MUST be set before migrating, so IDB knows if it's local/github
         notesArray.forEach(n => {
             if (!n.lastUpdated) n.lastUpdated = Date.now();
+            n._mode = mode;
         });
+
+        await this.checkMigrationThreshold(notesArray);
 
         if (this.useIDB && this.db) {
             return new Promise((resolve) => {
                 const tx = this.db.transaction(this.storeName, "readwrite");
                 const store = tx.objectStore(this.storeName);
-                notesArray.forEach(note => {
-                    note._mode = mode;
-                    store.put(note);
-                });
+                notesArray.forEach(note => store.put(note));
                 tx.oncomplete = () => resolve(true);
                 tx.onerror = () => resolve(false);
             });
@@ -103,7 +112,8 @@ const StorageManager = {
                 const req = store.getAll();
                 req.onsuccess = () => {
                     const all = req.result || [];
-                    const filtered = all.filter(n => n._mode === mode);
+                    // ✨ FIXED: Default missing _mode to 'local' if corrupted previously
+                    const filtered = all.filter(n => (n._mode || 'local') === mode);
                     resolve(filtered.length > 0 ? filtered.sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0)) : null);
                 };
                 req.onerror = () => resolve(null);
@@ -184,7 +194,7 @@ const OfflineQueue = {
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ✨ FIX: Delay init by 50ms so skeleton UI paints perfectly first ✨
+    // ✨ PRESERVED: Your 50ms delay for skeleton UI painting ✨
     setTimeout(async () => {
 
         await StorageManager.init();
@@ -352,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentNote = getActiveNote();
                 if (currentNote) {
                     const result = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
+                    // ✨ FIXED: Proper error throwing so failed 1MB+ files actually trigger retry
                     if (result && result !== 'conflict') {
                         currentNote.id = result.sha;
                         currentNote.path = result.path;
@@ -360,6 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         syncRetries = 0;
                     } else if (result === 'conflict') {
                         throw new Error("Conflict detected");
+                    } else {
+                        throw new Error("Failed to save to cloud");
                     }
                 }
             } catch (e) {
@@ -411,7 +424,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     let addedOrUpdated = false;
                     cloudNotes.forEach(cn => {
                         const ln = mergedMap.get(cn.path);
-                        if (!ln || (cn.lastUpdated && ln.lastUpdated && cn.lastUpdated > ln.lastUpdated)) {
+                        // ✨ FIXED: Compare exact SHAs (cn.id) rather than timestamps to prevent local overwrite
+                        if (!ln || cn.id !== ln.id) {
+                            if (ln) cn.lastUpdated = Date.now();
                             mergedMap.set(cn.path, cn);
                             addedOrUpdated = true;
                         }
@@ -733,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const btn = document.getElementById('btn-sync-current');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span>Syncing</span>`;
+            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span class="desktop-only">Syncing</span>`;
             btn.disabled = true;
             if (window.lucide) lucide.createIcons();
 
@@ -1539,5 +1554,5 @@ document.addEventListener('DOMContentLoaded', () => {
             loadLocalMode();
         }
 
-    }, 50); // ✨ 50ms delay lets browser paint HTML/CSS completely without freezing
+    }, 50); // ✨ PRESERVED: 50ms delay for skeleton UI
 });
