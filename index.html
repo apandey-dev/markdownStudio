@@ -152,7 +152,9 @@
             <button class="tool-btn" data-action="align-right" title="Align Right"><i
                     data-lucide="align-right"></i></button>
             <div class="toolbar-divider"></div>
-            <button class="tool-btn" data-action="link" title="Link"><i data-lucide="link"></i></button>
+            <button class="tool-btn" data-action="note-link" title="Link to another Note"><i
+                    data-lucide="file-symlink"></i></button>
+            <button class="tool-btn" data-action="link" title="Web Link"><i data-lucide="link"></i></button>
             <button class="tool-btn" data-action="image" title="Image"><i data-lucide="image"></i></button>
             <button class="tool-btn" data-action="code" title="Code Block"><i data-lucide="code"></i></button>
             <button class="tool-btn" data-action="table" title="Table"><i data-lucide="table"></i></button>
@@ -211,7 +213,7 @@
 
                 <div class="toolbar-divider" style="height: 14px; margin: 0 8px;"></div>
 
-                <button id="btn-sync-current" class="sb-action-btn" title="Sync Current Note to Cloud"
+                <button id="btn-sync-current" class="sb-action-btn sync-note-btn" title="Sync Current Note to Cloud"
                     style="display: none;">
                     <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> <span
                         class="desktop-only">Sync Note</span>
@@ -219,7 +221,7 @@
 
                 <button id="btn-push-github" class="sb-action-btn push-all-btn" title="Bulk Upload to Cloud"
                     style="display: none;">
-                    <i data-lucide="layers" style="width: 14px; height: 14px;"></i> <span class="desktop-only">Push
+                    <i data-lucide="folder-up" style="width: 14px; height: 14px;"></i> <span class="desktop-only">Push
                         All</span>
                 </button>
             </div>
@@ -247,8 +249,6 @@
 
     <div class="modal-overlay" id="notes-modal" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
         <div class="modal-box notes-dashboard-box folders-collapsed">
-            <button class="btn-close-dashboard" id="notes-modal-close" title="Close Workspace"><i
-                    data-lucide="x"></i></button>
 
             <div class="notes-dashboard-folders" id="notes-folders-pane">
                 <div class="folders-header">
@@ -281,8 +281,8 @@
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button class="modal-btn btn-confirm" id="btn-new-note"
-                                style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New
-                                Note</button>
+                                style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New Note
+                                Here</button>
                         </div>
                     </div>
                 </div>
@@ -291,15 +291,23 @@
 
             <div class="notes-dashboard-right">
                 <div class="dashboard-actions">
-                    <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i data-lucide="chevron-left"></i>
-                        Back</button>
+                    <div style="flex: 1;">
+                        <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i
+                                data-lucide="chevron-left"></i> Back</button>
+                    </div>
+
                     <div class="dash-action-group">
-                        <button class="dash-pro-btn btn-edit" id="dash-btn-edit" title="Edit Note"><i
-                                data-lucide="edit-3"></i> Edit</button>
-                        <button class="dash-pro-btn btn-export desktop-only" id="dash-btn-export" title="Export PDF"><i
-                                data-lucide="printer"></i> Print</button>
-                        <button class="dash-pro-btn btn-delete" id="dash-btn-delete" title="Delete Note"><i
+                        <button class="dash-circle-btn" id="dash-btn-edit" title="Edit Note"><i
+                                data-lucide="edit-2"></i></button>
+                        <button class="dash-circle-btn desktop-only" id="dash-btn-export" title="Export PDF"><i
+                                data-lucide="printer"></i></button>
+                        <button class="dash-circle-btn btn-delete" id="dash-btn-delete" title="Delete Note"><i
                                 data-lucide="trash-2"></i></button>
+
+                        <div class="toolbar-divider" style="height: 20px; margin: 0 4px;"></div>
+
+                        <button class="dash-circle-btn btn-close-dashboard" id="notes-modal-close"
+                            title="Close Workspace"><i data-lucide="x"></i></button>
                     </div>
                 </div>
                 <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
@@ -338,10 +346,12 @@
 
     <div class="modal-overlay" id="docs-modal" style="z-index: 4000;">
         <div class="modal-box docs-modal-box">
-            <button class="btn-close-dashboard" id="docs-modal-close" title="Close"><i data-lucide="x"></i></button>
-            <div class="docs-header">
-                <h2><i data-lucide="book-open" style="color: var(--accent-color);"></i> Markdown Studio Guide</h2>
-                <p>Everything you need to master your premium workspace.</p>
+            <div class="docs-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2><i data-lucide="book-open" style="color: var(--accent-color);"></i> Markdown Studio Guide</h2>
+                    <p>Everything you need to master your premium workspace.</p>
+                </div>
+                <button class="dash-circle-btn" id="docs-modal-close" title="Close"><i data-lucide="x"></i></button>
             </div>
             <div class="docs-body">
                 <div class="docs-section">
@@ -356,8 +366,19 @@
                 </div>
                 <div class="docs-section">
                     <h3><i data-lucide="wand-2"></i> 2. Custom Pro Syntax & Shortcuts</h3>
+                    <h4>🧠 Internal Note Linking (Wiki-Style)</h4>
+                    <code
+                        class="docs-code">[[Note Title]] -> Automatically creates a clickable link to that note.</code>
+
+                    <h4>🎨 Text Colors</h4>
                     <code class="docs-code">[This is red text]{red}</code>
+                    <code class="docs-code">[Adaptive White/Black]{white}</code>
+
+                    <h4>🖼️ Advanced Image Control</h4>
                     <code class="docs-code">![Alt](image_url.jpg){300x400, center}</code>
+                    <code class="docs-code">![Alt](image_url.jpg){500, left}</code>
+
+                    <h4>↔️ Text Alignment</h4>
                     <code class="docs-code">/center This text will be centered</code>
                 </div>
             </div>

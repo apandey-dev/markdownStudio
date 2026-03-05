@@ -79,7 +79,6 @@ body {
     display: none;
 }
 
-/* ✨ SKELETON LOADER (ZERO FLICKER FIX) ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -341,7 +340,7 @@ body.dark-mode .mode-toggle {
     border-radius: 0 4px 4px 0;
 }
 
-/* UNIFIED NAVBAR BUTTONS */
+/* ✨ UNIFIED NAVBAR BUTTONS ✨ */
 .nav-action-btn {
     display: flex;
     align-items: center;
@@ -357,6 +356,7 @@ body.dark-mode .mode-toggle {
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
+    height: 32px;
 }
 
 .nav-action-btn:hover {
@@ -425,6 +425,7 @@ body.dark-mode .mode-toggle {
     font-family: var(--ui-font);
     font-weight: 500;
     flex-shrink: 0;
+    box-shadow: 0 -4px 12px var(--shadow-color);
 }
 
 .sb-section {
@@ -439,32 +440,36 @@ body.dark-mode .mode-toggle {
     justify-content: center;
     gap: 4px;
     background: transparent;
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-    padding: 2px 10px;
     border-radius: 50px;
     cursor: pointer;
     font-family: var(--ui-font);
     font-size: 0.75rem;
     font-weight: 600;
     transition: all 0.2s ease;
+    padding: 4px 12px;
+    height: 26px;
 }
 
-.sb-action-btn:hover {
+.sync-note-btn {
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.sync-note-btn:hover {
     background: rgba(16, 185, 129, 0.1);
-    transform: translateY(-1px);
     border-color: #10b981;
+    transform: translateY(-1px);
 }
 
-/* ✨ Push All Button Styling ✨ */
-.sb-action-btn.push-all-btn {
+.push-all-btn {
     color: #3b82f6;
-    border-color: rgba(59, 130, 246, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
-.sb-action-btn.push-all-btn:hover {
+.push-all-btn:hover {
     background: rgba(59, 130, 246, 0.1);
     border-color: #3b82f6;
+    transform: translateY(-1px);
 }
 
 .sb-action-btn:disabled {
@@ -484,7 +489,6 @@ body.dark-mode .mode-toggle {
     padding: 4px 12px;
     font-size: 0.75rem;
 }
-
 
 .split-workspace {
     display: flex;
@@ -686,30 +690,12 @@ body.view-preview .divider {
     line-height: 1.6;
 }
 
-#preview-output::after,
-#dashboard-preview-output::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-#preview-output>*:first-child,
-#dashboard-preview-output>*:first-child {
-    margin-top: 0;
-}
-
 #preview-output h1,
 #dashboard-preview-output h1,
 #preview-output h2,
 #dashboard-preview-output h2,
 #preview-output h3,
-#dashboard-preview-output h3,
-#preview-output h4,
-#dashboard-preview-output h4,
-#preview-output h5,
-#dashboard-preview-output h5,
-#preview-output h6,
-#dashboard-preview-output h6 {
+#dashboard-preview-output h3 {
     margin-top: 1em;
     margin-bottom: 0.4em;
     font-weight: 600;
@@ -749,6 +735,53 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
+/* ✨ SMART INTERNAL NOTE LINKS (WIKI-LINKS) ✨ */
+a.internal-note-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    text-decoration: none !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    line-height: 1.2;
+    margin: 0 2px;
+}
+
+a.internal-note-link.valid-link {
+    color: var(--accent-color) !important;
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+}
+
+a.internal-note-link.valid-link:hover {
+    background-color: var(--border-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+a.internal-note-link.dead-link {
+    color: var(--text-color) !important;
+    background-color: transparent;
+    border: 1px dashed var(--border-color);
+    opacity: 0.6;
+}
+
+a.internal-note-link.dead-link:hover {
+    opacity: 1;
+    border-color: var(--accent-color);
+    color: var(--accent-color) !important;
+}
+
+a.internal-note-link i {
+    width: 12px;
+    height: 12px;
+    opacity: 0.7;
+}
+
+/* CODE BLOCKS */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -906,10 +939,7 @@ body.view-preview .divider {
     font-weight: 600 !important;
 }
 
-
-/* ==========================================================================
-   ✨ PREMIUM DASHBOARD (NOTES MODAL) UI UPGRADE ✨
-   ========================================================================== */
+/* MODALS */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -949,322 +979,6 @@ body.view-preview .divider {
     transform: translateY(0) scale(1);
     opacity: 1;
 }
-
-.notes-dashboard-box {
-    max-width: 1300px;
-    width: 95vw;
-    height: 88vh;
-    padding: 0;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-    border-radius: 24px;
-    background-color: var(--bg-color);
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
-    position: relative;
-}
-
-/* FOLDERS PANE */
-.notes-dashboard-folders {
-    width: 22%;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--hover-bg);
-    border-right: 1px solid var(--border-color);
-    padding-top: 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-}
-
-.notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
-    width: 0 !important;
-    min-width: 0 !important;
-    opacity: 0;
-    border-right: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.folders-header {
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.pane-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-color);
-    opacity: 0.5;
-    letter-spacing: 1px;
-}
-
-.folders-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-}
-
-/* MINIMALIST FOLDER ITEMS */
-.folder-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-color);
-    margin-bottom: 4px;
-    border: 1px solid transparent;
-}
-
-.folder-item:hover {
-    background-color: rgba(128, 128, 128, 0.1);
-}
-
-.folder-item.active {
-    background-color: var(--nav-bg);
-    color: var(--accent-color);
-    box-shadow: 0 2px 6px var(--shadow-color);
-    font-weight: 600;
-    border-color: var(--border-color);
-}
-
-.folder-item i {
-    width: 16px;
-    height: 16px;
-    opacity: 0.8;
-}
-
-.folder-del-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.3;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0;
-    margin-left: 4px;
-}
-
-.folder-del-btn i {
-    width: 14px;
-    height: 14px;
-    margin: 0;
-    pointer-events: none;
-}
-
-.folder-item:hover .folder-del-btn {
-    opacity: 0.7;
-}
-
-.folder-del-btn:hover {
-    opacity: 1 !important;
-    background-color: rgba(239, 68, 68, 0.15) !important;
-    color: #ef4444 !important;
-}
-
-/* NOTES LIST PANE */
-.notes-dashboard-left {
-    width: 30%;
-    min-width: 260px;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--nav-bg);
-    border-right: 1px solid var(--border-color);
-}
-
-.notes-dashboard-left-header {
-    padding: 24px 20px 16px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.notes-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding: 16px;
-    gap: 12px;
-    background: var(--hover-bg);
-}
-
-/* ✨ FLOATING CARD STYLE NOTE ITEMS ✨ */
-.note-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px var(--shadow-color);
-}
-
-.note-item:hover {
-    border-color: var(--text-color);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
-}
-
-/* Inverted High-Contrast Active State */
-.note-item.active {
-    background-color: var(--text-color);
-    border-color: var(--text-color);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.note-title {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: color 0.2s;
-}
-
-.note-title i {
-    width: 16px;
-    height: 16px;
-    opacity: 0.7;
-    flex-shrink: 0;
-}
-
-.note-item.active .note-title,
-.note-item.active span,
-.note-item.active i {
-    color: var(--bg-color) !important;
-    opacity: 1;
-}
-
-/* PREVIEW PANE & MODERN ACTIONS */
-.notes-dashboard-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--bg-color);
-    overflow: hidden;
-}
-
-/* ✨ OVERLAP FIX: Added extra padding-right (80px) so buttons don't hide under the absolute Close button ✨ */
-.dashboard-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 80px 16px 32px;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--nav-bg);
-    height: 72px;
-}
-
-.dash-action-group {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-left: auto;
-}
-
-/* Sleek Rectangle Buttons */
-.dash-pro-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 8px 16px;
-    font-family: var(--ui-font);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.dash-pro-btn i {
-    width: 16px;
-    height: 16px;
-}
-
-.dash-pro-btn:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--text-color);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px var(--shadow-color);
-}
-
-.dash-pro-btn.btn-delete {
-    color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.3);
-    background: rgba(239, 68, 68, 0.05);
-    padding: 8px 12px;
-}
-
-.dash-pro-btn.btn-delete:hover {
-    background-color: #ef4444;
-    color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
-    border-color: #ef4444;
-}
-
-.dashboard-preview-content {
-    flex: 1;
-    padding: 32px 48px;
-    overflow-y: auto;
-    font-family: var(--preview-font);
-    font-size: 1rem;
-}
-
-/* ✨ BEAUTIFUL NOTES MODAL CLOSE BUTTON ✨ */
-.notes-dashboard-box .btn-close-dashboard {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: var(--nav-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1000;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.notes-dashboard-box .btn-close-dashboard:hover {
-    transform: rotate(90deg) scale(1.1);
-    background: #ef4444;
-    border-color: #ef4444;
-    color: #ffffff;
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
-}
-
-/* ========================================================================== */
 
 .modal-title {
     font-size: 1.2rem;
@@ -1336,6 +1050,285 @@ body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+/* ✨ ALL NOTES DASHBOARD ✨ */
+.notes-dashboard-box {
+    max-width: 1300px;
+    width: 95vw;
+    height: 88vh;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    border-radius: 24px;
+    background-color: var(--bg-color);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
+    position: relative;
+}
+
+.notes-dashboard-folders {
+    width: 22%;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--hover-bg);
+    border-right: 1px solid var(--border-color);
+    padding-top: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
+    width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0;
+    border-right: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.folders-header {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pane-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-color);
+    opacity: 0.5;
+    letter-spacing: 1px;
+}
+
+.folders-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.folder-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+}
+
+.folder-item:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+}
+
+.folder-item.active {
+    background-color: var(--nav-bg);
+    color: var(--accent-color);
+    box-shadow: 0 2px 6px var(--shadow-color);
+    font-weight: 600;
+    border-color: var(--border-color);
+}
+
+.folder-item i {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+}
+
+.folder-del-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.3;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-left: 4px;
+}
+
+.folder-del-btn i {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    pointer-events: none;
+}
+
+.folder-item:hover .folder-del-btn {
+    opacity: 0.7;
+}
+
+.folder-del-btn:hover {
+    opacity: 1 !important;
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
+}
+
+.notes-dashboard-left {
+    width: 30%;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--nav-bg);
+    border-right: 1px solid var(--border-color);
+}
+
+.notes-dashboard-left-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notes-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 12px;
+    background: var(--hover-bg);
+}
+
+.note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.note-item:hover {
+    border-color: var(--text-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+.note-item.active {
+    background-color: var(--text-color);
+    border-color: var(--text-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.note-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.2s;
+}
+
+.note-title i {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.note-item.active .note-title,
+.note-item.active span,
+.note-item.active i {
+    color: var(--bg-color) !important;
+    opacity: 1;
+}
+
+.notes-dashboard-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    overflow: hidden;
+}
+
+/* ✨ DASHBOARD ACTIONS (CIRCULAR BUTTONS + CLOSE ALIGNMENT) ✨ */
+.dashboard-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--nav-bg);
+    height: 72px;
+}
+
+.dash-action-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.dash-circle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.dash-circle-btn i {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.dash-circle-btn:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--text-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.dash-circle-btn.btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* Dedicated Red Hover for Close X */
+.btn-close-dashboard:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}
+
+.dashboard-preview-content {
+    flex: 1;
+    padding: 32px 48px;
+    overflow-y: auto;
+    font-family: var(--preview-font);
+    font-size: 1rem;
+}
+
 /* WIDER DOCS MODAL */
 .docs-modal-box {
     max-width: 960px !important;
@@ -1394,27 +1387,6 @@ body.dark-mode .btn-cancel:hover {
     padding-bottom: 12px;
 }
 
-.docs-section h3 i {
-    opacity: 0.7;
-}
-
-.docs-section h4 {
-    margin-top: 24px;
-    margin-bottom: 8px;
-    font-size: 1.05rem;
-    color: var(--text-color);
-    font-weight: 600;
-}
-
-.docs-section ul {
-    padding-left: 20px;
-    margin-bottom: 16px;
-}
-
-.docs-section li {
-    margin-bottom: 8px;
-}
-
 .docs-code {
     display: block;
     background-color: var(--nav-bg);
@@ -1426,32 +1398,6 @@ body.dark-mode .btn-cancel:hover {
     margin: 8px 0 16px 0;
     color: var(--text-color);
     overflow-x: auto;
-}
-
-.docs-modal-box .btn-close-dashboard {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--nav-bg);
-    border: 1.5px solid var(--border-color);
-    color: var(--text-color);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.docs-modal-box .btn-close-dashboard:hover {
-    transform: scale(0.9);
-    background: var(--hover-bg);
-    border-color: var(--text-color);
-    color: var(--text-color);
 }
 
 /* PREMIUM MODALS */
@@ -1637,12 +1583,16 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 .delete-modal-box {
-    padding-top: 32px !important;
-    text-align: center !important;
+    max-width: 340px;
+    text-align: center;
+    padding: 32px 24px;
 }
 
 .delete-icon-wrapper {
-    justify-content: center !important;
+    color: #ef4444;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
 }
 
 .delete-icon-wrapper i {
@@ -1727,7 +1677,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* ✨ UPGRADED CIRCULAR BULK SYNC CHECKBOXES ✨ */
+/* ✨ CIRCULAR CHECKBOX FOR BULK SYNC ✨ */
 .sync-item {
     display: flex;
     align-items: center;
@@ -1737,47 +1687,51 @@ body.dark-mode .btn-help-cute:hover {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
 }
 
 .sync-item:hover {
-    border-color: var(--accent-color);
+    border-color: var(--text-color);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-.sync-checkbox {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 24px !important;
-    height: 24px !important;
+.sync-item input[type="checkbox"] {
+    display: none;
+}
+
+.sync-checkbox-custom {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
     border: 2px solid var(--border-color);
-    border-radius: 50% !important;
-    /* Perfect circle */
-    background-color: var(--nav-bg);
-    cursor: pointer;
-    position: relative;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    margin: 0 !important;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
     flex-shrink: 0;
 }
 
-.sync-checkbox:checked {
-    background-color: #10b981 !important;
-    border-color: #10b981 !important;
+.sync-checkbox-custom i {
+    width: 14px;
+    height: 14px;
+    color: white;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sync-item input[type="checkbox"]:checked+.sync-checkbox-custom {
+    background-color: #10b981;
+    border-color: #10b981;
     box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
-.sync-checkbox:checked::after {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 8px;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+.sync-item input[type="checkbox"]:checked+.sync-checkbox-custom i {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .sync-item-info {
@@ -1884,7 +1838,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* EXPORT PDF MODAL */
+/* PREMIUM EXPORT (PDF) MODAL STYLING (DESKTOP ONLY) */
 @media screen and (min-width: 769px) {
     #pdf-modal .modal-box {
         max-width: 480px;
@@ -1948,5 +1902,129 @@ body.dark-mode .btn-help-cute:hover {
 
     #pdf-modal .btn-cancel {
         border: 2px solid var(--border-color);
+    }
+}
+
+@media print {
+
+    .navbar,
+    .divider,
+    .modal-overlay,
+    #toast,
+    .editor-toolbar,
+    .status-bar {
+        display: none !important;
+    }
+
+    body,
+    .app-container,
+    .split-workspace {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
+        display: block !important;
+        background-color: var(--preview-bg) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .editor-panel {
+        display: none !important;
+    }
+
+    .preview-panel {
+        display: block !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background-color: var(--preview-bg) !important;
+        color: var(--text-color) !important;
+        overflow: visible !important;
+    }
+
+    #preview-output {
+        max-width: none !important;
+        margin: 0 !important;
+    }
+
+    #preview-output,
+    #dashboard-preview-output {
+        font-size: 11pt !important;
+        color: var(--text-color) !important;
+    }
+
+    #preview-output h1,
+    #dashboard-preview-output h1 {
+        font-size: 24pt !important;
+        margin-top: 20pt !important;
+        margin-bottom: 12pt !important;
+        color: var(--text-color) !important;
+    }
+
+    #preview-output h2,
+    #dashboard-preview-output h2 {
+        font-size: 18pt !important;
+        margin-top: 16pt !important;
+        margin-bottom: 8pt !important;
+        border-bottom: 1pt solid #ccc !important;
+        padding-bottom: 4pt !important;
+        color: var(--text-color) !important;
+    }
+
+    #preview-output h3,
+    #dashboard-preview-output h3 {
+        font-size: 14pt !important;
+        margin-top: 14pt !important;
+        margin-bottom: 6pt !important;
+        color: var(--text-color) !important;
+    }
+
+    #preview-output p,
+    #dashboard-preview-output p,
+    #preview-output li,
+    #dashboard-preview-output li {
+        font-size: 11pt !important;
+        line-height: 1.6 !important;
+        margin-bottom: 10pt !important;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+
+    pre,
+    blockquote,
+    table,
+    img,
+    tr,
+    td {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    pre,
+    pre code {
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        font-size: 9.5pt !important;
+        background-color: var(--hover-bg) !important;
+        color: var(--text-color) !important;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    .copy-code-btn {
+        display: none !important;
     }
 }

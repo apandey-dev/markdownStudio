@@ -1,4 +1,3 @@
-/* js/editor.js */
 /* ==========================================================================
    STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
@@ -47,7 +46,6 @@ const StorageManager = {
         }
     },
 
-    // ✨ FIXED: Calculate size safely via loop instead of JSON stringifying huge arrays
     async checkMigrationThreshold(notesArray) {
         if (this.useIDB || !this.db) return;
         try {
@@ -55,7 +53,7 @@ const StorageManager = {
             for (const n of notesArray) {
                 totalSize += n.content ? n.content.length : 0;
             }
-            if (totalSize > 3 * 1024 * 1024) { // 3MB Threshold
+            if (totalSize > 3 * 1024 * 1024) {
                 await this.migrateToIDB(notesArray);
             }
         } catch (e) {
@@ -82,7 +80,6 @@ const StorageManager = {
     },
 
     async saveNotes(notesArray, mode = 'local') {
-        // ✨ FIXED: _mode MUST be set before migrating, so IDB knows if it's local/github
         notesArray.forEach(n => {
             if (!n.lastUpdated) n.lastUpdated = Date.now();
             n._mode = mode;
@@ -112,7 +109,6 @@ const StorageManager = {
                 const req = store.getAll();
                 req.onsuccess = () => {
                     const all = req.result || [];
-                    // ✨ FIXED: Default missing _mode to 'local' if corrupted previously
                     const filtered = all.filter(n => (n._mode || 'local') === mode);
                     resolve(filtered.length > 0 ? filtered.sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0)) : null);
                 };
@@ -194,7 +190,6 @@ const OfflineQueue = {
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ✨ PRESERVED: Your 50ms delay for skeleton UI painting ✨
     setTimeout(async () => {
 
         await StorageManager.init();
@@ -224,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let syncRetries = 0;
         const MAX_SYNC_RETRIES = 3;
 
-        const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🎨 Custom SVG:** Paste raw SVG directly!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax. It works perfectly for articles!\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
+        const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
 
         function updatePillUI() {
             const isGithub = appMode === 'github';
@@ -362,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentNote = getActiveNote();
                 if (currentNote) {
                     const result = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
-                    // ✨ FIXED: Proper error throwing so failed 1MB+ files actually trigger retry
                     if (result && result !== 'conflict') {
                         currentNote.id = result.sha;
                         currentNote.path = result.path;
@@ -424,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     let addedOrUpdated = false;
                     cloudNotes.forEach(cn => {
                         const ln = mergedMap.get(cn.path);
-                        // ✨ FIXED: Compare exact SHAs (cn.id) rather than timestamps to prevent local overwrite
                         if (!ln || cn.id !== ln.id) {
                             if (ln) cn.lastUpdated = Date.now();
                             mergedMap.set(cn.path, cn);
@@ -789,6 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 item.innerHTML = `
                     <input type="checkbox" class="sync-checkbox" value="${index}" checked />
+                    <div class="sync-checkbox-custom"><i data-lucide="check"></i></div>
                     <div class="sync-item-info">
                         <span class="sync-item-title">${note.title}</span>
                         <span class="sync-item-folder"><i data-lucide="folder" style="width:10px;"></i> ${note.folder || 'All Notes'}</span>
@@ -925,11 +919,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span style="color: ${color};">${text}</span>`;
             });
 
+            processedText = processedText.replace(/\[\[(.*?)\]\]/g, (match, noteTitle) => {
+                const cleanTitle = noteTitle.trim();
+                const exists = notes.some(n => n.title.toLowerCase() === cleanTitle.toLowerCase());
+                const linkClass = exists ? 'valid-link' : 'dead-link';
+                const icon = exists ? 'file-symlink' : 'file-plus';
+                return `<a href="#" class="internal-note-link ${linkClass}" data-note="${cleanTitle}"><i data-lucide="${icon}"></i>${cleanTitle}</a>`;
+            });
+
             const htmlContent = marked.parse(processedText, { breaks: true, gfm: true });
 
             return DOMPurify.sanitize(htmlContent, {
                 ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline', 'g', 'defs', 'clipPath', 'use'],
-                ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule']
+                ADD_ATTR: ['style', 'class', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'width', 'height', 'x', 'y', 'xmlns', 'transform', 'fill-rule', 'clip-rule', 'data-note']
             });
         }
 
@@ -962,6 +964,44 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        function attachInternalLinkListeners(container) {
+            container.querySelectorAll('.internal-note-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetTitle = link.getAttribute('data-note');
+                    const targetNote = notes.find(n => n.title.toLowerCase() === targetTitle.toLowerCase());
+
+                    if (targetNote) {
+                        activeNoteId = targetNote.id;
+                        highlightedNoteId = targetNote.id;
+                        activeFolder = targetNote.folder || 'All Notes';
+                        editor.value = targetNote.content;
+                        saveLocalState();
+
+                        renderMarkdownCore(targetNote.content);
+
+                        if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
+                        if (typeof window.renderNotesList === 'function') window.renderNotesList();
+
+                        if (document.getElementById('notes-modal')?.classList.contains('show')) {
+                            window.renderDashboardPreview();
+                        } else {
+                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened: " + targetNote.title);
+                        }
+                    } else {
+                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note doesn't exist. Create it now!");
+                        const promptModal = document.getElementById('prompt-modal');
+                        const promptInput = document.getElementById('prompt-input');
+                        if (promptModal && promptInput) {
+                            promptInput.value = targetTitle;
+                            promptModal.classList.add('show');
+                            setTimeout(() => { promptInput.focus(); promptInput.select(); }, 100);
+                        }
+                    }
+                });
+            });
+        }
+
         window.renderDashboardPreview = async function () {
             const previewEl = document.getElementById('dashboard-preview-output');
             const note = notes.find(n => n.id === highlightedNoteId);
@@ -979,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(previewEl);
+            attachInternalLinkListeners(previewEl);
 
             if (typeof hljs !== 'undefined') {
                 previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1229,6 +1270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(preview);
+            attachInternalLinkListeners(preview);
 
             if (typeof hljs !== 'undefined') {
                 preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1311,6 +1353,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (action === 'code') { prefix = '\n```\n'; suffix = '\n```\n'; defaultText = 'code here'; }
                 else if (action === 'heading') { prefix = '### '; suffix = ''; defaultText = 'Heading'; }
                 else if (action === 'link') { prefix = '['; suffix = '](url)'; defaultText = 'link text'; }
+                else if (action === 'note-link') { prefix = '[['; suffix = ']]'; defaultText = 'Note Name'; }
                 else if (action === 'image') { prefix = '!['; suffix = '](https://example.com/image.jpg){center, 400xauto}'; defaultText = 'alt text'; }
                 else if (action === 'table') {
                     prefix = '\n| Header | Header |\n|--------|--------|\n| Cell   | Cell   |\n';
@@ -1554,5 +1597,5 @@ document.addEventListener('DOMContentLoaded', () => {
             loadLocalMode();
         }
 
-    }, 50); // ✨ PRESERVED: 50ms delay for skeleton UI
+    }, 50);
 });
