@@ -1,9 +1,12 @@
 /* ==========================================================================
-   MARKDOWN STUDIO - PREMIUM MOBILE UI/UX
+   📱 MARKDOWN STUDIO - PREMIUM NATIVE MOBILE UI/UX
+   Description: Complete Mobile Overhaul. Apple/Android Native App styling, 
+   perfect bottom-sheet sizing, and side-by-side fat-finger button alignments.
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
 
+    /* --- 1. GLOBAL MOBILE UTILITIES --- */
     .mobile-only {
         display: flex !important;
     }
@@ -12,25 +15,32 @@
         display: none !important;
     }
 
+    /* Prevent auto-zoom on input focus in iOS Safari */
     input,
-    textarea {
+    textarea,
+    select {
         font-size: 16px !important;
     }
 
+    /* Remove ugly blue tap highlight on mobile browsers */
     * {
         -webkit-tap-highlight-color: transparent !important;
     }
 
+    /* True full height handling dynamic browser URL bars */
     body {
         height: 100dvh !important;
+        overflow: hidden;
     }
 
+    /* --- 2. TOP NAVBAR --- */
     .navbar {
-        padding: 0 16px;
-        height: 56px;
+        padding: env(safe-area-inset-top) 16px 0;
+        height: calc(56px + env(safe-area-inset-top));
         gap: 12px;
         flex-wrap: nowrap;
         justify-content: flex-start;
+        box-shadow: 0 2px 10px var(--shadow-color);
     }
 
     #mobile-menu-btn {
@@ -38,11 +48,17 @@
         border: none;
         color: var(--text-color);
         cursor: pointer;
-        padding: 8px;
+        padding: 10px;
         margin-left: -8px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 12px;
+    }
+
+    #mobile-menu-btn:active {
+        background-color: var(--hover-bg);
+        transform: scale(0.95);
     }
 
     .brand {
@@ -58,46 +74,30 @@
         background-color: transparent !important;
         border: 1.5px solid var(--border-color) !important;
         color: var(--text-color) !important;
-        width: 36px !important;
-        height: 36px !important;
-        border-radius: 8px !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 12px !important;
         display: flex !important;
         align-items: center;
         justify-content: center;
         padding: 0 !important;
         box-shadow: none !important;
-        position: relative !important;
-        bottom: auto !important;
-        right: auto !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
     }
 
     #mobile-view-toggle i {
-        width: 18px !important;
-        height: 18px !important;
+        width: 20px !important;
+        height: 20px !important;
         margin: 0 !important;
     }
 
     #mobile-view-toggle:active {
         background-color: var(--hover-bg) !important;
-        transform: scale(0.95);
+        transform: scale(0.92);
     }
 
-    .mode-tab .tab-text {
-        display: none !important;
-    }
-
-    .mode-tab {
-        padding: 8px 0 !important;
-    }
-
-    .mode-tab i {
-        width: 16px !important;
-        height: 16px !important;
-        margin: 0 !important;
-    }
-
+    /* --- 3. EDITOR & PREVIEW WORKSPACE --- */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -125,10 +125,11 @@
     .preview-panel {
         flex: 1 !important;
         display: none;
-        padding: 20px 16px;
-        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+        padding: 24px 16px;
+        padding-bottom: calc(30px + env(safe-area-inset-bottom)) !important;
     }
 
+    /* View Routing Logic */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -143,22 +144,24 @@
 
     textarea {
         padding: 16px;
-        padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+        padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
+        line-height: 1.6 !important;
     }
 
+    /* Readability Adjustments for Mobile Screens */
     #preview-output h1,
     #dashboard-preview-output h1 {
-        font-size: 1.6rem !important;
+        font-size: 1.7rem !important;
     }
 
     #preview-output h2,
     #dashboard-preview-output h2 {
-        font-size: 1.3rem !important;
+        font-size: 1.4rem !important;
     }
 
     #preview-output h3,
     #dashboard-preview-output h3 {
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
     }
 
     #preview-output p,
@@ -167,9 +170,11 @@
     #dashboard-preview-output ul,
     #preview-output ol,
     #dashboard-preview-output ol {
-        font-size: 0.95rem !important;
+        font-size: 1rem !important;
+        line-height: 1.65 !important;
     }
 
+    /* Always visible copy button on mobile */
     .copy-code-btn {
         opacity: 1 !important;
         width: 36px !important;
@@ -181,40 +186,56 @@
 
     .copy-code-btn:active {
         transform: scale(0.9) !important;
+        background-color: var(--border-color) !important;
     }
 
+    /* --- 4. SCROLLABLE TOOLBAR --- */
     .editor-toolbar {
-        padding: 6px 8px !important;
-        gap: 4px !important;
-        min-height: 44px;
+        padding: 8px 12px !important;
+        gap: 8px !important;
+        min-height: 54px;
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .tool-btn {
-        padding: 6px !important;
+        padding: 8px 12px !important;
+        border-radius: 10px !important;
     }
 
     .tool-btn i {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .toolbar-divider {
+        margin: 0 4px !important;
+    }
+
+    /* --- 5. STATUS BAR --- */
+    .status-bar {
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        font-size: 0.75rem;
+        justify-content: space-between;
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -4px 16px var(--shadow-color);
+    }
+
+    .sb-action-btn {
+        padding: 8px 16px !important;
+        height: 34px !important;
+        font-size: 0.85rem !important;
+        border-radius: 12px !important;
+    }
+
+    .sb-action-btn i {
         width: 16px !important;
         height: 16px !important;
     }
 
-    .toolbar-divider {
-        margin: 0 2px !important;
-    }
-
-    .toolbar-spacer {
-        min-width: 8px !important;
-    }
-
-    .status-bar {
-        padding: 8px 16px;
-        padding-bottom: calc(8px + env(safe-area-inset-bottom));
-        font-size: 0.7rem;
-        justify-content: space-between;
-    }
-
+    /* --- 6. MOBILE APP MENU (SIDEBAR OVERLAY) --- */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -239,10 +260,10 @@
     .mobile-sidebar {
         position: absolute;
         top: 0;
-        left: -300px;
-        width: 280px;
+        left: -320px;
+        width: 300px;
         max-width: 85vw;
-        height: 100%;
+        height: 100dvh;
         background-color: var(--nav-bg);
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
         transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
@@ -251,11 +272,11 @@
     }
 
     .mobile-sidebar-overlay.show .mobile-sidebar {
-        transform: translateX(300px);
+        transform: translateX(320px);
     }
 
     .sidebar-header {
-        height: 60px !important;
+        height: calc(64px + env(safe-area-inset-top)) !important;
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
@@ -264,7 +285,7 @@
     }
 
     .sidebar-header h3 {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         margin: 0;
         font-family: var(--ui-font);
         font-weight: 600;
@@ -276,66 +297,85 @@
         border: none;
         color: var(--text-color);
         cursor: pointer;
-        width: 32px !important;
-        height: 32px !important;
+        width: 40px !important;
+        height: 40px !important;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background 0.2s !important;
     }
 
-    #close-sidebar-btn i {
-        width: 16px !important;
-        height: 16px !important;
-    }
-
     #close-sidebar-btn:active {
         background-color: var(--border-color) !important;
+        transform: scale(0.9);
     }
 
     .sidebar-links {
         padding: 20px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         overflow-y: auto;
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .sidebar-btn {
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 14px 16px;
-        border-radius: 12px;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: 14px;
         background-color: transparent;
         border: 1px solid var(--border-color);
         color: var(--text-color);
         font-family: var(--ui-font);
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 500;
     }
 
     .sidebar-btn i {
         color: var(--accent-color);
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
     }
 
     .sidebar-btn:active {
         background-color: var(--hover-bg);
         border-color: var(--text-color);
+        transform: scale(0.98);
+    }
+
+    .mode-tab .tab-text {
+        display: none !important;
+    }
+
+    .mode-tab {
+        padding: 12px 0 !important;
+    }
+
+    .mode-tab i {
+        width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
     }
 
     #mobile-mode-toggle,
     #mobile-theme-toggle {
-        padding: 4px;
+        padding: 6px;
         background-color: var(--toggle-track);
         border-radius: 100px;
+        height: 50px;
+        display: flex;
+        align-items: center;
     }
 
+    /* ==========================================================================
+       ✨ NATIVE BOTTOM SHEETS (MODALS) - PERFECT SIZING ✨
+       ========================================================================== */
     .modal-overlay {
         align-items: flex-end !important;
+        /* Stick to bottom */
         padding: 0 !important;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -343,11 +383,16 @@
 
     .modal-box {
         position: relative;
-        width: 100% !important;
-        max-width: 100% !important;
-        max-height: 90vh !important;
-        border-radius: 28px 28px 0 0 !important;
-        padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+
+        /* Auto-height allows small modals (Delete, Setup) to hug their content perfectly */
+        height: auto !important;
+        max-height: 90dvh !important;
+
+        border-radius: 32px 32px 0 0 !important;
+        /* Premium curve */
+        padding: 36px 24px calc(24px + env(safe-area-inset-bottom)) !important;
         margin: 0 !important;
         transform: translateY(100%) !important;
         transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
@@ -361,78 +406,118 @@
         transform: translateY(0) !important;
     }
 
+    /* Subtle Native Drag Handle Line */
     .modal-box::before {
         content: '';
         position: absolute;
-        top: 10px;
+        top: 12px;
         left: 50%;
         transform: translateX(-50%);
-        width: 40px;
+        width: 48px;
         height: 5px;
         background-color: var(--text-color);
-        opacity: 0.15;
+        opacity: 0.12;
         border-radius: 10px;
         z-index: 10;
     }
 
     .modal-title {
-        font-size: 1.3rem !important;
-        margin-bottom: 20px !important;
+        font-size: 1.4rem !important;
+        margin-bottom: 24px !important;
     }
 
+    /* Premium Input Styling */
     .modal-input,
     .dropdown-header {
-        padding: 12px 14px !important;
-        font-size: 0.95rem !important;
-        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        font-size: 1rem !important;
+        border-radius: 16px !important;
+        /* Squircle */
+        min-height: 56px !important;
     }
 
+    /* ✨ PERFECT BUTTON ALIGNMENT (SIDE-BY-SIDE) ✨ */
     .modal-actions {
+        display: flex !important;
         flex-direction: row !important;
+        /* Force Side-by-side */
         justify-content: space-between !important;
-        gap: 10px !important;
+        gap: 12px !important;
         width: 100% !important;
-        margin-top: 20px !important;
+        margin-top: 32px !important;
     }
 
     .modal-btn {
         flex: 1 !important;
-        padding: 12px !important;
-        font-size: 1rem !important;
-        border-radius: 12px !important;
+        /* Equal 50/50 width */
+        min-height: 54px !important;
+        /* Tall, tappable */
+        font-size: 1.05rem !important;
+        border-radius: 16px !important;
+        /* Match inputs */
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 16px !important;
     }
 
+    /* Specific Modal Tweaks */
     .premium-modal {
-        padding-top: 40px !important;
-        border-radius: 32px 32px 0 0 !important;
+        padding-top: 48px !important;
     }
 
     .premium-icon-wrapper {
-        width: 56px !important;
-        height: 56px !important;
-        margin-bottom: 20px !important;
+        width: 72px !important;
+        height: 72px !important;
+        margin-bottom: 24px !important;
+        border-radius: 24px !important;
     }
 
     .premium-icon-wrapper i {
-        width: 28px !important;
-        height: 28px !important;
+        width: 36px !important;
+        height: 36px !important;
     }
 
-    .premium-modal-header {
-        margin-bottom: 24px !important;
+    .delete-modal-box {
+        padding-top: 48px !important;
+        text-align: center !important;
     }
 
-    .premium-input-group .modal-input {
-        padding: 18px 20px !important;
+    .delete-icon-wrapper i {
+        width: 56px !important;
+        height: 56px !important;
+    }
+
+    /* ✨ BULK SYNC MODAL FIX ✨ 
+       Because Bulk Sync has multiple rows of buttons, we stack its main container but keep inner buttons side-by-side */
+    #bulk-sync-modal .modal-actions {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    #bulk-sync-modal .modal-actions>div {
+        display: flex !important;
+        flex-direction: row !important;
+        width: 100% !important;
+        gap: 12px !important;
+    }
+
+    #bulk-sync-modal .modal-btn {
+        min-height: 48px !important;
         border-radius: 14px !important;
     }
 
-    .notes-dashboard-box {
+
+    /* ==========================================================================
+       ✨ NATIVE FULL-SCREEN DASHBOARD (WIDGETS) ✨
+       ========================================================================== */
+    .notes-dashboard-box,
+    .docs-modal-box {
         padding: 0 !important;
         display: block !important;
         overflow: hidden !important;
-        border-radius: 20px 20px 0 0 !important;
-        height: 95dvh !important;
+        border-radius: 24px 24px 0 0 !important;
+        height: 96dvh !important;
+        /* Enforces full screen for Dashboard & Docs */
     }
 
     .notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
@@ -440,13 +525,14 @@
         opacity: 1;
     }
 
+    /* Dashboard Swiping Logic */
     .notes-dashboard-folders {
         width: 100% !important;
         height: 100% !important;
         min-height: 50vh;
         border-right: none !important;
         padding-top: 24px !important;
-        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         position: absolute;
         top: 0;
         left: 0;
@@ -459,7 +545,7 @@
         height: 100% !important;
         min-height: 50vh;
         border-right: none !important;
-        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s !important;
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s !important;
         padding-top: 24px !important;
         position: absolute;
         top: 0;
@@ -476,7 +562,7 @@
         width: 100% !important;
         height: 100% !important;
         transform: translateX(100%);
-        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         z-index: 50;
         background-color: var(--preview-bg) !important;
         display: flex;
@@ -504,64 +590,80 @@
 
     .folders-header,
     .notes-dashboard-left-header {
-        padding: 0 20px 16px 20px !important;
+        padding: 0 24px 16px 24px !important;
+    }
+
+    /* Premium Dashboard Close Button */
+    .notes-dashboard-box .btn-close-dashboard,
+    .docs-modal-box .btn-close-dashboard {
+        top: 20px !important;
+        right: 16px !important;
+        width: 40px !important;
+        height: 40px !important;
+        background-color: var(--hover-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-color) !important;
+        opacity: 1 !important;
+        z-index: 100;
     }
 
     .mobile-back-to-folders {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         background: transparent;
         border: none;
         color: var(--accent-color);
         font-family: var(--ui-font);
         font-weight: 600;
-        font-size: 1rem;
-        padding: 8px 12px 8px 0;
+        font-size: 1.05rem;
+        padding: 8px 16px 8px 0;
         margin-bottom: 12px;
         cursor: pointer;
     }
 
     .mobile-back-to-folders i {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
     }
 
     .folder-del-btn {
         opacity: 0.7 !important;
-        padding: 6px !important;
-        width: 36px !important;
-        height: 36px !important;
+        padding: 10px !important;
+        width: 44px !important;
+        height: 44px !important;
         margin-left: 6px;
     }
 
     .folder-del-btn i {
-        width: 18px !important;
-        height: 18px !important;
+        width: 20px !important;
+        height: 20px !important;
     }
 
     #btn-new-note {
-        font-size: 0.95rem !important;
+        font-size: 1rem !important;
+        height: 50px !important;
+        border-radius: 14px !important;
     }
 
     .folders-list,
     .notes-list {
-        padding: 0 20px calc(20px + env(safe-area-inset-bottom)) !important;
+        padding: 0 20px calc(40px + env(safe-area-inset-bottom)) !important;
         flex: 1;
         overflow-y: auto;
     }
 
     .folder-item {
-        padding: 14px 16px !important;
-        border-radius: 12px !important;
-        margin-bottom: 8px;
+        padding: 18px 20px !important;
+        border-radius: 16px !important;
+        margin-bottom: 10px;
         background: var(--nav-bg);
         border: 1px solid var(--border-color);
     }
 
     .note-item {
-        padding: 16px !important;
-        border-radius: 14px !important;
+        padding: 18px 20px !important;
+        border-radius: 16px !important;
         margin-bottom: 12px;
         box-shadow: 0 2px 8px var(--shadow-color) !important;
     }
@@ -570,9 +672,9 @@
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
+    /* Dashboard Note Action Bar */
     .dashboard-actions {
-        padding: 12px 20px !important;
+        padding: 16px 24px !important;
         gap: 12px !important;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg) !important;
@@ -583,16 +685,21 @@
     }
 
     .dash-circle-btn {
-        width: 40px !important;
-        height: 40px !important;
+        width: 46px !important;
+        height: 46px !important;
         border-radius: 50% !important;
         padding: 0 !important;
+        background: var(--bg-color) !important;
     }
 
     .dash-circle-btn i {
-        width: 18px !important;
-        height: 18px !important;
+        width: 20px !important;
+        height: 20px !important;
         margin: 0 !important;
+    }
+
+    .dash-circle-btn:active {
+        transform: scale(0.9);
     }
 
     .pill-btn.btn-back {
@@ -600,41 +707,41 @@
         background-color: transparent;
         font-family: var(--ui-font);
         font-weight: 600;
-        font-size: 1rem !important;
+        font-size: 1.05rem !important;
         color: var(--accent-color) !important;
         padding: 0 8px !important;
-        border-radius: 8px !important;
+        border-radius: 12px !important;
     }
 
     .pill-btn.btn-back i {
-        width: 20px !important;
-        height: 20px !important;
+        width: 22px !important;
+        height: 22px !important;
     }
 
     .dashboard-preview-content {
-        padding: 20px 20px calc(80px + env(safe-area-inset-bottom)) !important;
+        padding: 24px 20px calc(80px + env(safe-area-inset-bottom)) !important;
         flex: 1;
         overflow-y: auto;
     }
 
+    /* --- 9. MISC FIXES --- */
     .docs-modal-box {
-        height: 95dvh !important;
         padding: 0 !important;
         display: flex !important;
         flex-direction: column !important;
     }
 
     .docs-header {
-        padding: 24px 64px 20px 24px !important;
+        padding: 28px 64px 20px 24px !important;
     }
 
     .docs-header h2 {
-        font-size: 1.3rem !important;
+        font-size: 1.4rem !important;
     }
 
     .docs-body {
         padding: 24px !important;
-        padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
+        padding-bottom: calc(60px + env(safe-area-inset-bottom)) !important;
     }
 
     .docs-section {
@@ -642,38 +749,20 @@
     }
 
     .docs-section h3 {
-        font-size: 1.1rem !important;
-    }
-
-    .delete-modal-box {
-        padding-top: 48px !important;
-        text-align: center !important;
-    }
-
-    .delete-icon-wrapper {
-        justify-content: center !important;
-    }
-
-    .setup-modal-box {
-        padding-top: 48px !important;
+        font-size: 1.2rem !important;
     }
 
     #toast {
-        bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
         width: auto !important;
-        min-width: 0 !important;
         max-width: calc(100vw - 32px) !important;
         left: 50% !important;
-        right: auto !important;
         margin-left: 0 !important;
         transform: translate(-50%, 20px) !important;
-        padding: 12px 24px !important;
+        padding: 14px 24px !important;
         border-radius: 50px !important;
-        font-size: 0.9rem !important;
-        text-align: center !important;
-        white-space: pre-wrap !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
-        z-index: 99999 !important;
+        font-size: 0.95rem !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
     }
 
     #toast.show {
@@ -684,6 +773,6 @@
         width: calc(100vw - 32px);
         right: 16px;
         left: 16px;
-        bottom: max(24px, env(safe-area-inset-bottom));
+        bottom: calc(24px + env(safe-area-inset-bottom));
     }
 }
