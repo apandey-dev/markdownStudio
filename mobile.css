@@ -1,12 +1,9 @@
 /* ==========================================================================
-   📱 MARKDOWN STUDIO - PREMIUM NATIVE MOBILE UI/UX
-   Description: Complete Mobile Overhaul. Apple/Android Native App styling, 
-   perfect bottom-sheet sizing, and side-by-side fat-finger button alignments.
+   MARKDOWN STUDIO - PREMIUM MOBILE UI/UX
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
 
-    /* --- 1. GLOBAL MOBILE UTILITIES --- */
     .mobile-only {
         display: flex !important;
     }
@@ -15,25 +12,22 @@
         display: none !important;
     }
 
-    /* Prevent auto-zoom on input focus in iOS Safari */
     input,
     textarea,
     select {
         font-size: 16px !important;
     }
 
-    /* Remove ugly blue tap highlight on mobile browsers */
     * {
         -webkit-tap-highlight-color: transparent !important;
     }
 
-    /* True full height handling dynamic browser URL bars */
     body {
         height: 100dvh !important;
         overflow: hidden;
     }
 
-    /* --- 2. TOP NAVBAR --- */
+    /* NAVBAR */
     .navbar {
         padding: env(safe-area-inset-top) 16px 0;
         height: calc(56px + env(safe-area-inset-top));
@@ -97,7 +91,7 @@
         transform: scale(0.92);
     }
 
-    /* --- 3. EDITOR & PREVIEW WORKSPACE --- */
+    /* WORKSPACE */
     .app-container {
         flex: 1 !important;
         height: 100% !important;
@@ -129,7 +123,6 @@
         padding-bottom: calc(30px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* View Routing Logic */
     body.show-preview .editor-panel {
         display: none !important;
     }
@@ -148,7 +141,6 @@
         line-height: 1.6 !important;
     }
 
-    /* Readability Adjustments for Mobile Screens */
     #preview-output h1,
     #dashboard-preview-output h1 {
         font-size: 1.7rem !important;
@@ -174,7 +166,6 @@
         line-height: 1.65 !important;
     }
 
-    /* Always visible copy button on mobile */
     .copy-code-btn {
         opacity: 1 !important;
         width: 36px !important;
@@ -189,7 +180,7 @@
         background-color: var(--border-color) !important;
     }
 
-    /* --- 4. SCROLLABLE TOOLBAR --- */
+    /* TOOLBAR */
     .editor-toolbar {
         padding: 8px 12px !important;
         gap: 8px !important;
@@ -213,29 +204,36 @@
         margin: 0 4px !important;
     }
 
-    /* --- 5. STATUS BAR --- */
+    /* ✨ HORIZONTALLY SCROLLABLE STATUS BAR (NO TEXT CUTOFF) ✨ */
     .status-bar {
         padding: 12px 16px;
         padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        font-size: 0.75rem;
-        justify-content: space-between;
-        border-top: 1px solid var(--border-color);
-        box-shadow: 0 -4px 16px var(--shadow-color);
+        justify-content: flex-start;
+        gap: 12px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .status-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sb-section {
+        gap: 6px;
     }
 
     .sb-action-btn {
-        padding: 8px 16px !important;
+        padding: 8px 14px !important;
         height: 34px !important;
         font-size: 0.85rem !important;
         border-radius: 12px !important;
     }
 
-    .sb-action-btn i {
-        width: 16px !important;
-        height: 16px !important;
+    .sb-action-btn span.desktop-only {
+        display: none !important;
     }
 
-    /* --- 6. MOBILE APP MENU (SIDEBAR OVERLAY) --- */
+    /* SIDEBAR OVERLAY */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -370,12 +368,9 @@
         align-items: center;
     }
 
-    /* ==========================================================================
-       ✨ NATIVE BOTTOM SHEETS (MODALS) - PERFECT SIZING ✨
-       ========================================================================== */
+    /* NATIVE BOTTOM SHEETS (MODALS) */
     .modal-overlay {
         align-items: flex-end !important;
-        /* Stick to bottom */
         padding: 0 !important;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -385,13 +380,9 @@
         position: relative;
         width: 100vw !important;
         max-width: 100vw !important;
-
-        /* Auto-height allows small modals (Delete, Setup) to hug their content perfectly */
         height: auto !important;
         max-height: 90dvh !important;
-
         border-radius: 32px 32px 0 0 !important;
-        /* Premium curve */
         padding: 36px 24px calc(24px + env(safe-area-inset-bottom)) !important;
         margin: 0 !important;
         transform: translateY(100%) !important;
@@ -406,7 +397,6 @@
         transform: translateY(0) !important;
     }
 
-    /* Subtle Native Drag Handle Line */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -426,21 +416,18 @@
         margin-bottom: 24px !important;
     }
 
-    /* Premium Input Styling */
     .modal-input,
     .dropdown-header {
         padding: 16px 20px !important;
         font-size: 1rem !important;
         border-radius: 16px !important;
-        /* Squircle */
         min-height: 56px !important;
     }
 
-    /* ✨ PERFECT BUTTON ALIGNMENT (SIDE-BY-SIDE) ✨ */
+    /* Perfect side-by-side buttons */
     .modal-actions {
         display: flex !important;
         flex-direction: row !important;
-        /* Force Side-by-side */
         justify-content: space-between !important;
         gap: 12px !important;
         width: 100% !important;
@@ -449,18 +436,14 @@
 
     .modal-btn {
         flex: 1 !important;
-        /* Equal 50/50 width */
         min-height: 54px !important;
-        /* Tall, tappable */
         font-size: 1.05rem !important;
         border-radius: 16px !important;
-        /* Match inputs */
         justify-content: center !important;
         margin: 0 !important;
         padding: 0 16px !important;
     }
 
-    /* Specific Modal Tweaks */
     .premium-modal {
         padding-top: 48px !important;
     }
@@ -487,8 +470,6 @@
         height: 56px !important;
     }
 
-    /* ✨ BULK SYNC MODAL FIX ✨ 
-       Because Bulk Sync has multiple rows of buttons, we stack its main container but keep inner buttons side-by-side */
     #bulk-sync-modal .modal-actions {
         flex-direction: column !important;
         gap: 16px !important;
@@ -507,9 +488,7 @@
     }
 
 
-    /* ==========================================================================
-       ✨ NATIVE FULL-SCREEN DASHBOARD (WIDGETS) ✨
-       ========================================================================== */
+    /* NATIVE FULL-SCREEN DASHBOARD */
     .notes-dashboard-box,
     .docs-modal-box {
         padding: 0 !important;
@@ -517,7 +496,6 @@
         overflow: hidden !important;
         border-radius: 24px 24px 0 0 !important;
         height: 96dvh !important;
-        /* Enforces full screen for Dashboard & Docs */
     }
 
     .notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
@@ -525,7 +503,6 @@
         opacity: 1;
     }
 
-    /* Dashboard Swiping Logic */
     .notes-dashboard-folders {
         width: 100% !important;
         height: 100% !important;
@@ -593,7 +570,6 @@
         padding: 0 24px 16px 24px !important;
     }
 
-    /* Premium Dashboard Close Button */
     .notes-dashboard-box .btn-close-dashboard,
     .docs-modal-box .btn-close-dashboard {
         top: 20px !important;
@@ -605,6 +581,7 @@
         color: var(--text-color) !important;
         opacity: 1 !important;
         z-index: 100;
+        padding: 0 !important;
     }
 
     .mobile-back-to-folders {
@@ -665,16 +642,15 @@
         padding: 18px 20px !important;
         border-radius: 16px !important;
         margin-bottom: 12px;
-        box-shadow: 0 2px 8px var(--shadow-color) !important;
+        box-shadow: 0 4px 12px var(--shadow-color) !important;
     }
 
     .note-item.active {
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* Dashboard Note Action Bar */
     .dashboard-actions {
-        padding: 16px 24px !important;
+        padding: 12px 24px !important;
         gap: 12px !important;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg) !important;
@@ -724,7 +700,6 @@
         overflow-y: auto;
     }
 
-    /* --- 9. MISC FIXES --- */
     .docs-modal-box {
         padding: 0 !important;
         display: flex !important;
@@ -750,6 +725,10 @@
 
     .docs-section h3 {
         font-size: 1.2rem !important;
+    }
+
+    .setup-modal-box {
+        padding-top: 48px !important;
     }
 
     #toast {

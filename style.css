@@ -79,6 +79,7 @@ body {
     display: none;
 }
 
+/* ✨ SKELETON LOADER (ZERO FLICKER FIX) ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -329,17 +330,6 @@ body.dark-mode .mode-toggle {
     background-color: var(--shadow-color);
 }
 
-.dropdown-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 15%;
-    bottom: 15%;
-    width: 3px;
-    background-color: var(--accent-color);
-    border-radius: 0 4px 4px 0;
-}
-
 /* ✨ UNIFIED NAVBAR BUTTONS ✨ */
 .nav-action-btn {
     display: flex;
@@ -356,7 +346,6 @@ body.dark-mode .mode-toggle {
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    height: 32px;
 }
 
 .nav-action-btn:hover {
@@ -417,7 +406,7 @@ body.dark-mode .mode-toggle {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 24px;
+    padding: 8px 24px;
     background-color: var(--nav-bg);
     border-top: 1px solid var(--border-color);
     font-size: 0.75rem;
@@ -425,29 +414,57 @@ body.dark-mode .mode-toggle {
     font-family: var(--ui-font);
     font-weight: 500;
     flex-shrink: 0;
-    box-shadow: 0 -4px 12px var(--shadow-color);
+    box-shadow: 0 -4px 16px var(--shadow-color);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.status-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .sb-section {
     display: flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
 }
 
 .sb-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     background: transparent;
+    padding: 4px 12px;
     border-radius: 50px;
     cursor: pointer;
     font-family: var(--ui-font);
     font-size: 0.75rem;
     font-weight: 600;
     transition: all 0.2s ease;
-    padding: 4px 12px;
-    height: 26px;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.sb-action-btn:hover {
+    background: var(--hover-bg);
+    transform: translateY(-1px);
+    border-color: var(--text-color);
+}
+
+/* Manual Save & Sync Styling */
+.manual-save-btn {
+    background: var(--accent-color);
+    color: var(--btn-text);
+    border-color: var(--accent-color);
+}
+
+.manual-save-btn:hover {
+    background: var(--text-color);
+    color: var(--bg-color);
+    border-color: var(--text-color);
+    opacity: 0.9;
 }
 
 .sync-note-btn {
@@ -458,7 +475,6 @@ body.dark-mode .mode-toggle {
 .sync-note-btn:hover {
     background: rgba(16, 185, 129, 0.1);
     border-color: #10b981;
-    transform: translateY(-1px);
 }
 
 .push-all-btn {
@@ -469,12 +485,12 @@ body.dark-mode .mode-toggle {
 .push-all-btn:hover {
     background: rgba(59, 130, 246, 0.1);
     border-color: #3b82f6;
-    transform: translateY(-1px);
 }
 
 .sb-action-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
 
 .sb-theme-toggle {
@@ -1258,6 +1274,7 @@ body.dark-mode .btn-cancel:hover {
     flex-direction: column;
     background-color: var(--bg-color);
     overflow: hidden;
+    position: relative;
 }
 
 /* ✨ DASHBOARD ACTIONS (CIRCULAR BUTTONS + CLOSE ALIGNMENT) ✨ */
@@ -1265,7 +1282,7 @@ body.dark-mode .btn-cancel:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 32px;
+    padding: 16px 80px 16px 32px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
     height: 72px;
@@ -1313,11 +1330,30 @@ body.dark-mode .btn-cancel:hover {
 }
 
 /* Dedicated Red Hover for Close X */
-.btn-close-dashboard:hover {
+.notes-dashboard-box .btn-close-dashboard {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--nav-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.notes-dashboard-box .btn-close-dashboard:hover {
+    transform: rotate(90deg) scale(1.1);
     background: #ef4444;
     border-color: #ef4444;
     color: #ffffff;
-    transform: rotate(90deg) scale(1.1);
     box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
 }
 
@@ -1328,6 +1364,7 @@ body.dark-mode .btn-cancel:hover {
     font-family: var(--preview-font);
     font-size: 1rem;
 }
+
 
 /* WIDER DOCS MODAL */
 .docs-modal-box {
@@ -1398,6 +1435,32 @@ body.dark-mode .btn-cancel:hover {
     margin: 8px 0 16px 0;
     color: var(--text-color);
     overflow-x: auto;
+}
+
+.docs-modal-box .btn-close-dashboard {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--nav-bg);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.docs-modal-box .btn-close-dashboard:hover {
+    transform: scale(0.9);
+    background: var(--hover-bg);
+    border-color: var(--text-color);
+    color: var(--text-color);
 }
 
 /* PREMIUM MODALS */
@@ -1677,7 +1740,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* ✨ CIRCULAR CHECKBOX FOR BULK SYNC ✨ */
+/* ✨ UPGRADED PURE CSS CIRCULAR CHECKBOXES ✨ */
 .sync-item {
     display: flex;
     align-items: center;
@@ -1838,7 +1901,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* PREMIUM EXPORT (PDF) MODAL STYLING (DESKTOP ONLY) */
+/* PREMIUM EXPORT PDF MODAL */
 @media screen and (min-width: 769px) {
     #pdf-modal .modal-box {
         max-width: 480px;

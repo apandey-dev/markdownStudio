@@ -1,3 +1,4 @@
+/* js/editor.js */
 /* ==========================================================================
    STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
@@ -53,7 +54,7 @@ const StorageManager = {
             for (const n of notesArray) {
                 totalSize += n.content ? n.content.length : 0;
             }
-            if (totalSize > 3 * 1024 * 1024) {
+            if (totalSize > 3 * 1024 * 1024) { 
                 await this.migrateToIDB(notesArray);
             }
         } catch (e) {
@@ -218,8 +219,70 @@ document.addEventListener('DOMContentLoaded', () => {
         let syncTimer = null;
         let syncRetries = 0;
         const MAX_SYNC_RETRIES = 3;
+        
+        // ✨ AUTO-SAVE STATE ✨
+        let isAutoSave = localStorage.getItem('md_autosave') !== 'false';
 
         const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
+
+        // ✨ UPDATE AUTOSAVE UI ✨
+        function updateAutoSaveUI() {
+            const btnToggle = document.getElementById('btn-toggle-autosave');
+            const btnManual = document.getElementById('btn-manual-save');
+            if(btnToggle && btnManual) {
+                if(isAutoSave) {
+                    btnToggle.innerHTML = `<i data-lucide="toggle-right" style="width: 16px; height: 16px; color: #10b981;"></i> <span class="desktop-only" style="color:var(--text-color);">Auto-Save: ON</span>`;
+                    btnToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    btnManual.style.display = 'none';
+                } else {
+                    btnToggle.innerHTML = `<i data-lucide="toggle-left" style="width: 16px; height: 16px; color: #ef4444;"></i> <span class="desktop-only" style="color:var(--text-color);">Auto-Save: OFF</span>`;
+                    btnToggle.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                    btnManual.style.display = 'flex';
+                }
+            }
+            if(window.lucide) lucide.createIcons();
+        }
+
+        // ✨ MANUAL SAVE & TOGGLE HANDLERS ✨
+        document.getElementById('btn-toggle-autosave')?.addEventListener('click', async () => {
+            isAutoSave = !isAutoSave;
+            localStorage.setItem('md_autosave', isAutoSave);
+            updateAutoSaveUI();
+            if (isAutoSave) {
+                // Instantly save pending work if turned back on
+                await saveLocalState();
+                if (appMode === 'github') triggerCloudSync();
+                window.showToast("<i data-lucide='check-circle'></i> Auto-Save Enabled");
+            } else {
+                window.showToast("<i data-lucide='info'></i> Auto-Save Disabled. Use 'Save Now' to sync.");
+            }
+        });
+
+        document.getElementById('btn-manual-save')?.addEventListener('click', async () => {
+            const btn = document.getElementById('btn-manual-save');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 14px; height: 14px;"></i> <span class="desktop-only">Saving...</span>`;
+            btn.disabled = true;
+            if (window.lucide) lucide.createIcons();
+
+            const activeNote = getActiveNote();
+            if (activeNote) {
+                activeNote.content = editor.value;
+                activeNote.lastUpdated = Date.now();
+                await saveLocalState();
+                
+                // If in GitHub mode, force immediate sync
+                if (appMode === 'github') {
+                    await performCloudSync();
+                }
+            }
+            
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+            window.showToast("<i data-lucide='save'></i> Note Saved Successfully!");
+        });
+
 
         function updatePillUI() {
             const isGithub = appMode === 'github';
@@ -310,20 +373,10 @@ document.addEventListener('DOMContentLoaded', () => {
             await StorageManager.saveNotes(notes, mode);
         }
 
-        window.addEventListener('beforeunload', () => {
-            if (getActiveNote() && editor.value) {
-                getActiveNote().content = editor.value;
-                getActiveNote().lastUpdated = Date.now();
-                const key = appMode === 'local' ? 'md_notes_local' : 'md_notes_github';
-                StorageManager.safeSetLocal(key, JSON.stringify(notes));
-                StorageManager.safeSetLocal(`md_active_${appMode}`, activeNoteId);
-            }
-        });
-
         window.addEventListener('online', () => {
             if (appMode === 'github') {
                 OfflineQueue.process();
-                triggerCloudSync();
+                if(isAutoSave) triggerCloudSync();
             }
         });
 
@@ -440,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await saveLocalState();
                 finishAppLoad();
                 updatePillUI();
-                triggerCloudSync();
+                if(isAutoSave) triggerCloudSync();
 
             } else {
                 window.showToast("Token invalid or offline. Working purely locally.");
@@ -547,6 +600,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function finishAppLoad() {
+            updateAutoSaveUI(); // Initialize Auto-Save UI
+            
             const note = getActiveNote();
             if (!note) return;
 
@@ -732,42 +787,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
         });
 
-        document.getElementById('btn-sync-current')?.addEventListener('click', async () => {
-            const token = localStorage.getItem('md_github_token');
-            if (!token) return window.showToast("Please connect your GitHub PAT first.");
-
-            const currentNote = getActiveNote();
-            if (!currentNote) return window.showToast("No active note to sync.");
-
-            const btn = document.getElementById('btn-sync-current');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span class="desktop-only">Syncing</span>`;
-            btn.disabled = true;
-            if (window.lucide) lucide.createIcons();
-
-            const success = await GitHubBackend.init(token);
-            if (success) {
-                try {
-                    const res = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
-                    if (res && res !== 'conflict') {
-                        currentNote.id = res.sha;
-                        currentNote.path = res.path;
-                        currentNote.lastUpdated = Date.now();
-                        await saveLocalState();
-                        window.showToast(`<i data-lucide='check-circle'></i> ${currentNote.title} synced!`);
-                    } else if (res === 'conflict') {
-                        window.showToast("Conflict detected. Note already modified on cloud.");
-                    } else {
-                        window.showToast("Failed to sync current note.");
-                    }
-                } catch (e) { window.showToast("Upload error occurred."); }
-            }
-
-            btn.innerHTML = originalHTML;
-            btn.disabled = false;
-            if (window.lucide) lucide.createIcons();
-        });
-
         const bulkSyncModal = document.getElementById('bulk-sync-modal');
         const bulkSyncList = document.getElementById('bulk-sync-list');
 
@@ -869,6 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
         });
 
+        // ✨ UPDATED PARSER TO HANDLE WIKI-LINKS ✨
         function customMarkdownParser(rawText) {
             let processedText = rawText.replace(/\r\n/g, '\n');
 
@@ -919,6 +939,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span style="color: ${color};">${text}</span>`;
             });
 
+            // ✨ SMART WIKI-LINK PARSER: Determines valid vs dead links instantly
             processedText = processedText.replace(/\[\[(.*?)\]\]/g, (match, noteTitle) => {
                 const cleanTitle = noteTitle.trim();
                 const exists = notes.some(n => n.title.toLowerCase() === cleanTitle.toLowerCase());
@@ -964,31 +985,33 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // ✨ CLICK LISTENERS FOR INTERNAL LINKS ✨
         function attachInternalLinkListeners(container) {
             container.querySelectorAll('.internal-note-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const targetTitle = link.getAttribute('data-note');
                     const targetNote = notes.find(n => n.title.toLowerCase() === targetTitle.toLowerCase());
-
+                    
                     if (targetNote) {
                         activeNoteId = targetNote.id;
                         highlightedNoteId = targetNote.id;
                         activeFolder = targetNote.folder || 'All Notes';
                         editor.value = targetNote.content;
                         saveLocalState();
-
+                        
                         renderMarkdownCore(targetNote.content);
-
+                        
                         if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
                         if (typeof window.renderNotesList === 'function') window.renderNotesList();
-
+                        
                         if (document.getElementById('notes-modal')?.classList.contains('show')) {
                             window.renderDashboardPreview();
                         } else {
                             if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened: " + targetNote.title);
                         }
                     } else {
+                        // User clicked a non-existent note - open prompt to create it!
                         if (window.showToast) window.showToast("<i data-lucide='info'></i> Note doesn't exist. Create it now!");
                         const promptModal = document.getElementById('prompt-modal');
                         const promptInput = document.getElementById('prompt-input');
@@ -1019,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(previewEl);
-            attachInternalLinkListeners(previewEl);
+            attachInternalLinkListeners(previewEl); // Attach listeners to the dashboard preview too!
 
             if (typeof hljs !== 'undefined') {
                 previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1027,8 +1050,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         };
 
+        // ✨ SAFE NOTE SWITCHING (Saves local changes before swapping) ✨
         document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
             if (!highlightedNoteId) return;
+            
+            // Save current memory to DB before swapping
+            if (getActiveNote() && editor.value !== getActiveNote().content) {
+                getActiveNote().content = editor.value;
+                getActiveNote().lastUpdated = Date.now();
+                await saveLocalState();
+                if(isAutoSave && appMode === 'github') triggerCloudSync();
+            }
+
             activeNoteId = highlightedNoteId;
             await saveLocalState();
             editor.value = getActiveNote().content;
@@ -1179,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             promptModal.classList.remove('show');
             if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
 
-            if (appMode === 'github') triggerCloudSync();
+            if (isAutoSave && appMode === 'github') triggerCloudSync();
             window.showToast("<i data-lucide='check-circle'></i> " + noteData.title + " created!");
         }
 
@@ -1212,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await saveLocalState();
                 renderMarkdownCore(exNote.content);
                 window.renderNotesList();
-                if (appMode === 'github') triggerCloudSync();
+                if (isAutoSave && appMode === 'github') triggerCloudSync();
                 window.showToast("<i data-lucide='copy'></i> Note Overwritten!");
             }
             document.getElementById('conflict-modal').classList.remove('show');
@@ -1220,24 +1253,29 @@ document.addEventListener('DOMContentLoaded', () => {
             pendingNewNoteData = null;
         });
 
+        // ✨ DYNAMIC DEBOUNCER (Respects AutoSave Toggle) ✨
         function getDynamicDebounceTime(textLength) {
-            if (textLength > 200000) return 1500;
-            if (textLength > 50000) return 800;
-            return 300;
+            if (textLength > 200000) return 1500; 
+            if (textLength > 50000) return 800;   
+            return 300;                           
         }
 
         let debounceTimeout;
         function dynamicDebounce(rawText) {
             clearTimeout(debounceTimeout);
             const waitTime = getDynamicDebounceTime(rawText.length);
-
+            
             debounceTimeout = setTimeout(async () => {
                 const activeNote = getActiveNote();
                 if (activeNote) {
-                    activeNote.content = rawText;
+                    activeNote.content = rawText; // ALWAYS update memory
                     activeNote.lastUpdated = Date.now();
-                    await saveLocalState();
-                    triggerCloudSync();
+                    
+                    // ONLY trigger heavy IndexedDB/GitHub writes if Auto-Save is ON
+                    if (isAutoSave) {
+                        await saveLocalState(); 
+                        triggerCloudSync(); 
+                    }
                 }
                 renderMarkdownCore(rawText);
             }, waitTime);
@@ -1247,11 +1285,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof text !== 'string') return;
             const chars = text.length;
             const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-
+            
             const wEl = document.getElementById('stat-words');
             const cEl = document.getElementById('stat-chars');
             const rEl = document.getElementById('stat-reading-time');
-
+            
             if (wEl) wEl.textContent = `${words} Words`;
             if (cEl) cEl.textContent = `${chars} Characters`;
             if (rEl) rEl.textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
@@ -1259,18 +1297,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function renderMarkdownCore(rawText) {
             updateLiveStats(rawText);
-
+            
             await new Promise(resolve => setTimeout(resolve, 0));
-
+            
             preview.innerHTML = customMarkdownParser(rawText);
-
+            
             await new Promise(resolve => setTimeout(resolve, 0));
             if (typeof renderMathInElement === 'function') {
                 renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
             }
-
+            
             injectCopyButtons(preview);
-            attachInternalLinkListeners(preview);
+            attachInternalLinkListeners(preview); 
 
             if (typeof hljs !== 'undefined') {
                 preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1445,8 +1483,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const folder = activeFolder;
                 const newPath = generatePath(folder, rawTitle);
                 const newId = Date.now().toString();
-
-                if (notes.find(n => n.path === newPath)) {
+                
+                if(notes.find(n => n.path === newPath)) {
                     window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
                     return;
                 }
@@ -1462,7 +1500,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof window.renderNotesList === 'function') window.renderNotesList();
                 window.showToast("<i data-lucide='file-up'></i> Document imported locally!");
 
-                if (appMode === 'github') triggerCloudSync();
+                if (isAutoSave && appMode === 'github') triggerCloudSync();
             };
             reader.readAsText(file);
             importFile.value = '';
@@ -1495,16 +1533,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             let pageCss = "";
 
-            if (window.selectedPageSize === 'A4') {
-                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
+            if (window.selectedPageSize === 'A4') { 
+                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`; 
             }
-            else if (window.selectedPageSize === 'A2') {
-                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
+            else if (window.selectedPageSize === 'A2') { 
+                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
             }
             else if (window.selectedPageSize === 'Infinity') {
                 const previewEl = document.getElementById('preview-output');
                 const previewPanel = document.getElementById('preview-panel');
-
+                
                 const isHidden = window.getComputedStyle(previewPanel).display === 'none';
                 if (isHidden) {
                     previewPanel.style.setProperty('display', 'block', 'important');
@@ -1522,10 +1560,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     previewPanel.style.removeProperty('z-index');
                 }
 
-                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
+                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
                 pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-
+            
             style.innerHTML = pageCss;
             document.head.appendChild(style);
 
@@ -1537,7 +1575,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = originalTitle;
                 document.head.removeChild(style);
                 if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Export Successful!");
-            }, 400);
+            }, 400); 
         });
 
         shareBtn?.addEventListener('click', async () => {
@@ -1597,5 +1635,5 @@ document.addEventListener('DOMContentLoaded', () => {
             loadLocalMode();
         }
 
-    }, 50);
+    }, 50); 
 });

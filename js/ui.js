@@ -1,4 +1,3 @@
-/* js/ui.js */
 /* ==========================================================================
    UI CONTROLLER
    Handles interactions, modals, themes, folders collapse, fonts, layout safely.
@@ -78,12 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
+
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-
+    
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -120,18 +120,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
-
+            
             if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
             if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
             if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
-
+            
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             if (document.getElementById('bulk-sync-modal')?.classList.contains('show')) { window.closeBulkSyncModal(); return; }
-
+            
             if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
         }
     });
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-
+        
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.classList.add('active');
             }
         });
-
+        
         if (window.lucide) lucide.createIcons();
     };
 
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-
+    
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');
