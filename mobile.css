@@ -651,7 +651,6 @@
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
         padding: 12px 24px !important;
         gap: 12px !important;
@@ -739,17 +738,27 @@
         padding-top: 48px !important;
     }
 
+    /* ✨ SLEEK MOBILE TOAST NOTIFICATIONS ✨ */
     #toast {
         bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-        width: auto !important;
-        max-width: calc(100vw - 32px) !important;
+        width: fit-content !important;
+        min-width: 120px !important;
+        max-width: 85vw !important;
         left: 50% !important;
         margin-left: 0 !important;
         transform: translate(-50%, 20px) !important;
-        padding: 14px 24px !important;
+        padding: 10px 20px !important;
         border-radius: 50px !important;
-        font-size: 0.95rem !important;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
     }
 
     #toast.show {

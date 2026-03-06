@@ -40,7 +40,7 @@ const StorageManager = {
         } catch (e) {
             if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
                 if (window.showToast) {
-                    window.showToast("<i data-lucide='alert-triangle'></i> Critical: Storage limit reached (~5MB). Please export your notes or enable Cloud Sync immediately.", 7000);
+                    window.showToast("<i data-lucide='alert-triangle'></i> Storage Full!");
                 }
             }
             return false;
@@ -73,7 +73,7 @@ const StorageManager = {
                 this.safeSetLocal('md_storage_preference', 'indexedDB');
                 localStorage.removeItem('md_notes_local');
                 localStorage.removeItem('md_notes_github');
-                if (window.showToast) window.showToast("<i data-lucide='database'></i> Large document detected. Migrated safely to IndexedDB.");
+                if (window.showToast) window.showToast("<i data-lucide='database'></i> Saved to Local DB");
                 resolve(true);
             };
             tx.onerror = (e) => reject(e);
@@ -220,12 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let syncRetries = 0;
         const MAX_SYNC_RETRIES = 3;
         
-        // ✨ AUTO-SAVE STATE ✨
         let isAutoSave = localStorage.getItem('md_autosave') !== 'false';
 
         const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
 
-        // ✨ UPDATE AUTOSAVE UI ✨
         function updateAutoSaveUI() {
             const btnToggle = document.getElementById('btn-toggle-autosave');
             const btnManual = document.getElementById('btn-manual-save');
@@ -243,18 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if(window.lucide) lucide.createIcons();
         }
 
-        // ✨ MANUAL SAVE & TOGGLE HANDLERS ✨
         document.getElementById('btn-toggle-autosave')?.addEventListener('click', async () => {
             isAutoSave = !isAutoSave;
             localStorage.setItem('md_autosave', isAutoSave);
             updateAutoSaveUI();
             if (isAutoSave) {
-                // Instantly save pending work if turned back on
                 await saveLocalState();
                 if (appMode === 'github') triggerCloudSync();
-                window.showToast("<i data-lucide='check-circle'></i> Auto-Save Enabled");
+                window.showToast("<i data-lucide='check-circle'></i> Auto-Save: ON");
             } else {
-                window.showToast("<i data-lucide='info'></i> Auto-Save Disabled. Use 'Save Now' to sync.");
+                window.showToast("<i data-lucide='info'></i> Auto-Save: OFF");
             }
         });
 
@@ -271,7 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeNote.lastUpdated = Date.now();
                 await saveLocalState();
                 
-                // If in GitHub mode, force immediate sync
                 if (appMode === 'github') {
                     await performCloudSync();
                 }
@@ -280,9 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             if (window.lucide) lucide.createIcons();
-            window.showToast("<i data-lucide='save'></i> Note Saved Successfully!");
+            window.showToast("<i data-lucide='save'></i> Saved");
         });
-
 
         function updatePillUI() {
             const isGithub = appMode === 'github';
@@ -373,6 +367,16 @@ document.addEventListener('DOMContentLoaded', () => {
             await StorageManager.saveNotes(notes, mode);
         }
 
+        window.addEventListener('beforeunload', () => {
+            if (getActiveNote() && editor.value) {
+                getActiveNote().content = editor.value;
+                getActiveNote().lastUpdated = Date.now();
+                const key = appMode === 'local' ? 'md_notes_local' : 'md_notes_github';
+                StorageManager.safeSetLocal(key, JSON.stringify(notes));
+                StorageManager.safeSetLocal(`md_active_${appMode}`, activeNoteId);
+            }
+        });
+
         window.addEventListener('online', () => {
             if (appMode === 'github') {
                 OfflineQueue.process();
@@ -432,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearTimeout(syncTimer);
                     syncTimer = setTimeout(performCloudSync, backoffTime);
                 } else {
-                    if (window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Cloud Sync temporarily unavailable.");
+                    if (window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Offline");
                 }
             } finally {
                 isSyncing = false;
@@ -496,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(isAutoSave) triggerCloudSync();
 
             } else {
-                window.showToast("Token invalid or offline. Working purely locally.");
+                window.showToast("Working locally.");
                 finishAppLoad();
             }
         }
@@ -554,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = tokenInput.value.trim();
             const btn = document.getElementById('btn-start-app');
 
-            if (!token) return window.showToast("Please enter a valid GitHub token.");
+            if (!token) return window.showToast("Invalid Token.");
 
             btn.innerHTML = "Connecting...";
             btn.disabled = true;
@@ -564,10 +568,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('md_github_token', token);
                 tokenInput.value = '';
                 document.getElementById('setup-modal').classList.remove('show');
-                window.showToast("<i data-lucide='check'></i> Successfully Connected!");
+                window.showToast("<i data-lucide='check'></i> Connected");
                 await switchToMode('github');
             } else {
-                window.showToast("Invalid Token. Check scope and try again.");
+                window.showToast("Invalid Token.");
             }
             btn.innerHTML = "Connect";
             btn.disabled = false;
@@ -600,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function finishAppLoad() {
-            updateAutoSaveUI(); // Initialize Auto-Save UI
+            updateAutoSaveUI(); 
             
             const note = getActiveNote();
             if (!note) return;
@@ -701,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         e.stopPropagation();
                         const folderNotes = notes.filter(n => n.folder === folder);
                         if (folderNotes.length > 0) {
-                            window.showToast("<i data-lucide='alert-circle'></i> Cannot delete. Move notes first.");
+                            window.showToast("<i data-lucide='alert-circle'></i> Move notes first.");
                             return;
                         }
                         folders = folders.filter(f => f !== folder);
@@ -709,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         saveFolders();
                         window.renderFoldersList();
                         window.renderNotesList();
-                        window.showToast("Folder deleted.");
+                        window.showToast("<i data-lucide='trash-2'></i> Folder deleted");
                     });
                     div.appendChild(delBtn);
                 }
@@ -787,12 +791,48 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
         });
 
+        document.getElementById('btn-sync-current')?.addEventListener('click', async () => {
+            const token = localStorage.getItem('md_github_token');
+            if (!token) return window.showToast("Invalid Token.");
+
+            const currentNote = getActiveNote();
+            if (!currentNote) return;
+
+            const btn = document.getElementById('btn-sync-current');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span class="desktop-only">Syncing</span>`;
+            btn.disabled = true;
+            if (window.lucide) lucide.createIcons();
+
+            const success = await GitHubBackend.init(token);
+            if (success) {
+                try {
+                    const res = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
+                    if (res && res !== 'conflict') {
+                        currentNote.id = res.sha;
+                        currentNote.path = res.path;
+                        currentNote.lastUpdated = Date.now();
+                        await saveLocalState();
+                        window.showToast(`<i data-lucide='check-circle'></i> Synced!`);
+                    } else if (res === 'conflict') {
+                        window.showToast("Conflict detected.");
+                    } else {
+                        window.showToast("Sync failed.");
+                    }
+                } catch (e) { window.showToast("Sync failed."); }
+            }
+
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        });
+
         const bulkSyncModal = document.getElementById('bulk-sync-modal');
         const bulkSyncList = document.getElementById('bulk-sync-list');
 
         document.getElementById('btn-push-github')?.addEventListener('click', () => {
             const token = localStorage.getItem('md_github_token');
-            if (!token) return window.showToast("Please link your GitHub PAT in Setup first!");
+            if (!token) return window.showToast("Invalid Token.");
 
             bulkSyncList.innerHTML = '';
             notes.forEach((note, index) => {
@@ -829,10 +869,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('md_github_token');
             const checkboxes = document.querySelectorAll('.sync-checkbox:checked');
 
-            if (checkboxes.length === 0) return window.showToast("Please select at least one note to upload.");
+            if (checkboxes.length === 0) return window.showToast("Select notes first.");
 
             const success = await GitHubBackend.init(token);
-            if (!success) return window.showToast("Token invalid or offline.");
+            if (!success) return window.showToast("Offline");
 
             bulkSyncModal.classList.remove('show');
             const widget = document.getElementById('upload-progress-widget');
@@ -884,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setTimeout(() => {
                 widget.classList.add('hidden');
-                window.showToast("<i data-lucide='check'></i> Successfully switched to Cloud!");
+                window.showToast("<i data-lucide='check'></i> Upload Complete");
             }, 3000);
         });
 
@@ -939,7 +979,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span style="color: ${color};">${text}</span>`;
             });
 
-            // ✨ SMART WIKI-LINK PARSER: Determines valid vs dead links instantly
             processedText = processedText.replace(/\[\[(.*?)\]\]/g, (match, noteTitle) => {
                 const cleanTitle = noteTitle.trim();
                 const exists = notes.some(n => n.title.toLowerCase() === cleanTitle.toLowerCase());
@@ -977,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (window.lucide) lucide.createIcons();
                             }, 2000);
 
-                            if (window.showToast) window.showToast("<i data-lucide='check-circle'></i> Code copied!");
+                            if (window.showToast) window.showToast("<i data-lucide='check-circle'></i> Copied");
                         });
                     }
                 });
@@ -985,7 +1024,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // ✨ CLICK LISTENERS FOR INTERNAL LINKS ✨
         function attachInternalLinkListeners(container) {
             container.querySelectorAll('.internal-note-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -1008,11 +1046,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (document.getElementById('notes-modal')?.classList.contains('show')) {
                             window.renderDashboardPreview();
                         } else {
-                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened: " + targetNote.title);
+                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened");
                         }
                     } else {
-                        // User clicked a non-existent note - open prompt to create it!
-                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note doesn't exist. Create it now!");
+                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note not found");
                         const promptModal = document.getElementById('prompt-modal');
                         const promptInput = document.getElementById('prompt-input');
                         if (promptModal && promptInput) {
@@ -1042,7 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(previewEl);
-            attachInternalLinkListeners(previewEl); // Attach listeners to the dashboard preview too!
+            attachInternalLinkListeners(previewEl);
 
             if (typeof hljs !== 'undefined') {
                 previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1050,11 +1087,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         };
 
-        // ✨ SAFE NOTE SWITCHING (Saves local changes before swapping) ✨
+        // ✨ SAFE NOTE SWITCHING ✨
         document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
             if (!highlightedNoteId) return;
             
-            // Save current memory to DB before swapping
             if (getActiveNote() && editor.value !== getActiveNote().content) {
                 getActiveNote().content = editor.value;
                 getActiveNote().lastUpdated = Date.now();
@@ -1135,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             noteToDeleteId = null;
             if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
-            if (window.showToast) window.showToast("<i data-lucide='trash-2'></i> Note deleted");
+            if (window.showToast) window.showToast("<i data-lucide='trash-2'></i> Deleted");
         });
 
         const btnNewFolder = document.getElementById('btn-new-folder');
@@ -1150,8 +1186,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
             let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-            if (!folderName) return window.showToast("Folder name cannot be empty.");
-            if (folders.includes(folderName)) return window.showToast("Folder already exists.");
+            if (!folderName) return window.showToast("Folder name empty.");
+            if (folders.includes(folderName)) return window.showToast("Folder exists.");
 
             folders.push(folderName);
             activeFolder = folderName;
@@ -1161,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.renderNotesList();
 
             folderPromptModal.classList.remove('show');
-            window.showToast(`<i data-lucide='folder'></i> Folder '${folderName}' created!`);
+            window.showToast(`<i data-lucide='folder'></i> Created`);
 
             if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
         });
@@ -1213,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
 
             if (isAutoSave && appMode === 'github') triggerCloudSync();
-            window.showToast("<i data-lucide='check-circle'></i> " + noteData.title + " created!");
+            window.showToast("<i data-lucide='check-circle'></i> Created");
         }
 
         document.getElementById('prompt-confirm')?.addEventListener('click', createNoteFlow);
@@ -1246,32 +1282,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMarkdownCore(exNote.content);
                 window.renderNotesList();
                 if (isAutoSave && appMode === 'github') triggerCloudSync();
-                window.showToast("<i data-lucide='copy'></i> Note Overwritten!");
+                window.showToast("<i data-lucide='copy'></i> Overwritten");
             }
             document.getElementById('conflict-modal').classList.remove('show');
             if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
             pendingNewNoteData = null;
         });
 
-        // ✨ DYNAMIC DEBOUNCER (Respects AutoSave Toggle) ✨
         function getDynamicDebounceTime(textLength) {
-            if (textLength > 200000) return 1500; 
-            if (textLength > 50000) return 800;   
-            return 300;                           
+            if (textLength > 200000) return 1500;
+            if (textLength > 50000) return 800;
+            return 300;
         }
 
         let debounceTimeout;
         function dynamicDebounce(rawText) {
             clearTimeout(debounceTimeout);
             const waitTime = getDynamicDebounceTime(rawText.length);
-            
+
             debounceTimeout = setTimeout(async () => {
                 const activeNote = getActiveNote();
                 if (activeNote) {
-                    activeNote.content = rawText; // ALWAYS update memory
+                    activeNote.content = rawText; 
                     activeNote.lastUpdated = Date.now();
                     
-                    // ONLY trigger heavy IndexedDB/GitHub writes if Auto-Save is ON
                     if (isAutoSave) {
                         await saveLocalState(); 
                         triggerCloudSync(); 
@@ -1285,11 +1319,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof text !== 'string') return;
             const chars = text.length;
             const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-            
+
             const wEl = document.getElementById('stat-words');
             const cEl = document.getElementById('stat-chars');
             const rEl = document.getElementById('stat-reading-time');
-            
+
             if (wEl) wEl.textContent = `${words} Words`;
             if (cEl) cEl.textContent = `${chars} Characters`;
             if (rEl) rEl.textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
@@ -1297,16 +1331,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function renderMarkdownCore(rawText) {
             updateLiveStats(rawText);
-            
+
             await new Promise(resolve => setTimeout(resolve, 0));
-            
+
             preview.innerHTML = customMarkdownParser(rawText);
-            
+
             await new Promise(resolve => setTimeout(resolve, 0));
             if (typeof renderMathInElement === 'function') {
                 renderMathInElement(preview, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false });
             }
-            
+
             injectCopyButtons(preview);
             attachInternalLinkListeners(preview); 
 
@@ -1468,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.download = `${safeTitle}.md`;
             a.click();
             URL.revokeObjectURL(url);
-            window.showToast("<i data-lucide='download'></i> .md file downloaded!");
+            window.showToast("<i data-lucide='download'></i> Downloaded");
         });
 
         btnImportMd?.addEventListener('click', () => importFile.click());
@@ -1485,7 +1519,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newId = Date.now().toString();
                 
                 if(notes.find(n => n.path === newPath)) {
-                    window.showToast("<i data-lucide='alert-triangle'></i> File already exists. Rename file first.");
+                    window.showToast("<i data-lucide='alert-triangle'></i> File exists.");
                     return;
                 }
 
@@ -1498,7 +1532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMarkdownCore(content);
                 if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
                 if (typeof window.renderNotesList === 'function') window.renderNotesList();
-                window.showToast("<i data-lucide='file-up'></i> Document imported locally!");
+                window.showToast("<i data-lucide='file-up'></i> Imported");
 
                 if (isAutoSave && appMode === 'github') triggerCloudSync();
             };
@@ -1518,7 +1552,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeNoteId = sharedId;
                 highlightedNoteId = sharedId;
                 saveLocalState().then(() => {
-                    window.showToast("<i data-lucide='download'></i> Shared document saved!");
+                    window.showToast("<i data-lucide='download'></i> Saved");
                     history.replaceState(null, null, ' ');
                 });
             } catch (e) { console.error("Invalid import link", e); }
@@ -1574,17 +1608,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.print();
                 document.title = originalTitle;
                 document.head.removeChild(style);
-                if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Export Successful!");
+                if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Exported");
             }, 400); 
         });
 
         shareBtn?.addEventListener('click', async () => {
             const textToShare = editor.value;
-            if (!textToShare.trim()) return window.showToast("Cannot share an empty note.");
+            if (!textToShare.trim()) return window.showToast("Note is empty.");
 
             const token = localStorage.getItem('md_github_token');
             if (!token) {
-                window.showToast("Please connect to GitHub in settings to use Secure Share.");
+                window.showToast("Connect GitHub first.");
                 document.getElementById('setup-modal').classList.add('show');
                 return;
             }
@@ -1608,13 +1642,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         catch (err) { console.log(err); }
                     } else {
                         await navigator.clipboard.writeText(shareableUrl);
-                        window.showToast("<i data-lucide='link'></i> Secure Link Copied!");
+                        window.showToast("<i data-lucide='link'></i> Link Copied");
                     }
                 } else {
-                    window.showToast("Failed: Please ensure your PAT has 'gist' permission.");
+                    window.showToast("Needs 'gist' permission.");
                 }
             } catch (err) {
-                window.showToast("An error occurred during encryption.");
+                window.showToast("Encryption Error.");
             }
 
             shareBtn.innerHTML = originalHtml;
