@@ -254,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // ✨ FIXED: FLAWLESS MANUAL SAVE BUTTON LOGIC ✨
         document.getElementById('btn-manual-save')?.addEventListener('click', async () => {
             const btn = document.getElementById('btn-manual-save');
             const originalHTML = btn.innerHTML;
@@ -268,15 +269,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 await saveLocalState();
                 
                 if (appMode === 'github') {
-                    await performCloudSync();
+                    if (!navigator.onLine) {
+                        window.showToast("<i data-lucide='wifi-off'></i> Offline. Saved Locally.");
+                    } else {
+                        // Bypass pendingSync checks by forcing it directly
+                        while(isSyncing) await new Promise(r => setTimeout(r, 200));
+                        
+                        isSyncing = true;
+                        updatePillUI();
+                        
+                        try {
+                            const result = await GitHubBackend.saveNote(activeNote.id, activeNote.path, activeNote.title, activeNote.content);
+                            if (result && result !== 'conflict') {
+                                activeNote.id = result.sha;
+                                activeNote.path = result.path;
+                                await saveLocalState();
+                                pendingSync = false;
+                                syncRetries = 0;
+                                window.showToast("<i data-lucide='cloud-check'></i> Saved to Cloud");
+                            } else if (result === 'conflict') {
+                                window.showToast("<i data-lucide='alert-triangle'></i> Conflict detected.");
+                            } else {
+                                window.showToast("<i data-lucide='x-circle'></i> Sync Failed");
+                            }
+                        } catch(e) {
+                            window.showToast("<i data-lucide='wifi-off'></i> Network Error");
+                        } finally {
+                            isSyncing = false;
+                            updatePillUI();
+                        }
+                    }
+                } else {
+                    window.showToast("<i data-lucide='check-circle'></i> Saved Locally");
                 }
             }
             
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             if (window.lucide) lucide.createIcons();
-            window.showToast("<i data-lucide='save'></i> Saved");
         });
+
 
         function updatePillUI() {
             const isGithub = appMode === 'github';
@@ -979,6 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span style="color: ${color};">${text}</span>`;
             });
 
+            // ✨ SMART WIKI-LINK PARSER: Determines valid vs dead links instantly
             processedText = processedText.replace(/\[\[(.*?)\]\]/g, (match, noteTitle) => {
                 const cleanTitle = noteTitle.trim();
                 const exists = notes.some(n => n.title.toLowerCase() === cleanTitle.toLowerCase());
@@ -1024,6 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // ✨ CLICK LISTENERS FOR INTERNAL LINKS ✨
         function attachInternalLinkListeners(container) {
             container.querySelectorAll('.internal-note-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -1046,10 +1080,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (document.getElementById('notes-modal')?.classList.contains('show')) {
                             window.renderDashboardPreview();
                         } else {
-                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened");
+                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened: " + targetNote.title);
                         }
                     } else {
-                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note not found");
+                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note doesn't exist. Create it now!");
                         const promptModal = document.getElementById('prompt-modal');
                         const promptInput = document.getElementById('prompt-input');
                         if (promptModal && promptInput) {
@@ -1079,7 +1113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(previewEl);
-            attachInternalLinkListeners(previewEl);
+            attachInternalLinkListeners(previewEl); 
 
             if (typeof hljs !== 'undefined') {
                 previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1186,8 +1220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
             let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-            if (!folderName) return window.showToast("Folder name empty.");
-            if (folders.includes(folderName)) return window.showToast("Folder exists.");
+            if (!folderName) return window.showToast("Folder name cannot be empty.");
+            if (folders.includes(folderName)) return window.showToast("Folder already exists.");
 
             folders.push(folderName);
             activeFolder = folderName;
@@ -1290,9 +1324,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         function getDynamicDebounceTime(textLength) {
-            if (textLength > 200000) return 1500;
-            if (textLength > 50000) return 800;
-            return 300;
+            if (textLength > 200000) return 1500; 
+            if (textLength > 50000) return 800;   
+            return 300;                           
         }
 
         let debounceTimeout;
@@ -1517,8 +1551,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const folder = activeFolder;
                 const newPath = generatePath(folder, rawTitle);
                 const newId = Date.now().toString();
-                
-                if(notes.find(n => n.path === newPath)) {
+
+                if (notes.find(n => n.path === newPath)) {
                     window.showToast("<i data-lucide='alert-triangle'></i> File exists.");
                     return;
                 }
@@ -1567,16 +1601,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             let pageCss = "";
 
-            if (window.selectedPageSize === 'A4') { 
-                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`; 
+            if (window.selectedPageSize === 'A4') {
+                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-            else if (window.selectedPageSize === 'A2') { 
-                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
+            else if (window.selectedPageSize === 'A2') {
+                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
             }
             else if (window.selectedPageSize === 'Infinity') {
                 const previewEl = document.getElementById('preview-output');
                 const previewPanel = document.getElementById('preview-panel');
-                
+
                 const isHidden = window.getComputedStyle(previewPanel).display === 'none';
                 if (isHidden) {
                     previewPanel.style.setProperty('display', 'block', 'important');
@@ -1594,10 +1628,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     previewPanel.style.removeProperty('z-index');
                 }
 
-                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
+                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
                 pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-            
+
             style.innerHTML = pageCss;
             document.head.appendChild(style);
 
@@ -1609,7 +1643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = originalTitle;
                 document.head.removeChild(style);
                 if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Exported");
-            }, 400); 
+            }, 400);
         });
 
         shareBtn?.addEventListener('click', async () => {

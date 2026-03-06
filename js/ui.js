@@ -1,3 +1,4 @@
+/* js/ui.js */
 /* ==========================================================================
    UI CONTROLLER
    Handles interactions, modals, themes, folders collapse, fonts, layout safely.
@@ -6,7 +7,7 @@
 window.selectedPageSize = 'A4';
 window.toastTimeout = null;
 
-window.showToast = function (message, duration = 3000) {
+window.showToast = function (message, duration = 2500) {
     const toastEl = document.getElementById('toast');
     if (!toastEl) return;
     clearTimeout(window.toastTimeout);

@@ -1,3 +1,4 @@
+/* js/github.js */
 /* ==========================================================================
    GITHUB SYNC CONTROLLER (Zero-Backend)
    Advanced Chunked Tree API loading for handling large repos without blocking.

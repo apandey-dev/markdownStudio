@@ -651,6 +651,7 @@
         border: 2px solid var(--accent-color) !important;
     }
 
+    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
         padding: 12px 24px !important;
         gap: 12px !important;
@@ -668,7 +669,7 @@
         height: 46px !important;
         border-radius: 50% !important;
         padding: 0 !important;
-        background: var(--bg-color) !important;
+        background: transparent !important;
     }
 
     .dash-circle-btn i,
@@ -738,12 +739,12 @@
         padding-top: 48px !important;
     }
 
-    /* ✨ SLEEK MOBILE TOAST NOTIFICATIONS ✨ */
+    /* ✨ BEAUTIFUL SHORT TOAST NOTIFICATION ✨ */
     #toast {
         bottom: calc(24px + env(safe-area-inset-bottom)) !important;
         width: fit-content !important;
-        min-width: 120px !important;
-        max-width: 85vw !important;
+        min-width: 100px !important;
+        max-width: 80vw !important;
         left: 50% !important;
         margin-left: 0 !important;
         transform: translate(-50%, 20px) !important;
@@ -753,7 +754,7 @@
         font-weight: 600 !important;
         text-align: center !important;
         white-space: nowrap !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
         z-index: 99999 !important;
         display: flex !important;
         align-items: center !important;
