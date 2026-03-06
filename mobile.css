@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MARKDOWN STUDIO - PREMIUM MOBILE UI/UX
+   📱 MARKDOWN STUDIO - PREMIUM NATIVE MOBILE UI/UX
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
@@ -38,6 +38,8 @@
     }
 
     #mobile-menu-btn {
+        appearance: none;
+        outline: none;
         background: transparent;
         border: none;
         color: var(--text-color);
@@ -65,6 +67,8 @@
     }
 
     #mobile-view-toggle {
+        appearance: none;
+        outline: none;
         background-color: transparent !important;
         border: 1.5px solid var(--border-color) !important;
         color: var(--text-color) !important;
@@ -167,6 +171,8 @@
     }
 
     .copy-code-btn {
+        appearance: none;
+        outline: none;
         opacity: 1 !important;
         width: 36px !important;
         height: 36px !important;
@@ -191,6 +197,8 @@
     }
 
     .tool-btn {
+        appearance: none;
+        outline: none;
         padding: 8px 12px !important;
         border-radius: 10px !important;
     }
@@ -204,7 +212,7 @@
         margin: 0 4px !important;
     }
 
-    /* ✨ HORIZONTALLY SCROLLABLE STATUS BAR (NO TEXT CUTOFF) ✨ */
+    /* HORIZONTALLY SCROLLABLE STATUS BAR */
     .status-bar {
         padding: 12px 16px;
         padding-bottom: calc(12px + env(safe-area-inset-bottom));
@@ -223,6 +231,8 @@
     }
 
     .sb-action-btn {
+        appearance: none;
+        outline: none;
         padding: 8px 14px !important;
         height: 34px !important;
         font-size: 0.85rem !important;
@@ -290,6 +300,8 @@
     }
 
     #close-sidebar-btn {
+        appearance: none;
+        outline: none;
         background-color: var(--hover-bg) !important;
         border-radius: 50% !important;
         border: none;
@@ -318,6 +330,8 @@
     }
 
     .sidebar-btn {
+        appearance: none;
+        outline: none;
         width: 100%;
         display: flex;
         align-items: center;
@@ -424,7 +438,6 @@
         min-height: 56px !important;
     }
 
-    /* Perfect side-by-side buttons */
     .modal-actions {
         display: flex !important;
         flex-direction: row !important;
@@ -435,6 +448,8 @@
     }
 
     .modal-btn {
+        appearance: none;
+        outline: none;
         flex: 1 !important;
         min-height: 54px !important;
         font-size: 1.05rem !important;
@@ -486,7 +501,6 @@
         min-height: 48px !important;
         border-radius: 14px !important;
     }
-
 
     /* NATIVE FULL-SCREEN DASHBOARD */
     .notes-dashboard-box,
@@ -570,21 +584,9 @@
         padding: 0 24px 16px 24px !important;
     }
 
-    .notes-dashboard-box .btn-close-dashboard,
-    .docs-modal-box .btn-close-dashboard {
-        top: 20px !important;
-        right: 16px !important;
-        width: 40px !important;
-        height: 40px !important;
-        background-color: var(--hover-bg) !important;
-        border: 1px solid var(--border-color) !important;
-        color: var(--text-color) !important;
-        opacity: 1 !important;
-        z-index: 100;
-        padding: 0 !important;
-    }
-
     .mobile-back-to-folders {
+        appearance: none;
+        outline: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -649,6 +651,7 @@
         border: 2px solid var(--accent-color) !important;
     }
 
+    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
         padding: 12px 24px !important;
         gap: 12px !important;
@@ -660,7 +663,8 @@
         height: auto !important;
     }
 
-    .dash-circle-btn {
+    .dash-circle-btn,
+    .btn-close-dashboard {
         width: 46px !important;
         height: 46px !important;
         border-radius: 50% !important;
@@ -668,17 +672,21 @@
         background: var(--bg-color) !important;
     }
 
-    .dash-circle-btn i {
+    .dash-circle-btn i,
+    .btn-close-dashboard i {
         width: 20px !important;
         height: 20px !important;
         margin: 0 !important;
     }
 
-    .dash-circle-btn:active {
-        transform: scale(0.9);
+    .dash-circle-btn:active,
+    .btn-close-dashboard:active {
+        transform: scale(0.9) !important;
     }
 
     .pill-btn.btn-back {
+        appearance: none;
+        outline: none;
         border-color: transparent;
         background-color: transparent;
         font-family: var(--ui-font);

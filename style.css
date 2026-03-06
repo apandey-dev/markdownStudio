@@ -79,7 +79,7 @@ body {
     display: none;
 }
 
-/* ✨ SKELETON LOADER (ZERO FLICKER FIX) ✨ */
+/* ✨ SKELETON LOADER ✨ */
 @keyframes skeleton-pulse {
     0% {
         opacity: 0.3;
@@ -330,15 +330,18 @@ body.dark-mode .mode-toggle {
     background-color: var(--shadow-color);
 }
 
-/* ✨ UNIFIED NAVBAR BUTTONS ✨ */
+/* ✨ PREMIUM UNIFIED NAVBAR BUTTONS ✨ */
 .nav-action-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background-color: transparent;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
     padding: 6px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -349,8 +352,8 @@ body.dark-mode .mode-toggle {
 }
 
 .nav-action-btn:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--text-color);
+    background-color: var(--hover-bg) !important;
+    border-color: var(--text-color) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px var(--shadow-color);
 }
@@ -370,6 +373,8 @@ body.dark-mode .mode-toggle {
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
+    outline: none;
+    appearance: none;
 }
 
 .modal-btn.btn-confirm:hover {
@@ -431,6 +436,8 @@ body.dark-mode .mode-toggle {
 }
 
 .sb-action-btn {
+    appearance: none;
+    outline: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -537,6 +544,7 @@ body.dark-mode .mode-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
+    outline: none;
 }
 
 .tool-btn:hover,
@@ -834,6 +842,8 @@ a.internal-note-link i {
 }
 
 .copy-code-btn {
+    appearance: none;
+    outline: none;
     position: absolute;
     top: 8px;
     right: 8px;
@@ -1032,6 +1042,8 @@ a.internal-note-link i {
     font-size: 0.95rem;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .modal-input:focus {
@@ -1158,6 +1170,8 @@ body.dark-mode .btn-cancel:hover {
 }
 
 .folder-del-btn {
+    appearance: none;
+    outline: none;
     background: transparent;
     border: none;
     color: var(--text-color);
@@ -1282,7 +1296,7 @@ body.dark-mode .btn-cancel:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 80px 16px 32px;
+    padding: 16px 32px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
     height: 72px;
@@ -1290,70 +1304,79 @@ body.dark-mode .btn-cancel:hover {
 
 .dash-action-group {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
     margin-left: auto;
 }
 
+/* Perfect Pure Circular Buttons */
 .dash-circle-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: transparent;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
     cursor: pointer;
     transition: all 0.2s ease;
-    padding: 0;
+    padding: 0 !important;
 }
 
 .dash-circle-btn i {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     margin: 0;
 }
 
 .dash-circle-btn:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--text-color);
-    transform: translateY(-1px);
+    background-color: var(--hover-bg) !important;
+    border-color: var(--text-color) !important;
+    transform: translateY(-2px);
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 
 .dash-circle-btn.btn-delete:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
 }
 
-/* Dedicated Red Hover for Close X */
-.notes-dashboard-box .btn-close-dashboard {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: var(--nav-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+/* Dedicated Red Hover for Close X Inline */
+.btn-close-dashboard {
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
     cursor: pointer;
-    z-index: 1000;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 0 !important;
 }
 
-.notes-dashboard-box .btn-close-dashboard:hover {
+.btn-close-dashboard i {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.btn-close-dashboard:hover {
     transform: rotate(90deg) scale(1.1);
-    background: #ef4444;
-    border-color: #ef4444;
-    color: #ffffff;
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
     box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
 }
 
@@ -1364,7 +1387,6 @@ body.dark-mode .btn-cancel:hover {
     font-family: var(--preview-font);
     font-size: 1rem;
 }
-
 
 /* WIDER DOCS MODAL */
 .docs-modal-box {
@@ -1435,32 +1457,6 @@ body.dark-mode .btn-cancel:hover {
     margin: 8px 0 16px 0;
     color: var(--text-color);
     overflow-x: auto;
-}
-
-.docs-modal-box .btn-close-dashboard {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--nav-bg);
-    border: 1.5px solid var(--border-color);
-    color: var(--text-color);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.docs-modal-box .btn-close-dashboard:hover {
-    transform: scale(0.9);
-    background: var(--hover-bg);
-    border-color: var(--text-color);
-    color: var(--text-color);
 }
 
 /* PREMIUM MODALS */
@@ -1556,6 +1552,8 @@ body.dark-mode .btn-cancel:hover {
 }
 
 .btn-help-cute {
+    appearance: none;
+    outline: none;
     background-color: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
     border: none;
@@ -1740,7 +1738,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* ✨ UPGRADED PURE CSS CIRCULAR CHECKBOXES ✨ */
+/* ✨ UPGRADED PURE CSS CIRCULAR CHECKBOXES FOR BULK SYNC ✨ */
 .sync-item {
     display: flex;
     align-items: center;
@@ -1901,7 +1899,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* PREMIUM EXPORT PDF MODAL */
+/* EXPORT PDF MODAL */
 @media screen and (min-width: 769px) {
     #pdf-modal .modal-box {
         max-width: 480px;
