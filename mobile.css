@@ -196,16 +196,12 @@
         border-bottom: 1px solid var(--border-color);
     }
 
-    .tool-btn {
-        appearance: none;
-        outline: none;
-        padding: 8px 12px !important;
-        border-radius: 10px !important;
-    }
-
-    .tool-btn i {
-        width: 18px !important;
-        height: 18px !important;
+    .action-pill-group button,
+    .action-pill-group .pill-action-btn,
+    .action-pill-group .tool-btn {
+        width: 36px !important;
+        /* Slightly larger for touch on mobile */
+        height: 36px !important;
     }
 
     .toolbar-divider {

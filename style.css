@@ -209,50 +209,8 @@ body:not(.is-loading) #preview-skeleton {
     gap: 10px;
 }
 
-/* TOGGLES */
-.mode-toggle {
-    display: flex;
-    background-color: var(--toggle-track);
-    border-radius: 50px;
-    padding: 4px;
-    gap: 2px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-body.dark-mode .mode-toggle {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.mode-tab {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    padding: 6px 16px;
-    border-radius: 50px;
-    font-family: var(--ui-font);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    opacity: 0.6;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.mode-tab:hover {
-    opacity: 0.8;
-}
-
-.mode-tab.active {
-    background-color: var(--toggle-pill);
-    color: var(--accent-color);
-    opacity: 1;
-    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* PILL-SHAPED ACTION BUTTONS */
+/* PILL-SHAPED ACTION BUTTONS & TOGGLES STANDARDIZATION */
+.mode-toggle,
 .action-pill-group {
     display: flex;
     align-items: center;
@@ -260,14 +218,20 @@ body.dark-mode .mode-toggle {
     border-radius: 50px;
     padding: 4px;
     gap: 2px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
+    /* Flat, clean look as per reference */
 }
 
+body.dark-mode .mode-toggle,
 body.dark-mode .action-pill-group {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
-.pill-action-btn {
+/* Standardized Button inside Pills */
+.mode-tab,
+.action-pill-group button,
+.action-pill-group .pill-action-btn,
+.action-pill-group .tool-btn {
     appearance: none;
     outline: none;
     display: flex;
@@ -276,33 +240,55 @@ body.dark-mode .action-pill-group {
     background-color: transparent;
     color: var(--text-color);
     border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.action-pill-group button,
+.action-pill-group .pill-action-btn,
+.action-pill-group .tool-btn {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Circular hit area */
+    opacity: 0.65;
+    padding: 0;
+}
+
+.mode-tab {
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-family: var(--ui-font);
+    font-size: 0.85rem;
+    font-weight: 600;
+    gap: 6px;
     opacity: 0.6;
 }
 
-.pill-action-btn i {
-    width: 16px;
-    height: 16px;
+.action-pill-group button i,
+.mode-tab i {
+    width: 16px !important;
+    height: 16px !important;
+    display: block;
+    margin: auto;
 }
 
-.pill-action-btn:hover {
+.mode-tab:hover,
+.action-pill-group button:hover {
+    background-color: var(--hover-bg);
+    opacity: 1;
+    transform: none;
+    /* Smooth flat hover */
+}
+
+.mode-tab.active,
+.action-pill-group button.active {
     background-color: var(--toggle-pill);
     color: var(--accent-color);
     opacity: 1;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px var(--toggle-shadow);
 }
 
-.pill-action-btn.active {
-    background-color: var(--toggle-pill);
-    color: var(--accent-color);
-    opacity: 1;
-    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
-}
 
 /* DROPDOWNS */
 .custom-dropdown {
@@ -339,13 +325,14 @@ body.dark-mode .action-pill-group {
     background-color: transparent;
 }
 
-/* TOOLBAR DROPDOWN FIXES */
+/* TOOLBAR DROPDOWN FIXES (Pill Style) */
 .editor-toolbar .custom-dropdown .dropdown-header {
-    padding: 4px 10px;
-    border-radius: 6px;
+    padding: 4px 14px;
+    border-radius: 50px;
     border: 1px solid transparent;
-    background-color: transparent;
-    height: 32px;
+    background-color: var(--toggle-track);
+    height: 40px;
+    /* match 32px height + 4px padding of pill group */
 }
 
 .editor-toolbar .custom-dropdown:hover .dropdown-header {
@@ -353,9 +340,8 @@ body.dark-mode .action-pill-group {
 }
 
 .editor-toolbar .custom-dropdown.open .dropdown-header {
-    background-color: var(--shadow-color);
-    border-color: transparent;
-    box-shadow: none;
+    background-color: var(--toggle-track);
+    box-shadow: 0 0 0 2px var(--accent-color);
 }
 
 .chevron {
@@ -495,61 +481,14 @@ body.dark-mode .action-pill-group {
 .editor-toolbar {
     display: flex;
     align-items: center;
-    padding: 6px 16px;
-    gap: 4px;
+    padding: 8px 24px;
+    gap: 8px;
+    /* Balanced spacing between pill groups */
     background-color: var(--nav-bg);
     border-bottom: 1px solid var(--border-color);
     overflow-x: auto;
     white-space: nowrap;
     flex-shrink: 0;
-}
-
-/* ✨ EDITOR TOOLBAR CLEAN BUTTONS ✨ */
-.tool-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.6;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    outline: none;
-    padding: 0;
-}
-
-.tool-btn:hover,
-.hover-pop:hover {
-    opacity: 1;
-    background-color: var(--hover-bg);
-    transform: translateY(-1px);
-}
-
-.tool-btn:active {
-    transform: scale(0.95);
-}
-
-.tool-btn.active {
-    opacity: 1;
-    color: var(--accent-color);
-    background-color: var(--shadow-color);
-}
-
-.tool-btn i {
-    width: 16px;
-    height: 16px;
-}
-
-.toolbar-divider {
-    width: 1px;
-    height: 18px;
-    background-color: var(--border-color);
-    margin: 0 4px;
-    opacity: 0.6;
 }
 
 .toolbar-spacer {
