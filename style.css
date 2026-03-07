@@ -24,7 +24,6 @@
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
     --editor-font: 'Fredoka', sans-serif;
-    /* Tied to preview font */
 }
 
 body.dark-mode {
@@ -40,8 +39,9 @@ body.dark-mode {
     --accent-color: #ffffff;
     --accent-hover: #e5e5e5;
     --btn-text: #000000;
-    --toggle-track: #0a0a0a;
-    --toggle-pill: #262626;
+    --toggle-track: #1f2937;
+    /* Adjusted for dark mode pill matching */
+    --toggle-pill: #374151;
     --toggle-shadow: rgba(0, 0, 0, 0.4);
     --link-color: #ffffff;
     --link-hover: #a1a1aa;
@@ -80,13 +80,26 @@ body {
     display: none;
 }
 
-/* ✨ FOCUS MODE (ZEN MODE) MAGIC ✨ */
-body.focus-mode .hide-on-focus {
+/* ✨ FOCUS MODE (ZEN MODE) CSS ✨ */
+body.focus-mode .hide-on-focus,
+body.focus-mode #nav-mode-toggle {
     display: none !important;
 }
 
 body.focus-mode #main-editor-toolbar {
     display: none !important;
+}
+
+body.focus-mode .stat-hide-on-focus {
+    display: none !important;
+}
+
+.show-on-focus-only {
+    display: none !important;
+}
+
+body.focus-mode .show-on-focus-only {
+    display: flex !important;
 }
 
 @keyframes skeleton-pulse {
@@ -191,49 +204,52 @@ body:not(.is-loading) #preview-skeleton {
     gap: 10px;
 }
 
-/* ✨ DESKTOP PILL ICON GROUP (Image 3 Match) ✨ */
+
+/* ==========================================================================
+   ✨ EXACT MATCH FOR IMAGE 4 (SHARE/PRINT/DOCS PILL GROUP) ✨
+   ========================================================================== */
 .nav-icon-group {
     display: flex;
     align-items: center;
     background-color: var(--toggle-track);
     border-radius: 50px;
-    padding: 4px;
-    gap: 2px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-body.dark-mode .nav-icon-group {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 6px 20px;
+    /* Wide padding matching image */
+    gap: 18px;
+    /* Perfect spacing between icons */
+    height: 36px;
 }
 
 .nav-icon-btn {
     background: transparent;
     border: none;
     color: var(--text-color);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0.6;
-    transition: all 0.25s ease;
+    opacity: 0.65;
+    transition: all 0.2s ease;
     outline: none;
     appearance: none;
+    padding: 0;
 }
 
 .nav-icon-btn:hover {
     opacity: 1;
-    background-color: var(--toggle-pill);
     color: var(--accent-color);
-    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
 }
 
 .nav-icon-btn i {
-    width: 16px;
-    height: 16px;
+    width: 20px !important;
+    /* Perfect size match */
+    height: 20px !important;
+    stroke-width: 2px;
 }
+
+/* ========================================================================== */
+
 
 /* TOGGLES */
 .mode-toggle {
@@ -384,6 +400,7 @@ body.dark-mode .mode-toggle {
     background-color: var(--shadow-color);
 }
 
+/* UNIFIED NAVBAR BUTTONS */
 .nav-action-btn {
     appearance: none;
     -webkit-appearance: none;
@@ -516,7 +533,9 @@ body.dark-mode .mode-toggle {
 }
 
 #btn-exit-focus:hover {
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #ef4444 !important;
+    border-color: #ef4444 !important;
 }
 
 .manual-save-btn {
@@ -1933,7 +1952,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* ✨ PURE CSS CIRCULAR CHECKBOX (NO ICON) ✨ */
+/* ✨ PURE CSS CIRCULAR CHECKBOX (NO ICON) FOR BULK SYNC AND MANAGER ✨ */
 .sync-item {
     display: flex;
     align-items: center;
@@ -2077,7 +2096,7 @@ body.dark-mode .btn-help-cute:hover {
     animation: spin 2s linear infinite;
 }
 
-/* PREMIUM EXPORT PDF MODAL */
+/* EXPORT PDF MODAL */
 @media screen and (min-width: 769px) {
     #pdf-modal .modal-box {
         max-width: 480px;

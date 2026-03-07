@@ -50,14 +50,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnFocusMode = document.getElementById('btn-focus-mode');
     const btnExitFocus = document.getElementById('btn-exit-focus');
 
+    const toggleFocusMode = (forceState) => {
+        const isFocus = forceState !== undefined ? forceState : !document.body.classList.contains('focus-mode');
+        if (isFocus) {
+            document.body.classList.add('focus-mode');
+            localStorage.setItem('md_focus_mode', 'true');
+        } else {
+            document.body.classList.remove('focus-mode');
+            localStorage.setItem('md_focus_mode', 'false');
+        }
+    };
+
     btnFocusMode?.addEventListener('click', () => {
-        document.body.classList.add('focus-mode');
-        if (window.showToast) window.showToast("<i data-lucide='focus'></i> Focus Mode");
+        toggleFocusMode(true);
+        if (window.showToast) window.showToast("<i data-lucide='focus'></i> Focus Mode", 1500);
     });
 
     btnExitFocus?.addEventListener('click', () => {
-        document.body.classList.remove('focus-mode');
-        if (window.showToast) window.showToast("<i data-lucide='minimize'></i> Focus Exited");
+        toggleFocusMode(false);
+        if (window.showToast) window.showToast("<i data-lucide='minimize'></i> Focus Exited", 1500);
     });
 
     document.querySelectorAll('.view-btn').forEach(btn => {
@@ -100,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-    
+
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -136,10 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
-            
+
             // Close active dropdowns first
             const openDropdownList = document.querySelector('.dropdown-list[style*="display: block"]');
-            if(openDropdownList) {
+            if (openDropdownList) {
                 openDropdownList.style.display = 'none';
                 return;
             }
@@ -168,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const btn = document.getElementById(modal.closeBtn);
                     if (btn) btn.click();
                     else el.classList.remove('show');
-                    return; 
+                    return;
                 }
             }
         }
@@ -181,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ✨ ESCAPING CLIPPED CONTAINERS FOR FONTS ✨
-    window.setupDropdown = function(dropdownId, textId, callback) {
+    window.setupDropdown = function (dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
@@ -195,18 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
         newHeader.addEventListener('click', (e) => {
             e.stopPropagation();
             const isOpen = dropdown.classList.contains('open');
-            
+
             document.querySelectorAll('.custom-dropdown').forEach(d => {
                 d.classList.remove('open');
                 const lst = d.querySelector('.dropdown-list');
-                if(lst && lst.style.position === 'fixed') lst.style.display = 'none';
+                if (lst && lst.style.position === 'fixed') lst.style.display = 'none';
             });
 
-            if(!isOpen) {
+            if (!isOpen) {
                 dropdown.classList.add('open');
-                
+
                 // Magic positioning to escape toolbar overflow
-                if(dropdownId === 'font-dropdown') {
+                if (dropdownId === 'font-dropdown') {
                     const rect = newHeader.getBoundingClientRect();
                     list.style.display = 'block';
                     list.style.position = 'fixed';
@@ -224,12 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.classList.add('active');
                 if (textEl) {
                     textEl.textContent = e.target.textContent;
-                    if(e.target.getAttribute('data-value')) {
+                    if (e.target.getAttribute('data-value')) {
                         textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
                     }
                 }
                 dropdown.classList.remove('open');
-                if(list.style.position === 'fixed') list.style.display = 'none';
+                if (list.style.position === 'fixed') list.style.display = 'none';
                 if (callback) callback(e.target.getAttribute('data-value'));
             });
         });
@@ -239,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.custom-dropdown').forEach(d => {
             d.classList.remove('open');
             const lst = d.querySelector('.dropdown-list');
-            if(lst && lst.style.position === 'fixed') lst.style.display = 'none';
+            if (lst && lst.style.position === 'fixed') lst.style.display = 'none';
         });
     });
 
@@ -247,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.custom-dropdown').forEach(d => {
             d.classList.remove('open');
             const lst = d.querySelector('.dropdown-list');
-            if(lst && lst.style.position === 'fixed') lst.style.display = 'none';
+            if (lst && lst.style.position === 'fixed') lst.style.display = 'none';
         });
     });
 
@@ -309,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-        
+
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -327,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.classList.add('active');
             }
         });
-        
+
         if (window.lucide) lucide.createIcons();
     };
 
@@ -341,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-    
+
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');

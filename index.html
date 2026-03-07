@@ -37,6 +37,9 @@
                 document.getElementById('theme-light').disabled = true;
                 document.getElementById('theme-dark').disabled = false;
             }
+            if (localStorage.getItem('md_focus_mode') === 'true') {
+                document.body.classList.add('focus-mode');
+            }
         })();
     </script>
 
@@ -177,7 +180,7 @@
             <button class="tool-btn" data-action="math" title="Math Formula"><i data-lucide="sigma"></i></button>
             <div class="toolbar-spacer"></div>
 
-            <button class="tool-btn desktop-only" id="btn-focus-mode" title="Focus Mode (Hide Distractions)"
+            <button class="tool-btn hover-pop desktop-only" id="btn-focus-mode" title="Focus Mode (Hide Distractions)"
                 style="margin-right: 8px; color: var(--accent-color);">
                 <i data-lucide="focus"></i>
             </button>
@@ -229,12 +232,6 @@
         <div class="status-bar">
             <div class="sb-section" id="sb-left-controls">
 
-                <button id="btn-exit-focus" class="sb-action-btn" title="Exit Focus Mode"
-                    style="display: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
-                    <i data-lucide="minimize" style="width: 14px; height: 14px;"></i>
-                    <span class="desktop-only">Exit Focus</span>
-                </button>
-
                 <span id="active-mode-indicator" class="hide-on-focus"
                     style="font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local
@@ -242,12 +239,12 @@
 
                 <div class="toolbar-divider hide-on-focus" style="height: 14px; margin: 0 8px;"></div>
 
-                <button id="btn-toggle-autosave" class="sb-action-btn hide-on-focus" title="Toggle Auto-Save">
+                <button id="btn-toggle-autosave" class="sb-action-btn" title="Toggle Auto-Save">
                     <i data-lucide="toggle-right" style="width: 16px; height: 16px; color: #10b981;"></i>
                     <span class="desktop-only" style="color: var(--text-color);">Auto-Save: ON</span>
                 </button>
 
-                <button id="btn-manual-save" class="sb-action-btn manual-save-btn" title="Save Note"
+                <button id="btn-manual-save" class="sb-action-btn manual-save-btn" title="Save Note to Cloud & Local"
                     style="display: none;">
                     <i data-lucide="save" style="width: 14px; height: 14px;"></i>
                     <span class="desktop-only">Save Now</span>
@@ -283,6 +280,11 @@
                         <i data-lucide="moon" style="width: 12px; height: 12px;"></i> Dark
                     </button>
                 </div>
+
+                <button id="btn-exit-focus" class="sb-action-btn show-on-focus-only" title="Exit Focus Mode"
+                    style="margin-left: 8px; border-color: rgba(239,68,68,0.4); color: #ef4444;">
+                    <i data-lucide="minimize" style="width: 14px; height: 14px;"></i>
+                </button>
             </div>
         </div>
     </main>
@@ -320,9 +322,10 @@
                             </div>
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button class="modal-btn btn-confirm" id="btn-new-note"
-                                style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New
-                                Note</button>
+                            <button class="modal-btn btn-confirm" onclick="window.openNewNoteModal()"
+                                style="flex: 1; border-radius: 10px; height: 42px;">
+                                <i data-lucide="plus" style="pointer-events: none;"></i> New Note
+                            </button>
                         </div>
                     </div>
                 </div>
