@@ -179,7 +179,6 @@ body:not(.is-loading) #preview-skeleton {
     visibility: visible;
     transform: translateY(0);
     transition-delay: 0.3s;
-    /* Delay before appearing */
 }
 
 /* NAVBAR */
@@ -281,7 +280,7 @@ body.dark-mode .action-pill-group {
     height: 32px;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.6;
 }
 
@@ -486,7 +485,7 @@ body.dark-mode .action-pill-group {
 .app-container {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 1 1 0%;
     min-height: 0;
     position: relative;
     overflow: hidden;
@@ -571,6 +570,7 @@ textarea {
     line-height: 1.7;
     outline: none;
     overflow-y: auto;
+    min-height: 0;
 }
 
 textarea:disabled {
@@ -612,8 +612,27 @@ textarea:disabled::placeholder {
     left: 2px;
 }
 
+.split-workspace {
+    display: flex;
+    flex: 1 1 0%;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    background-color: var(--editor-bg);
+}
+
+.editor-panel {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--editor-bg);
+    border-right: 1px solid var(--border-color);
+    min-height: 0;
+}
+
 .preview-panel {
-    flex: 1;
+    flex: 1 1 0%;
     display: flex;
     flex-direction: column;
     background-color: var(--preview-bg);
@@ -646,18 +665,12 @@ body.view-preview .divider {
 }
 
 /* ✨ FOCUS MODE CSS ✨ */
-body.focus-mode .nav-mode-toggle {
+body.focus-mode #nav-mode-toggle {
     display: none !important;
 }
 
-body.focus-mode #btn-notes-desktop {
-    display: none !important;
-}
-
-body.focus-mode #btn-manage {
-    display: none !important;
-}
-
+body.focus-mode #btn-notes-desktop,
+body.focus-mode #btn-manage,
 body.focus-mode #btn-docs {
     display: none !important;
 }
@@ -671,18 +684,14 @@ body.focus-mode .status-bar {
     justify-content: space-between !important;
 }
 
-body.focus-mode .sb-section:not(#sb-left-controls) {
-    display: flex !important;
-}
-
 body.focus-mode .sb-section>*:not(#active-mode-indicator):not(#btn-exit-focus) {
     display: none !important;
 }
 
 body.focus-mode #btn-exit-focus {
     display: flex !important;
-    margin-left: auto;
 }
+
 
 .status-bar {
     display: flex;

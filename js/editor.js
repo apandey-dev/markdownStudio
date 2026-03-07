@@ -318,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         });
 
+
         function updatePillUI() {
             const isGithub = appMode === 'github';
 

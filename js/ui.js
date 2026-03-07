@@ -75,7 +75,6 @@ window.closePatGuideModal = function () { document.getElementById('pat-guide-mod
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeBulkSyncModal = function () { document.getElementById('bulk-sync-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
-window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 window.closeShareModal = function () { document.getElementById('share-modal')?.classList.remove('show'); };
 
 window.closeNotesModal = function () {
@@ -141,11 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('management-modal')?.classList.add('show');
         if (typeof window.renderManagementModal === 'function') window.renderManagementModal();
     });
-
-    document.getElementById('btn-settings')?.addEventListener('click', () => {
-        document.getElementById('settings-modal')?.classList.add('show');
-    });
-    document.getElementById('settings-modal-close')?.addEventListener('click', window.closeSettingsModal);
 
     document.getElementById('sidebar-btn-manage-mobile')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
@@ -222,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
             if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
-            if (document.getElementById('settings-modal')?.classList.contains('show')) { window.closeSettingsModal(); return; }
             if (document.getElementById('share-modal')?.classList.contains('show')) { window.closeShareModal(); return; }
 
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }

@@ -62,19 +62,19 @@
             <div class="action-pill-group desktop-only">
                 <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes"
                     data-tooltip="Note Dashboard">
-                    <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i>
+                    <i data-lucide="panel-left"></i>
                 </button>
                 <button id="btn-manage" class="pill-action-btn" data-tooltip="Manage Workspace">
-                    <i data-lucide="folder-tree" style="width: 16px; height: 16px;"></i>
+                    <i data-lucide="folder-tree"></i>
                 </button>
                 <button id="btn-share" class="pill-action-btn" data-tooltip="Generate Secure Link">
-                    <i data-lucide="share-2" style="width: 16px; height: 16px;"></i>
+                    <i data-lucide="share-2"></i>
                 </button>
                 <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export to PDF">
-                    <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
+                    <i data-lucide="printer"></i>
                 </button>
                 <button id="btn-docs" class="pill-action-btn" data-tooltip="View Documentation">
-                    <i data-lucide="book" style="width: 16px; height: 16px;"></i>
+                    <i data-lucide="book"></i>
                 </button>
             </div>
         </div>
@@ -175,7 +175,7 @@
 
             <div class="toolbar-spacer"></div>
 
-            <button class="tool-btn desktop-only" id="btn-focus-mode" data-tooltip="Focus Mode"
+            <button class="tool-btn desktop-only" id="btn-focus-mode" data-tooltip="Enter Focus Mode"
                 style="margin-right: 8px;">
                 <i data-lucide="scan"></i>
             </button>
@@ -185,20 +185,20 @@
                 <i data-lucide="arrow-down-up"></i>
             </button>
 
-            <div class="action-pill-group desktop-only icon-size">
-                <button class="pill-action-btn view-btn " data-view="editor" data-tooltip="Editor Only">
-                    <i data-lucide="file-edit"></i></button>
-                <button class="pill-action-btn view-btn active " data-view="split" data-tooltip="Split View"><i
+            <div class="action-pill-group desktop-only">
+                <button class="pill-action-btn view-btn" data-view="editor" data-tooltip="Editor Only"><i
+                        data-lucide="file-edit"></i></button>
+                <button class="pill-action-btn view-btn active" data-view="split" data-tooltip="Split View"><i
                         data-lucide="columns"></i></button>
-                <button class="pill-action-btn view-btn " data-view="preview" data-tooltip="Preview Only"><i
+                <button class="pill-action-btn view-btn" data-view="preview" data-tooltip="Preview Only"><i
                         data-lucide="monitor"></i></button>
 
-                <div class="toolbar-divider pill-divider" style="height: 18px; margin: 0 4px; opacity: 0.3;"></div>
+                <div class="toolbar-divider" style="height: 18px; margin: 0 2px; opacity: 0.3;"></div>
 
                 <input type="file" id="import-file" accept=".md,.txt" style="display: none;" />
-                <button class="pill-action-btn " id="btn-import-md" data-tooltip="Import .md file"><i
+                <button class="pill-action-btn" id="btn-import-md" data-tooltip="Import .md file"><i
                         data-lucide="file-up"></i></button>
-                <button class="pill-action-btn " id="btn-export-md" data-tooltip="Download .md file"><i
+                <button class="pill-action-btn" id="btn-export-md" data-tooltip="Download .md file"><i
                         data-lucide="file-down"></i></button>
             </div>
         </div>
@@ -274,8 +274,7 @@
                     </button>
                 </div>
 
-                <button class="pill-action-btn desktop-only focus-exit-btn" id="btn-exit-focus"
-                    data-tooltip="Exit Focus Mode"
+                <button class="pill-action-btn desktop-only" id="btn-exit-focus" data-tooltip="Exit Focus Mode"
                     style="display: none; background: rgba(239,68,68,0.1); color: #ef4444; margin-left: 12px;">
                     <i data-lucide="minimize"></i>
                 </button>
