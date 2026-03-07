@@ -11,18 +11,20 @@ const GitHubBackend = {
     defaultBranch: 'main',
     isConfigured: false,
 
+    // Secure, call-stack-safe base64 encoding for huge strings (up to 100MB)
     utf8_to_b64(str) {
         const bytes = new TextEncoder().encode(str);
         let binary = '';
-        const chunkSize = 0x8000; 
+        const chunkSize = 0x8000; // Safe chunk size (32KB) prevents "Maximum call stack" crash
         for (let i = 0; i < bytes.length; i += chunkSize) {
             binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
         }
         return btoa(binary);
     },
 
+    // Secure memory-safe base64 decoding
     b64_to_utf8(str) {
-        const cleanStr = str.replace(/\n/g, ''); 
+        const cleanStr = str.replace(/\n/g, ''); // Ensure no arbitrary newlines
         const binary = atob(cleanStr);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) {
@@ -45,6 +47,7 @@ const GitHubBackend = {
 
             await this.checkAndCreateRepo();
             
+            // Dynamic default branch fetching incase repo uses `master`
             const repoRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}`, {
                 headers: { 'Authorization': `token ${this.token}` }
             });
@@ -79,10 +82,12 @@ const GitHubBackend = {
                     auto_init: true
                 })
             });
+            // Brief wait for GitHub to completely initialize the new repository
             await new Promise(r => setTimeout(r, 2000));
         }
     },
 
+    // ✨ ADVANCED FAST GITHUB TREE FETCHING ✨
     async getTree() {
         const branchRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}`, {
             headers: { 'Authorization': `token ${this.token}` }
@@ -106,6 +111,7 @@ const GitHubBackend = {
             const fileTree = await this.getTree();
             let notes = [];
             
+            // CHUNKED PARALLEL FETCH TO PREVENT BROWSER FREEZE & RATE LIMITS
             const chunkSize = 5; 
             for (let i = 0; i < fileTree.length; i += chunkSize) {
                 const chunk = fileTree.slice(i, i + chunkSize);
@@ -125,7 +131,7 @@ const GitHubBackend = {
                         const folder = parts.length > 0 ? parts.join('/') : 'All Notes';
                         
                         return { 
-                            id: file.sha, 
+                            id: file.sha, // Exact blob SHA mapped to note ID
                             title: title, 
                             content: rawContent, 
                             path: file.path, 
@@ -133,13 +139,14 @@ const GitHubBackend = {
                             lastUpdated: Date.now() 
                         };
                     } catch (e) {
-                        return null; 
+                        return null; // Prevents one corrupted file from destroying the whole fetch operation
                     }
                 });
                 
                 const chunkResults = await Promise.all(promises);
                 notes.push(...chunkResults.filter(n => n !== null));
                 
+                // Yield to main UI thread so loading screen animates smoothly
                 await new Promise(resolve => setTimeout(resolve, 20));
             }
             return notes.reverse();
@@ -149,10 +156,12 @@ const GitHubBackend = {
         }
     },
 
+    // Replaced standard contents API (1MB Limit) with Git Database API (100MB limit per file).
     async saveNote(noteId, exactPath, title, content) {
         if (!this.isConfigured) return null;
 
         try {
+            // 1. Get branch reference to find the latest commit
             const refRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/refs/heads/${this.defaultBranch}`, {
                 headers: { 'Authorization': `token ${this.token}` }
             });
@@ -160,12 +169,14 @@ const GitHubBackend = {
             const refData = await refRes.json();
             const latestCommitSha = refData.object.sha;
 
+            // 2. Get the commit to find its tree
             const commitRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/commits/${latestCommitSha}`, {
                 headers: { 'Authorization': `token ${this.token}` }
             });
             const commitData = await commitRes.json();
             const baseTreeSha = commitData.tree.sha;
 
+            // 3. Create a new Blob with the large content safely
             const encodedContent = this.utf8_to_b64(content);
             const blobRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/blobs`, {
                 method: 'POST',
@@ -175,6 +186,7 @@ const GitHubBackend = {
             if (!blobRes.ok) throw new Error("Could not create blob");
             const blobData = await blobRes.json();
 
+            // 4. Create a new Tree pointing to the newly generated Blob
             const treeRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/trees`, {
                 method: 'POST',
                 headers: { 'Authorization': `token ${this.token}`, 'Content-Type': 'application/json' },
@@ -190,17 +202,19 @@ const GitHubBackend = {
             });
             const treeData = await treeRes.json();
 
+            // 5. Create a new Commit overriding previous commit
             const newCommitRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/commits`, {
                 method: 'POST',
                 headers: { 'Authorization': `token ${this.token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: `Auto-saved note: ${title}`,
+                    message: `Saved note: ${title}`,
                     tree: treeData.sha,
                     parents: [latestCommitSha]
                 })
             });
             const newCommitData = await newCommitRes.json();
 
+            // 6. Update the Branch Reference to point to the new Commit
             const updateRefRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/git/refs/heads/${this.defaultBranch}`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `token ${this.token}`, 'Content-Type': 'application/json' },

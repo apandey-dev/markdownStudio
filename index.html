@@ -483,17 +483,38 @@
     </div>
 
     <div class="modal-overlay" id="prompt-modal" style="z-index: 2000;">
-        <div class="modal-box premium-modal">
-            <div class="premium-modal-header">
+        <div class="modal-box premium-modal note-creation-modal">
+            <div class="premium-modal-header" style="margin-bottom: 20px;">
                 <div class="premium-icon-wrapper note-icon-theme"><i data-lucide="file-plus-2"></i></div>
                 <h3 class="modal-title">New Note</h3>
-                <p class="modal-subtitle">Name your new markdown document.</p>
+                <p class="modal-subtitle">Name your note and choose its folder.</p>
             </div>
             <div class="input-group premium-input-group">
                 <input type="text" class="modal-input" id="prompt-input" placeholder="Meeting Notes"
                     autocomplete="off" />
             </div>
-            <div class="modal-actions premium-actions">
+
+            <div class="input-group" style="text-align: left; margin-top: 16px;">
+                <label style="margin-left: 4px; font-size: 0.8rem; opacity: 0.7; font-weight: 600;">SAVE IN
+                    FOLDER</label>
+                <div style="display: flex; gap: 8px;">
+                    <div class="custom-dropdown" id="note-folder-dropdown" style="flex: 1;">
+                        <div class="dropdown-header" style="height: 48px;">
+                            <span id="folder-selected-text">All Notes</span>
+                            <span class="chevron"><i data-lucide="chevron-down"
+                                    style="width: 16px; height: 16px;"></i></span>
+                        </div>
+                        <div class="dropdown-list" id="note-folder-dropdown-list" style="z-index: 2500;">
+                        </div>
+                    </div>
+                    <button class="nav-action-btn" id="btn-quick-new-folder" title="Create New Folder"
+                        style="height: 48px; width: 48px; border-radius: 12px; padding: 0;">
+                        <i data-lucide="folder-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-actions premium-actions" style="margin-top: 24px !important;">
                 <button class="modal-btn btn-cancel" id="prompt-cancel">Cancel</button>
                 <button class="modal-btn btn-confirm" id="prompt-confirm">Create Note</button>
             </div>

@@ -459,6 +459,12 @@
         padding: 0 16px !important;
     }
 
+    .note-creation-modal {
+        overflow: visible !important;
+    }
+
+    /* Lets folder dropdown pop up over sheet */
+
     .premium-modal {
         padding-top: 48px !important;
     }
@@ -651,10 +657,10 @@
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* ✨ DASHBOARD PILL BUTTONS FOR MOBILE ✨ */
+    /* ✨ DASHBOARD CIRCULAR BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
-        padding: 12px 24px !important;
-        gap: 12px !important;
+        padding: 12px 16px !important;
+        gap: 8px !important;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg) !important;
         display: flex !important;
@@ -663,10 +669,14 @@
         height: auto !important;
     }
 
+    .dash-action-group {
+        gap: 6px !important;
+    }
+
     .dash-circle-btn,
     .btn-close-dashboard {
-        width: 46px !important;
-        height: 46px !important;
+        width: 36px !important;
+        height: 36px !important;
         border-radius: 50% !important;
         padding: 0 !important;
         background: transparent !important;
@@ -674,8 +684,8 @@
 
     .dash-circle-btn i,
     .btn-close-dashboard i {
-        width: 20px !important;
-        height: 20px !important;
+        width: 16px !important;
+        height: 16px !important;
         margin: 0 !important;
     }
 

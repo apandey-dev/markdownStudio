@@ -254,7 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ✨ FIXED: FLAWLESS MANUAL SAVE BUTTON LOGIC ✨
         document.getElementById('btn-manual-save')?.addEventListener('click', async () => {
             const btn = document.getElementById('btn-manual-save');
             const originalHTML = btn.innerHTML;
@@ -272,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!navigator.onLine) {
                         window.showToast("<i data-lucide='wifi-off'></i> Offline. Saved Locally.");
                     } else {
-                        // Bypass pendingSync checks by forcing it directly
                         while(isSyncing) await new Promise(r => setTimeout(r, 200));
                         
                         isSyncing = true;
@@ -288,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 syncRetries = 0;
                                 window.showToast("<i data-lucide='cloud-check'></i> Saved to Cloud");
                             } else if (result === 'conflict') {
-                                window.showToast("<i data-lucide='alert-triangle'></i> Conflict detected.");
+                                window.showToast("<i data-lucide='alert-triangle'></i> Conflict");
                             } else {
                                 window.showToast("<i data-lucide='x-circle'></i> Sync Failed");
                             }
@@ -300,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } else {
-                    window.showToast("<i data-lucide='check-circle'></i> Saved Locally");
+                    window.showToast("<i data-lucide='check-circle'></i> Saved");
                 }
             }
             
@@ -696,6 +694,36 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         }
 
+        // ✨ DYNAMIC FOLDER SELECTOR FOR NEW NOTE ✨
+        window.setupFolderDropdown = function() {
+            const dropdown = document.getElementById('note-folder-dropdown');
+            if(!dropdown) return;
+            const header = dropdown.querySelector('.dropdown-header');
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            const textEl = document.getElementById('folder-selected-text');
+
+            const newHeader = header.cloneNode(true);
+            header.parentNode.replaceChild(newHeader, header);
+            
+            newHeader.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('open');
+                });
+                dropdown.classList.toggle('open');
+            });
+
+            items.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    items.forEach(i => i.classList.remove('active'));
+                    e.target.classList.add('active');
+                    textEl.textContent = e.target.textContent;
+                    textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
+                    dropdown.classList.remove('open');
+                });
+            });
+        }
+
         window.renderFoldersList = function () {
             const container = document.getElementById('folders-list-container');
             if (!container) return;
@@ -745,7 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         saveFolders();
                         window.renderFoldersList();
                         window.renderNotesList();
-                        window.showToast("<i data-lucide='trash-2'></i> Folder deleted");
+                        window.showToast("<i data-lucide='trash-2'></i> Deleted");
                     });
                     div.appendChild(delBtn);
                 }
@@ -821,42 +849,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('mob-back-folders')?.addEventListener('click', () => {
             document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
-        });
-
-        document.getElementById('btn-sync-current')?.addEventListener('click', async () => {
-            const token = localStorage.getItem('md_github_token');
-            if (!token) return window.showToast("Invalid Token.");
-
-            const currentNote = getActiveNote();
-            if (!currentNote) return;
-
-            const btn = document.getElementById('btn-sync-current');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span class="desktop-only">Syncing</span>`;
-            btn.disabled = true;
-            if (window.lucide) lucide.createIcons();
-
-            const success = await GitHubBackend.init(token);
-            if (success) {
-                try {
-                    const res = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
-                    if (res && res !== 'conflict') {
-                        currentNote.id = res.sha;
-                        currentNote.path = res.path;
-                        currentNote.lastUpdated = Date.now();
-                        await saveLocalState();
-                        window.showToast(`<i data-lucide='check-circle'></i> Synced!`);
-                    } else if (res === 'conflict') {
-                        window.showToast("Conflict detected.");
-                    } else {
-                        window.showToast("Sync failed.");
-                    }
-                } catch (e) { window.showToast("Sync failed."); }
-            }
-
-            btn.innerHTML = originalHTML;
-            btn.disabled = false;
-            if (window.lucide) lucide.createIcons();
         });
 
         const bulkSyncModal = document.getElementById('bulk-sync-modal');
@@ -960,7 +952,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
         });
 
-        // ✨ UPDATED PARSER TO HANDLE WIKI-LINKS ✨
         function customMarkdownParser(rawText) {
             let processedText = rawText.replace(/\r\n/g, '\n');
 
@@ -1011,7 +1002,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span style="color: ${color};">${text}</span>`;
             });
 
-            // ✨ SMART WIKI-LINK PARSER: Determines valid vs dead links instantly
             processedText = processedText.replace(/\[\[(.*?)\]\]/g, (match, noteTitle) => {
                 const cleanTitle = noteTitle.trim();
                 const exists = notes.some(n => n.title.toLowerCase() === cleanTitle.toLowerCase());
@@ -1057,7 +1047,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // ✨ CLICK LISTENERS FOR INTERNAL LINKS ✨
         function attachInternalLinkListeners(container) {
             container.querySelectorAll('.internal-note-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -1080,10 +1069,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (document.getElementById('notes-modal')?.classList.contains('show')) {
                             window.renderDashboardPreview();
                         } else {
-                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened: " + targetNote.title);
+                            if (window.showToast) window.showToast("<i data-lucide='external-link'></i> Opened");
                         }
                     } else {
-                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note doesn't exist. Create it now!");
+                        if (window.showToast) window.showToast("<i data-lucide='info'></i> Note not found");
                         const promptModal = document.getElementById('prompt-modal');
                         const promptInput = document.getElementById('prompt-input');
                         if (promptModal && promptInput) {
@@ -1113,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(previewEl);
-            attachInternalLinkListeners(previewEl); 
+            attachInternalLinkListeners(previewEl);
 
             if (typeof hljs !== 'undefined') {
                 previewEl.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1121,7 +1110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         };
 
-        // ✨ SAFE NOTE SWITCHING ✨
         document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
             if (!highlightedNoteId) return;
             
@@ -1212,10 +1200,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const folderPromptModal = document.getElementById('folder-prompt-modal');
         const folderPromptInput = document.getElementById('folder-prompt-input');
 
+        // ✨ Folder Creation Stack Logic ✨
+        let returningToNoteModal = false;
+
         btnNewFolder?.addEventListener('click', () => {
             folderPromptInput.value = '';
             folderPromptModal.classList.add('show');
             setTimeout(() => { folderPromptInput.focus(); }, 100);
+        });
+        
+        document.getElementById('btn-quick-new-folder')?.addEventListener('click', () => {
+            document.getElementById('prompt-modal').classList.remove('show');
+            returningToNoteModal = true;
+            setTimeout(() => { btnNewFolder.click(); }, 300);
         });
 
         document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
@@ -1233,10 +1230,21 @@ document.addEventListener('DOMContentLoaded', () => {
             folderPromptModal.classList.remove('show');
             window.showToast(`<i data-lucide='folder'></i> Created`);
 
-            if (window.innerWidth <= 768) document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+            if (returningToNoteModal) {
+                setTimeout(() => { document.getElementById('btn-new-note').click(); }, 300);
+                returningToNoteModal = false;
+            } else if (window.innerWidth <= 768) {
+                document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+            }
         });
 
-        document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => folderPromptModal.classList.remove('show'));
+        document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => {
+            folderPromptModal.classList.remove('show');
+            if(returningToNoteModal) {
+                setTimeout(() => { document.getElementById('btn-new-note').click(); }, 300);
+                returningToNoteModal = false;
+            }
+        });
 
         const btnNewNote = document.getElementById('btn-new-note');
         const promptModal = document.getElementById('prompt-modal');
@@ -1244,34 +1252,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btnNewNote?.addEventListener('click', () => {
             promptInput.value = '';
+            
+            // Populate folder dropdown
+            const dropList = document.getElementById('note-folder-dropdown-list');
+            const dropText = document.getElementById('folder-selected-text');
+            if(dropList && dropText) {
+                dropList.innerHTML = '';
+                folders.forEach(f => {
+                    const div = document.createElement('div');
+                    div.className = `dropdown-item ${f === activeFolder ? 'active' : ''}`;
+                    div.setAttribute('data-value', f);
+                    div.textContent = f;
+                    dropList.appendChild(div);
+                });
+                dropText.textContent = activeFolder;
+                dropText.setAttribute('data-selected', activeFolder);
+                if(window.setupFolderDropdown) window.setupFolderDropdown();
+            }
+
             promptModal.classList.add('show');
             setTimeout(() => { promptInput.focus(); }, 100);
         });
 
         const createNoteFlow = async () => {
             let noteName = promptInput.value.trim() || "Untitled Note";
-            const folder = activeFolder;
-            const generatedPath = generatePath(folder, noteName);
+            
+            const dropText = document.getElementById('folder-selected-text');
+            let targetFolder = dropText ? dropText.getAttribute('data-selected') : activeFolder;
+            if(!targetFolder) targetFolder = activeFolder;
+            
+            const generatedPath = generatePath(targetFolder, noteName);
 
             const existingNote = notes.find(n => n.path === generatedPath);
             const newId = Date.now().toString();
             const content = `# ${noteName}\n\nStart typing here...`;
 
             if (existingNote) {
-                pendingNewNoteData = { id: newId, path: generatedPath, folder: folder, title: noteName, content: content, existingId: existingNote.id };
+                pendingNewNoteData = { id: newId, path: generatedPath, folder: targetFolder, title: noteName, content: content, existingId: existingNote.id };
                 document.getElementById('conflict-filename').textContent = noteName + ".md";
                 promptModal.classList.remove('show');
                 document.getElementById('conflict-modal').classList.add('show');
                 return;
             }
 
-            await executeNoteCreation({ id: newId, path: generatedPath, folder: folder, title: noteName, content: content, lastUpdated: Date.now() });
+            await executeNoteCreation({ id: newId, path: generatedPath, folder: targetFolder, title: noteName, content: content, lastUpdated: Date.now() });
         };
 
         async function executeNoteCreation(noteData) {
             notes.unshift(noteData);
             activeNoteId = noteData.id;
             highlightedNoteId = noteData.id;
+            activeFolder = noteData.folder; // Switch folder view
             editor.value = noteData.content;
 
             await saveLocalState();
@@ -1324,9 +1355,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         function getDynamicDebounceTime(textLength) {
-            if (textLength > 200000) return 1500; 
-            if (textLength > 50000) return 800;   
-            return 300;                           
+            if (textLength > 200000) return 1500;
+            if (textLength > 50000) return 800;
+            return 300;
         }
 
         let debounceTimeout;
@@ -1551,8 +1582,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const folder = activeFolder;
                 const newPath = generatePath(folder, rawTitle);
                 const newId = Date.now().toString();
-
-                if (notes.find(n => n.path === newPath)) {
+                
+                if(notes.find(n => n.path === newPath)) {
                     window.showToast("<i data-lucide='alert-triangle'></i> File exists.");
                     return;
                 }
@@ -1601,16 +1632,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             let pageCss = "";
 
-            if (window.selectedPageSize === 'A4') {
-                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
+            if (window.selectedPageSize === 'A4') { 
+                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`; 
             }
-            else if (window.selectedPageSize === 'A2') {
-                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
+            else if (window.selectedPageSize === 'A2') { 
+                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
             }
             else if (window.selectedPageSize === 'Infinity') {
                 const previewEl = document.getElementById('preview-output');
                 const previewPanel = document.getElementById('preview-panel');
-
+                
                 const isHidden = window.getComputedStyle(previewPanel).display === 'none';
                 if (isHidden) {
                     previewPanel.style.setProperty('display', 'block', 'important');
@@ -1628,10 +1659,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     previewPanel.style.removeProperty('z-index');
                 }
 
-                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
+                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
                 pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-
+            
             style.innerHTML = pageCss;
             document.head.appendChild(style);
 
@@ -1643,7 +1674,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = originalTitle;
                 document.head.removeChild(style);
                 if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Exported");
-            }, 400);
+            }, 400); 
         });
 
         shareBtn?.addEventListener('click', async () => {

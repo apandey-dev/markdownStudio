@@ -7,6 +7,7 @@
 window.selectedPageSize = 'A4';
 window.toastTimeout = null;
 
+// Short duration for minimal intrusion
 window.showToast = function (message, duration = 2500) {
     const toastEl = document.getElementById('toast');
     if (!toastEl) return;
@@ -77,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('docs-modal')?.classList.add('show');
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
-
 
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();

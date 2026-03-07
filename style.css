@@ -755,7 +755,6 @@ body.view-preview .divider {
     border-radius: 8px;
 }
 
-/* ✨ WIKI-LINKS ✨ */
 a.internal-note-link {
     display: inline-flex;
     align-items: center;
@@ -801,7 +800,6 @@ a.internal-note-link i {
     opacity: 0.7;
 }
 
-/* CODE BLOCKS */
 #preview-output pre,
 #dashboard-preview-output pre {
     position: relative;
@@ -1075,6 +1073,11 @@ body.dark-mode .btn-cancel:hover {
 }
 
 /* ✨ ALL NOTES DASHBOARD ✨ */
+.note-creation-modal {
+    max-width: 440px !important;
+    overflow: visible !important;
+}
+
 .notes-dashboard-box {
     max-width: 1300px;
     width: 95vw;
@@ -1287,12 +1290,12 @@ body.dark-mode .btn-cancel:hover {
     position: relative;
 }
 
-/* ✨ PERFECT DASHBOARD ACTIONS ✨ */
+/* ✨ DASHBOARD ACTIONS ✨ */
 .dashboard-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 32px;
+    padding: 16px 80px 16px 32px;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--nav-bg);
     height: 72px;
@@ -1358,7 +1361,10 @@ body.dark-mode .btn-cancel:hover {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0 !important;
-    margin-left: 8px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
 }
 
 .btn-close-dashboard i {
@@ -1685,54 +1691,6 @@ body.dark-mode .btn-help-cute:hover {
     background-color: #ef4444 !important;
     color: #ffffff !important;
     border: none;
-}
-
-/* ✨ BEAUTIFUL SHORT TOAST NOTIFICATION ✨ */
-#toast {
-    visibility: hidden;
-    background-color: var(--text-color);
-    color: var(--bg-color);
-    text-align: center;
-    border-radius: 50px;
-    padding: 8px 16px;
-    position: fixed;
-    z-index: 99999 !important;
-    right: 24px;
-    bottom: 24px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
-    transform: translateY(20px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    white-space: nowrap;
-    width: max-content;
-}
-
-#toast i {
-    width: 14px;
-    height: 14px;
-}
-
-#toast.show {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.custom-divider {
-    border: none;
-    height: 5px;
-    background-image: linear-gradient(to right, var(--text-color) 60%, transparent 40%), linear-gradient(to right, var(--text-color) 60%, transparent 40%);
-    background-position: top, bottom;
-    background-size: 12px 1px;
-    background-repeat: repeat-x;
-    margin: 10px 0;
-    opacity: 0.3;
 }
 
 /* ✨ CIRCULAR CHECKBOX FOR BULK SYNC ✨ */
