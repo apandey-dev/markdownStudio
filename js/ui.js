@@ -30,8 +30,6 @@ window.closePromptModal = function () { document.getElementById('prompt-modal')?
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeBulkSyncModal = function () { document.getElementById('bulk-sync-modal')?.classList.remove('show'); };
-window.closeMoveModal = function () { document.getElementById('move-modal')?.classList.remove('show'); };
-window.closeRenameModal = function () { document.getElementById('rename-modal')?.classList.remove('show'); };
 
 window.closeNotesModal = function () {
     document.getElementById('notes-modal')?.classList.remove('show');
@@ -45,31 +43,6 @@ window.closeNotesModal = function () {
 document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) lucide.createIcons();
-
-    // ✨ FOCUS MODE LOGIC ✨
-    const btnFocusMode = document.getElementById('btn-focus-mode');
-    const btnExitFocus = document.getElementById('btn-exit-focus');
-
-    const toggleFocusMode = (forceState) => {
-        const isFocus = forceState !== undefined ? forceState : !document.body.classList.contains('focus-mode');
-        if (isFocus) {
-            document.body.classList.add('focus-mode');
-            localStorage.setItem('md_focus_mode', 'true');
-        } else {
-            document.body.classList.remove('focus-mode');
-            localStorage.setItem('md_focus_mode', 'false');
-        }
-    };
-
-    btnFocusMode?.addEventListener('click', () => {
-        toggleFocusMode(true);
-        if (window.showToast) window.showToast("<i data-lucide='focus'></i> Focus Mode", 1500);
-    });
-
-    btnExitFocus?.addEventListener('click', () => {
-        toggleFocusMode(false);
-        if (window.showToast) window.showToast("<i data-lucide='minimize'></i> Focus Exited", 1500);
-    });
 
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -111,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-
+    
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -143,45 +116,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✨ FIXED ESC KEY LOGIC ✨
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
-
-            // Close active dropdowns first
-            const openDropdownList = document.querySelector('.dropdown-list[style*="display: block"]');
-            if (openDropdownList) {
-                openDropdownList.style.display = 'none';
-                return;
-            }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
-
-            const modals = [
-                { id: 'conflict-modal', closeBtn: 'conflict-cancel' },
-                { id: 'folder-prompt-modal', closeBtn: 'folder-prompt-cancel' },
-                { id: 'prompt-modal', closeBtn: 'prompt-cancel' },
-                { id: 'delete-modal', closeBtn: 'delete-cancel' },
-                { id: 'move-modal', closeBtn: 'move-cancel' },
-                { id: 'rename-modal', closeBtn: 'rename-cancel' },
-                { id: 'pdf-modal', closeBtn: 'modal-cancel' },
-                { id: 'setup-modal', closeBtn: 'btn-cancel-setup' },
-                { id: 'pat-guide-modal', closeBtn: 'pat-guide-close' },
-                { id: 'manager-modal', closeBtn: 'manager-modal-close' },
-                { id: 'bulk-sync-modal', closeBtn: 'bulk-sync-cancel' },
-                { id: 'docs-modal', closeBtn: 'docs-modal-close' },
-                { id: 'notes-modal', closeBtn: 'notes-modal-close' }
-            ];
-
-            for (let modal of modals) {
-                const el = document.getElementById(modal.id);
-                if (el && el.classList.contains('show')) {
-                    const btn = document.getElementById(modal.closeBtn);
-                    if (btn) btn.click();
-                    else el.classList.remove('show');
-                    return;
-                }
-            }
+            
+            if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
+            if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
+            if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
+            if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
+            if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
+            
+            if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
+            if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
+            if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
+            if (document.getElementById('bulk-sync-modal')?.classList.contains('show')) { window.closeBulkSyncModal(); return; }
+            
+            if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
         }
     });
 
@@ -191,82 +143,38 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
-    // ✨ ESCAPING CLIPPED CONTAINERS FOR FONTS & DYNAMIC DROPDOWNS ✨
-    window.setupDropdown = function (dropdownId, textId, callback) {
+    function setupDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
+        const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
-        const list = dropdown.querySelector('.dropdown-list');
 
-        const newHeader = header.cloneNode(true);
-        header.parentNode.replaceChild(newHeader, header);
-
-        newHeader.addEventListener('click', (e) => {
+        header?.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isOpen = dropdown.classList.contains('open');
-
             document.querySelectorAll('.custom-dropdown').forEach(d => {
-                d.classList.remove('open');
-                const lst = d.querySelector('.dropdown-list');
-                if (lst && lst.style.position === 'fixed') lst.style.display = 'none';
+                if (d !== dropdown) d.classList.remove('open');
             });
-
-            if (!isOpen) {
-                dropdown.classList.add('open');
-
-                // Magic positioning to escape toolbar overflow
-                if (dropdownId === 'font-dropdown') {
-                    const rect = newHeader.getBoundingClientRect();
-                    list.style.display = 'block';
-                    list.style.position = 'fixed';
-                    list.style.top = (rect.bottom + 8) + 'px';
-                    list.style.left = rect.left + 'px';
-                    list.style.width = Math.max(rect.width, 150) + 'px';
-                    list.style.zIndex = '9999';
-                }
-            }
+            dropdown.classList.toggle('open');
         });
 
-        // Delegate item clicks to the list to support dynamic items (e.g. Folders)
-        list.onclick = (e) => {
-            const item = e.target.closest('.dropdown-item');
-            if (!item) return;
-
-            list.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-
-            const val = item.getAttribute('data-value');
-            if (textEl) {
-                textEl.textContent = item.textContent;
-                textEl.setAttribute('data-selected', val || item.textContent);
-            }
-            dropdown.classList.remove('open');
-            if (list.style.position === 'fixed') list.style.display = 'none';
-            if (callback) callback(val);
-        };
+        items.forEach(item => {
+            item.addEventListener('click', (e) => {
+                items.forEach(i => i.classList.remove('active'));
+                e.target.classList.add('active');
+                if (textEl) textEl.textContent = `Preview: ${e.target.textContent}`;
+                dropdown.classList.remove('open');
+                if (callback) callback(e.target.getAttribute('data-value'));
+            });
+        });
     }
 
     document.addEventListener('click', () => {
-        document.querySelectorAll('.custom-dropdown').forEach(d => {
-            d.classList.remove('open');
-            const lst = d.querySelector('.dropdown-list');
-            if (lst && lst.style.position === 'fixed') lst.style.display = 'none';
-        });
+        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
     });
 
-    document.querySelector('.editor-toolbar')?.addEventListener('scroll', () => {
-        document.querySelectorAll('.custom-dropdown').forEach(d => {
-            d.classList.remove('open');
-            const lst = d.querySelector('.dropdown-list');
-            if (lst && lst.style.position === 'fixed') lst.style.display = 'none';
-        });
-    });
-
-    // ✨ GLOBAL FONT SYNC (EDITOR & PREVIEW) ✨
     const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
     document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
-    document.documentElement.style.setProperty('--editor-font', `'${savedFont}', sans-serif`);
 
     const fontDropdownItems = document.querySelectorAll('#font-dropdown .dropdown-item');
     const fontSelectedText = document.getElementById('font-selected-text');
@@ -275,18 +183,17 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.remove('active');
             if (item.getAttribute('data-value') === savedFont) {
                 item.classList.add('active');
-                fontSelectedText.textContent = `${item.textContent}`;
+                fontSelectedText.textContent = `Preview: ${item.textContent}`;
             }
         });
     }
 
-    window.setupDropdown('font-dropdown', 'font-selected-text', (val) => {
+    setupDropdown('font-dropdown', 'font-selected-text', (val) => {
         document.documentElement.style.setProperty('--preview-font', `'${val}', sans-serif`);
-        document.documentElement.style.setProperty('--editor-font', `'${val}', sans-serif`);
         localStorage.setItem('md_studio_font', val);
     });
 
-    window.setupDropdown('size-dropdown', 'size-selected-text', (val) => {
+    setupDropdown('size-dropdown', 'size-selected-text', (val) => {
         window.selectedPageSize = val;
     });
 
@@ -321,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-
+        
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -339,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.classList.add('active');
             }
         });
-
+        
         if (window.lucide) lucide.createIcons();
     };
 
@@ -353,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-
+    
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');
