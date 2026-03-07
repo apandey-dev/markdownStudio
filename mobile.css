@@ -196,9 +196,8 @@
         border-bottom: 1px solid var(--border-color);
     }
 
-    .action-pill-group button,
-    .action-pill-group .pill-action-btn,
-    .action-pill-group .tool-btn {
+    .premium-tool-btn,
+    .tool-btn {
         width: 36px !important;
         /* Slightly larger for touch on mobile */
         height: 36px !important;
