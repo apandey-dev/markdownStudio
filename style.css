@@ -720,6 +720,45 @@ body.view-preview .divider {
     display: none !important;
 }
 
+/* ✨ FOCUS MODE CSS ✨ */
+body.focus-mode .navbar {
+    display: none !important;
+}
+
+body.focus-mode .editor-toolbar {
+    display: none !important;
+}
+
+body.focus-mode #stat-words,
+body.focus-mode #stat-chars,
+body.focus-mode #stat-reading-time,
+body.focus-mode .sb-theme-toggle,
+body.focus-mode #active-mode-indicator,
+body.focus-mode #btn-toggle-autosave,
+body.focus-mode #btn-sync-current,
+body.focus-mode #btn-push-github {
+    display: none !important;
+}
+
+body.focus-mode .toolbar-divider {
+    display: none !important;
+}
+
+body.focus-mode #btn-manual-save {
+    display: flex !important;
+    margin-left: auto;
+}
+
+body.focus-mode #btn-exit-focus {
+    display: flex !important;
+    margin-left: 12px;
+}
+
+body.focus-mode .status-bar {
+    justify-content: flex-end;
+}
+
+
 .skeleton-box {
     display: flex;
     flex-direction: column;
@@ -2119,9 +2158,9 @@ body.dark-mode .btn-help-cute:hover {
 
 .manage-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s ease;
 }
 
 @media (max-width: 768px) {
@@ -2139,7 +2178,7 @@ body.dark-mode .btn-help-cute:hover {
     appearance: none;
     outline: none;
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: 1px solid transparent;
     color: var(--text-color);
     width: 32px;
     height: 32px;
@@ -2148,36 +2187,63 @@ body.dark-mode .btn-help-cute:hover {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     padding: 0;
 }
 
 .manage-btn i {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     pointer-events: none;
 }
 
 .manage-btn:hover {
-    background-color: var(--text-color);
-    color: var(--bg-color);
-    border-color: var(--text-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-color);
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+    transform: scale(1.05);
 }
 
 .manage-btn.btn-delete:hover {
-    background-color: #ef4444;
-    color: #ffffff;
-    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
 }
 
-.manage-checkbox {
-    width: 18px;
-    height: 18px;
+/* ✨ CUSTOM CHECKBOX UI ✨ */
+.manage-custom-cb-container {
+    position: relative;
+    display: inline-flex;
     cursor: pointer;
-    accent-color: var(--accent-color);
+    margin-right: 12px;
+    user-select: none;
 }
+
+.manage-custom-cb-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.manage-cb-circle {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+.manage-custom-cb-container:hover input~.manage-cb-circle {
+    border-color: var(--text-color);
+}
+
+.manage-custom-cb-container input:checked~.manage-cb-circle {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
 
 .collapse-icon {
     width: 18px;

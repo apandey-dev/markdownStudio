@@ -168,6 +168,10 @@
 
             <div class="toolbar-spacer"></div>
 
+            <button class="tool-btn desktop-only" id="btn-focus-mode" title="Focus Mode" style="margin-right: 8px;">
+                <i data-lucide="scan"></i>
+            </button>
+
             <button class="tool-btn active desktop-only" id="btn-scroll-sync" title="Toggle Scroll Sync"
                 style="margin-right: 8px;">
                 <i data-lucide="arrow-down-up"></i>
@@ -261,6 +265,11 @@
                         <i data-lucide="moon" style="width: 12px; height: 12px;"></i> Dark
                     </button>
                 </div>
+
+                <button class="sb-action-btn desktop-only" id="btn-exit-focus" title="Exit Focus Mode"
+                    style="display: none;">
+                    <i data-lucide="minimize"></i> <span class="desktop-only">Exit Focus</span>
+                </button>
             </div>
         </div>
     </main>
@@ -274,7 +283,9 @@
                 <div style="display: flex; gap: 16px; align-items: center;">
                     <label
                         style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600; color: var(--text-color);">
-                        <input type="checkbox" id="manage-select-mode" class="manage-checkbox" /> Select Mode
+                        <input type="checkbox" id="manage-select-mode"
+                            style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-color);" />
+                        Select Mode
                     </label>
                     <div class="toolbar-divider" style="height: 24px; margin: 0;"></div>
                     <button class="btn-close-dashboard" id="manage-modal-close" title="Close" style="margin:0;"><i
@@ -292,6 +303,24 @@
                         style="background-color: #10b981; color: white;"><i data-lucide="cloud-upload"></i> Sync/Push
                         Selected</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="rename-modal" style="z-index: 3600;">
+        <div class="modal-box premium-modal">
+            <div class="premium-modal-header" style="margin-bottom: 20px;">
+                <div class="premium-icon-wrapper" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i
+                        data-lucide="edit-3"></i></div>
+                <h3 class="modal-title">Rename Note</h3>
+                <p class="modal-subtitle">Give your note a new name.</p>
+            </div>
+            <div class="input-group premium-input-group">
+                <input type="text" class="modal-input" id="rename-input" autocomplete="off" />
+            </div>
+            <div class="modal-actions premium-actions">
+                <button class="modal-btn btn-cancel" id="rename-cancel">Cancel</button>
+                <button class="modal-btn btn-confirm" id="rename-confirm">Rename</button>
             </div>
         </div>
     </div>
@@ -578,8 +607,8 @@
     <div class="modal-overlay" id="delete-modal" style="z-index: 3500;">
         <div class="modal-box delete-modal-box">
             <div class="delete-icon-wrapper"><i data-lucide="alert-triangle"></i></div>
-            <h3 class="modal-title delete-title">Delete Note?</h3>
-            <p class="delete-subtitle">This action cannot be undone. Are you sure?</p>
+            <h3 class="modal-title delete-title" id="delete-modal-title">Delete?</h3>
+            <p class="delete-subtitle" id="delete-modal-desc">This action cannot be undone. Are you sure?</p>
             <div class="modal-actions delete-actions">
                 <button class="modal-btn btn-cancel" id="delete-cancel"><i data-lucide="x-circle"
                         style="width: 18px;"></i> Cancel</button>

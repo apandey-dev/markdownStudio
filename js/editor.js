@@ -54,7 +54,7 @@ const StorageManager = {
             for (const n of notesArray) {
                 totalSize += n.content ? n.content.length : 0;
             }
-            if (totalSize > 3 * 1024 * 1024) { 
+            if (totalSize > 3 * 1024 * 1024) {
                 await this.migrateToIDB(notesArray);
             }
         } catch (e) {
@@ -209,9 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let activeFolder = 'All Notes';
         let activeNoteId = null;
 
-        let noteToDeleteId = null;
+        let pendingDeleteData = { type: null, id: null };
         let highlightedNoteId = null;
         let pendingNewNoteData = null;
+        let pendingRenameData = null;
 
         let appMode = 'local';
         let isSyncing = false;
@@ -219,16 +220,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let syncTimer = null;
         let syncRetries = 0;
         const MAX_SYNC_RETRIES = 3;
-        
+
         let isAutoSave = localStorage.getItem('md_autosave') !== 'false';
 
         const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
 
+        window.addEventListener('focusModeEnabled', async () => {
+            if (!isAutoSave) {
+                isAutoSave = true;
+                localStorage.setItem('md_autosave', true);
+                updateAutoSaveUI();
+                await saveLocalState();
+            }
+        });
+
         function updateAutoSaveUI() {
             const btnToggle = document.getElementById('btn-toggle-autosave');
             const btnManual = document.getElementById('btn-manual-save');
-            if(btnToggle && btnManual) {
-                if(isAutoSave) {
+            if (btnToggle && btnManual) {
+                if (isAutoSave) {
                     btnToggle.innerHTML = `<i data-lucide="toggle-right" style="width: 16px; height: 16px; color: #10b981;"></i> <span class="desktop-only" style="color:var(--text-color);">Auto-Save: ON</span>`;
                     btnToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
                     btnManual.style.display = 'none';
@@ -238,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnManual.style.display = 'flex';
                 }
             }
-            if(window.lucide) lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         document.getElementById('btn-toggle-autosave')?.addEventListener('click', async () => {
@@ -266,16 +276,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeNote.content = editor.value;
                 activeNote.lastUpdated = Date.now();
                 await saveLocalState();
-                
+
                 if (appMode === 'github') {
                     if (!navigator.onLine) {
                         window.showToast("<i data-lucide='wifi-off'></i> Offline. Saved Locally.");
                     } else {
-                        while(isSyncing) await new Promise(r => setTimeout(r, 200));
-                        
+                        while (isSyncing) await new Promise(r => setTimeout(r, 200));
+
                         isSyncing = true;
                         updatePillUI();
-                        
+
                         try {
                             const result = await GitHubBackend.saveNote(activeNote.id, activeNote.path, activeNote.title, activeNote.content);
                             if (result && result !== 'conflict') {
@@ -290,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else {
                                 window.showToast("<i data-lucide='x-circle'></i> Sync Failed");
                             }
-                        } catch(e) {
+                        } catch (e) {
                             window.showToast("<i data-lucide='wifi-off'></i> Network Error");
                         } finally {
                             isSyncing = false;
@@ -301,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.showToast("<i data-lucide='check-circle'></i> Saved");
                 }
             }
-            
+
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             if (window.lucide) lucide.createIcons();
@@ -410,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('online', () => {
             if (appMode === 'github') {
                 OfflineQueue.process();
-                if(isAutoSave) triggerCloudSync();
+                if (isAutoSave) triggerCloudSync();
             }
         });
 
@@ -527,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await saveLocalState();
                 finishAppLoad();
                 updatePillUI();
-                if(isAutoSave) triggerCloudSync();
+                if (isAutoSave) triggerCloudSync();
 
             } else {
                 window.showToast("Working locally.");
@@ -634,8 +644,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function finishAppLoad() {
-            updateAutoSaveUI(); 
-            
+            updateAutoSaveUI();
+
             const note = getActiveNote();
             if (!note) return;
 
@@ -667,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ✨ MANAGEMENT MODAL LOGIC ✨
-        window.renderManagementModal = function() {
+        window.renderManagementModal = function () {
             const bodyContent = document.getElementById('manage-body-content');
             const footerActions = document.getElementById('manage-footer-actions');
             const selectModeCheckbox = document.getElementById('manage-select-mode');
@@ -688,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const header = document.createElement('div');
                 header.className = 'manage-folder-header';
-                
+
                 const collapseIcon = document.createElement('i');
                 collapseIcon.setAttribute('data-lucide', 'chevron-down');
                 collapseIcon.className = 'collapse-icon';
@@ -716,15 +726,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     noteRow.className = 'manage-note-row';
 
                     if (isSelectMode) {
+                        const cbContainer = document.createElement('label');
+                        cbContainer.className = 'manage-custom-cb-container';
+
                         const cb = document.createElement('input');
                         cb.type = 'checkbox';
                         cb.className = 'manage-checkbox';
                         cb.value = note.id;
+
+                        const cbCircle = document.createElement('div');
+                        cbCircle.className = 'manage-cb-circle';
+
+                        cbContainer.appendChild(cb);
+                        cbContainer.appendChild(cbCircle);
+
                         cb.addEventListener('change', () => {
                             const checkedCount = document.querySelectorAll('#manage-body-content .manage-checkbox:checked').length;
                             document.getElementById('manage-selected-count').textContent = `${checkedCount} selected`;
                         });
-                        noteRow.appendChild(cb);
+                        noteRow.appendChild(cbContainer);
                     }
 
                     const nTitle = document.createElement('div');
@@ -732,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     nTitle.innerHTML = `<i data-lucide="file-text" style="width:14px; height:14px; margin-right:8px; opacity:0.7; vertical-align:-2px;"></i>${note.title}`;
                     nTitle.title = "Open Note";
                     nTitle.style.cursor = 'pointer';
-                    
+
                     nTitle.addEventListener('click', async () => {
                         activeNoteId = note.id;
                         highlightedNoteId = note.id;
@@ -745,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('management-modal').classList.remove('show');
                         window.showToast("<i data-lucide='edit-2'></i> Opened");
                     });
-                    
+
                     const actions = document.createElement('div');
                     actions.className = 'manage-actions';
 
@@ -756,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnSync.className = 'manage-btn';
                     btnSync.title = isCloud ? "Force Save to Cloud" : "Upload to Cloud";
                     btnSync.innerHTML = `<i data-lucide="${isCloud ? 'cloud-upload' : 'upload-cloud'}"></i>`;
-                    
+
                     btnSync.addEventListener('click', async (e) => {
                         e.stopPropagation();
                         const token = localStorage.getItem('md_github_token');
@@ -766,7 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         btnSync.innerHTML = '<i data-lucide="loader" class="spin"></i>';
                         if (window.lucide) lucide.createIcons();
-                        
+
                         const success = await GitHubBackend.init(token);
                         if (!success) {
                             window.showToast("Offline");
@@ -774,7 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (window.lucide) lucide.createIcons();
                             return;
                         }
-                        
+
                         try {
                             const res = await GitHubBackend.saveNote(note.id, note.path, note.title, note.content);
                             if (res && res !== 'conflict') {
@@ -786,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else {
                                 window.showToast("<i data-lucide='alert-triangle'></i> Conflict");
                             }
-                        } catch(err) {
+                        } catch (err) {
                             window.showToast("Error syncing");
                         }
                         btnSync.innerHTML = `<i data-lucide="${isCloud ? 'cloud-upload' : 'upload-cloud'}"></i>`;
@@ -800,17 +820,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnRename.innerHTML = '<i data-lucide="edit"></i>';
                     btnRename.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        // Open prompt modal for rename, prefilled
-                        const promptModal = document.getElementById('prompt-modal');
-                        const promptInput = document.getElementById('prompt-input');
-                        if(promptModal && promptInput) {
-                            promptInput.value = note.title;
+                        const renameModal = document.getElementById('rename-modal');
+                        const renameInput = document.getElementById('rename-input');
+                        if (renameModal && renameInput) {
+                            renameInput.value = note.title;
                             activeFolder = note.folder || 'All Notes';
-                            
-                            // Re-populate dropdown just in case
+
                             const dropList = document.getElementById('note-folder-dropdown-list');
                             const dropText = document.getElementById('folder-selected-text');
-                            if(dropList && dropText) {
+                            if (dropList && dropText) {
                                 dropList.innerHTML = '';
                                 folders.forEach(f => {
                                     const div = document.createElement('div');
@@ -821,13 +839,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 });
                                 dropText.textContent = activeFolder;
                                 dropText.setAttribute('data-selected', activeFolder);
-                                if(window.setupFolderDropdown) window.setupFolderDropdown();
+                                if (window.setupFolderDropdown) window.setupFolderDropdown();
                             }
-                            
-                            // Hijack creation flow temporarily
-                            pendingNewNoteData = { isRename: true, targetId: note.id };
-                            promptModal.classList.add('show');
-                            setTimeout(() => { promptInput.focus(); }, 100);
+
+                            pendingRenameData = { id: note.id, folder: note.folder };
+                            renameModal.classList.add('show');
+                            setTimeout(() => { renameInput.focus(); }, 100);
                         }
                     });
 
@@ -838,7 +855,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnDel.innerHTML = '<i data-lucide="trash-2"></i>';
                     btnDel.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        noteToDeleteId = note.id;
+                        pendingDeleteData = { type: 'note', id: note.id };
+                        document.getElementById('delete-modal-title').textContent = 'Delete Note?';
+                        document.getElementById('delete-modal-desc').textContent = 'This action cannot be undone. Are you sure?';
                         document.getElementById('delete-modal').classList.add('show');
                     });
 
@@ -858,6 +877,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (window.lucide) lucide.createIcons();
         };
+
+        document.getElementById('manage-select-mode')?.addEventListener('change', () => {
+            if (typeof window.renderManagementModal === 'function') window.renderManagementModal();
+        });
 
         window.renderMainSidebarFolders = function () {
             const container = document.getElementById('dynamic-sidebar-folders');
@@ -888,26 +911,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         }
 
-        // ✨ DYNAMIC FOLDER SELECTOR FOR NEW NOTE ✨
-        window.setupFolderDropdown = function() {
+        // ✨ DYNAMIC FOLDER SELECTOR FOR NEW NOTE & RENAME ✨
+        window.setupFolderDropdown = function () {
             const dropdown = document.getElementById('note-folder-dropdown');
-            if(!dropdown) return;
+            if (!dropdown) return;
             const header = dropdown.querySelector('.dropdown-header');
             const items = dropdown.querySelectorAll('.dropdown-item');
             const textEl = document.getElementById('folder-selected-text');
 
             const newHeader = header.cloneNode(true);
             header.parentNode.replaceChild(newHeader, header);
-            
-            // Fixed overflow appending list to body for new note folder too just in case
+
             const list = dropdown.querySelector('.dropdown-list');
-            if(list && !list.parentNode.isEqualNode(document.body)) {
+            if (list && !list.parentNode.isEqualNode(document.body)) {
                 document.body.appendChild(list);
             }
 
             newHeader.addEventListener('click', (e) => {
                 e.stopPropagation();
-                
+
                 const isOpen = list.classList.contains('show');
                 document.querySelectorAll('.dropdown-list').forEach(d => {
                     d.classList.remove('show');
@@ -915,15 +937,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     d.style.visibility = 'hidden';
                 });
                 document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
-                
+
                 if (!isOpen) {
                     const rect = newHeader.getBoundingClientRect();
                     list.style.position = 'fixed';
                     list.style.top = `${rect.bottom + 8}px`;
                     list.style.left = `${rect.left}px`;
                     list.style.width = `${Math.max(rect.width, 160)}px`;
-                    list.style.zIndex = '3500'; // Above setup/prompt modals
-                    
+                    list.style.zIndex = '3700';
+
                     list.classList.add('show');
                     dropdown.classList.add('open');
                     list.style.opacity = '1';
@@ -932,10 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Re-query items as they might have been re-rendered
             const currentItems = list.querySelectorAll('.dropdown-item');
             currentItems.forEach(item => {
-                // Remove old listeners
                 const newItem = item.cloneNode(true);
                 item.parentNode.replaceChild(newItem, item);
 
@@ -944,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.target.classList.add('active');
                     textEl.textContent = e.target.textContent;
                     textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
-                    
+
                     dropdown.classList.remove('open');
                     list.classList.remove('show');
                     list.style.opacity = '0';
@@ -997,12 +1017,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.showToast("<i data-lucide='alert-circle'></i> Move notes first.");
                             return;
                         }
-                        folders = folders.filter(f => f !== folder);
-                        if (activeFolder === folder) activeFolder = 'All Notes';
-                        saveFolders();
-                        window.renderFoldersList();
-                        window.renderNotesList();
-                        window.showToast("<i data-lucide='trash-2'></i> Deleted");
+                        pendingDeleteData = { type: 'folder', id: folder };
+                        document.getElementById('delete-modal-title').textContent = 'Delete Folder?';
+                        document.getElementById('delete-modal-desc').textContent = 'This empty folder will be removed. Are you sure?';
+                        document.getElementById('delete-modal').classList.add('show');
                     });
                     div.appendChild(delBtn);
                 }
@@ -1083,17 +1101,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const bulkSyncModal = document.getElementById('bulk-sync-modal');
         const bulkSyncList = document.getElementById('bulk-sync-list');
 
-        document.getElementById('btn-push-github')?.addEventListener('click', () => {
+        const triggerBulkSyncUI = (selectedNotesArray) => {
             const token = localStorage.getItem('md_github_token');
             if (!token) return window.showToast("Invalid Token.");
 
             bulkSyncList.innerHTML = '';
-            notes.forEach((note, index) => {
+
+            let notesToRender = selectedNotesArray && selectedNotesArray.length > 0 ? selectedNotesArray : notes;
+
+            notesToRender.forEach((note, index) => {
                 const item = document.createElement('label');
                 item.className = 'sync-item';
-
                 item.innerHTML = `
-                    <input type="checkbox" class="sync-checkbox" value="${index}" checked />
+                    <input type="checkbox" class="sync-checkbox" value="${note.id}" checked />
                     <div class="sync-checkbox-custom"><i data-lucide="check"></i></div>
                     <div class="sync-item-info">
                         <span class="sync-item-title">${note.title}</span>
@@ -1104,8 +1124,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (window.lucide) lucide.createIcons();
 
-            document.getElementById('notes-modal').classList.remove('show');
+            document.getElementById('notes-modal')?.classList.remove('show');
+            document.getElementById('management-modal')?.classList.remove('show');
             bulkSyncModal.classList.add('show');
+        };
+
+        document.getElementById('btn-push-github')?.addEventListener('click', () => triggerBulkSyncUI());
+
+        document.getElementById('manage-btn-bulk-sync')?.addEventListener('click', () => {
+            const selectedIds = Array.from(document.querySelectorAll('#manage-body-content .manage-checkbox:checked')).map(cb => cb.value);
+            if (selectedIds.length === 0) return window.showToast("Select notes first.");
+            const selectedNotes = notes.filter(n => selectedIds.includes(n.id));
+            triggerBulkSyncUI(selectedNotes);
         });
 
         document.getElementById('bulk-sync-cancel')?.addEventListener('click', () => bulkSyncModal.classList.remove('show'));
@@ -1144,7 +1174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const total = checkboxes.length;
             let completed = 0;
 
-            const selectedNotes = Array.from(checkboxes).map(cb => notes[cb.value]);
+            const selectedNotes = Array.from(checkboxes).map(cb => notes.find(n => n.id === cb.value)).filter(Boolean);
 
             for (let note of selectedNotes) {
                 pFile.textContent = `Uploading: ${note.title}...`;
@@ -1282,19 +1312,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.preventDefault();
                     const targetTitle = link.getAttribute('data-note');
                     const targetNote = notes.find(n => n.title.toLowerCase() === targetTitle.toLowerCase());
-                    
+
                     if (targetNote) {
                         activeNoteId = targetNote.id;
                         highlightedNoteId = targetNote.id;
                         activeFolder = targetNote.folder || 'All Notes';
                         editor.value = targetNote.content;
                         saveLocalState();
-                        
+
                         renderMarkdownCore(targetNote.content);
-                        
+
                         if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
                         if (typeof window.renderNotesList === 'function') window.renderNotesList();
-                        
+
                         if (document.getElementById('notes-modal')?.classList.contains('show')) {
                             window.renderDashboardPreview();
                         } else {
@@ -1341,12 +1371,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
             if (!highlightedNoteId) return;
-            
+
             if (getActiveNote() && editor.value !== getActiveNote().content) {
                 getActiveNote().content = editor.value;
                 getActiveNote().lastUpdated = Date.now();
                 await saveLocalState();
-                if(isAutoSave && appMode === 'github') triggerCloudSync();
+                if (isAutoSave && appMode === 'github') triggerCloudSync();
             }
 
             activeNoteId = highlightedNoteId;
@@ -1358,7 +1388,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
             if (!highlightedNoteId) return;
-            noteToDeleteId = highlightedNoteId;
+            pendingDeleteData = { type: 'note', id: highlightedNoteId };
+            document.getElementById('delete-modal-title').textContent = 'Delete Note?';
+            document.getElementById('delete-modal-desc').textContent = 'This action cannot be undone. Are you sure?';
             document.getElementById('delete-modal').classList.add('show');
         });
 
@@ -1377,56 +1409,70 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.getElementById('delete-confirm')?.addEventListener('click', async () => {
-            if (!noteToDeleteId) return;
+            if (!pendingDeleteData.type) return;
 
-            const idx = notes.findIndex(n => n.id === noteToDeleteId);
-            if (idx === -1) return;
+            if (pendingDeleteData.type === 'note') {
+                const idx = notes.findIndex(n => n.id === pendingDeleteData.id);
+                if (idx === -1) return;
 
-            const noteToDelete = notes[idx];
-            notes.splice(idx, 1);
+                const noteToDelete = notes[idx];
+                notes.splice(idx, 1);
 
-            if (activeNoteId === noteToDeleteId) {
-                activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
-                if (activeNoteId) editor.value = getActiveNote().content;
-                else editor.value = "";
-            }
-
-            if (highlightedNoteId === noteToDeleteId) {
-                let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
-                highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
-            }
-
-            if (appMode === 'github' && noteToDelete.path) {
-                if (navigator.onLine) {
-                    GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
-                        OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
-                    });
-                } else {
-                    OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
+                if (activeNoteId === pendingDeleteData.id) {
+                    activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
+                    if (activeNoteId) editor.value = getActiveNote().content;
+                    else editor.value = "";
                 }
+
+                if (highlightedNoteId === pendingDeleteData.id) {
+                    let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
+                    highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
+                }
+
+                if (appMode === 'github' && noteToDelete.path) {
+                    if (navigator.onLine) {
+                        GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
+                            OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
+                        });
+                    } else {
+                        OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
+                    }
+                }
+
+                if (notes.length === 0) {
+                    const id = Date.now().toString();
+                    notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote, lastUpdated: Date.now() }];
+                    activeNoteId = id;
+                    editor.value = notes[0].content;
+                }
+
+                await saveLocalState();
+                await StorageManager.deleteNote(pendingDeleteData.id);
+
+                renderMarkdownCore(editor.value);
+                window.renderFoldersList();
+                window.renderNotesList();
+
+                if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
+                if (window.showToast) window.showToast("<i data-lucide='trash-2'></i> Deleted");
+
+                if (document.getElementById('management-modal')?.classList.contains('show') && typeof window.renderManagementModal === 'function') {
+                    window.renderManagementModal();
+                }
+            } else if (pendingDeleteData.type === 'folder') {
+                folders = folders.filter(f => f !== pendingDeleteData.id);
+                if (activeFolder === pendingDeleteData.id) activeFolder = 'All Notes';
+                saveFolders();
+                window.renderFoldersList();
+                window.renderNotesList();
+                if (document.getElementById('management-modal')?.classList.contains('show') && typeof window.renderManagementModal === 'function') {
+                    window.renderManagementModal();
+                }
+                if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
+                window.showToast("<i data-lucide='trash-2'></i> Deleted");
             }
 
-            if (notes.length === 0) {
-                const id = Date.now().toString();
-                notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote, lastUpdated: Date.now() }];
-                activeNoteId = id;
-                editor.value = notes[0].content;
-            }
-
-            await saveLocalState();
-            await StorageManager.deleteNote(noteToDeleteId);
-
-            renderMarkdownCore(editor.value);
-            window.renderFoldersList();
-            window.renderNotesList();
-
-            noteToDeleteId = null;
-            if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
-            if (window.showToast) window.showToast("<i data-lucide='trash-2'></i> Deleted");
-            
-            if (document.getElementById('management-modal')?.classList.contains('show') && typeof window.renderManagementModal === 'function') {
-                window.renderManagementModal();
-            }
+            pendingDeleteData = { type: null, id: null };
         });
 
         const btnNewFolder = document.getElementById('btn-new-folder');
@@ -1440,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             folderPromptModal.classList.add('show');
             setTimeout(() => { folderPromptInput.focus(); }, 100);
         });
-        
+
         document.getElementById('btn-quick-new-folder')?.addEventListener('click', () => {
             document.getElementById('prompt-modal').classList.remove('show');
             returningToNoteModal = true;
@@ -1472,7 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => {
             folderPromptModal.classList.remove('show');
-            if(returningToNoteModal) {
+            if (returningToNoteModal) {
                 setTimeout(() => { document.getElementById('btn-new-note').click(); }, 300);
                 returningToNoteModal = false;
             }
@@ -1484,10 +1530,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btnNewNote?.addEventListener('click', () => {
             promptInput.value = '';
-            
+
             const dropList = document.getElementById('note-folder-dropdown-list');
             const dropText = document.getElementById('folder-selected-text');
-            if(dropList && dropText) {
+            if (dropList && dropText) {
                 dropList.innerHTML = '';
                 folders.forEach(f => {
                     const div = document.createElement('div');
@@ -1498,7 +1544,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 dropText.textContent = activeFolder;
                 dropText.setAttribute('data-selected', activeFolder);
-                if(window.setupFolderDropdown) window.setupFolderDropdown();
+                if (window.setupFolderDropdown) window.setupFolderDropdown();
             }
 
             promptModal.classList.add('show');
@@ -1507,11 +1553,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const createNoteFlow = async () => {
             let noteName = promptInput.value.trim() || "Untitled Note";
-            
+
             const dropText = document.getElementById('folder-selected-text');
             let targetFolder = dropText ? dropText.getAttribute('data-selected') : activeFolder;
-            if(!targetFolder) targetFolder = activeFolder;
-            
+            if (!targetFolder) targetFolder = activeFolder;
+
             const generatedPath = generatePath(targetFolder, noteName);
             const existingNote = notes.find(n => n.path === generatedPath);
 
@@ -1527,12 +1573,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     noteToRename.folder = targetFolder;
                     noteToRename.path = generatedPath;
                     noteToRename.lastUpdated = Date.now();
-                    
+
                     await saveLocalState();
                     window.renderFoldersList();
                     window.renderNotesList();
                     if (typeof window.renderManagementModal === 'function') window.renderManagementModal();
-                    
+
                     if (isAutoSave && appMode === 'github') triggerCloudSync();
                     window.showToast("<i data-lucide='check-circle'></i> Updated");
                 }
@@ -1576,9 +1622,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('prompt-confirm')?.addEventListener('click', createNoteFlow);
         promptInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') createNoteFlow(); });
-        document.getElementById('prompt-cancel')?.addEventListener('click', () => { 
-            promptModal.classList.remove('show'); 
+        document.getElementById('prompt-cancel')?.addEventListener('click', () => {
+            promptModal.classList.remove('show');
             pendingNewNoteData = null;
+        });
+
+        // ✨ RENAME MODAL LOGIC ✨
+        document.getElementById('rename-confirm')?.addEventListener('click', async () => {
+            if (!pendingRenameData) return;
+            const newTitle = document.getElementById('rename-input').value.trim();
+            if (!newTitle) return window.showToast("Name cannot be empty.");
+
+            const targetFolder = pendingRenameData.folder || 'All Notes';
+            const newPath = generatePath(targetFolder, newTitle);
+
+            const existing = notes.find(n => n.path === newPath && n.id !== pendingRenameData.id);
+            if (existing) return window.showToast("Note already exists.");
+
+            let noteToRename = notes.find(n => n.id === pendingRenameData.id);
+            if (noteToRename) {
+                noteToRename.title = newTitle;
+                noteToRename.path = newPath;
+                noteToRename.lastUpdated = Date.now();
+
+                await saveLocalState();
+                window.renderFoldersList();
+                window.renderNotesList();
+                if (typeof window.renderManagementModal === 'function') window.renderManagementModal();
+                if (isAutoSave && appMode === 'github') triggerCloudSync();
+                window.showToast("<i data-lucide='check-circle'></i> Renamed");
+            }
+            document.getElementById('rename-modal').classList.remove('show');
+            pendingRenameData = null;
+        });
+        document.getElementById('rename-cancel')?.addEventListener('click', () => {
+            document.getElementById('rename-modal').classList.remove('show');
+            pendingRenameData = null;
+        });
+        document.getElementById('rename-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('rename-confirm')?.click();
         });
 
         document.getElementById('conflict-cancel')?.addEventListener('click', () => {
@@ -1628,12 +1710,12 @@ document.addEventListener('DOMContentLoaded', () => {
             debounceTimeout = setTimeout(async () => {
                 const activeNote = getActiveNote();
                 if (activeNote) {
-                    activeNote.content = rawText; 
+                    activeNote.content = rawText;
                     activeNote.lastUpdated = Date.now();
-                    
+
                     if (isAutoSave) {
-                        await saveLocalState(); 
-                        triggerCloudSync(); 
+                        await saveLocalState();
+                        triggerCloudSync();
                     }
                 }
                 renderMarkdownCore(rawText);
@@ -1667,7 +1749,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(preview);
-            attachInternalLinkListeners(preview); 
+            attachInternalLinkListeners(preview);
 
             if (typeof hljs !== 'undefined') {
                 preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1842,8 +1924,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const folder = activeFolder;
                 const newPath = generatePath(folder, rawTitle);
                 const newId = Date.now().toString();
-                
-                if(notes.find(n => n.path === newPath)) {
+
+                if (notes.find(n => n.path === newPath)) {
                     window.showToast("<i data-lucide='alert-triangle'></i> File exists.");
                     return;
                 }
@@ -1893,16 +1975,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             let pageCss = "";
 
-            if (window.selectedPageSize === 'A4') { 
-                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`; 
+            if (window.selectedPageSize === 'A4') {
+                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-            else if (window.selectedPageSize === 'A2') { 
-                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
+            else if (window.selectedPageSize === 'A2') {
+                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
             }
             else if (window.selectedPageSize === 'Infinity') {
                 const previewEl = document.getElementById('preview-output');
                 const previewPanel = document.getElementById('preview-panel');
-                
+
                 const isHidden = window.getComputedStyle(previewPanel).display === 'none';
                 if (isHidden) {
                     previewPanel.style.setProperty('display', 'block', 'important');
@@ -1920,10 +2002,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     previewPanel.style.removeProperty('z-index');
                 }
 
-                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
+                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
                 pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-            
+
             style.innerHTML = pageCss;
             document.head.appendChild(style);
 
@@ -1935,7 +2017,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = originalTitle;
                 document.head.removeChild(style);
                 if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Exported");
-            }, 400); 
+            }, 400);
         });
 
         shareBtn?.addEventListener('click', async () => {
@@ -1995,5 +2077,5 @@ document.addEventListener('DOMContentLoaded', () => {
             loadLocalMode();
         }
 
-    }, 50); 
+    }, 50);
 });

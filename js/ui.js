@@ -45,6 +45,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) lucide.createIcons();
 
+    // Init Focus Mode
+    const initFocusMode = () => {
+        if(localStorage.getItem('md_focus_mode') === 'true') {
+            document.body.classList.add('focus-mode');
+            setTimeout(() => window.dispatchEvent(new Event('focusModeEnabled')), 100);
+        }
+    };
+    initFocusMode();
+
+    document.getElementById('btn-focus-mode')?.addEventListener('click', () => {
+        document.body.classList.add('focus-mode');
+        localStorage.setItem('md_focus_mode', 'true');
+        window.dispatchEvent(new Event('focusModeEnabled'));
+        window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
+    });
+
+    document.getElementById('btn-exit-focus')?.addEventListener('click', () => {
+        document.body.classList.remove('focus-mode');
+        localStorage.setItem('md_focus_mode', 'false');
+        window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
+    });
+
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
@@ -147,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
+            if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
