@@ -97,6 +97,7 @@ body.is-loading .brand,
 body.is-loading .mode-toggle,
 body.is-loading .custom-dropdown,
 body.is-loading .nav-action-btn,
+body.is-loading .action-pill-group,
 body.is-loading .tool-btn,
 body.is-loading .status-bar span,
 body.is-loading .sb-action-btn,
@@ -123,6 +124,7 @@ body.is-loading .dropdown-header span {
 .mode-toggle,
 .custom-dropdown,
 .nav-action-btn,
+.action-pill-group,
 .tool-btn,
 .status-bar span,
 .sb-action-btn,
@@ -223,6 +225,46 @@ body.dark-mode .mode-toggle {
     box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+/* PILL-SHAPED ACTION BUTTONS */
+.action-pill-group {
+    display: flex;
+    align-items: center;
+    background-color: var(--toggle-track);
+    border-radius: 50px;
+    padding: 4px;
+    gap: 2px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .action-pill-group {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pill-action-btn {
+    appearance: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.6;
+}
+
+.pill-action-btn:hover {
+    background-color: var(--toggle-pill);
+    color: var(--accent-color);
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
 /* DROPDOWNS */
 .custom-dropdown {
     position: relative;
@@ -256,6 +298,22 @@ body.dark-mode .mode-toggle {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 3px var(--shadow-color);
     background-color: transparent;
+}
+
+/* TOOLBAR DROPDOWN FIXES */
+.editor-toolbar .custom-dropdown .dropdown-header {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background-color: transparent;
+}
+.editor-toolbar .custom-dropdown:hover .dropdown-header {
+    background-color: var(--hover-bg);
+}
+.editor-toolbar .custom-dropdown.open .dropdown-header {
+    background-color: var(--shadow-color);
+    border-color: transparent;
+    box-shadow: none;
 }
 
 .chevron {

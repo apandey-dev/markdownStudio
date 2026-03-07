@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.addEventListener('click', (e) => {
                 items.forEach(i => i.classList.remove('active'));
                 e.target.classList.add('active');
-                if (textEl) textEl.textContent = `Preview: ${e.target.textContent}`;
+                if (textEl) textEl.textContent = e.target.textContent;
                 dropdown.classList.remove('open');
                 if (callback) callback(e.target.getAttribute('data-value'));
             });
@@ -174,7 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
-    document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
+    let initialFallback = savedFont === 'Fredoka' ? 'sans-serif' : 'cursive';
+    document.documentElement.style.setProperty('--preview-font', `'${savedFont}', ${initialFallback}`);
+    document.documentElement.style.setProperty('--editor-font', `'${savedFont}', ${initialFallback}`);
 
     const fontDropdownItems = document.querySelectorAll('#font-dropdown .dropdown-item');
     const fontSelectedText = document.getElementById('font-selected-text');
@@ -183,13 +185,15 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.remove('active');
             if (item.getAttribute('data-value') === savedFont) {
                 item.classList.add('active');
-                fontSelectedText.textContent = `Preview: ${item.textContent}`;
+                fontSelectedText.textContent = item.textContent;
             }
         });
     }
 
     setupDropdown('font-dropdown', 'font-selected-text', (val) => {
-        document.documentElement.style.setProperty('--preview-font', `'${val}', sans-serif`);
+        let fallback = val === 'Fredoka' ? 'sans-serif' : 'cursive';
+        document.documentElement.style.setProperty('--preview-font', `'${val}', ${fallback}`);
+        document.documentElement.style.setProperty('--editor-font', `'${val}', ${fallback}`);
         localStorage.setItem('md_studio_font', val);
     });
 
