@@ -198,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const editor = document.getElementById('markdown-input');
         const previewPanel = document.getElementById('preview-panel');
         const preview = document.getElementById('preview-output');
-        const shareBtn = document.getElementById('btn-share');
         const btnConfirmPdf = document.getElementById('modal-confirm');
         const inputFilename = document.getElementById('pdf-filename');
 
@@ -213,6 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let highlightedNoteId = null;
         let pendingNewNoteData = null;
         let pendingRenameData = null;
+
+        let shareLinksMemory = {};
 
         let appMode = 'local';
         let isSyncing = false;
@@ -316,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = false;
             if (window.lucide) lucide.createIcons();
         });
-
 
         function updatePillUI() {
             const isGithub = appMode === 'github';
@@ -750,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const nTitle = document.createElement('div');
                     nTitle.className = 'manage-note-title';
                     nTitle.innerHTML = `<i data-lucide="file-text" style="width:14px; height:14px; margin-right:8px; opacity:0.7; vertical-align:-2px;"></i>${note.title}`;
-                    nTitle.title = "Open Note";
+                    nTitle.setAttribute('data-tooltip', "Open Note");
                     nTitle.style.cursor = 'pointer';
 
                     nTitle.addEventListener('click', async () => {
@@ -771,10 +771,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const isCloud = appMode === 'github';
 
-                    // Sync/Push Button
                     const btnSync = document.createElement('button');
                     btnSync.className = 'manage-btn';
-                    btnSync.title = isCloud ? "Force Save to Cloud" : "Upload to Cloud";
+                    btnSync.setAttribute('data-tooltip', isCloud ? "Force Save to Cloud" : "Upload to Cloud");
                     btnSync.innerHTML = `<i data-lucide="${isCloud ? 'cloud-upload' : 'upload-cloud'}"></i>`;
 
                     btnSync.addEventListener('click', async (e) => {
@@ -813,10 +812,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (window.lucide) lucide.createIcons();
                     });
 
-                    // Rename/Move Button
                     const btnRename = document.createElement('button');
                     btnRename.className = 'manage-btn';
-                    btnRename.title = "Rename or Move Note";
+                    btnRename.setAttribute('data-tooltip', "Rename or Move Note");
                     btnRename.innerHTML = '<i data-lucide="edit"></i>';
                     btnRename.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -848,10 +846,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
 
-                    // Delete Button
                     const btnDel = document.createElement('button');
                     btnDel.className = 'manage-btn btn-delete';
-                    btnDel.title = "Delete Note";
+                    btnDel.setAttribute('data-tooltip', "Delete Note");
                     btnDel.innerHTML = '<i data-lucide="trash-2"></i>';
                     btnDel.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -911,7 +908,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         }
 
-        // ✨ DYNAMIC FOLDER SELECTOR FOR NEW NOTE & RENAME ✨
         window.setupFolderDropdown = function () {
             const dropdown = document.getElementById('note-folder-dropdown');
             if (!dropdown) return;
@@ -1008,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const delBtn = document.createElement('button');
                     delBtn.className = 'folder-del-btn';
                     delBtn.innerHTML = '<i data-lucide="trash-2"></i>';
-                    delBtn.title = "Delete Folder";
+                    delBtn.setAttribute('data-tooltip', "Delete Folder");
 
                     delBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -1284,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btn = document.createElement('button');
                 btn.className = 'copy-code-btn';
                 btn.innerHTML = '<i data-lucide="copy"></i>';
-                btn.title = "Copy Code";
+                btn.setAttribute('data-tooltip', "Copy Code");
 
                 btn.addEventListener('click', () => {
                     const codeBlock = pre.querySelector('code');
@@ -2020,20 +2016,62 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 400);
         });
 
-        shareBtn?.addEventListener('click', async () => {
-            const textToShare = editor.value;
-            if (!textToShare.trim()) return window.showToast("Note is empty.");
+        // ✨ SHARE MANAGEMENT LOGIC ✨
+        const shareModal = document.getElementById('share-modal');
+        const shareLinkInput = document.getElementById('share-link-input');
+        const shareActionsInitial = document.getElementById('share-actions-initial');
+        const shareActionsActive = document.getElementById('share-actions-active');
 
+        const btnGenerateShare = document.getElementById('btn-generate-share');
+        const btnCopyShare = document.getElementById('btn-copy-share');
+        const btnResetShare = document.getElementById('btn-reset-share');
+        const btnRegenerateShare = document.getElementById('btn-regenerate-share');
+
+        function updateShareModalUI() {
+            if (!activeNoteId) return;
+            const existingLink = shareLinksMemory[activeNoteId];
+            if (existingLink) {
+                shareLinkInput.value = existingLink;
+                shareLinkInput.style.display = 'block';
+                shareActionsInitial.style.display = 'none';
+                shareActionsActive.style.display = 'flex';
+            } else {
+                shareLinkInput.value = '';
+                shareLinkInput.style.display = 'none';
+                shareActionsInitial.style.display = 'flex';
+                shareActionsActive.style.display = 'none';
+            }
+        }
+
+        const shareBtnObj = document.getElementById('btn-share');
+        shareBtnObj?.addEventListener('click', () => {
+            if (!editor.value.trim()) return window.showToast("Note is empty.");
             const token = localStorage.getItem('md_github_token');
             if (!token) {
                 window.showToast("Connect GitHub first.");
                 document.getElementById('setup-modal').classList.add('show');
                 return;
             }
+            updateShareModalUI();
+            shareModal.classList.add('show');
+        });
 
-            const originalHtml = shareBtn.innerHTML;
-            shareBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 16px;"></i> Generating`;
-            shareBtn.disabled = true;
+        async function generateShareLink() {
+            const textToShare = editor.value;
+            if (!textToShare.trim()) return window.showToast("Note is empty.");
+
+            const token = localStorage.getItem('md_github_token');
+            if (!token) return window.showToast("Token missing.");
+
+            const btn = document.getElementById('btn-generate-share');
+            const regenBtn = document.getElementById('btn-regenerate-share');
+            const originalHtml = btn.innerHTML;
+            const originalRegenHtml = regenBtn.innerHTML;
+
+            btn.innerHTML = `<i data-lucide="loader" class="spin"></i> Generating...`;
+            regenBtn.innerHTML = `<i data-lucide="loader" class="spin"></i> Generating...`;
+            btn.disabled = true;
+            regenBtn.disabled = true;
             if (window.lucide) lucide.createIcons();
 
             try {
@@ -2045,13 +2083,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (gistResult && !gistResult.error) {
                     const shareableUrl = `https://apandey-studio.vercel.app/share.html?id=${gistResult.id}#${secretKey}`;
-                    if (navigator.share) {
-                        try { await navigator.share({ title: getActiveNote().title, url: shareableUrl }); }
-                        catch (err) { console.log(err); }
-                    } else {
-                        await navigator.clipboard.writeText(shareableUrl);
-                        window.showToast("<i data-lucide='link'></i> Link Copied");
-                    }
+                    shareLinksMemory[activeNoteId] = shareableUrl;
+                    updateShareModalUI();
+                    window.showToast("<i data-lucide='check'></i> Link Generated");
                 } else {
                     window.showToast("Needs 'gist' permission.");
                 }
@@ -2059,10 +2093,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.showToast("Encryption Error.");
             }
 
-            shareBtn.innerHTML = originalHtml;
-            shareBtn.disabled = false;
+            btn.innerHTML = originalHtml;
+            regenBtn.innerHTML = originalRegenHtml;
+            btn.disabled = false;
+            regenBtn.disabled = false;
             if (window.lucide) lucide.createIcons();
+        }
+
+        btnGenerateShare?.addEventListener('click', generateShareLink);
+        btnRegenerateShare?.addEventListener('click', generateShareLink);
+
+        btnCopyShare?.addEventListener('click', async () => {
+            const link = shareLinkInput.value;
+            if (!link) return;
+            try {
+                await navigator.clipboard.writeText(link);
+                window.showToast("<i data-lucide='copy'></i> Copied");
+                btnCopyShare.innerHTML = `<i data-lucide="check"></i> Copied!`;
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    btnCopyShare.innerHTML = `<i data-lucide="copy"></i> Copy Link`;
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
+            } catch (err) {
+                window.showToast("Failed to copy.");
+            }
         });
+
+        btnResetShare?.addEventListener('click', () => {
+            if (activeNoteId) {
+                delete shareLinksMemory[activeNoteId];
+                updateShareModalUI();
+                window.showToast("<i data-lucide='trash'></i> Link Reset");
+            }
+        });
+
 
         const savedMode = localStorage.getItem('md_app_mode') || 'local';
         if (savedMode === 'github') {

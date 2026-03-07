@@ -154,6 +154,34 @@ body:not(.is-loading) #preview-skeleton {
     display: none;
 }
 
+/* ✨ CUSTOM TOOLTIP SYSTEM ✨ */
+.custom-tooltip {
+    position: fixed;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-family: var(--ui-font);
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 999999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.custom-tooltip.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0.3s;
+    /* Delay before appearing */
+}
+
 /* NAVBAR */
 .navbar {
     height: 52px;
@@ -253,8 +281,13 @@ body.dark-mode .action-pill-group {
     height: 32px;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.6;
+}
+
+.pill-action-btn i {
+    width: 16px;
+    height: 16px;
 }
 
 .pill-action-btn:hover {
@@ -262,6 +295,13 @@ body.dark-mode .action-pill-group {
     color: var(--accent-color);
     opacity: 1;
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.pill-action-btn.active {
+    background-color: var(--toggle-pill);
+    color: var(--accent-color);
+    opacity: 1;
     box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -306,6 +346,7 @@ body.dark-mode .action-pill-group {
     border-radius: 6px;
     border: 1px solid transparent;
     background-color: transparent;
+    height: 32px;
 }
 
 .editor-toolbar .custom-dropdown:hover .dropdown-header {
@@ -456,12 +497,191 @@ body.dark-mode .action-pill-group {
     display: flex;
     align-items: center;
     padding: 6px 16px;
-    gap: 6px;
+    gap: 4px;
     background-color: var(--nav-bg);
     border-bottom: 1px solid var(--border-color);
     overflow-x: auto;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+/* ✨ EDITOR TOOLBAR CLEAN BUTTONS ✨ */
+.tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.6;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    padding: 0;
+}
+
+.tool-btn:hover,
+.hover-pop:hover {
+    opacity: 1;
+    background-color: var(--hover-bg);
+    transform: translateY(-1px);
+}
+
+.tool-btn:active {
+    transform: scale(0.95);
+}
+
+.tool-btn.active {
+    opacity: 1;
+    color: var(--accent-color);
+    background-color: var(--shadow-color);
+}
+
+.tool-btn i {
+    width: 16px;
+    height: 16px;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 18px;
+    background-color: var(--border-color);
+    margin: 0 4px;
+    opacity: 0.6;
+}
+
+.toolbar-spacer {
+    flex: 1;
+    min-width: 16px;
+}
+
+textarea {
+    width: 100%;
+    flex: 1;
+    resize: none;
+    border: none;
+    padding: 24px 32px;
+    background-color: transparent;
+    color: var(--text-color);
+    font-family: var(--editor-font);
+    font-size: 14px;
+    line-height: 1.7;
+    outline: none;
+    overflow-y: auto;
+}
+
+textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+textarea:disabled::placeholder {
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+    opacity: 0.5;
+    color: var(--text-color);
+}
+
+.divider {
+    width: 8px;
+    background-color: transparent;
+    cursor: col-resize;
+    transition: background-color 0.2s;
+    z-index: 10;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.divider::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.divider:hover::after,
+.divider:active::after {
+    background-color: var(--accent-color);
+    width: 4px;
+    left: 2px;
+}
+
+.preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--preview-bg);
+    padding: 32px 48px;
+    font-family: var(--preview-font);
+    font-size: 1rem;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+body.view-editor .editor-panel {
+    flex: 1 1 100% !important;
+    max-width: 100%;
+    border-right: none;
+}
+
+body.view-editor .preview-panel,
+body.view-editor .divider {
+    display: none !important;
+}
+
+body.view-preview .preview-panel {
+    flex: 1 1 100% !important;
+    max-width: 100%;
+}
+
+body.view-preview .editor-panel,
+body.view-preview .divider {
+    display: none !important;
+}
+
+/* ✨ FOCUS MODE CSS ✨ */
+body.focus-mode .nav-mode-toggle {
+    display: none !important;
+}
+
+body.focus-mode #btn-notes-desktop {
+    display: none !important;
+}
+
+body.focus-mode #btn-manage {
+    display: none !important;
+}
+
+body.focus-mode #btn-docs {
+    display: none !important;
+}
+
+body.focus-mode .editor-toolbar {
+    display: none !important;
+}
+
+body.focus-mode .status-bar {
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+body.focus-mode .sb-section:not(#sb-left-controls) {
+    display: flex !important;
+}
+
+body.focus-mode .sb-section>*:not(#active-mode-indicator):not(#btn-exit-focus) {
+    display: none !important;
+}
+
+body.focus-mode #btn-exit-focus {
+    display: flex !important;
+    margin-left: auto;
 }
 
 .status-bar {
@@ -567,195 +787,6 @@ body.dark-mode .action-pill-group {
     gap: 4px;
     padding: 4px 12px;
     font-size: 0.75rem;
-}
-
-.split-workspace {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-    background-color: var(--editor-bg);
-}
-
-.editor-panel {
-    flex: 0 0 50%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--editor-bg);
-    border-right: 1px solid var(--border-color);
-    min-height: 0;
-}
-
-.tool-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.6;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    outline: none;
-}
-
-.tool-btn:hover,
-.hover-pop:hover {
-    opacity: 1;
-    background-color: var(--hover-bg);
-    color: var(--accent-color);
-}
-
-.tool-btn.active {
-    opacity: 1;
-    color: var(--accent-color);
-    background-color: var(--shadow-color);
-}
-
-.tool-btn i {
-    width: 16px;
-    height: 16px;
-}
-
-.toolbar-divider {
-    width: 1px;
-    height: 16px;
-    background-color: var(--border-color);
-    margin: 0 4px;
-}
-
-.toolbar-spacer {
-    flex: 1;
-    min-width: 16px;
-}
-
-textarea {
-    width: 100%;
-    flex: 1;
-    resize: none;
-    border: none;
-    padding: 24px 32px;
-    background-color: transparent;
-    color: var(--text-color);
-    font-family: var(--editor-font);
-    font-size: 14px;
-    line-height: 1.7;
-    outline: none;
-    overflow-y: auto;
-}
-
-textarea:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-textarea:disabled::placeholder {
-    animation: skeleton-pulse 1.5s infinite ease-in-out;
-    opacity: 0.5;
-    color: var(--text-color);
-}
-
-.divider {
-    width: 8px;
-    background-color: transparent;
-    cursor: col-resize;
-    transition: background-color 0.2s;
-    z-index: 10;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.divider::after {
-    content: '';
-    position: absolute;
-    left: 3px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: var(--border-color);
-    transition: background-color 0.2s;
-}
-
-.divider:hover::after,
-.divider:active::after {
-    background-color: var(--accent-color);
-    width: 4px;
-    left: 2px;
-}
-
-.preview-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--preview-bg);
-    padding: 32px 48px;
-    font-family: var(--preview-font);
-    font-size: 1rem;
-    overflow-y: auto;
-    min-height: 0;
-}
-
-body.view-editor .editor-panel {
-    flex: 1 1 100% !important;
-    max-width: 100%;
-    border-right: none;
-}
-
-body.view-editor .preview-panel,
-body.view-editor .divider {
-    display: none !important;
-}
-
-body.view-preview .preview-panel {
-    flex: 1 1 100% !important;
-    max-width: 100%;
-}
-
-body.view-preview .editor-panel,
-body.view-preview .divider {
-    display: none !important;
-}
-
-/* ✨ FOCUS MODE CSS ✨ */
-body.focus-mode .navbar {
-    display: none !important;
-}
-
-body.focus-mode .editor-toolbar {
-    display: none !important;
-}
-
-body.focus-mode #stat-words,
-body.focus-mode #stat-chars,
-body.focus-mode #stat-reading-time,
-body.focus-mode .sb-theme-toggle,
-body.focus-mode #active-mode-indicator,
-body.focus-mode #btn-toggle-autosave,
-body.focus-mode #btn-sync-current,
-body.focus-mode #btn-push-github {
-    display: none !important;
-}
-
-body.focus-mode .toolbar-divider {
-    display: none !important;
-}
-
-body.focus-mode #btn-manual-save {
-    display: flex !important;
-    margin-left: auto;
-}
-
-body.focus-mode #btn-exit-focus {
-    display: flex !important;
-    margin-left: 12px;
-}
-
-body.focus-mode .status-bar {
-    justify-content: flex-end;
 }
 
 
