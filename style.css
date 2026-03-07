@@ -97,6 +97,7 @@ body.is-loading .brand,
 body.is-loading .mode-toggle,
 body.is-loading .custom-dropdown,
 body.is-loading .nav-action-btn,
+body.is-loading .action-pill-group,
 body.is-loading .premium-action-group,
 body.is-loading .tool-btn,
 body.is-loading .status-bar span,
@@ -124,6 +125,7 @@ body.is-loading .dropdown-header span {
 .mode-toggle,
 .custom-dropdown,
 .nav-action-btn,
+.action-pill-group,
 .premium-action-group,
 .tool-btn,
 .status-bar span,
@@ -209,142 +211,97 @@ body:not(.is-loading) #preview-skeleton {
     gap: 10px;
 }
 
-/* ✨ NEW PREMIUM UI CLASSES ✨ */
-.mode-toggle {
-    display: flex;
-    align-items: center;
-    background-color: var(--toggle-track);
-    border-radius: 50px;
-    padding: 4px;
-    gap: 2px;
-    height: 32px;
-    box-shadow: none;
-}
+/* ==========================================================================
+   ✨ PILL NAVIGATION & ACTION GROUPS SIZING STANDARDIZATION ✨
+   ========================================================================== */
 
-.mode-tab {
-    appearance: none;
-    outline: none;
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    padding: 0 12px;
-    height: 28px;
-    border-radius: 50px;
-    font-family: var(--ui-font);
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    opacity: 0.6;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.mode-tab i {
-    width: 14px !important;
-    height: 14px !important;
-}
-
-.mode-tab:hover {
-    opacity: 1;
-    background-color: var(--hover-bg);
-}
-
-.mode-tab.active {
-    background-color: var(--toggle-pill);
-    color: var(--accent-color);
-    opacity: 1;
-    box-shadow: 0 1px 3px var(--toggle-shadow);
-}
-
+.mode-toggle,
+.action-pill-group,
 .premium-action-group {
     display: inline-flex;
     align-items: center;
     background-color: var(--toggle-track);
     border-radius: 50px;
-    padding: 2px;
-    gap: 2px;
+    padding: 2px 4px;
+    gap: 4px;
     height: 32px;
+    box-shadow: none;
 }
 
-.premium-tool-btn {
+body.dark-mode .mode-toggle,
+body.dark-mode .action-pill-group,
+body.dark-mode .premium-action-group {
+    box-shadow: none;
+}
+
+.mode-tab,
+.pill-action-btn,
+.premium-tool-btn,
+.action-pill-group button {
     appearance: none;
     outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background-color: transparent;
     color: var(--text-color);
     border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sizing for Icon-Only Buttons */
+.pill-action-btn,
+.premium-tool-btn,
+.action-pill-group button {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
     opacity: 0.65;
     padding: 0;
+    margin: 0;
 }
 
-.premium-tool-btn i {
+/* Sizing for Text+Icon Buttons (like Local/Cloud, Light/Dark) */
+.mode-tab {
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 50px;
+    font-family: var(--ui-font);
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 6px;
+    opacity: 0.6;
+}
+
+/* Strictly constrain Icon Sizes */
+.pill-action-btn i,
+.premium-tool-btn i,
+.action-pill-group button i,
+.mode-tab i {
     width: 14px !important;
     height: 14px !important;
     display: block;
-    margin: auto;
+    margin: 0 !important;
 }
 
-.premium-tool-btn:hover {
+.mode-tab:hover,
+.pill-action-btn:hover,
+.premium-tool-btn:hover,
+.action-pill-group button:hover {
     background-color: var(--hover-bg);
     opacity: 1;
     transform: none;
 }
 
-.premium-tool-btn.active {
+.mode-tab.active,
+.pill-action-btn.active,
+.premium-tool-btn.active,
+.action-pill-group button.active {
     background-color: var(--toggle-pill);
     color: var(--accent-color);
     opacity: 1;
     box-shadow: 0 1px 3px var(--toggle-shadow);
-}
-
-/* Original Editor Tools (Unboxed) */
-.tool-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.6;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    outline: none;
-    padding: 0;
-}
-
-.tool-btn i {
-    width: 16px !important;
-    height: 16px !important;
-}
-
-.tool-btn:hover,
-.hover-pop:hover {
-    opacity: 1;
-    background-color: var(--hover-bg);
-    transform: translateY(-1px);
-}
-
-.tool-btn:active {
-    transform: scale(0.95);
-}
-
-.tool-btn.active {
-    opacity: 1;
-    color: var(--accent-color);
-    background-color: var(--shadow-color);
 }
 
 /* DROPDOWNS */
@@ -542,13 +499,52 @@ body:not(.is-loading) #preview-skeleton {
     display: flex;
     align-items: center;
     padding: 8px 24px;
-    gap: 4px;
+    gap: 8px;
     background-color: var(--nav-bg);
     border-bottom: 1px solid var(--border-color);
     overflow-x: auto;
     white-space: nowrap;
     flex-shrink: 0;
     height: 48px;
+}
+
+.tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.6;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    padding: 0;
+}
+
+.tool-btn i {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.tool-btn:hover,
+.hover-pop:hover {
+    opacity: 1;
+    background-color: var(--hover-bg);
+    transform: translateY(-1px);
+}
+
+.tool-btn:active {
+    transform: scale(0.95);
+}
+
+.tool-btn.active {
+    opacity: 1;
+    color: var(--accent-color);
+    background-color: var(--shadow-color);
 }
 
 .toolbar-divider {
