@@ -508,6 +508,29 @@
         border-radius: 14px !important;
     }
 
+    /* MANAGEMENT MODAL MOBILE */
+    .manage-modal-box {
+        height: 90dvh !important;
+        padding-top: 36px !important;
+    }
+
+    .manage-header {
+        padding: 16px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+    }
+
+    .manage-body {
+        padding: 16px !important;
+        padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .manage-footer {
+        padding: 16px !important;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+    }
+
     /* NATIVE FULL-SCREEN DASHBOARD */
     .notes-dashboard-box,
     .docs-modal-box {
