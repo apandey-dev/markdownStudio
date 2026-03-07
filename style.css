@@ -23,7 +23,8 @@
     --link-active: #6b7280;
     --ui-font: 'Fredoka', sans-serif;
     --preview-font: 'Fredoka', sans-serif;
-    --editor-font: 'Fira Code', monospace;
+    --editor-font: 'Fredoka', sans-serif;
+    /* Tied to preview font */
 }
 
 body.dark-mode {
@@ -77,6 +78,15 @@ body {
 .mobile-sidebar-overlay,
 .mobile-sidebar {
     display: none;
+}
+
+/* ✨ FOCUS MODE (ZEN MODE) MAGIC ✨ */
+body.focus-mode .hide-on-focus {
+    display: none !important;
+}
+
+body.focus-mode #main-editor-toolbar {
+    display: none !important;
 }
 
 @keyframes skeleton-pulse {
@@ -181,7 +191,7 @@ body:not(.is-loading) #preview-skeleton {
     gap: 10px;
 }
 
-/* ✨ DESKTOP ICONS PILL GROUP ✨ */
+/* ✨ DESKTOP PILL ICON GROUP (Image 3 Match) ✨ */
 .nav-icon-group {
     display: flex;
     align-items: center;
@@ -374,7 +384,6 @@ body.dark-mode .mode-toggle {
     background-color: var(--shadow-color);
 }
 
-/* UNIFIED NAVBAR BUTTONS */
 .nav-action-btn {
     appearance: none;
     -webkit-appearance: none;
@@ -393,6 +402,7 @@ body.dark-mode .mode-toggle {
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
+    height: 32px;
 }
 
 .nav-action-btn:hover {
@@ -496,12 +506,17 @@ body.dark-mode .mode-toggle {
     transition: all 0.2s ease;
     border: 1px solid var(--border-color);
     color: var(--text-color);
+    height: 26px;
 }
 
 .sb-action-btn:hover {
     background: var(--hover-bg);
     transform: translateY(-1px);
     border-color: var(--text-color);
+}
+
+#btn-exit-focus:hover {
+    background: rgba(239, 68, 68, 0.2);
 }
 
 .manual-save-btn {
@@ -1334,7 +1349,7 @@ body.dark-mode .btn-cancel:hover {
     position: relative;
 }
 
-/* ✨ DASHBOARD ACTIONS (CIRCULAR BUTTONS + CLOSE ALIGNMENT) ✨ */
+/* ✨ CIRCULAR DASHBOARD ACTIONS ✨ */
 .dashboard-actions {
     display: flex;
     justify-content: space-between;
@@ -1871,7 +1886,7 @@ body.dark-mode .btn-help-cute:hover {
     border: none;
 }
 
-/* ✨ BEAUTIFUL SHORT TOAST NOTIFICATION ✨ */
+/* ✨ FIXED DESKTOP TOAST CSS ✨ */
 #toast {
     visibility: hidden;
     background-color: var(--text-color) !important;
@@ -1918,7 +1933,7 @@ body.dark-mode .btn-help-cute:hover {
     opacity: 0.3;
 }
 
-/* ✨ PURE CSS CIRCULAR CHECKBOX FOR BULK SYNC AND MANAGER ✨ */
+/* ✨ PURE CSS CIRCULAR CHECKBOX (NO ICON) ✨ */
 .sync-item {
     display: flex;
     align-items: center;
@@ -1939,22 +1954,20 @@ body.dark-mode .btn-help-cute:hover {
 }
 
 .sync-checkbox {
-    appearance: none;
-    -webkit-appearance: none;
-    outline: none;
-    width: 22px !important;
-    height: 22px !important;
-    border: 2px solid var(--border-color);
-    border-radius: 50% !important;
-    background-color: var(--bg-color);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin: 0 !important;
-    flex-shrink: 0;
-    display: inline-block;
+    display: none;
 }
 
-.sync-item input[type="checkbox"]:checked {
+.sync-checkbox-custom {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background-color: transparent;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sync-checkbox:checked+.sync-checkbox-custom {
     background-color: var(--accent-color) !important;
     border-color: var(--accent-color) !important;
     box-shadow: inset 0 0 0 4px var(--bg-color);

@@ -46,6 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) lucide.createIcons();
 
+    // ✨ FOCUS MODE LOGIC ✨
+    const btnFocusMode = document.getElementById('btn-focus-mode');
+    const btnExitFocus = document.getElementById('btn-exit-focus');
+
+    btnFocusMode?.addEventListener('click', () => {
+        document.body.classList.add('focus-mode');
+        if (window.showToast) window.showToast("<i data-lucide='focus'></i> Focus Mode");
+    });
+
+    btnExitFocus?.addEventListener('click', () => {
+        document.body.classList.remove('focus-mode');
+        if (window.showToast) window.showToast("<i data-lucide='minimize'></i> Focus Exited");
+    });
+
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.getAttribute('data-view');
@@ -86,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-
+    
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -122,6 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
+            
+            // Close active dropdowns first
+            const openDropdownList = document.querySelector('.dropdown-list[style*="display: block"]');
+            if(openDropdownList) {
+                openDropdownList.style.display = 'none';
+                return;
+            }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
 
@@ -147,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const btn = document.getElementById(modal.closeBtn);
                     if (btn) btn.click();
                     else el.classList.remove('show');
-                    return; // Stop after closing the top-most modal
+                    return; 
                 }
             }
         }
@@ -159,22 +180,42 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
-    window.setupDropdown = function (dropdownId, textId, callback) {
+    // ✨ ESCAPING CLIPPED CONTAINERS FOR FONTS ✨
+    window.setupDropdown = function(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
         const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
+        const list = dropdown.querySelector('.dropdown-list');
 
         const newHeader = header.cloneNode(true);
         header.parentNode.replaceChild(newHeader, header);
 
         newHeader.addEventListener('click', (e) => {
             e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            
             document.querySelectorAll('.custom-dropdown').forEach(d => {
-                if (d !== dropdown) d.classList.remove('open');
+                d.classList.remove('open');
+                const lst = d.querySelector('.dropdown-list');
+                if(lst && lst.style.position === 'fixed') lst.style.display = 'none';
             });
-            dropdown.classList.toggle('open');
+
+            if(!isOpen) {
+                dropdown.classList.add('open');
+                
+                // Magic positioning to escape toolbar overflow
+                if(dropdownId === 'font-dropdown') {
+                    const rect = newHeader.getBoundingClientRect();
+                    list.style.display = 'block';
+                    list.style.position = 'fixed';
+                    list.style.top = (rect.bottom + 8) + 'px';
+                    list.style.left = rect.left + 'px';
+                    list.style.width = Math.max(rect.width, 150) + 'px';
+                    list.style.zIndex = '9999';
+                }
+            }
         });
 
         items.forEach(item => {
@@ -183,22 +224,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.classList.add('active');
                 if (textEl) {
                     textEl.textContent = e.target.textContent;
-                    if (e.target.getAttribute('data-value')) {
+                    if(e.target.getAttribute('data-value')) {
                         textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
                     }
                 }
                 dropdown.classList.remove('open');
+                if(list.style.position === 'fixed') list.style.display = 'none';
                 if (callback) callback(e.target.getAttribute('data-value'));
             });
         });
     }
 
     document.addEventListener('click', () => {
-        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.custom-dropdown').forEach(d => {
+            d.classList.remove('open');
+            const lst = d.querySelector('.dropdown-list');
+            if(lst && lst.style.position === 'fixed') lst.style.display = 'none';
+        });
     });
 
+    document.querySelector('.editor-toolbar')?.addEventListener('scroll', () => {
+        document.querySelectorAll('.custom-dropdown').forEach(d => {
+            d.classList.remove('open');
+            const lst = d.querySelector('.dropdown-list');
+            if(lst && lst.style.position === 'fixed') lst.style.display = 'none';
+        });
+    });
+
+    // ✨ GLOBAL FONT SYNC (EDITOR & PREVIEW) ✨
     const savedFont = localStorage.getItem('md_studio_font') || 'Fredoka';
     document.documentElement.style.setProperty('--preview-font', `'${savedFont}', sans-serif`);
+    document.documentElement.style.setProperty('--editor-font', `'${savedFont}', sans-serif`);
 
     const fontDropdownItems = document.querySelectorAll('#font-dropdown .dropdown-item');
     const fontSelectedText = document.getElementById('font-selected-text');
@@ -207,13 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.remove('active');
             if (item.getAttribute('data-value') === savedFont) {
                 item.classList.add('active');
-                fontSelectedText.textContent = `Preview: ${item.textContent}`;
+                fontSelectedText.textContent = `${item.textContent}`;
             }
         });
     }
 
     window.setupDropdown('font-dropdown', 'font-selected-text', (val) => {
         document.documentElement.style.setProperty('--preview-font', `'${val}', sans-serif`);
+        document.documentElement.style.setProperty('--editor-font', `'${val}', sans-serif`);
         localStorage.setItem('md_studio_font', val);
     });
 
@@ -252,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-
+        
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -270,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.classList.add('active');
             }
         });
-
+        
         if (window.lucide) lucide.createIcons();
     };
 
@@ -284,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-
+    
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');
