@@ -30,6 +30,8 @@ window.closePromptModal = function () { document.getElementById('prompt-modal')?
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeBulkSyncModal = function () { document.getElementById('bulk-sync-modal')?.classList.remove('show'); };
+window.closeMoveModal = function () { document.getElementById('move-modal')?.classList.remove('show'); };
+window.closeRenameModal = function () { document.getElementById('rename-modal')?.classList.remove('show'); };
 
 window.closeNotesModal = function () {
     document.getElementById('notes-modal')?.classList.remove('show');
@@ -84,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-    
+
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -116,24 +118,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ✨ FIXED ESC KEY LOGIC ✨
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { openDropdown.classList.remove('open'); return; }
-            
-            if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
-            if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
-            if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
-            if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
-            if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
-            
-            if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
-            if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
-            if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
-            if (document.getElementById('bulk-sync-modal')?.classList.contains('show')) { window.closeBulkSyncModal(); return; }
-            
-            if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
+
+            const modals = [
+                { id: 'conflict-modal', closeBtn: 'conflict-cancel' },
+                { id: 'folder-prompt-modal', closeBtn: 'folder-prompt-cancel' },
+                { id: 'prompt-modal', closeBtn: 'prompt-cancel' },
+                { id: 'delete-modal', closeBtn: 'delete-cancel' },
+                { id: 'move-modal', closeBtn: 'move-cancel' },
+                { id: 'rename-modal', closeBtn: 'rename-cancel' },
+                { id: 'pdf-modal', closeBtn: 'modal-cancel' },
+                { id: 'setup-modal', closeBtn: 'btn-cancel-setup' },
+                { id: 'pat-guide-modal', closeBtn: 'pat-guide-close' },
+                { id: 'manager-modal', closeBtn: 'manager-modal-close' },
+                { id: 'bulk-sync-modal', closeBtn: 'bulk-sync-cancel' },
+                { id: 'docs-modal', closeBtn: 'docs-modal-close' },
+                { id: 'notes-modal', closeBtn: 'notes-modal-close' }
+            ];
+
+            for (let modal of modals) {
+                const el = document.getElementById(modal.id);
+                if (el && el.classList.contains('show')) {
+                    const btn = document.getElementById(modal.closeBtn);
+                    if (btn) btn.click();
+                    else el.classList.remove('show');
+                    return; // Stop after closing the top-most modal
+                }
+            }
         }
     });
 
@@ -143,14 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
-    function setupDropdown(dropdownId, textId, callback) {
+    window.setupDropdown = function (dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
         const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
 
-        header?.addEventListener('click', (e) => {
+        const newHeader = header.cloneNode(true);
+        header.parentNode.replaceChild(newHeader, header);
+
+        newHeader.addEventListener('click', (e) => {
             e.stopPropagation();
             document.querySelectorAll('.custom-dropdown').forEach(d => {
                 if (d !== dropdown) d.classList.remove('open');
@@ -162,7 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
             item.addEventListener('click', (e) => {
                 items.forEach(i => i.classList.remove('active'));
                 e.target.classList.add('active');
-                if (textEl) textEl.textContent = `Preview: ${e.target.textContent}`;
+                if (textEl) {
+                    textEl.textContent = e.target.textContent;
+                    if (e.target.getAttribute('data-value')) {
+                        textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
+                    }
+                }
                 dropdown.classList.remove('open');
                 if (callback) callback(e.target.getAttribute('data-value'));
             });
@@ -188,12 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    setupDropdown('font-dropdown', 'font-selected-text', (val) => {
+    window.setupDropdown('font-dropdown', 'font-selected-text', (val) => {
         document.documentElement.style.setProperty('--preview-font', `'${val}', sans-serif`);
         localStorage.setItem('md_studio_font', val);
     });
 
-    setupDropdown('size-dropdown', 'size-selected-text', (val) => {
+    window.setupDropdown('size-dropdown', 'size-selected-text', (val) => {
         window.selectedPageSize = val;
     });
 
@@ -228,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-        
+
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -246,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.classList.add('active');
             }
         });
-        
+
         if (window.lucide) lucide.createIcons();
     };
 
@@ -260,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-    
+
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');

@@ -54,7 +54,7 @@ const StorageManager = {
             for (const n of notesArray) {
                 totalSize += n.content ? n.content.length : 0;
             }
-            if (totalSize > 3 * 1024 * 1024) { 
+            if (totalSize > 3 * 1024 * 1024) {
                 await this.migrateToIDB(notesArray);
             }
         } catch (e) {
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let syncTimer = null;
         let syncRetries = 0;
         const MAX_SYNC_RETRIES = 3;
-        
+
         let isAutoSave = localStorage.getItem('md_autosave') !== 'false';
 
         const defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
@@ -227,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateAutoSaveUI() {
             const btnToggle = document.getElementById('btn-toggle-autosave');
             const btnManual = document.getElementById('btn-manual-save');
-            if(btnToggle && btnManual) {
-                if(isAutoSave) {
+            if (btnToggle && btnManual) {
+                if (isAutoSave) {
                     btnToggle.innerHTML = `<i data-lucide="toggle-right" style="width: 16px; height: 16px; color: #10b981;"></i> <span class="desktop-only" style="color:var(--text-color);">Auto-Save: ON</span>`;
                     btnToggle.style.borderColor = 'rgba(16, 185, 129, 0.4)';
                     btnManual.style.display = 'none';
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnManual.style.display = 'flex';
                 }
             }
-            if(window.lucide) lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         document.getElementById('btn-toggle-autosave')?.addEventListener('click', async () => {
@@ -266,16 +266,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeNote.content = editor.value;
                 activeNote.lastUpdated = Date.now();
                 await saveLocalState();
-                
+
                 if (appMode === 'github') {
                     if (!navigator.onLine) {
                         window.showToast("<i data-lucide='wifi-off'></i> Offline. Saved Locally.");
                     } else {
-                        while(isSyncing) await new Promise(r => setTimeout(r, 200));
-                        
+                        while (isSyncing) await new Promise(r => setTimeout(r, 200));
+
                         isSyncing = true;
                         updatePillUI();
-                        
+
                         try {
                             const result = await GitHubBackend.saveNote(activeNote.id, activeNote.path, activeNote.title, activeNote.content);
                             if (result && result !== 'conflict') {
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else {
                                 window.showToast("<i data-lucide='x-circle'></i> Sync Failed");
                             }
-                        } catch(e) {
+                        } catch (e) {
                             window.showToast("<i data-lucide='wifi-off'></i> Network Error");
                         } finally {
                             isSyncing = false;
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.showToast("<i data-lucide='check-circle'></i> Saved");
                 }
             }
-            
+
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             if (window.lucide) lucide.createIcons();
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('online', () => {
             if (appMode === 'github') {
                 OfflineQueue.process();
-                if(isAutoSave) triggerCloudSync();
+                if (isAutoSave) triggerCloudSync();
             }
         });
 
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await saveLocalState();
                 finishAppLoad();
                 updatePillUI();
-                if(isAutoSave) triggerCloudSync();
+                if (isAutoSave) triggerCloudSync();
 
             } else {
                 window.showToast("Working locally.");
@@ -634,8 +634,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function finishAppLoad() {
-            updateAutoSaveUI(); 
-            
+            updateAutoSaveUI();
+
             const note = getActiveNote();
             if (!note) return;
 
@@ -694,17 +694,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         }
 
-        // ✨ DYNAMIC FOLDER SELECTOR FOR NEW NOTE ✨
-        window.setupFolderDropdown = function() {
-            const dropdown = document.getElementById('note-folder-dropdown');
-            if(!dropdown) return;
+        window.setupFolderDropdown = function (dropdownId, textId) {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return;
             const header = dropdown.querySelector('.dropdown-header');
             const items = dropdown.querySelectorAll('.dropdown-item');
-            const textEl = document.getElementById('folder-selected-text');
+            const textEl = document.getElementById(textId);
 
             const newHeader = header.cloneNode(true);
             header.parentNode.replaceChild(newHeader, header);
-            
+
             newHeader.addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.querySelectorAll('.custom-dropdown').forEach(d => {
@@ -847,8 +846,295 @@ document.addEventListener('DOMContentLoaded', () => {
             window.renderDashboardPreview();
         };
 
+        // ✨ NEW: WORKSPACE MANAGER RENDERER ✨
+        window.renderWorkspaceManager = function () {
+            const container = document.getElementById('manager-body-content');
+            if (!container) return;
+            container.innerHTML = '';
+
+            extractFoldersFromNotes();
+
+            folders.forEach(folder => {
+                const folderGroup = document.createElement('div');
+                folderGroup.className = 'manager-folder-group';
+
+                const folderTitle = document.createElement('div');
+                folderTitle.className = 'manager-folder-title';
+                folderTitle.innerHTML = `<i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i> ${folder}`;
+                folderGroup.appendChild(folderTitle);
+
+                const folderNotes = folder === 'All Notes' ? notes : notes.filter(n => n.folder === folder);
+
+                if (folderNotes.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.style.opacity = '0.5';
+                    emptyMsg.style.fontSize = '0.85rem';
+                    emptyMsg.style.padding = '0 8px';
+                    emptyMsg.textContent = 'No notes in this folder.';
+                    folderGroup.appendChild(emptyMsg);
+                } else {
+                    folderNotes.forEach(note => {
+                        const noteRow = document.createElement('div');
+                        noteRow.className = 'manager-note-item';
+
+                        const infoDiv = document.createElement('div');
+                        infoDiv.className = 'manager-note-info';
+
+                        const cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.className = 'manager-checkbox sync-checkbox';
+                        cb.value = note.id;
+
+                        const cbCustom = document.createElement('div');
+                        cbCustom.className = 'sync-checkbox-custom';
+                        cbCustom.innerHTML = '<i data-lucide="check"></i>';
+
+                        const label = document.createElement('label');
+                        label.style.display = 'flex';
+                        label.style.alignItems = 'center';
+                        label.style.gap = '12px';
+                        label.style.cursor = 'pointer';
+
+                        const titleSpan = document.createElement('span');
+                        titleSpan.className = 'manager-note-title';
+                        titleSpan.textContent = note.title;
+
+                        label.appendChild(cb);
+                        label.appendChild(cbCustom);
+                        label.appendChild(titleSpan);
+                        infoDiv.appendChild(label);
+
+                        const actionsDiv = document.createElement('div');
+                        actionsDiv.className = 'manager-actions';
+
+                        const btnMove = document.createElement('button');
+                        btnMove.className = 'manager-action-btn';
+                        btnMove.title = "Move to Folder";
+                        btnMove.innerHTML = '<i data-lucide="folder-input"></i>';
+                        btnMove.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openMoveModal(note.id); };
+
+                        const btnRename = document.createElement('button');
+                        btnRename.className = 'manager-action-btn';
+                        btnRename.title = "Rename Note";
+                        btnRename.innerHTML = '<i data-lucide="edit-3"></i>';
+                        btnRename.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openRenameModal(note.id); };
+
+                        const btnSync = document.createElement('button');
+                        btnSync.className = 'manager-action-btn';
+                        btnSync.title = "Sync to Cloud";
+                        btnSync.innerHTML = '<i data-lucide="cloud-upload"></i>';
+                        btnSync.onclick = (e) => { e.preventDefault(); e.stopPropagation(); syncSingleNoteFromManager(note.id, btnSync); };
+
+                        actionsDiv.appendChild(btnMove);
+                        actionsDiv.appendChild(btnRename);
+                        if (appMode === 'github') actionsDiv.appendChild(btnSync);
+
+                        noteRow.appendChild(infoDiv);
+                        noteRow.appendChild(actionsDiv);
+                        folderGroup.appendChild(noteRow);
+                    });
+                }
+                container.appendChild(folderGroup);
+            });
+
+            if (window.lucide) lucide.createIcons();
+        };
+
+        document.getElementById('btn-manage-workspace')?.addEventListener('click', () => {
+            window.renderWorkspaceManager();
+            document.getElementById('manager-modal').classList.add('show');
+            document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        });
+        document.getElementById('sidebar-btn-manage')?.addEventListener('click', () => {
+            document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+            window.renderWorkspaceManager();
+            document.getElementById('manager-modal').classList.add('show');
+        });
+        document.getElementById('manager-modal-close')?.addEventListener('click', () => {
+            document.getElementById('manager-modal').classList.remove('show');
+        });
+
+        let noteToManageId = null;
+
+        window.openMoveModal = function (id) {
+            noteToManageId = id;
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            const dropList = document.getElementById('move-folder-dropdown-list');
+            const dropText = document.getElementById('move-folder-selected-text');
+
+            dropList.innerHTML = '';
+            folders.forEach(f => {
+                const div = document.createElement('div');
+                div.className = `dropdown-item ${f === note.folder ? 'active' : ''}`;
+                div.setAttribute('data-value', f);
+                div.textContent = f;
+                dropList.appendChild(div);
+            });
+            dropText.textContent = note.folder || 'All Notes';
+            dropText.setAttribute('data-selected', note.folder || 'All Notes');
+
+            if (window.setupDropdown) window.setupDropdown('move-folder-dropdown', 'move-folder-selected-text');
+
+            document.getElementById('move-modal').classList.add('show');
+        }
+
+        document.getElementById('move-cancel')?.addEventListener('click', () => document.getElementById('move-modal').classList.remove('show'));
+
+        document.getElementById('move-confirm')?.addEventListener('click', async () => {
+            if (!noteToManageId) return;
+            const note = notes.find(n => n.id === noteToManageId);
+            const dropText = document.getElementById('move-folder-selected-text');
+            const newFolder = dropText.getAttribute('data-selected') || 'All Notes';
+
+            if (note && note.folder !== newFolder) {
+                let oldPath = note.path;
+                let oldId = note.id;
+
+                note.folder = newFolder;
+                note.path = generatePath(newFolder, note.title);
+                note.lastUpdated = Date.now();
+
+                if (appMode === 'github') {
+                    OfflineQueue.add('delete', { path: oldPath, sha: oldId });
+                    note.id = Date.now().toString();
+                    if (isAutoSave) triggerCloudSync();
+                }
+
+                await saveLocalState();
+                window.renderWorkspaceManager();
+                if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
+                if (typeof window.renderNotesList === 'function') window.renderNotesList();
+                window.showToast("<i data-lucide='check'></i> Moved");
+            }
+            document.getElementById('move-modal').classList.remove('show');
+        });
+
+        window.openRenameModal = function (id) {
+            noteToManageId = id;
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            const input = document.getElementById('rename-input');
+            input.value = note.title;
+            document.getElementById('rename-modal').classList.add('show');
+            setTimeout(() => { input.focus(); input.select(); }, 100);
+        }
+
+        document.getElementById('rename-cancel')?.addEventListener('click', () => document.getElementById('rename-modal').classList.remove('show'));
+
+        document.getElementById('rename-confirm')?.addEventListener('click', async () => {
+            if (!noteToManageId) return;
+            const input = document.getElementById('rename-input');
+            const newTitle = input.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
+
+            if (!newTitle) return window.showToast("Title cannot be empty");
+
+            const note = notes.find(n => n.id === noteToManageId);
+            const newPath = generatePath(note.folder || 'All Notes', newTitle);
+
+            if (notes.find(n => n.path === newPath && n.id !== noteToManageId)) {
+                return window.showToast("Note exists in folder.");
+            }
+
+            if (note && note.title !== newTitle) {
+                let oldPath = note.path;
+                let oldId = note.id;
+
+                note.title = newTitle;
+                note.path = newPath;
+                note.lastUpdated = Date.now();
+
+                if (activeNoteId === note.id) {
+                    window.renderDashboardPreview();
+                }
+
+                if (appMode === 'github') {
+                    OfflineQueue.add('delete', { path: oldPath, sha: oldId });
+                    note.id = Date.now().toString();
+                    if (isAutoSave) triggerCloudSync();
+                }
+
+                await saveLocalState();
+                window.renderWorkspaceManager();
+                if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
+                if (typeof window.renderNotesList === 'function') window.renderNotesList();
+                window.showToast("<i data-lucide='check'></i> Renamed");
+            }
+            document.getElementById('rename-modal').classList.remove('show');
+        });
+
+        async function syncSingleNoteFromManager(id, btnElement) {
+            const token = localStorage.getItem('md_github_token');
+            if (!token) return window.showToast("Connect GitHub first.");
+
+            const noteToSync = notes.find(n => n.id === id);
+            if (!noteToSync) return;
+
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `<i data-lucide="loader" class="spin"></i>`;
+            btnElement.disabled = true;
+            if (window.lucide) lucide.createIcons();
+
+            const success = await GitHubBackend.init(token);
+            if (success) {
+                try {
+                    const res = await GitHubBackend.saveNote(noteToSync.id, noteToSync.path, noteToSync.title, noteToSync.content);
+                    if (res && res !== 'conflict') {
+                        noteToSync.id = res.sha;
+                        noteToSync.path = res.path;
+                        noteToSync.lastUpdated = Date.now();
+                        await saveLocalState();
+                        window.showToast(`<i data-lucide='cloud-check'></i> Synced!`);
+                    } else {
+                        window.showToast("Sync failed.");
+                    }
+                } catch (e) { window.showToast("Upload error."); }
+            }
+
+            btnElement.innerHTML = originalHTML;
+            btnElement.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        }
+
         document.getElementById('mob-back-folders')?.addEventListener('click', () => {
             document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
+        });
+
+        document.getElementById('btn-sync-current')?.addEventListener('click', async () => {
+            const token = localStorage.getItem('md_github_token');
+            if (!token) return window.showToast("Invalid Token.");
+
+            const currentNote = getActiveNote();
+            if (!currentNote) return;
+
+            const btn = document.getElementById('btn-sync-current');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span class="desktop-only">Syncing</span>`;
+            btn.disabled = true;
+            if (window.lucide) lucide.createIcons();
+
+            const success = await GitHubBackend.init(token);
+            if (success) {
+                try {
+                    const res = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
+                    if (res && res !== 'conflict') {
+                        currentNote.id = res.sha;
+                        currentNote.path = res.path;
+                        currentNote.lastUpdated = Date.now();
+                        await saveLocalState();
+                        window.showToast(`<i data-lucide='check-circle'></i> Synced!`);
+                    } else if (res === 'conflict') {
+                        window.showToast("Conflict detected.");
+                    } else {
+                        window.showToast("Sync failed.");
+                    }
+                } catch (e) { window.showToast("Sync failed."); }
+            }
+
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            if (window.lucide) lucide.createIcons();
         });
 
         const bulkSyncModal = document.getElementById('bulk-sync-modal');
@@ -924,6 +1210,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     const res = await GitHubBackend.saveNote('new', note.path, note.title, note.content);
+                    if (res && res !== 'conflict') {
+                        note.id = res.sha;
+                        note.path = res.path;
+                        note.lastUpdated = Date.now();
+                    }
+                } catch (e) { console.log(`Failed to upload ${note.title}`); }
+
+                completed++;
+                pStatus.textContent = `${completed} out of ${total} done`;
+                pFill.style.width = `${(completed / total) * 100}%`;
+            }
+
+            spinner.style.display = 'none';
+            successIcon.style.display = 'block';
+            pTitle.textContent = "Upload Complete!";
+            pFile.textContent = "All selected notes synced.";
+
+            appMode = 'github';
+            localStorage.setItem('md_app_mode', 'github');
+            await saveLocalState();
+            updatePillUI();
+
+            setTimeout(() => {
+                widget.classList.add('hidden');
+                window.showToast("<i data-lucide='check'></i> Upload Complete");
+            }, 3000);
+        });
+
+        // Manager Bulk Sync Logic
+        document.getElementById('manager-select-all')?.addEventListener('click', () => {
+            document.querySelectorAll('.manager-checkbox').forEach(cb => cb.checked = true);
+        });
+        document.getElementById('manager-deselect-all')?.addEventListener('click', () => {
+            document.querySelectorAll('.manager-checkbox').forEach(cb => cb.checked = false);
+        });
+
+        document.getElementById('manager-bulk-sync')?.addEventListener('click', async () => {
+            const token = localStorage.getItem('md_github_token');
+            const checkboxes = document.querySelectorAll('.manager-checkbox:checked');
+
+            if (checkboxes.length === 0) return window.showToast("Select notes first.");
+            if (!navigator.onLine) return window.showToast("You are offline.");
+
+            const success = await GitHubBackend.init(token);
+            if (!success) return window.showToast("Invalid Token or Offline.");
+
+            document.getElementById('manager-modal').classList.remove('show');
+
+            const widget = document.getElementById('upload-progress-widget');
+            const pTitle = document.getElementById('pw-title');
+            const pFile = document.getElementById('pw-filename');
+            const pStatus = document.getElementById('pw-status');
+            const pFill = document.getElementById('pw-fill');
+            const spinner = document.getElementById('pw-spinner');
+            const successIcon = document.getElementById('pw-success');
+
+            widget.classList.remove('hidden');
+            pTitle.textContent = "Uploading to Cloud";
+            spinner.style.display = 'block';
+            successIcon.style.display = 'none';
+
+            const total = checkboxes.length;
+            let completed = 0;
+
+            const selectedNotes = Array.from(checkboxes).map(cb => notes.find(n => n.id === cb.value)).filter(n => n);
+
+            for (let note of selectedNotes) {
+                pFile.textContent = `Uploading: ${note.title}...`;
+                pStatus.textContent = `${completed} out of ${total} done`;
+                pFill.style.width = `${(completed / total) * 100}%`;
+
+                try {
+                    const res = await GitHubBackend.saveNote(note.id.length > 20 ? note.id : 'new', note.path, note.title, note.content);
                     if (res && res !== 'conflict') {
                         note.id = res.sha;
                         note.path = res.path;
@@ -1053,19 +1412,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.preventDefault();
                     const targetTitle = link.getAttribute('data-note');
                     const targetNote = notes.find(n => n.title.toLowerCase() === targetTitle.toLowerCase());
-                    
+
                     if (targetNote) {
                         activeNoteId = targetNote.id;
                         highlightedNoteId = targetNote.id;
                         activeFolder = targetNote.folder || 'All Notes';
                         editor.value = targetNote.content;
                         saveLocalState();
-                        
+
                         renderMarkdownCore(targetNote.content);
-                        
+
                         if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
                         if (typeof window.renderNotesList === 'function') window.renderNotesList();
-                        
+
                         if (document.getElementById('notes-modal')?.classList.contains('show')) {
                             window.renderDashboardPreview();
                         } else {
@@ -1077,6 +1436,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         const promptInput = document.getElementById('prompt-input');
                         if (promptModal && promptInput) {
                             promptInput.value = targetTitle;
+
+                            const dropList = document.getElementById('note-folder-dropdown-list');
+                            const dropText = document.getElementById('folder-selected-text');
+                            if (dropList && dropText) {
+                                dropList.innerHTML = '';
+                                folders.forEach(f => {
+                                    const div = document.createElement('div');
+                                    div.className = `dropdown-item ${f === activeFolder ? 'active' : ''}`;
+                                    div.setAttribute('data-value', f);
+                                    div.textContent = f;
+                                    dropList.appendChild(div);
+                                });
+                                dropText.textContent = activeFolder;
+                                dropText.setAttribute('data-selected', activeFolder);
+                                if (window.setupDropdown) window.setupDropdown('note-folder-dropdown', 'folder-selected-text');
+                            }
+
                             promptModal.classList.add('show');
                             setTimeout(() => { promptInput.focus(); promptInput.select(); }, 100);
                         }
@@ -1110,250 +1486,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         };
 
-        document.getElementById('dash-btn-edit')?.addEventListener('click', async () => {
-            if (!highlightedNoteId) return;
-            
-            if (getActiveNote() && editor.value !== getActiveNote().content) {
-                getActiveNote().content = editor.value;
-                getActiveNote().lastUpdated = Date.now();
-                await saveLocalState();
-                if(isAutoSave && appMode === 'github') triggerCloudSync();
-            }
-
-            activeNoteId = highlightedNoteId;
-            await saveLocalState();
-            editor.value = getActiveNote().content;
-            renderMarkdownCore(editor.value);
-            if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
-        });
-
-        document.getElementById('dash-btn-delete')?.addEventListener('click', () => {
-            if (!highlightedNoteId) return;
-            noteToDeleteId = highlightedNoteId;
-            document.getElementById('delete-modal').classList.add('show');
-        });
-
-        document.getElementById('dash-btn-export')?.addEventListener('click', async () => {
-            if (!highlightedNoteId) return;
-            activeNoteId = highlightedNoteId;
-            await saveLocalState();
-            editor.value = getActiveNote().content;
-            renderMarkdownCore(editor.value);
-            if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
-            setTimeout(() => { document.getElementById('btn-pdf').click(); }, 300);
-        });
-
-        document.getElementById('dash-btn-back')?.addEventListener('click', () => {
-            document.querySelector('.notes-dashboard-box')?.classList.remove('show-preview-pane');
-        });
-
-        document.getElementById('delete-confirm')?.addEventListener('click', async () => {
-            if (!noteToDeleteId) return;
-
-            const idx = notes.findIndex(n => n.id === noteToDeleteId);
-            if (idx === -1) return;
-
-            const noteToDelete = notes[idx];
-            notes.splice(idx, 1);
-
-            if (activeNoteId === noteToDeleteId) {
-                activeNoteId = notes.length > 0 ? notes[Math.max(0, idx - 1)].id : null;
-                if (activeNoteId) editor.value = getActiveNote().content;
-                else editor.value = "";
-            }
-
-            if (highlightedNoteId === noteToDeleteId) {
-                let displayNotes = activeFolder === 'All Notes' ? notes : notes.filter(n => n.folder === activeFolder);
-                highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
-            }
-
-            if (appMode === 'github' && noteToDelete.path) {
-                if (navigator.onLine) {
-                    GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
-                        OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
-                    });
-                } else {
-                    OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
-                }
-            }
-
-            if (notes.length === 0) {
-                const id = Date.now().toString();
-                notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: defaultWelcomeNote, lastUpdated: Date.now() }];
-                activeNoteId = id;
-                editor.value = notes[0].content;
-            }
-
-            await saveLocalState();
-            await StorageManager.deleteNote(noteToDeleteId);
-
-            renderMarkdownCore(editor.value);
-            window.renderFoldersList();
-            window.renderNotesList();
-
-            noteToDeleteId = null;
-            if (typeof window.closeDeleteModal === 'function') window.closeDeleteModal();
-            if (window.showToast) window.showToast("<i data-lucide='trash-2'></i> Deleted");
-        });
-
-        const btnNewFolder = document.getElementById('btn-new-folder');
-        const folderPromptModal = document.getElementById('folder-prompt-modal');
-        const folderPromptInput = document.getElementById('folder-prompt-input');
-
-        // ✨ Folder Creation Stack Logic ✨
-        let returningToNoteModal = false;
-
-        btnNewFolder?.addEventListener('click', () => {
-            folderPromptInput.value = '';
-            folderPromptModal.classList.add('show');
-            setTimeout(() => { folderPromptInput.focus(); }, 100);
-        });
-        
-        document.getElementById('btn-quick-new-folder')?.addEventListener('click', () => {
-            document.getElementById('prompt-modal').classList.remove('show');
-            returningToNoteModal = true;
-            setTimeout(() => { btnNewFolder.click(); }, 300);
-        });
-
-        document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
-            let folderName = folderPromptInput.value.trim().replace(/[/\\?%*:|"<>]/g, '-');
-            if (!folderName) return window.showToast("Folder name cannot be empty.");
-            if (folders.includes(folderName)) return window.showToast("Folder already exists.");
-
-            folders.push(folderName);
-            activeFolder = folderName;
-            saveFolders();
-
-            window.renderFoldersList();
-            window.renderNotesList();
-
-            folderPromptModal.classList.remove('show');
-            window.showToast(`<i data-lucide='folder'></i> Created`);
-
-            if (returningToNoteModal) {
-                setTimeout(() => { document.getElementById('btn-new-note').click(); }, 300);
-                returningToNoteModal = false;
-            } else if (window.innerWidth <= 768) {
-                document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
-            }
-        });
-
-        document.getElementById('folder-prompt-cancel')?.addEventListener('click', () => {
-            folderPromptModal.classList.remove('show');
-            if(returningToNoteModal) {
-                setTimeout(() => { document.getElementById('btn-new-note').click(); }, 300);
-                returningToNoteModal = false;
-            }
-        });
-
-        const btnNewNote = document.getElementById('btn-new-note');
-        const promptModal = document.getElementById('prompt-modal');
-        const promptInput = document.getElementById('prompt-input');
-
-        btnNewNote?.addEventListener('click', () => {
-            promptInput.value = '';
-            
-            // Populate folder dropdown
-            const dropList = document.getElementById('note-folder-dropdown-list');
-            const dropText = document.getElementById('folder-selected-text');
-            if(dropList && dropText) {
-                dropList.innerHTML = '';
-                folders.forEach(f => {
-                    const div = document.createElement('div');
-                    div.className = `dropdown-item ${f === activeFolder ? 'active' : ''}`;
-                    div.setAttribute('data-value', f);
-                    div.textContent = f;
-                    dropList.appendChild(div);
-                });
-                dropText.textContent = activeFolder;
-                dropText.setAttribute('data-selected', activeFolder);
-                if(window.setupFolderDropdown) window.setupFolderDropdown();
-            }
-
-            promptModal.classList.add('show');
-            setTimeout(() => { promptInput.focus(); }, 100);
-        });
-
-        const createNoteFlow = async () => {
-            let noteName = promptInput.value.trim() || "Untitled Note";
-            
-            const dropText = document.getElementById('folder-selected-text');
-            let targetFolder = dropText ? dropText.getAttribute('data-selected') : activeFolder;
-            if(!targetFolder) targetFolder = activeFolder;
-            
-            const generatedPath = generatePath(targetFolder, noteName);
-
-            const existingNote = notes.find(n => n.path === generatedPath);
-            const newId = Date.now().toString();
-            const content = `# ${noteName}\n\nStart typing here...`;
-
-            if (existingNote) {
-                pendingNewNoteData = { id: newId, path: generatedPath, folder: targetFolder, title: noteName, content: content, existingId: existingNote.id };
-                document.getElementById('conflict-filename').textContent = noteName + ".md";
-                promptModal.classList.remove('show');
-                document.getElementById('conflict-modal').classList.add('show');
-                return;
-            }
-
-            await executeNoteCreation({ id: newId, path: generatedPath, folder: targetFolder, title: noteName, content: content, lastUpdated: Date.now() });
-        };
-
-        async function executeNoteCreation(noteData) {
-            notes.unshift(noteData);
-            activeNoteId = noteData.id;
-            highlightedNoteId = noteData.id;
-            activeFolder = noteData.folder; // Switch folder view
-            editor.value = noteData.content;
-
-            await saveLocalState();
-            renderMarkdownCore(noteData.content);
-            window.renderFoldersList();
-            window.renderNotesList();
-
-            promptModal.classList.remove('show');
-            if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
-
-            if (isAutoSave && appMode === 'github') triggerCloudSync();
-            window.showToast("<i data-lucide='check-circle'></i> Created");
-        }
-
-        document.getElementById('prompt-confirm')?.addEventListener('click', createNoteFlow);
-        promptInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') createNoteFlow(); });
-        document.getElementById('prompt-cancel')?.addEventListener('click', () => { promptModal.classList.remove('show'); });
-
-        document.getElementById('conflict-cancel')?.addEventListener('click', () => {
-            document.getElementById('conflict-modal').classList.remove('show');
-            pendingNewNoteData = null;
-        });
-
-        document.getElementById('conflict-rename')?.addEventListener('click', () => {
-            document.getElementById('conflict-modal').classList.remove('show');
-            promptInput.value = pendingNewNoteData.title + " (New)";
-            promptModal.classList.add('show');
-            pendingNewNoteData = null;
-        });
-
-        document.getElementById('conflict-overwrite')?.addEventListener('click', async () => {
-            if (!pendingNewNoteData) return;
-            let exNote = notes.find(n => n.id === pendingNewNoteData.existingId);
-            if (exNote) {
-                exNote.content = pendingNewNoteData.content;
-                exNote.lastUpdated = Date.now();
-                activeNoteId = exNote.id;
-                highlightedNoteId = exNote.id;
-                editor.value = exNote.content;
-
-                await saveLocalState();
-                renderMarkdownCore(exNote.content);
-                window.renderNotesList();
-                if (isAutoSave && appMode === 'github') triggerCloudSync();
-                window.showToast("<i data-lucide='copy'></i> Overwritten");
-            }
-            document.getElementById('conflict-modal').classList.remove('show');
-            if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
-            pendingNewNoteData = null;
-        });
-
         function getDynamicDebounceTime(textLength) {
             if (textLength > 200000) return 1500;
             if (textLength > 50000) return 800;
@@ -1368,12 +1500,12 @@ document.addEventListener('DOMContentLoaded', () => {
             debounceTimeout = setTimeout(async () => {
                 const activeNote = getActiveNote();
                 if (activeNote) {
-                    activeNote.content = rawText; 
+                    activeNote.content = rawText;
                     activeNote.lastUpdated = Date.now();
-                    
+
                     if (isAutoSave) {
-                        await saveLocalState(); 
-                        triggerCloudSync(); 
+                        await saveLocalState();
+                        triggerCloudSync();
                     }
                 }
                 renderMarkdownCore(rawText);
@@ -1407,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             injectCopyButtons(preview);
-            attachInternalLinkListeners(preview); 
+            attachInternalLinkListeners(preview);
 
             if (typeof hljs !== 'undefined') {
                 preview.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
@@ -1582,8 +1714,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const folder = activeFolder;
                 const newPath = generatePath(folder, rawTitle);
                 const newId = Date.now().toString();
-                
-                if(notes.find(n => n.path === newPath)) {
+
+                if (notes.find(n => n.path === newPath)) {
                     window.showToast("<i data-lucide='alert-triangle'></i> File exists.");
                     return;
                 }
@@ -1632,16 +1764,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             let pageCss = "";
 
-            if (window.selectedPageSize === 'A4') { 
-                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`; 
+            if (window.selectedPageSize === 'A4') {
+                pageCss = `@page { size: A4 portrait; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-            else if (window.selectedPageSize === 'A2') { 
-                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`; 
+            else if (window.selectedPageSize === 'A2') {
+                pageCss = `@page { size: A2 portrait; margin: 0; } #preview-output { padding: 36px 64px !important; font-size: 1.2rem !important; }`;
             }
             else if (window.selectedPageSize === 'Infinity') {
                 const previewEl = document.getElementById('preview-output');
                 const previewPanel = document.getElementById('preview-panel');
-                
+
                 const isHidden = window.getComputedStyle(previewPanel).display === 'none';
                 if (isHidden) {
                     previewPanel.style.setProperty('display', 'block', 'important');
@@ -1659,10 +1791,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     previewPanel.style.removeProperty('z-index');
                 }
 
-                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297); 
+                const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
                 pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
             }
-            
+
             style.innerHTML = pageCss;
             document.head.appendChild(style);
 
@@ -1674,7 +1806,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = originalTitle;
                 document.head.removeChild(style);
                 if (typeof window.showToast === "function") window.showToast("<i data-lucide='check'></i> Exported");
-            }, 400); 
+            }, 400);
         });
 
         shareBtn?.addEventListener('click', async () => {
@@ -1734,5 +1866,5 @@ document.addEventListener('DOMContentLoaded', () => {
             loadLocalMode();
         }
 
-    }, 50); 
+    }, 50);
 });

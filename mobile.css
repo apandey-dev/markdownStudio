@@ -463,8 +463,6 @@
         overflow: visible !important;
     }
 
-    /* Lets folder dropdown pop up over sheet */
-
     .premium-modal {
         padding-top: 48px !important;
     }
@@ -508,9 +506,85 @@
         border-radius: 14px !important;
     }
 
+    /* ✨ WORKSPACE MANAGER MOBILE FIXES ✨ */
+    .manager-modal-box {
+        height: 96dvh !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 24px 24px 0 0 !important;
+    }
+
+    .manager-header {
+        padding: 24px 20px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px;
+    }
+
+    .manager-header h2 {
+        font-size: 1.3rem !important;
+    }
+
+    .manager-header>div:first-child {
+        width: 100%;
+        padding-right: 40px;
+    }
+
+    #manager-modal-close {
+        top: 24px !important;
+        right: 16px !important;
+    }
+
+    .manager-header+div {
+        flex-direction: column;
+        align-items: stretch !important;
+        padding: 16px 20px !important;
+        gap: 12px !important;
+    }
+
+    .manager-header+div>div {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .manager-header+div .nav-action-btn {
+        flex: 1;
+    }
+
+    .manager-body {
+        padding: 20px 16px calc(40px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .manager-folder-title {
+        font-size: 1.05rem !important;
+    }
+
+    .manager-note-item {
+        padding: 12px !important;
+        border-radius: 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .manager-actions {
+        gap: 6px !important;
+        flex-wrap: nowrap;
+    }
+
+    .manager-action-btn {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+    }
+
+    .manager-action-btn i {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
     /* NATIVE FULL-SCREEN DASHBOARD */
-    .notes-dashboard-box,
-    .docs-modal-box {
+    .notes-dashboard-box {
         padding: 0 !important;
         display: block !important;
         overflow: hidden !important;
@@ -612,19 +686,6 @@
         height: 20px;
     }
 
-    .folder-del-btn {
-        opacity: 0.7 !important;
-        padding: 10px !important;
-        width: 44px !important;
-        height: 44px !important;
-        margin-left: 6px;
-    }
-
-    .folder-del-btn i {
-        width: 20px !important;
-        height: 20px !important;
-    }
-
     #btn-new-note {
         font-size: 1rem !important;
         height: 50px !important;
@@ -657,10 +718,9 @@
         border: 2px solid var(--accent-color) !important;
     }
 
-    /* ✨ DASHBOARD CIRCULAR BUTTONS FOR MOBILE ✨ */
     .dashboard-actions {
-        padding: 12px 16px !important;
-        gap: 8px !important;
+        padding: 12px 24px !important;
+        gap: 12px !important;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg) !important;
         display: flex !important;
@@ -669,14 +729,10 @@
         height: auto !important;
     }
 
-    .dash-action-group {
-        gap: 6px !important;
-    }
-
     .dash-circle-btn,
     .btn-close-dashboard {
-        width: 36px !important;
-        height: 36px !important;
+        width: 46px !important;
+        height: 46px !important;
         border-radius: 50% !important;
         padding: 0 !important;
         background: transparent !important;
@@ -684,8 +740,8 @@
 
     .dash-circle-btn i,
     .btn-close-dashboard i {
-        width: 16px !important;
-        height: 16px !important;
+        width: 20px !important;
+        height: 20px !important;
         margin: 0 !important;
     }
 
@@ -751,20 +807,20 @@
 
     /* ✨ BEAUTIFUL SHORT TOAST NOTIFICATION ✨ */
     #toast {
-        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+        bottom: calc(30px + env(safe-area-inset-bottom)) !important;
         width: fit-content !important;
-        min-width: 100px !important;
-        max-width: 80vw !important;
+        min-width: 120px !important;
+        max-width: 85vw !important;
         left: 50% !important;
         margin-left: 0 !important;
-        transform: translate(-50%, 20px) !important;
-        padding: 10px 20px !important;
+        transform: translateX(-50%) translateY(20px) !important;
+        padding: 12px 24px !important;
         border-radius: 50px !important;
-        font-size: 0.9rem !important;
+        font-size: 0.95rem !important;
         font-weight: 600 !important;
         text-align: center !important;
         white-space: nowrap !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
         z-index: 99999 !important;
         display: flex !important;
         align-items: center !important;
@@ -773,7 +829,7 @@
     }
 
     #toast.show {
-        transform: translate(-50%, 0) !important;
+        transform: translateX(-50%) translateY(0) !important;
     }
 
     .progress-widget {
