@@ -191,12 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
-    // ✨ ESCAPING CLIPPED CONTAINERS FOR FONTS ✨
+    // ✨ ESCAPING CLIPPED CONTAINERS FOR FONTS & DYNAMIC DROPDOWNS ✨
     window.setupDropdown = function (dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
-        const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
         const list = dropdown.querySelector('.dropdown-list');
 
@@ -229,21 +228,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        items.forEach(item => {
-            item.addEventListener('click', (e) => {
-                items.forEach(i => i.classList.remove('active'));
-                e.target.classList.add('active');
-                if (textEl) {
-                    textEl.textContent = e.target.textContent;
-                    if (e.target.getAttribute('data-value')) {
-                        textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
-                    }
-                }
-                dropdown.classList.remove('open');
-                if (list.style.position === 'fixed') list.style.display = 'none';
-                if (callback) callback(e.target.getAttribute('data-value'));
-            });
-        });
+        // Delegate item clicks to the list to support dynamic items (e.g. Folders)
+        list.onclick = (e) => {
+            const item = e.target.closest('.dropdown-item');
+            if (!item) return;
+
+            list.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            const val = item.getAttribute('data-value');
+            if (textEl) {
+                textEl.textContent = item.textContent;
+                textEl.setAttribute('data-selected', val || item.textContent);
+            }
+            dropdown.classList.remove('open');
+            if (list.style.position === 'fixed') list.style.display = 'none';
+            if (callback) callback(val);
+        };
     }
 
     document.addEventListener('click', () => {

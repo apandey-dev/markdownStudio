@@ -633,6 +633,127 @@ document.addEventListener('DOMContentLoaded', () => {
             return `${folderName}/${safeTitle}.md`;
         }
 
+        // ✨ RESTORED NOTE CREATION MODAL LOGIC ✨
+        window.openNewNoteModal = function() {
+            const promptModal = document.getElementById('prompt-modal');
+            const promptInput = document.getElementById('prompt-input');
+            const folderDropdownList = document.getElementById('note-folder-dropdown-list');
+            const folderSelectedText = document.getElementById('folder-selected-text');
+
+            if (!promptModal || !promptInput) return;
+            
+            // Populate folder dropdown
+            folderDropdownList.innerHTML = '';
+            folders.forEach(f => {
+                const div = document.createElement('div');
+                div.className = `dropdown-item ${f === activeFolder ? 'active' : ''}`;
+                div.setAttribute('data-value', f);
+                div.textContent = f;
+                folderDropdownList.appendChild(div);
+            });
+
+            folderSelectedText.textContent = activeFolder;
+            folderSelectedText.setAttribute('data-selected', activeFolder);
+            
+            // Re-init dropdown logic
+            if (window.setupDropdown) window.setupDropdown('note-folder-dropdown', 'folder-selected-text');
+
+            promptInput.value = '';
+            promptModal.classList.add('show');
+            setTimeout(() => promptInput.focus(), 200);
+        };
+
+        document.getElementById('prompt-confirm')?.addEventListener('click', async () => {
+            const promptInput = document.getElementById('prompt-input');
+            const folderSelectedText = document.getElementById('folder-selected-text');
+            
+            const title = promptInput.value.trim();
+            const folder = folderSelectedText.getAttribute('data-selected') || 'All Notes';
+
+            if (!title) {
+                if (window.showToast) window.showToast("<i data-lucide='alert-circle'></i> Please enter a title.");
+                return;
+            }
+
+            const path = generatePath(folder, title);
+            if (notes.some(n => n.path === path)) {
+                if (window.showToast) window.showToast("<i data-lucide='alert-triangle'></i> Note already exists!");
+                return;
+            }
+
+            const newId = Date.now().toString();
+            const newNote = {
+                id: newId,
+                path: path,
+                folder: folder,
+                title: title,
+                content: "# " + title + "\n\nStart writing...",
+                lastUpdated: Date.now()
+            };
+
+            notes.unshift(newNote);
+            activeNoteId = newId;
+            highlightedNoteId = newId;
+            activeFolder = folder;
+            
+            await saveLocalState();
+            if (window.closePromptModal) window.closePromptModal();
+            if (window.renderFoldersList) window.renderFoldersList();
+            if (window.renderNotesList) window.renderNotesList();
+            
+            editor.disabled = false;
+            editor.value = newNote.content;
+            editor.dispatchEvent(new Event('input'));
+            
+            // Open right pane in mobile if applicable
+            if (window.innerWidth <= 768) {
+                document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
+            }
+            
+            if (window.showToast) window.showToast("<i data-lucide='check'></i> Note Created");
+            if (isAutoSave && appMode === 'github') triggerCloudSync();
+        });
+
+        document.getElementById('prompt-cancel')?.addEventListener('click', () => {
+            if (window.closePromptModal) window.closePromptModal();
+        });
+
+        // ✨ QUICK NEW FOLDER LOGIC ✨
+        document.getElementById('btn-quick-new-folder')?.addEventListener('click', () => {
+            const folderPrompt = document.getElementById('folder-prompt-modal');
+            const folderInput = document.getElementById('folder-prompt-input');
+            if(!folderPrompt || !folderInput) return;
+            
+            folderInput.value = '';
+            folderPrompt.classList.add('show');
+            setTimeout(() => folderInput.focus(), 200);
+        });
+
+        document.getElementById('folder-prompt-confirm')?.addEventListener('click', () => {
+            const folderInput = document.getElementById('folder-prompt-input');
+            const name = folderInput.value.trim();
+            if (!name) {
+                 if (window.showToast) window.showToast("<i data-lucide='alert-circle'></i> Name cannot be empty.");
+                 return;
+            }
+            if (folders.includes(name)) {
+                 if (window.showToast) window.showToast("<i data-lucide='alert-triangle'></i> Folder already exists.");
+                 return;
+            }
+
+            folders.push(name);
+            saveFolders();
+            
+            document.getElementById('folder-prompt-modal')?.classList.remove('show');
+            
+            // Update active folder and refresh the new note modal dropdown
+            activeFolder = name;
+            window.openNewNoteModal(); 
+            
+            if (window.showToast) window.showToast("<i data-lucide='folder-plus'></i> Folder Created");
+        });
+
+
         function finishAppLoad() {
             updateAutoSaveUI();
 
@@ -692,35 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(btn);
             });
             if (window.lucide) lucide.createIcons();
-        }
-
-        window.setupFolderDropdown = function (dropdownId, textId) {
-            const dropdown = document.getElementById(dropdownId);
-            if (!dropdown) return;
-            const header = dropdown.querySelector('.dropdown-header');
-            const items = dropdown.querySelectorAll('.dropdown-item');
-            const textEl = document.getElementById(textId);
-
-            const newHeader = header.cloneNode(true);
-            header.parentNode.replaceChild(newHeader, header);
-
-            newHeader.addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.querySelectorAll('.custom-dropdown').forEach(d => {
-                    if (d !== dropdown) d.classList.remove('open');
-                });
-                dropdown.classList.toggle('open');
-            });
-
-            items.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    items.forEach(i => i.classList.remove('active'));
-                    e.target.classList.add('active');
-                    textEl.textContent = e.target.textContent;
-                    textEl.setAttribute('data-selected', e.target.getAttribute('data-value'));
-                    dropdown.classList.remove('open');
-                });
-            });
         }
 
         window.renderFoldersList = function () {
