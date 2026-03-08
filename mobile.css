@@ -299,24 +299,25 @@
     .mobile-sidebar {
         position: absolute;
         top: 0;
-        left: -85%;
-        width: 80%;
-        max-width: 320px;
+        left: 0;
+        width: 85%;
+        max-width: 340px;
         height: 100%;
         background-color: var(--nav-bg);
+        transform: translateX(-100%);
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         display: flex;
         flex-direction: column;
         padding-top: var(--safe-top);
-        box-shadow: 10px 0 30px rgba(0,0,0,0.2);
+        box-shadow: 10px 0 40px rgba(0,0,0,0.3);
     }
 
     .mobile-sidebar-overlay.show .mobile-sidebar {
-        transform: translateX(100%);
+        transform: translateX(0);
     }
 
     .sidebar-header {
-        padding: 20px 24px;
+        padding: 20px 28px; /* Increased horizontal padding */
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -344,59 +345,74 @@
     }
 
     .sidebar-links {
-        padding: 0 16px 24px;
+        padding: 8px 24px 24px; /* Increased horizontal padding */
         flex: 1;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
     }
 
     .sidebar-section-title {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 700;
+        letter-spacing: 1.2px;
+        font-weight: 800;
         color: var(--text-color);
-        opacity: 0.5;
-        margin: 16px 0 4px 8px;
+        opacity: 0.4;
+        margin: 12px 0 8px 4px; /* Reduced top margin slightly for better flow */
     }
 
     .sidebar-btn {
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 14px 20px !important;
-        font-size: 1rem !important;
-        font-weight: 600;
+        gap: 12px;
+        padding: 14px 18px !important;
+        font-size: 0.95rem !important;
+        font-weight: 700;
         border-radius: 16px !important;
-        border: 1px solid var(--border-color) !important;
-        background-color: var(--bg-color) !important;
+        border: none !important;
+        background-color: transparent !important;
         color: var(--text-color) !important;
-        transition: all 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .sidebar-btn span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
     }
 
     .sidebar-btn i {
         width: 20px;
         height: 20px;
-        color: var(--accent-color);
+        flex-shrink: 0;
+        opacity: 0.8;
     }
 
     .sidebar-btn:active {
-        transform: scale(0.97);
         background-color: var(--hover-bg) !important;
-        border-color: var(--accent-color) !important;
+        transform: scale(0.98);
     }
 
     .sidebar-folder-btn.active {
-        background-color: var(--accent-color) !important;
-        color: var(--btn-text) !important;
-        border-color: var(--accent-color) !important;
+        background-color: #0f172a !important; /* Prominent dark state like in image */
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .sidebar-folder-btn.active {
+        background-color: #ffffff !important;
+        color: #000000 !important;
     }
 
     .sidebar-folder-btn.active i {
-        color: var(--btn-text) !important;
+        color: inherit !important;
+        opacity: 1;
     }
 
     /* --- 7. MODAL REDESIGN (NATIVE BOTTOM SHEETS) --- */
@@ -647,34 +663,51 @@
     }
 
     .dashboard-folder-title {
-        padding: 16px 18px !important;
-        font-size: 1.1rem !important;
-        border-radius: 18px !important;
-        margin-bottom: 12px !important;
+        padding: 10px 12px !important;
+        font-size: 0.95rem !important;
+        border-radius: 8px !important;
+        margin-bottom: 4px !important;
+        background-color: transparent !important; /* Minimal */
+        border-bottom: 1px solid var(--border-color) !important;
     }
 
     .dashboard-note-row {
-        padding: 16px 18px !important;
-        margin-bottom: 10px !important;
-        border: 1px solid var(--border-color) !important;
-        border-radius: 16px !important;
-        background-color: var(--nav-bg) !important;
-        box-shadow: 0 2px 6px var(--shadow-color) !important;
+        padding: 10px 12px 10px 32px !important; /* Indented for notes */
+        margin-bottom: 0 !important;
+        border: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        border-radius: 0 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        opacity: 0.85;
+    }
+
+    .dashboard-note-row.active {
+        background-color: var(--hover-bg) !important;
     }
 
     .dashboard-note-info {
-        font-size: 1.05rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 500;
+        gap: 12px !important;
     }
 
     .dashboard-note-actions {
         opacity: 1 !important;
-        gap: 12px !important;
+        gap: 8px !important;
     }
 
     .dashboard-action-btn {
-        width: 48px !important;
-        height: 48px !important;
-        border-radius: 14px !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 10px !important;
+        background: var(--bg-color) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .dashboard-action-btn.btn-open {
+        background: var(--accent-color) !important;
+        color: var(--btn-text) !important;
     }
 
     .notes-dashboard-footer {
@@ -719,6 +752,13 @@
     }
 
     /* --- 13. UTILITIES --- */
+    .truncate-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
     .input-group label {
         font-size: 0.9rem !important;
         font-weight: 700 !important;
