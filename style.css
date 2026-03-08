@@ -560,6 +560,14 @@ body.dark-mode .action-pill-group {
     background-color: var(--editor-bg);
 }
 
+.split-workspace.is-resizing * {
+    pointer-events: none !important;
+}
+
+.split-workspace.is-resizing .divider {
+    pointer-events: auto !important;
+}
+
 .editor-panel {
     flex: 0 0 50%;
     display: flex;
@@ -702,6 +710,48 @@ textarea:disabled::placeholder {
     background-color: var(--accent-color);
     width: 4px;
     left: 2px;
+}
+
+/* ✨ EDGE HANDLES ✨ */
+.edge-handle {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 60px;
+    background-color: var(--accent-color);
+    color: var(--btn-text);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    opacity: 0.8;
+}
+
+.edge-handle:hover {
+    width: 16px;
+    opacity: 1;
+}
+
+.edge-handle.left {
+    left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.edge-handle.right {
+    right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.edge-handle i {
+    width: 12px;
+    height: 12px;
 }
 
 .preview-panel {
@@ -1185,6 +1235,90 @@ a.internal-note-link i {
 
 body.dark-mode .btn-cancel:hover {
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ✨ TRANSFER MODAL REDESIGN ✨ */
+.transfer-modal-box {
+    max-width: 440px !important;
+}
+
+.transfer-section {
+    width: 100%;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 20px;
+    padding: 40px 24px;
+    margin-bottom: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--nav-bg);
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent-color);
+    background-color: var(--hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.drop-zone i {
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+    color: var(--accent-color);
+}
+
+.drop-zone p {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-color);
+}
+
+.drop-zone span {
+    font-size: 0.8rem;
+    opacity: 0.5;
+    margin-bottom: 16px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.transfer-instructions {
+    background-color: var(--hover-bg);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-top: 8px;
+}
+
+.transfer-instructions p {
+    font-size: 0.8rem;
+    margin: 0;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+.transfer-instructions i {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+#pdf-export-options {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ✨ ALL NOTES DASHBOARD ✨ */
