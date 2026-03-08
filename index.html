@@ -75,6 +75,9 @@
                 <button id="btn-docs" class="pill-action-btn" title="View Documentation">
                     <i data-lucide="book" style="width: 16px; height: 16px;"></i>
                 </button>
+                <button id="btn-exit-focus" class="pill-action-btn" title="Exit Focus Mode" style="display: none;">
+                    <i data-lucide="minimize" style="width: 16px; height: 16px;"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -240,11 +243,6 @@
                         <i data-lucide="moon" style="width: 12px; height: 12px;"></i> Dark
                     </button>
                 </div>
-
-                <button class="sb-action-btn desktop-only" id="btn-exit-focus" title="Exit Focus Mode"
-                    style="display: none;">
-                    <i data-lucide="minimize"></i> <span class="desktop-only">Exit Focus</span>
-                </button>
             </div>
         </div>
     </main>
@@ -368,6 +366,35 @@
                     </div>
                 </div>
                 <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="bulk-sync-modal" style="z-index: 3000;">
+        <div class="modal-box"
+            style="width: 90vw; max-width: 500px; height: 75vh; max-height: 600px; display: flex; flex-direction: column; padding: 24px;">
+            <div style="flex-shrink: 0;">
+                <h3 class="modal-title flex-title"><i data-lucide="cloud-upload" style="color: #10b981;"></i> Select
+                    Notes to Sync</h3>
+                <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 16px;">Choose which local notes you want to
+                    upload to your GitHub Workspace.</p>
+            </div>
+            <div id="bulk-sync-list"
+                style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-right: 8px;">
+            </div>
+            <div class="modal-actions" style="flex-shrink: 0; flex-direction: row; justify-content: space-between;">
+                <div style="display: flex; gap: 8px;">
+                    <button class="modal-btn" id="bulk-sync-all"
+                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">Select
+                        All</button>
+                    <button class="modal-btn" id="bulk-sync-none"
+                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">None</button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="modal-btn btn-cancel" id="bulk-sync-cancel">Cancel</button>
+                    <button class="modal-btn btn-confirm" id="bulk-sync-confirm"
+                        style="background-color: #10b981; color: white;">Start Upload</button>
+                </div>
             </div>
         </div>
     </div>
@@ -594,6 +621,20 @@
     </div>
 
     <div id="toast" style="z-index: 99999 !important;">Notification</div>
+
+    <div id="upload-progress-widget" class="progress-widget hidden">
+        <div class="pw-header">
+            <span class="pw-title" id="pw-title">Uploading to Cloud</span>
+            <i data-lucide="loader" class="spin" id="pw-spinner" style="color: #10b981; width: 18px; height: 18px;"></i>
+            <i data-lucide="check-circle" id="pw-success"
+                style="color: #10b981; width: 18px; height: 18px; display: none;"></i>
+        </div>
+        <div class="pw-filename" id="pw-filename">Starting...</div>
+        <div class="pw-status" id="pw-status">0 out of 0 done</div>
+        <div class="pw-bar-track">
+            <div class="pw-bar-fill" id="pw-fill"></div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>

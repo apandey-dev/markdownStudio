@@ -721,43 +721,28 @@ body.view-preview .divider {
 }
 
 /* ✨ FOCUS MODE CSS ✨ */
-body.focus-mode .navbar {
+body.focus-mode .editor-toolbar {
     display: none !important;
 }
 
-body.focus-mode .editor-toolbar {
+body.focus-mode #nav-mode-toggle {
     display: none !important;
+}
+
+body.focus-mode #btn-exit-focus {
+    display: flex !important;
 }
 
 body.focus-mode #stat-words,
 body.focus-mode #stat-chars,
 body.focus-mode #stat-reading-time,
-body.focus-mode .sb-theme-toggle,
-body.focus-mode #active-mode-indicator,
-body.focus-mode #btn-toggle-autosave,
-body.focus-mode #btn-sync-current,
-body.focus-mode #btn-push-github {
+body.focus-mode .status-bar .toolbar-divider {
     display: none !important;
-}
-
-body.focus-mode .toolbar-divider {
-    display: none !important;
-}
-
-body.focus-mode #btn-manual-save {
-    display: flex !important;
-    margin-left: auto;
-}
-
-body.focus-mode #btn-exit-focus {
-    display: flex !important;
-    margin-left: 12px;
 }
 
 body.focus-mode .status-bar {
-    justify-content: flex-end;
+    justify-content: space-between;
 }
-
 
 .skeleton-box {
     display: flex;
