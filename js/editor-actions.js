@@ -89,11 +89,36 @@ window.EditorActions = {
             });
         });
 
-        // Simplified Transfer Modal Toggle
+        // Transfer Modal Toggle Logic
         document.getElementById('btn-import-export')?.addEventListener('click', () => {
-            document.getElementById('transfer-modal').classList.add('show');
+            const modal = document.getElementById('transfer-modal');
+            modal.classList.add('show');
+
+            // Default to Import
+            const importTab = document.querySelector('#transfer-toggle [data-target="import"]');
+            if (importTab) importTab.click();
+
             const note = window.EditorState.getActiveNote();
-            if (note) document.getElementById('export-filename-input').value = note.title;
+            const exportInput = document.getElementById('export-filename-input');
+            if (note && exportInput) {
+                exportInput.value = note.title;
+            }
+        });
+
+        document.querySelectorAll('#transfer-toggle .transfer-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                document.querySelectorAll('#transfer-toggle .transfer-tab').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                if (target === 'import') {
+                    document.getElementById('import-section').style.display = 'block';
+                    document.getElementById('export-section').style.display = 'none';
+                } else {
+                    document.getElementById('import-section').style.display = 'none';
+                    document.getElementById('export-section').style.display = 'block';
+                }
+            });
         });
 
         // Browse File
@@ -105,20 +130,30 @@ window.EditorActions = {
             if (e.target.files.length > 0) {
                 this.handleImportMd(e.target.files[0]);
                 window.closeTransferModal();
-                e.target.value = ''; // Reset
             }
         });
 
-        // Drag & Drop for Import
+        // Drag & Drop
         const dropZone = document.getElementById('drop-zone');
         if (dropZone) {
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
-                dropZone.addEventListener(name, (e) => { e.preventDefault(); e.stopPropagation(); });
+                dropZone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
             });
-            ['dragenter', 'dragover'].forEach(name => { dropZone.addEventListener(name, () => dropZone.classList.add('drag-over')); });
-            ['dragleave', 'drop'].forEach(name => { dropZone.addEventListener(name, () => dropZone.classList.remove('drag-over')); });
+
+            ['dragenter', 'dragover'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.add('drag-over'));
+            });
+
+            ['dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.remove('drag-over'));
+            });
+
             dropZone.addEventListener('drop', (e) => {
-                const files = e.dataTransfer.files;
+                const dt = e.dataTransfer;
+                const files = dt.files;
                 if (files.length > 0) {
                     this.handleImportMd(files[0]);
                     window.closeTransferModal();
@@ -126,7 +161,7 @@ window.EditorActions = {
             });
         }
 
-        // Execute Export (Markdown Only in Redesigned Modal)
+        // Execute Export
         document.getElementById('btn-execute-export')?.addEventListener('click', () => {
             const filename = document.getElementById('export-filename-input').value.trim();
             this.handleExportMd(filename);
@@ -197,10 +232,19 @@ window.EditorActions = {
                 else editor.value = "";
             }
 
+            if (window.EditorCore.highlightedNoteId === this.pendingDeleteData.id) {
+                let displayNotes = window.EditorState.activeFolder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === window.EditorState.activeFolder);
+                window.EditorCore.highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
+            }
+
             if (window.EditorState.appMode === 'github' && noteToDelete.path) {
-                GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
+                if (navigator.onLine) {
+                    GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
+                        window.OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
+                    });
+                } else {
                     window.OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
-                });
+                }
             }
 
             if (window.EditorState.notes.length === 0) {
@@ -296,7 +340,7 @@ window.EditorActions = {
         const a = document.createElement('a');
         a.href = url;
 
-        let filename = customFilename || window.EditorState.getActiveNote()?.title || 'note';
+        let filename = customFilename || window.EditorState.getActiveNote().title;
         let safeTitle = filename.replace(/[/\\?%*:|"<>]/g, '_');
         if (!safeTitle || safeTitle.trim() === '') safeTitle = 'markdown_document';
 
@@ -387,7 +431,7 @@ window.EditorActions = {
 
     handlePdfExport(customFilename = null) {
         const inputFilename = document.getElementById('pdf-filename');
-        let fileName = customFilename || inputFilename?.value?.trim() || window.EditorState.getActiveNote()?.title || "Document";
+        let fileName = customFilename || inputFilename.value.trim() || window.EditorState.getActiveNote().title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();
 
         const style = document.createElement('style');
@@ -401,7 +445,25 @@ window.EditorActions = {
         }
         else if (window.selectedPageSize === 'Infinity') {
             const previewEl = document.getElementById('preview-output');
+            const previewPanel = document.getElementById('preview-panel');
+
+            const isHidden = window.getComputedStyle(previewPanel).display === 'none';
+            if (isHidden) {
+                previewPanel.style.setProperty('display', 'block', 'important');
+                previewPanel.style.setProperty('position', 'absolute', 'important');
+                previewPanel.style.setProperty('visibility', 'hidden', 'important');
+                previewPanel.style.setProperty('z-index', '-1000', 'important');
+            }
+
             const contentHeightPx = previewEl.scrollHeight;
+
+            if (isHidden) {
+                previewPanel.style.removeProperty('display');
+                previewPanel.style.removeProperty('position');
+                previewPanel.style.removeProperty('visibility');
+                previewPanel.style.removeProperty('z-index');
+            }
+
             const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
             pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
         }

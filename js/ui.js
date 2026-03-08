@@ -200,6 +200,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         document.getElementById('docs-modal')?.classList.add('show');
     });
+    document.getElementById('sidebar-btn-docs-mobile')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('docs-modal')?.classList.add('show');
+    });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
     // ✨ SETTINGS MODAL ✨
