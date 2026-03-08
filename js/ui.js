@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init Focus Mode
     const initFocusMode = () => {
-        if (localStorage.getItem('md_focus_mode') === 'true') {
+        if(localStorage.getItem('md_focus_mode') === 'true') {
             document.body.classList.add('focus-mode');
             setTimeout(() => window.dispatchEvent(new Event('focusModeEnabled')), 100);
         }
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-
+    
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
@@ -154,27 +154,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
             const openDropdown = document.querySelector('.custom-dropdown.open');
-            if (openDropdown) {
-                openDropdown.classList.remove('open');
+            if (openDropdown) { 
+                openDropdown.classList.remove('open'); 
                 document.querySelectorAll('.dropdown-list').forEach(l => {
                     l.style.opacity = '0';
                     l.style.visibility = 'hidden';
                 });
-                return;
+                return; 
             }
-
+            
             if (document.getElementById('conflict-modal')?.classList.contains('show')) { document.getElementById('conflict-cancel')?.click(); return; }
             if (document.getElementById('folder-prompt-modal')?.classList.contains('show')) { document.getElementById('folder-prompt-cancel')?.click(); return; }
             if (document.getElementById('prompt-modal')?.classList.contains('show')) { document.getElementById('prompt-cancel')?.click(); return; }
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
             if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
-
+            
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             if (document.getElementById('management-modal')?.classList.contains('show')) { window.closeManageModal(); return; }
-
+            
             if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
         }
     });
@@ -185,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
-    // Modified setupDropdown for Font Picker Fix to detach the list and avoid clipping
     function setupToolbarDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -193,24 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const list = dropdown.querySelector('.dropdown-list');
         const textEl = document.getElementById(textId);
 
-        // Break out of overflow:hidden parent by appending to body
         if (list && !list.parentNode.isEqualNode(document.body)) {
             document.body.appendChild(list);
         }
 
         header?.addEventListener('click', (e) => {
             e.stopPropagation();
-
+            
             const isOpen = list.classList.contains('show');
-
-            // Close others
+            
             document.querySelectorAll('.dropdown-list').forEach(d => {
                 d.classList.remove('show');
                 d.style.opacity = '0';
                 d.style.visibility = 'hidden';
             });
             document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
-
+            
             if (!isOpen) {
                 const rect = header.getBoundingClientRect();
                 list.style.position = 'fixed';
@@ -218,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.style.left = `${rect.left}px`;
                 list.style.width = `${Math.max(rect.width, 160)}px`;
                 list.style.zIndex = '3000';
-
+                
                 list.classList.add('show');
                 dropdown.classList.add('open');
                 list.style.opacity = '1';
@@ -227,25 +224,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Use event delegation for dynamically added items or query them directly
         const items = list.querySelectorAll('.dropdown-item');
         items.forEach(item => {
             item.addEventListener('click', (e) => {
                 items.forEach(i => i.classList.remove('active'));
                 e.target.classList.add('active');
                 if (textEl) textEl.textContent = e.target.textContent;
-
+                
                 dropdown.classList.remove('open');
                 list.classList.remove('show');
                 list.style.opacity = '0';
                 list.style.visibility = 'hidden';
-
+                
                 if (callback) callback(e.target.getAttribute('data-value'));
             });
         });
     }
 
-    // Generic setupDropdown for other static non-toolbar dropdowns (like in PDF modal)
     function setupStaticDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -275,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', () => {
         document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
         document.querySelectorAll('.dropdown-list').forEach(l => {
-            // Only affect the detached/floating ones that we manage via JS styles
             if (l.parentNode.isEqualNode(document.body)) {
                 l.classList.remove('show');
                 l.style.opacity = '0';
@@ -343,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = (themeName) => {
         const isDark = themeName === 'dark';
-
+        
         if (isDark) {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-light').disabled = true;
@@ -361,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.classList.add('active');
             }
         });
-
+        
         if (window.lucide) lucide.createIcons();
     };
 
@@ -375,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) ? 'dark' : 'light';
-
+    
     document.querySelectorAll('.theme-tab').forEach(tab => {
         if (tab.getAttribute('data-theme') === initialTheme) {
             tab.classList.add('active');
@@ -399,4 +393,53 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCancelPdf?.addEventListener('click', window.closePdfModal);
 
     document.getElementById('delete-cancel')?.addEventListener('click', window.closeDeleteModal);
+
+    // ✨ GLOBAL CUSTOM TOOLTIP EVENT DELEGATION ✨
+    const customTooltip = document.getElementById('custom-tooltip');
+    if (customTooltip) {
+        document.addEventListener('mouseover', (e) => {
+            let target = e.target.closest('[data-tooltip], [title]');
+            if (!target) return;
+
+            // Automatically convert legacy 'title' to 'data-tooltip' logic-free!
+            if (target.hasAttribute('title') && target.getAttribute('title').trim() !== "") {
+                target.setAttribute('data-tooltip', target.getAttribute('title'));
+                target.removeAttribute('title');
+            }
+
+            const text = target.getAttribute('data-tooltip');
+            if (text) {
+                customTooltip.textContent = text;
+                customTooltip.classList.add('show');
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (customTooltip.classList.contains('show')) {
+                let x = e.clientX + 15;
+                let y = e.clientY + 15;
+                
+                if (x + customTooltip.offsetWidth > window.innerWidth) {
+                    x = window.innerWidth - customTooltip.offsetWidth - 15;
+                }
+                if (y + customTooltip.offsetHeight > window.innerHeight) {
+                    y = e.clientY - customTooltip.offsetHeight - 15;
+                }
+                
+                customTooltip.style.left = `${x}px`;
+                customTooltip.style.top = `${y}px`;
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            let target = e.target.closest('[data-tooltip]');
+            if (target) {
+                customTooltip.classList.remove('show');
+            }
+        });
+
+        document.addEventListener('mousedown', () => {
+            customTooltip.classList.remove('show');
+        });
+    }
 });
