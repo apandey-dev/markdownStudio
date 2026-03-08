@@ -247,6 +247,9 @@
                     <div class="toolbar-divider" style="height: 12px; margin: 0; opacity: 0.3;"></div>
                     <span id="stat-line-col" style="opacity: 0.8;">Line 1, Col 1</span>
                 </div>
+                <button id="btn-save-progress" class="pill-action-btn" data-tooltip="Save Progress" style="display: none; background: var(--accent-color); color: var(--btn-text); margin-left: 8px;">
+                    <i data-lucide="save" style="width: 14px; height: 14px;"></i> Save
+                </button>
                 <button id="btn-exit-focus-bottom" class="pill-action-btn" data-tooltip="Exit Focus Mode" style="display: none; background: var(--accent-color); color: var(--btn-text); margin-left: 8px;">
                     <i data-lucide="minimize" style="width: 14px; height: 14px;"></i>
                 </button>
@@ -307,7 +310,10 @@
         <div class="modal-box settings-modal-box">
             <div class="settings-container">
                 <nav class="settings-nav">
-                    <div class="settings-nav-item active" data-section="ui">
+                    <div class="settings-nav-item active" data-section="general">
+                        <i data-lucide="settings-2"></i> General
+                    </div>
+                    <div class="settings-nav-item" data-section="ui">
                         <i data-lucide="layout"></i> UI Components
                     </div>
                     <div class="settings-nav-item" data-section="editor">
@@ -321,8 +327,33 @@
                     </div>
                 </nav>
 
+                <!-- General Category -->
+                <div class="settings-content active" id="settings-section-general">
+                    <div class="settings-content-header">
+                        <h3>General Settings</h3>
+                        <p>Core application behavior and preferences.</p>
+                    </div>
+                    <div class="settings-collapsible-area">
+                        <details class="settings-details-group" open>
+                            <summary class="settings-summary"><i data-lucide="save"></i> <span>Storage & Saving</span></summary>
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <div class="setting-details">
+                                        <span class="setting-card-title">Auto Save Notes</span>
+                                        <span class="setting-card-desc">Automatically persist changes as you type.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-auto-save" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
                 <!-- UI Components Category -->
-                <div class="settings-content active" id="settings-section-ui">
+                <div class="settings-content" id="settings-section-ui">
                     <div class="settings-content-header">
                         <h3>UI Components</h3>
                         <p>Manage visibility of main application areas.</p>
@@ -809,6 +840,9 @@
                 <span id="manage-selected-count"
                     style="font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; color: var(--text-color);">0
                     selected</span>
+                <button class="modal-btn btn-confirm" id="btn-push-github" style="margin-left: auto; display: none;">
+                    <i data-lucide="cloud-upload"></i> PUSH TO GITHUB
+                </button>
             </div>
         </div>
     </div>

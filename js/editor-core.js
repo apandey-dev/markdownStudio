@@ -317,10 +317,12 @@ window.EditorCore = {
         const bodyContent = document.getElementById('manage-body-content');
         const footerActions = document.getElementById('manage-footer-actions');
         const selectModeCheckbox = document.getElementById('manage-select-mode');
+        const pushBtn = document.getElementById('btn-push-github');
         if (!bodyContent) return;
 
         const isSelectMode = selectModeCheckbox ? selectModeCheckbox.checked : false;
         if (footerActions) footerActions.style.display = isSelectMode ? 'flex' : 'none';
+        if (pushBtn) pushBtn.style.display = (isSelectMode && window.EditorState.appMode === 'local') ? 'flex' : 'none';
 
         bodyContent.innerHTML = '';
         window.EditorState.extractFoldersFromNotes();
@@ -701,21 +703,29 @@ window.EditorCore = {
         this.debounceTimeout = setTimeout(async () => {
             const activeNote = window.EditorState.getActiveNote();
             if (activeNote) {
-                activeNote.content = rawText;
-                activeNote.lastUpdated = Date.now();
-
-                // AutoSave is now always enabled
-                await window.EditorState.saveLocalState();
-                if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
-
-                // Clear drafts on auto-save
-                try {
-                    let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
-                    if (drafts[activeNote.id]) {
-                        delete drafts[activeNote.id];
+                // If Auto Save is OFF, we use temporary caching (drafts)
+                if (!window.EditorState.autoSave) {
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        drafts[activeNote.id] = rawText;
                         localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
-                    }
-                } catch (e) {}
+                    } catch (e) {}
+                } else {
+                    activeNote.content = rawText;
+                    activeNote.lastUpdated = Date.now();
+
+                    await window.EditorState.saveLocalState();
+                    if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
+
+                    // Clear drafts on auto-save
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        if (drafts[activeNote.id]) {
+                            delete drafts[activeNote.id];
+                            localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                        }
+                    } catch (e) {}
+                }
             }
             this.renderMarkdownCore(rawText);
         }, waitTime);

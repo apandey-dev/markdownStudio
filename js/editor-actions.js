@@ -132,8 +132,68 @@ window.EditorActions = {
         document.getElementById('prompt-modal').classList.remove('show');
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
 
-        if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
+        if (window.EditorState.appMode === 'github' && window.EditorState.autoSave) {
+            window.EditorState.triggerCloudSync();
+        }
         window.showToast("<i data-lucide='check-circle'></i> Created");
+    },
+
+    async handleSaveProgress() {
+        const editor = document.getElementById('markdown-input');
+        const activeNote = window.EditorState.getActiveNote();
+        if (!activeNote) return;
+
+        activeNote.content = editor.value;
+        activeNote.lastUpdated = Date.now();
+
+        await window.EditorState.saveLocalState();
+
+        if (window.EditorState.appMode === 'github') {
+            window.EditorState.triggerCloudSync();
+        } else {
+            window.showToast("<i data-lucide='save'></i> Saved Locally");
+        }
+    },
+
+    async handlePushToGitHub() {
+        if (window.EditorState.appMode !== 'local') return;
+        const selectedIds = Array.from(document.querySelectorAll('#manage-body-content .manage-checkbox:checked')).map(cb => cb.value);
+        if (selectedIds.length === 0) return window.showToast("No notes selected.");
+
+        const token = localStorage.getItem('md_github_token');
+        if (!token) {
+            window.showToast("Connect GitHub first.");
+            document.getElementById('setup-modal').classList.add('show');
+            return;
+        }
+
+        const pushBtn = document.getElementById('btn-push-github');
+        const originalHtml = pushBtn.innerHTML;
+        pushBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 14px;"></i> PUSHING...`;
+        pushBtn.disabled = true;
+        if (window.lucide) lucide.createIcons();
+
+        let successCount = 0;
+        await GitHubBackend.init(token);
+
+        for (const id of selectedIds) {
+            const note = window.EditorState.notes.find(n => n.id === id);
+            if (!note) continue;
+
+            const result = await GitHubBackend.saveNote(note.id, note.path, note.title, note.content);
+            if (result) successCount++;
+        }
+
+        pushBtn.innerHTML = originalHtml;
+        pushBtn.disabled = false;
+        if (window.lucide) lucide.createIcons();
+
+        if (successCount > 0) {
+            window.showToast(`<i data-lucide='cloud-check'></i> Pushed ${successCount} notes`);
+            document.getElementById('management-modal').classList.remove('show');
+        } else {
+            window.showToast("<i data-lucide='alert-circle'></i> Push failed");
+        }
     },
 
     async handleConfirmDelete() {
