@@ -30,6 +30,7 @@ window.closePromptModal = function () { document.getElementById('prompt-modal')?
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
+window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
 
 // window.closeNotesModal is now handled in editor-core.js
 
@@ -45,23 +46,62 @@ document.addEventListener('DOMContentLoaded', () => {
     let tooltipTimeout;
 
     const showTooltip = (el, text) => {
-        const rect = el.getBoundingClientRect();
-        tooltip.textContent = text;
-        tooltip.classList.add('show');
+        if (!el || el.offsetWidth === 0) return;
 
-        // Centered position above the element
+        tooltip.textContent = text;
+
+        // Temporarily show to measure dimensions accurately
+        tooltip.style.display = 'block';
+        tooltip.style.visibility = 'hidden';
+        tooltip.classList.remove('show');
+
+        const rect = el.getBoundingClientRect();
         const tooltipRect = tooltip.getBoundingClientRect();
-        tooltip.style.top = `${rect.top - tooltipRect.height - 8}px`;
-        tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltipRect.width / 2)}px`;
+
+        let top = rect.top - tooltipRect.height - 10;
+        let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+        // Viewport boundaries
+        const padding = 12;
+        if (left < padding) left = padding;
+        if (left + tooltipRect.width > window.innerWidth - padding) {
+            left = window.innerWidth - tooltipRect.width - padding;
+        }
+
+        // Vertical flipping with bottom boundary check
+        if (top < padding) {
+            const bottomTop = rect.bottom + 10;
+            if (bottomTop + tooltipRect.height > window.innerHeight - padding) {
+                // If it doesn't fit at bottom either, pick the side with more space
+                if (rect.top > (window.innerHeight - rect.bottom)) {
+                    top = padding;
+                } else {
+                    top = window.innerHeight - tooltipRect.height - padding;
+                }
+            } else {
+                top = bottomTop;
+            }
+        }
+
+        tooltip.style.top = `${top}px`;
+        tooltip.style.left = `${left}px`;
+
+        // Clear measurement styles and show
+        tooltip.style.display = '';
+        tooltip.style.visibility = '';
+        tooltip.classList.add('show');
     };
 
     const hideTooltip = () => {
         tooltip.classList.remove('show');
     };
 
+    let currentTooltipTarget = null;
+
     document.addEventListener('mouseover', (e) => {
         const target = e.target.closest('[data-tooltip]');
-        if (target) {
+        if (target && target !== currentTooltipTarget) {
+            currentTooltipTarget = target;
             clearTimeout(tooltipTimeout);
             tooltipTimeout = setTimeout(() => showTooltip(target, target.getAttribute('data-tooltip')), 400);
         }
@@ -69,7 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('mouseout', (e) => {
         const target = e.target.closest('[data-tooltip]');
-        if (target) {
+        const related = e.relatedTarget?.closest?.('[data-tooltip]');
+
+        if (target && target !== related) {
+            currentTooltipTarget = null;
             clearTimeout(tooltipTimeout);
             hideTooltip();
         }
@@ -154,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('manage-modal-close')?.addEventListener('click', window.closeManageModal);
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
+    document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
 
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
@@ -220,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
             if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
+            if (document.getElementById('transfer-modal')?.classList.contains('show')) { window.closeTransferModal(); return; }
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
