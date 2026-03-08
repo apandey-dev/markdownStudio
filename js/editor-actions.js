@@ -116,6 +116,22 @@ window.EditorActions = {
             });
         });
 
+        // Export Format Toggle
+        document.querySelectorAll('#export-format-toggle .mode-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const format = e.currentTarget.getAttribute('data-format');
+                document.querySelectorAll('#export-format-toggle .mode-tab').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                const pdfOptions = document.getElementById('pdf-export-options');
+                if (format === 'pdf') {
+                    pdfOptions.style.display = 'block';
+                } else {
+                    pdfOptions.style.display = 'none';
+                }
+            });
+        });
+
         // Browse File
         document.getElementById('btn-browse-file')?.addEventListener('click', () => {
             document.getElementById('transfer-import-file').click();
@@ -159,7 +175,13 @@ window.EditorActions = {
         // Execute Export
         document.getElementById('btn-execute-export')?.addEventListener('click', () => {
             const filename = document.getElementById('export-filename-input').value.trim();
-            this.handleExportMd(filename);
+            const format = document.querySelector('#export-format-toggle .mode-tab.active').getAttribute('data-format');
+
+            if (format === 'pdf') {
+                this.handlePdfExport(filename);
+            } else {
+                this.handleExportMd(filename);
+            }
             window.closeTransferModal();
         });
     },
@@ -423,9 +445,9 @@ window.EditorActions = {
         if (window.lucide) lucide.createIcons();
     },
 
-    handlePdfExport() {
+    handlePdfExport(customFilename = null) {
         const inputFilename = document.getElementById('pdf-filename');
-        let fileName = inputFilename.value.trim() || window.EditorState.getActiveNote().title || "Document";
+        let fileName = customFilename || inputFilename.value.trim() || window.EditorState.getActiveNote().title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();
 
         const style = document.createElement('style');

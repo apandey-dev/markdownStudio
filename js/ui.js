@@ -408,24 +408,59 @@ document.addEventListener('DOMContentLoaded', () => {
         window.selectedPageSize = val;
     });
 
+    setupStaticDropdown('transfer-size-dropdown', 'transfer-size-selected-text', (val) => {
+        window.selectedPageSize = val;
+    });
+
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
+    const previewPanel = document.getElementById('preview-panel');
     const container = document.getElementById('split-workspace');
+    const restoreLeft = document.getElementById('restore-left');
+    const restoreRight = document.getElementById('restore-right');
     let isDragging = false;
+    let dragRaf;
 
     if (divider && editorPanel && container) {
         divider.addEventListener('mousedown', () => {
             isDragging = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
+            container.classList.add('is-resizing');
         });
 
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            let newWidthPercentage = ((e.clientX - container.getBoundingClientRect().left) / container.getBoundingClientRect().width) * 100;
-            if (newWidthPercentage < 20) newWidthPercentage = 20;
-            if (newWidthPercentage > 80) newWidthPercentage = 80;
-            editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
+
+            if (dragRaf) cancelAnimationFrame(dragRaf);
+
+            dragRaf = requestAnimationFrame(() => {
+                const containerRect = container.getBoundingClientRect();
+                let newWidthPercentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+
+                if (newWidthPercentage <= 5) {
+                    // Collapse to Preview Only
+                    document.body.classList.add('view-preview');
+                    document.body.classList.remove('view-editor');
+                    restoreLeft.style.display = 'flex';
+                    restoreRight.style.display = 'none';
+                    isDragging = false;
+                    document.body.style.cursor = 'default';
+                } else if (newWidthPercentage >= 95) {
+                    // Collapse to Editor Only
+                    document.body.classList.add('view-editor');
+                    document.body.classList.remove('view-preview');
+                    restoreRight.style.display = 'flex';
+                    restoreLeft.style.display = 'none';
+                    isDragging = false;
+                    document.body.style.cursor = 'default';
+                } else {
+                    document.body.classList.remove('view-editor', 'view-preview');
+                    restoreLeft.style.display = 'none';
+                    restoreRight.style.display = 'none';
+                    editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
+                }
+            });
         });
 
         document.addEventListener('mouseup', () => {
@@ -433,8 +468,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 isDragging = false;
                 document.body.style.cursor = 'default';
                 document.body.style.userSelect = 'auto';
+                container.classList.remove('is-resizing');
             }
         });
+
+        const restoreSplit = () => {
+            document.body.classList.remove('view-editor', 'view-preview');
+            editorPanel.style.flex = '0 0 50%';
+            restoreLeft.style.display = 'none';
+            restoreRight.style.display = 'none';
+            if (window.lucide) lucide.createIcons();
+
+            // Update view buttons UI
+            document.querySelectorAll('.view-btn').forEach(b => {
+                b.classList.remove('active');
+                if (b.getAttribute('data-view') === 'split') b.classList.add('active');
+            });
+        };
+
+        restoreLeft?.addEventListener('click', restoreSplit);
+        restoreRight?.addEventListener('click', restoreSplit);
     }
 
     const applyTheme = (themeName) => {

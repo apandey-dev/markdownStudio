@@ -372,6 +372,15 @@ window.EditorCore = {
                 nTitle.style.cursor = 'pointer';
 
                 nTitle.addEventListener('click', async () => {
+                    if (isSelectMode) {
+                        const cb = noteRow.querySelector('.manage-checkbox');
+                        if (cb) {
+                            cb.checked = !cb.checked;
+                            cb.dispatchEvent(new Event('change'));
+                        }
+                        return;
+                    }
+
                     window.EditorState.activeNoteId = note.id;
                     this.highlightedNoteId = note.id;
                     window.EditorState.activeFolder = note.folder || 'All Notes';
@@ -664,7 +673,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Editor Events
         editor.addEventListener('input', () => {
             window.EditorCore.dynamicDebounce(editor.value);
+            window.EditorCore.updateLineCol(editor);
         });
+
+        editor.addEventListener('click', () => window.EditorCore.updateLineCol(editor));
+        editor.addEventListener('keyup', () => window.EditorCore.updateLineCol(editor));
 
         editor.addEventListener('keydown', function (e) {
             if (e.key === 'Tab') {
