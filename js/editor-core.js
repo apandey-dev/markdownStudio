@@ -226,131 +226,91 @@ window.EditorCore = {
 
         window.EditorState.extractFoldersFromNotes();
 
-        // Mobile optimization: Flat list view
-        if (window.innerWidth <= 768) {
-            const listContainer = document.createElement('div');
-            listContainer.className = 'dashboard-notes-list-flat';
-            listContainer.style.display = 'flex';
-            listContainer.style.flexDirection = 'column';
-            listContainer.style.gap = '8px';
+        // Sort folders to keep "All Notes" at the top
+        const sortedFolders = [...window.EditorState.folders].sort((a, b) => {
+            if (a === 'All Notes') return -1;
+            if (b === 'All Notes') return 1;
+            return a.localeCompare(b);
+        });
 
-            window.EditorState.notes.forEach(note => {
+        sortedFolders.forEach(folder => {
+            const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
+
+            // Skip empty folders unless it's "All Notes"
+            if (folder !== 'All Notes' && folderNotes.length === 0) return;
+
+            const folderSection = document.createElement('div');
+            folderSection.className = 'dashboard-folder-section';
+
+            const folderTitle = document.createElement('div');
+            folderTitle.className = 'dashboard-folder-title collapsible';
+            folderTitle.innerHTML = `
+                <i data-lucide="chevron-down" class="collapse-icon"></i>
+                <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i>
+                <span class="truncate-text">${folder}</span>
+                <span style="margin-left: auto; font-size: 0.7rem; opacity: 0.4; font-weight: 600;">${folderNotes.length}</span>
+            `;
+
+            const notesList = document.createElement('div');
+            notesList.className = 'dashboard-notes-list collapsed';
+
+            folderTitle.addEventListener('click', (e) => {
+                const isCollapsed = notesList.classList.toggle('collapsed');
+                const chevron = folderTitle.querySelector('.collapse-icon');
+                if (chevron) chevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+            });
+
+            folderNotes.forEach(note => {
                 const noteRow = document.createElement('div');
                 noteRow.className = 'dashboard-note-row';
                 if (note.id === window.EditorState.activeNoteId) noteRow.classList.add('active');
 
-                noteRow.style.backgroundColor = 'var(--nav-bg)';
-                noteRow.style.border = '1px solid var(--border-color)';
-                noteRow.style.borderRadius = '16px';
-                noteRow.style.padding = '16px 20px';
-                noteRow.style.display = 'flex';
-                noteRow.style.alignItems = 'center';
-                noteRow.style.gap = '12px';
-
                 const noteInfo = document.createElement('div');
                 noteInfo.className = 'dashboard-note-info';
-                noteInfo.style.flex = '1';
-                noteInfo.style.overflow = 'hidden';
-                noteInfo.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <i data-lucide="file-text" style="color: var(--accent-color); width: 20px; height: 20px;"></i>
-                        <div style="display:flex; flex-direction:column; overflow:hidden;">
-                            <span style="font-weight: 700; font-size: 1rem; color: var(--text-color);" class="truncate-text">${note.title}</span>
-                            <span style="font-size: 0.75rem; opacity: 0.5; font-weight: 600;">${note.folder || 'All Notes'}</span>
-                        </div>
-                    </div>
-                `;
+                noteInfo.innerHTML = `<i data-lucide="file-text" style="opacity: 0.5;"></i> <span class="truncate-text">${note.title}</span>`;
+
+                const actions = document.createElement('div');
+                actions.className = 'dashboard-note-actions';
 
                 const openBtn = document.createElement('button');
                 openBtn.className = 'dashboard-action-btn btn-open';
                 openBtn.innerHTML = '<i data-lucide="external-link"></i>';
-                openBtn.style.width = '44px';
-                openBtn.style.height = '44px';
-                openBtn.style.borderRadius = '12px';
-
-                const openNoteFunc = async () => {
+                openBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
                     window.EditorState.activeNoteId = note.id;
                     const editor = document.getElementById('markdown-input');
                     editor.value = note.content;
                     await window.EditorState.saveLocalState();
                     this.renderMarkdownCore(note.content);
                     window.closeNotesModal();
-                };
-
-                noteRow.addEventListener('click', openNoteFunc);
-                noteRow.appendChild(noteInfo);
-                noteRow.appendChild(openBtn);
-                listContainer.appendChild(noteRow);
-            });
-            container.appendChild(listContainer);
-        } else {
-            // Desktop: Folders view
-            const sortedFolders = [...window.EditorState.folders].sort((a, b) => {
-                if (a === 'All Notes') return -1;
-                if (b === 'All Notes') return 1;
-                return a.localeCompare(b);
-            });
-
-            sortedFolders.forEach(folder => {
-                const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
-                if (folder !== 'All Notes' && folderNotes.length === 0) return;
-
-                const folderSection = document.createElement('div');
-                folderSection.className = 'dashboard-folder-section';
-
-                const folderTitle = document.createElement('div');
-                folderTitle.className = 'dashboard-folder-title';
-                folderTitle.innerHTML = `
-                    <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i>
-                    <span class="truncate-text">${folder}</span>
-                    <span style="margin-left: auto; font-size: 0.7rem; opacity: 0.4; font-weight: 600;">${folderNotes.length}</span>
-                `;
-
-                const notesList = document.createElement('div');
-                notesList.className = 'dashboard-notes-list';
-
-                folderNotes.forEach(note => {
-                    const noteRow = document.createElement('div');
-                    noteRow.className = 'dashboard-note-row';
-                    if (note.id === window.EditorState.activeNoteId) noteRow.classList.add('active');
-
-                    const noteInfo = document.createElement('div');
-                    noteInfo.className = 'dashboard-note-info';
-                    noteInfo.innerHTML = `<i data-lucide="file-text" style="opacity: 0.5;"></i> <span class="truncate-text">${note.title}</span>`;
-
-                    const actions = document.createElement('div');
-                    actions.className = 'dashboard-note-actions';
-
-                    const openBtn = document.createElement('button');
-                    openBtn.className = 'dashboard-action-btn btn-open';
-                    openBtn.innerHTML = '<i data-lucide="external-link"></i>';
-
-                    const openNoteFunc = async () => {
-                        window.EditorState.activeNoteId = note.id;
-                        const editor = document.getElementById('markdown-input');
-                        editor.value = note.content;
-                        await window.EditorState.saveLocalState();
-                        this.renderMarkdownCore(note.content);
-                        window.closeNotesModal();
-                    };
-
-                    openBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openNoteFunc();
-                    });
-
-                    actions.appendChild(openBtn);
-                    noteRow.appendChild(noteInfo);
-                    noteRow.appendChild(actions);
-                    noteRow.addEventListener('click', openNoteFunc);
-                    notesList.appendChild(noteRow);
                 });
 
-                folderSection.appendChild(folderTitle);
-                folderSection.appendChild(notesList);
-                container.appendChild(folderSection);
+                actions.appendChild(openBtn);
+
+                noteRow.appendChild(noteInfo);
+                noteRow.appendChild(actions);
+
+                noteRow.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768) {
+                        // On mobile, just open the note on click for minimal UX
+                        openBtn.click();
+                    } else {
+                        document.querySelectorAll('.dashboard-note-row').forEach(r => r.classList.remove('active'));
+                        noteRow.classList.add('active');
+                    }
+                });
+
+                notesList.appendChild(noteRow);
             });
-        }
+
+            folderSection.appendChild(folderTitle);
+            folderSection.appendChild(notesList);
+            container.appendChild(folderSection);
+
+            // Initial state for chevron (collapsed)
+            const initialChevron = folderTitle.querySelector('.collapse-icon');
+            if (initialChevron) initialChevron.style.transform = 'rotate(-90deg)';
+        });
 
         if (window.lucide) lucide.createIcons();
     },
