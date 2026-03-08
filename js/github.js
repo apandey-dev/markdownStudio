@@ -102,7 +102,7 @@ const GitHubBackend = {
         if (!treeRes.ok) return [];
         const treeData = await treeRes.json();
         
-        return treeData.tree ? treeData.tree.filter(item => item.type === 'blob' && item.path.endsWith('.md')) : [];
+        return treeData.tree ? treeData.tree.filter(item => item.type === 'blob' && item.path.startsWith('notes/') && item.path.endsWith('.md')) : [];
     },
 
     async getAllNotes() {
@@ -126,7 +126,9 @@ const GitHubBackend = {
                         const contentData = await contentRes.json();
                         const rawContent = this.b64_to_utf8(contentData.content || "");
                         
-                        const parts = file.path.split('/');
+                        // Extract path excluding the 'notes/' prefix
+                        const relPath = file.path.substring(6); // Remove 'notes/'
+                        const parts = relPath.split('/');
                         const title = parts.pop().replace('.md', '');
                         const folder = parts.length > 0 ? parts.join('/') : 'All Notes';
                         

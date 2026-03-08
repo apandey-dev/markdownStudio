@@ -253,18 +253,25 @@ window.EditorState = {
     generatePath(folderName, title) {
         let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
         if (!safeTitle) safeTitle = 'Untitled Note';
-        if (folderName === 'All Notes') return `${safeTitle}.md`;
-        return `${folderName}/${safeTitle}.md`;
+        let relPath = folderName === 'All Notes' ? `${safeTitle}.md` : `${folderName}/${safeTitle}.md`;
+        return `notes/${relPath}`;
     },
 
     loadAutoSave() {
-        // Auto Save is now always true.
-        this.autoSave = true;
+        const saved = localStorage.getItem('md_auto_save');
+        this.autoSave = saved === null ? true : saved === 'true';
+        this.applyAutoSaveUI();
     },
 
-    saveAutoSave() {
-        // Auto Save is always enabled.
-        this.autoSave = true;
+    saveAutoSave(val) {
+        this.autoSave = val;
+        localStorage.setItem('md_auto_save', val);
+        this.applyAutoSaveUI();
+    },
+
+    applyAutoSaveUI() {
+        const btn = document.getElementById('btn-save-progress');
+        if (btn) btn.style.display = this.autoSave ? 'none' : 'flex';
     },
 
     loadUIVisibility() {
@@ -378,7 +385,15 @@ window.EditorState = {
         const editor = document.getElementById('markdown-input');
         if (this.appMode === targetMode && editor.disabled === false) return;
 
-        if (this.notes.length > 0) await this.saveLocalState();
+        if (this.notes.length > 0) {
+            // Ensure current work is saved before switching
+            const currentNote = this.getActiveNote();
+            if (currentNote && editor.value !== currentNote.content) {
+                currentNote.content = editor.value;
+                currentNote.lastUpdated = Date.now();
+            }
+            await this.saveLocalState();
+        }
 
         if (targetMode === 'github') {
             const token = localStorage.getItem('md_github_token');
@@ -423,8 +438,9 @@ window.EditorState = {
                 if (cloudNotes.length > 0) {
                     this.notes = cloudNotes;
                 } else {
-                    const result = await GitHubBackend.saveNote('new', 'Welcome.md', "Welcome", this.defaultWelcomeNote);
-                    this.notes = [{ id: result?.sha || 'temp', path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
+                    const welcomePath = this.generatePath('All Notes', 'Welcome');
+                    const result = await GitHubBackend.saveNote('new', welcomePath, "Welcome", this.defaultWelcomeNote);
+                    this.notes = [{ id: result?.sha || 'temp', path: welcomePath, folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
                 }
                 this.activeNoteId = this.notes[0]?.id;
             } else {
@@ -473,7 +489,8 @@ window.EditorState = {
             this.activeNoteId = localStorage.getItem('md_active_local') || this.notes[0]?.id;
         } else {
             const id = Date.now().toString();
-            this.notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
+            const welcomePath = this.generatePath('All Notes', 'Welcome');
+            this.notes = [{ id: id, path: welcomePath, folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
             this.folders = ['All Notes'];
             this.activeNoteId = id;
             await this.saveLocalState();
