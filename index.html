@@ -50,6 +50,9 @@
 
         <div class="actions">
             <div class="action-pill-group mobile-only">
+                <button id="mobile-settings-btn" class="pill-action-btn" data-tooltip="Settings">
+                    <i data-lucide="settings"></i>
+                </button>
                 <button id="mobile-view-toggle" class="pill-action-btn" data-tooltip="Toggle Preview">
                     <i data-lucide="eye"></i>
                 </button>
@@ -66,22 +69,16 @@
             </div>
 
             <div class="action-pill-group desktop-only">
-                <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes" data-tooltip="Note Dashboard">
+                <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes" data-tooltip="Notes">
                     <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-manage" class="pill-action-btn" data-tooltip="Manage Workspace">
-                    <i data-lucide="folder-tree" style="width: 16px; height: 16px;"></i>
-                </button>
-                <button id="btn-share" class="pill-action-btn" data-tooltip="Generate Secure Link">
+                <button id="btn-share" class="pill-action-btn" data-tooltip="Share">
                     <i data-lucide="share-2" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export to PDF">
+                <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export">
                     <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-transfer" class="pill-action-btn" data-tooltip="Transfer Notes (Import/Export)">
-                    <i data-lucide="arrow-left-right" style="width: 16px; height: 16px;"></i>
-                </button>
-                <button id="btn-docs" class="pill-action-btn" data-tooltip="Documentation">
+                <button id="btn-docs" class="pill-action-btn" data-tooltip="Docs">
                     <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
                 </button>
                 <button id="btn-settings" class="pill-action-btn" data-tooltip="Settings">
@@ -122,7 +119,10 @@
 
             <div class="sidebar-links">
                 <div class="sidebar-section-title">WORKSPACE</div>
-                <div id="dynamic-sidebar-folders" style="display:flex; flex-direction:column; gap:8px;"></div>
+                <button class="sidebar-btn modal-trigger-notes" id="sidebar-btn-notes-mobile"><i data-lucide="library"></i> All Notes</button>
+
+                <div class="sidebar-section-title">TOOLS</div>
+                <button class="sidebar-btn" id="sidebar-btn-transfer-mobile"><i data-lucide="upload"></i> Export</button>
             </div>
         </div>
     </div>
@@ -264,540 +264,224 @@
         </div>
     </main>
 
-    <!-- Transfer Notes Modal (Redesigned) -->
+    <!-- Transfer Notes Modal (Simplified) -->
     <div class="modal-overlay" id="transfer-modal" style="z-index: 5000;">
-        <div class="modal-box transfer-modal-box">
-            <div class="transfer-header">
-                <h3 style="margin:0; display:flex; align-items:center; gap:8px;"><i data-lucide="arrow-left-right" style="color:var(--accent-color)"></i> Transfer Notes</h3>
+        <div class="modal-box transfer-modal-box" style="max-width: 400px; padding: 32px !important;">
+            <div class="transfer-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="margin:0; font-size: 1.3rem; font-weight: 700;">Transfer Notes</h3>
                 <button class="btn-close-dashboard" id="transfer-modal-close" style="margin:0;"><i data-lucide="x"></i></button>
             </div>
-            <div class="transfer-body" style="padding: 20px 0;">
-                <div class="transfer-section">
-                    <h4 style="margin:0 0 8px 0;">Import Markdown</h4>
-                    <p style="margin:0 0 16px 0; font-size:0.85rem; opacity:0.7;">Select .md files to import into your workspace.</p>
-                    <input type="file" id="import-markdown-input" accept=".md" multiple style="display: none;">
-                    <button class="modal-btn btn-confirm" id="btn-import-md-trigger" style="width: 100%; justify-content:center;">
-                        <i data-lucide="download"></i> Choose Files
-                    </button>
-                </div>
-                <div class="transfer-divider" style="height:1px; background:var(--border-color); margin:24px 0; opacity:0.5;"></div>
-                <div class="transfer-section">
-                    <h4 style="margin:0 0 8px 0;">Export Markdown</h4>
-                    <p style="margin:0 0 16px 0; font-size:0.85rem; opacity:0.7;">Download your current note as a Markdown file.</p>
-                    <button class="modal-btn btn-confirm" id="btn-export-md" style="width: 100%; background: var(--toggle-track); color: var(--text-color); justify-content:center;">
-                        <i data-lucide="upload"></i> Download .md
-                    </button>
-                </div>
+
+            <div class="transfer-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="sidebar-btn" id="btn-import-md-trigger" style="background-color: var(--hover-bg) !important; border: 1px solid var(--border-color) !important; min-height: 60px; border-radius: 16px !important; justify-content: flex-start; padding: 0 20px !important; width: 100%; display: flex; align-items: center; gap: 16px; color: var(--text-color);">
+                    <i data-lucide="download" style="color: #3b82f6; width: 24px; height: 24px;"></i>
+                    <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
+                        <span style="font-weight: 700; font-size: 1rem;">Import Markdown</span>
+                        <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 500;">Upload .md files</span>
+                    </div>
+                </button>
+                <input type="file" id="import-markdown-input" accept=".md" multiple style="display: none;">
+
+                <button class="sidebar-btn" id="btn-export-md" style="background-color: var(--hover-bg) !important; border: 1px solid var(--border-color) !important; min-height: 60px; border-radius: 16px !important; justify-content: flex-start; padding: 0 20px !important; width: 100%; display: flex; align-items: center; gap: 16px; color: var(--text-color);">
+                    <i data-lucide="upload" style="color: #10b981; width: 24px; height: 24px;"></i>
+                    <div style="display: flex; flex-direction: column; text-align: left; gap: 2px;">
+                        <span style="font-weight: 700; font-size: 1rem;">Export Markdown</span>
+                        <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 500;">Download current note</span>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Settings Modal -->
+    <!-- Settings Modal (Collapsible Groups, No Sidebar) -->
     <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
         <div class="modal-box settings-modal-box">
-            <div class="settings-container">
-                <nav class="settings-nav">
-                    <div class="settings-nav-item active" data-section="general">
-                        <i data-lucide="settings-2"></i> General
-                    </div>
-                    <div class="settings-nav-item" data-section="ui">
-                        <i data-lucide="layout"></i> UI Components
-                    </div>
-                    <div class="settings-nav-item" data-section="editor">
-                        <i data-lucide="file-edit"></i> Editor Toolbar
-                    </div>
-                    <div class="settings-nav-item" data-section="status">
-                        <i data-lucide="mouse-pointer"></i> Bottom Status Bar
-                    </div>
-                    <div class="settings-nav-item" data-section="feedback">
-                        <i data-lucide="message-square"></i> UI Feedback
-                    </div>
-                </nav>
-
-                <!-- General Category -->
-                <div class="settings-content active" id="settings-section-general">
-                    <div class="settings-content-header">
-                        <h3>General Settings</h3>
-                        <p>Core application behavior and preferences.</p>
-                    </div>
-                    <div class="settings-collapsible-area">
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="save"></i> <span>Storage & Saving</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Auto Save Notes</span>
-                                        <span class="setting-card-desc">Automatically persist changes as you type.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-auto-save" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
-                </div>
-
-                <!-- UI Components Category -->
-                <div class="settings-content" id="settings-section-ui">
-                    <div class="settings-content-header">
-                        <h3>UI Components</h3>
-                        <p>Manage visibility of main application areas.</p>
-                    </div>
-                    <div class="settings-collapsible-area">
-                        <!-- Top App Bar Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="layout-panel-top"></i> <span>Top App Bar</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Mode Control</span>
-                                        <span class="setting-card-desc">Local / Cloud Mode Toggle Pill</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-nav-mode" checked data-component="#nav-mode-toggle">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Notes Button</span>
-                                        <span class="setting-card-desc">Toggle Note Dashboard access.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-nav-notes" checked data-component="#btn-notes-desktop">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Share Button</span>
-                                        <span class="setting-card-desc">Toggle Secure Share link generator.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-nav-share" checked data-component="#btn-share">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Export Button</span>
-                                        <span class="setting-card-desc">Toggle PDF Export action.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-nav-pdf" checked data-component="#btn-pdf">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Transfer Button</span>
-                                        <span class="setting-card-desc">Toggle Import/Export access.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-nav-transfer" checked data-component="#btn-transfer">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Docs Button</span>
-                                        <span class="setting-card-desc">Toggle Documentation access.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-nav-docs" checked data-component="#btn-docs">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Editor Toolbar Visibility -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="trello"></i> <span>Editor Toolbar</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Always Show Toolbar</span>
-                                        <span class="setting-card-desc">Master toggle for the formatting belt.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-editor-toolbar" checked data-component=".editor-toolbar">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Editor View Controls Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="columns"></i> <span>Editor View Controls</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Editor Only View</span>
-                                        <span class="setting-card-desc">Toggle Editor View button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-view-editor" checked data-component=".view-btn[data-view='editor']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Preview Only View</span>
-                                        <span class="setting-card-desc">Toggle Preview View button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-view-preview" checked data-component=".view-btn[data-view='preview']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Split View</span>
-                                        <span class="setting-card-desc">Toggle Split View button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-view-split" checked data-component=".view-btn[data-view='split']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Bottom Status Bar Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="minus"></i> <span>Bottom Status Bar</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Always Show Bar</span>
-                                        <span class="setting-card-desc">Master toggle for the bottom status area.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-bottom-toolbar" checked data-component=".status-bar">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
-                </div>
-
-                <!-- Editor Toolbar Category -->
-                <div class="settings-content" id="settings-section-editor">
-                    <div class="settings-content-header">
-                        <h3>Editor Toolbar</h3>
-                        <p>Customize specific tools in the formatting belt.</p>
-                    </div>
-                    <div class="settings-collapsible-area">
-                        <!-- Formatting Tools Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="type"></i> <span>Formatting Tools</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Bold</span>
-                                        <span class="setting-card-desc">Toggle Bold formatting button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-bold" checked data-component=".tool-btn[data-action='bold']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Italic</span>
-                                        <span class="setting-card-desc">Toggle Italic formatting button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-italic" checked data-component=".tool-btn[data-action='italic']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Heading</span>
-                                        <span class="setting-card-desc">Toggle Heading tools.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-heading" checked data-component=".tool-btn[data-action='heading']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Alignment Tools Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="align-center"></i> <span>Alignment Tools</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Align Left</span>
-                                        <span class="setting-card-desc">Toggle Align Left button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-align-left" checked data-component=".tool-btn[data-action='align-left']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Align Center</span>
-                                        <span class="setting-card-desc">Toggle Align Center button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-align-center" checked data-component=".tool-btn[data-action='align-center']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Align Right</span>
-                                        <span class="setting-card-desc">Toggle Align Right button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-align-right" checked data-component=".tool-btn[data-action='align-right']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Insert Tools Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="plus-square"></i> <span>Insert Tools</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Insert Link</span>
-                                        <span class="setting-card-desc">Toggle Link insert button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-link" checked data-component=".tool-btn[data-action='link'], .tool-btn[data-action='note-link']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Insert Image</span>
-                                        <span class="setting-card-desc">Toggle Image insert button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-image" checked data-component=".tool-btn[data-action='image']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Code Block</span>
-                                        <span class="setting-card-desc">Toggle Code block button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-code" checked data-component=".tool-btn[data-action='code']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Table</span>
-                                        <span class="setting-card-desc">Toggle Table insert button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-table" checked data-component=".tool-btn[data-action='table']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Math</span>
-                                        <span class="setting-card-desc">Toggle Math formula button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-math" checked data-component=".tool-btn[data-action='math']">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Editor Controls Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="settings-2"></i> <span>Editor Controls</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Font Picker</span>
-                                        <span class="setting-card-desc">Toggle Font selection dropdown.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-font" checked data-component="#font-dropdown">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Focus Mode</span>
-                                        <span class="setting-card-desc">Toggle Focus Mode button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-focus" checked data-component="#btn-focus-mode">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Sync Scroll</span>
-                                        <span class="setting-card-desc">Toggle Scroll synchronization.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-scroll" checked data-component="#btn-scroll-sync">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
-                </div>
-
-                <!-- Status Bar Category -->
-                <div class="settings-content" id="settings-section-status">
-                    <div class="settings-content-header">
-                        <h3>Bottom Status Bar</h3>
-                        <p>Customize indicators and statistics.</p>
-                    </div>
-                    <div class="settings-collapsible-area">
-                        <!-- Storage Indicators Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="database"></i> <span>Storage Indicators</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Mode Indicator</span>
-                                        <span class="setting-card-desc">Toggle Local/Cloud status text.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-status-mode" checked data-component="#active-mode-indicator">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Statistics Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="bar-chart-2"></i> <span>Statistics</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Word Count</span>
-                                        <span class="setting-card-desc">Live word count indicator.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-status-words" checked data-component="#stat-words">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Character Count</span>
-                                        <span class="setting-card-desc">Live character count indicator.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-status-chars" checked data-component="#stat-chars">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Reading Time</span>
-                                        <span class="setting-card-desc">Estimated reading time.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-status-reading" checked data-component="#stat-reading-time">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Cursor Tracking Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="mouse-pointer"></i> <span>Cursor Tracking</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Cursor Position</span>
-                                        <span class="setting-card-desc">Toggle Line and Col indicator.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-status-linecol" checked data-component="#stat-line-col">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Theme Control Section -->
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="sun"></i> <span>Theme Control</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Theme Toggle</span>
-                                        <span class="setting-card-desc">Light/Dark switcher in status bar.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-status-theme" checked data-component="#theme-toggle-desktop">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
-                </div>
-
-                <!-- UI Feedback Category -->
-                <div class="settings-content" id="settings-section-feedback">
-                    <div class="settings-content-header">
-                        <h3>UI Feedback</h3>
-                        <p>Customize global app feedback elements.</p>
-                    </div>
-                    <div class="settings-collapsible-area">
-                        <details class="settings-details-group" open>
-                            <summary class="settings-summary"><span>Feedback Settings</span></summary>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Hide Tooltips</span>
-                                        <span class="setting-card-desc">Suppress all hover tooltips globally.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-hide-tooltips">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Hide Toast Messages</span>
-                                        <span class="setting-card-desc">Suppress all toast notification popups.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-hide-toasts">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
-                </div>
+            <div class="settings-header" style="padding: 24px 32px; background-color: var(--nav-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                <h3 style="margin:0; display:flex; align-items:center; gap:8px;"><i data-lucide="settings" style="color:var(--accent-color)"></i> Settings</h3>
+                <button class="btn-close-dashboard" id="settings-modal-close-top" style="margin:0;"><i data-lucide="x"></i></button>
             </div>
-            <div class="settings-footer">
-                <button class="modal-btn btn-cancel" id="settings-modal-close">Cancel</button>
-                <button class="modal-btn btn-confirm" id="settings-modal-save-btn">Save Changes</button>
+            <div class="settings-body" style="flex:1; overflow-y:auto; padding:24px; background-color: var(--bg-color);">
+
+                <!-- UI Components -->
+                <details class="settings-details-group" open style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                    <summary class="settings-summary" style="display:flex; align-items:center; padding:12px 16px; background-color: var(--hover-bg); cursor:pointer; font-weight:600; gap:12px; color:var(--text-color); list-style:none;">
+                        <i data-lucide="layout"></i> UI Components
+                    </summary>
+                    <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border-color);">
+                            <span>Top App Bar</span>
+                            <label class="switch"><input type="checkbox" id="toggle-nav-bar" checked data-component=".navbar"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border-color);">
+                            <span>Editor Toolbar</span>
+                            <label class="switch"><input type="checkbox" id="toggle-editor-toolbar" checked data-component=".editor-toolbar"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
+                            <span>Bottom Status Bar</span>
+                            <label class="switch"><input type="checkbox" id="toggle-status-bar" checked data-component=".status-bar"><span class="slider"></span></label>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Editor Tools (Sub-categories) -->
+                <details class="settings-details-group" open style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                    <summary class="settings-summary" style="display:flex; align-items:center; padding:12px 16px; background-color: var(--hover-bg); cursor:pointer; font-weight:600; gap:12px; color:var(--text-color); list-style:none;">
+                        <i data-lucide="file-edit"></i> Editor Tools
+                    </summary>
+                    <div style="background-color: var(--nav-bg); border-top: 1px solid var(--border-color); padding: 8px;">
+
+                        <!-- Formatting Tools -->
+                        <details class="settings-details-group" style="margin-bottom: 8px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden;">
+                            <summary class="settings-summary" style="display:flex; align-items:center; padding:10px 14px; background-color: var(--bg-color); cursor:pointer; font-size:0.9rem; font-weight:600; gap:10px; list-style:none;">
+                                Formatting Tools
+                            </summary>
+                            <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Bold</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-bold" checked data-component=".tool-btn[data-action='bold']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Italic</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-italic" checked data-component=".tool-btn[data-action='italic']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+                                    <span>Heading</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-heading" checked data-component=".tool-btn[data-action='heading']"><span class="slider"></span></label>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Alignment Tools -->
+                        <details class="settings-details-group" style="margin-bottom: 8px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden;">
+                            <summary class="settings-summary" style="display:flex; align-items:center; padding:10px 14px; background-color: var(--bg-color); cursor:pointer; font-size:0.9rem; font-weight:600; gap:10px; list-style:none;">
+                                Alignment Tools
+                            </summary>
+                            <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Align Left</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-align-left" checked data-component=".tool-btn[data-action='align-left']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Align Center</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-align-center" checked data-component=".tool-btn[data-action='align-center']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+                                    <span>Align Right</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-align-right" checked data-component=".tool-btn[data-action='align-right']"><span class="slider"></span></label>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Insert Tools -->
+                        <details class="settings-details-group" style="margin-bottom: 8px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden;">
+                            <summary class="settings-summary" style="display:flex; align-items:center; padding:10px 14px; background-color: var(--bg-color); cursor:pointer; font-size:0.9rem; font-weight:600; gap:10px; list-style:none;">
+                                Insert Tools
+                            </summary>
+                            <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Link</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-link" checked data-component=".tool-btn[data-action='link'], .tool-btn[data-action='note-link']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Image</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-image" checked data-component=".tool-btn[data-action='image']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Code</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-code" checked data-component=".tool-btn[data-action='code']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Table</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-table" checked data-component=".tool-btn[data-action='table']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+                                    <span>Math</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-math" checked data-component=".tool-btn[data-action='math']"><span class="slider"></span></label>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Editor Controls -->
+                        <details class="settings-details-group" style="margin-bottom: 8px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden;">
+                            <summary class="settings-summary" style="display:flex; align-items:center; padding:10px 14px; background-color: var(--bg-color); cursor:pointer; font-size:0.9rem; font-weight:600; gap:10px; list-style:none;">
+                                Editor Controls
+                            </summary>
+                            <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Font Picker</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-font" checked data-component="#font-dropdown"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Focus Mode</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-focus" checked data-component="#btn-focus-mode"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+                                    <span>Sync Scroll</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-tool-scroll" checked data-component="#btn-scroll-sync"><span class="slider"></span></label>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Layout Mode (View Controls) -->
+                        <details class="settings-details-group" style="border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden;">
+                            <summary class="settings-summary" style="display:flex; align-items:center; padding:10px 14px; background-color: var(--bg-color); cursor:pointer; font-size:0.9rem; font-weight:600; gap:10px; list-style:none;">
+                                Layout Mode
+                            </summary>
+                            <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Editor Only</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-view-editor" checked data-component=".view-btn[data-view='editor']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border-color);">
+                                    <span>Preview Only</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-view-preview" checked data-component=".view-btn[data-view='preview']"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+                                    <span>Split View</span>
+                                    <label class="switch"><input type="checkbox" id="toggle-view-split" checked data-component=".view-btn[data-view='split']"><span class="slider"></span></label>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </details>
+
+                <!-- Status Elements -->
+                <details class="settings-details-group" open style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                    <summary class="settings-summary" style="display:flex; align-items:center; padding:12px 16px; background-color: var(--hover-bg); cursor:pointer; font-weight:600; gap:12px; color:var(--text-color); list-style:none;">
+                        <i data-lucide="bar-chart-2"></i> Status Elements
+                    </summary>
+                    <div class="settings-grid" style="display:flex; flex-direction:column; background-color: var(--nav-bg); border-top: 1px solid var(--border-color);">
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border-color);">
+                            <span>Word Count</span>
+                            <label class="switch"><input type="checkbox" id="toggle-status-words" checked data-component="#stat-words"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border-color);">
+                            <span>Character Count</span>
+                            <label class="switch"><input type="checkbox" id="toggle-status-chars" checked data-component="#stat-chars"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border-color);">
+                            <span>Cursor Position</span>
+                            <label class="switch"><input type="checkbox" id="toggle-status-linecol" checked data-component="#stat-line-col"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
+                            <span>Theme Toggle</span>
+                            <label class="switch"><input type="checkbox" id="toggle-status-theme" checked data-component="#theme-toggle-desktop"><span class="slider"></span></label>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="setting-card" style="display:flex; justify-content:space-between; align-items:center; padding:16px; background-color: var(--nav-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <span style="font-weight:700; font-size:0.95rem;">Auto Save</span>
+                        <span style="font-size:0.8rem; opacity:0.6;">Save notes automatically.</span>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="toggle-auto-save" checked><span class="slider"></span></label>
+                </div>
+
+            </div>
+            <div class="settings-footer" style="padding: 20px 32px; background-color: var(--nav-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 16px; flex-shrink: 0;">
+                <button class="modal-btn btn-cancel" id="settings-modal-close" style="padding: 10px 20px;">Cancel</button>
+                <button class="modal-btn btn-confirm" id="settings-modal-save-btn" style="padding: 10px 24px;">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1071,43 +755,31 @@
     </div>
 
 
+    <!-- Share Modal (Simplified) -->
     <div class="modal-overlay" id="share-modal" style="z-index: 5500;">
-        <div class="modal-box premium-modal" style="max-width: 480px;">
-            <div class="premium-modal-header" style="margin-bottom: 24px;">
-                <div class="premium-icon-wrapper" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i data-lucide="share-2"></i></div>
-                <h3 class="modal-title">Secure Share</h3>
-                <p class="modal-subtitle">Share an encrypted version of your note.</p>
+        <div class="modal-box share-modal-box" style="max-width: 400px; padding: 32px !important;">
+            <div class="share-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="margin:0; font-size: 1.3rem; font-weight: 700;">Share Note</h3>
+                <button class="btn-close-dashboard" id="share-modal-close" style="margin:0;"><i data-lucide="x"></i></button>
             </div>
 
             <div id="share-modal-loading" style="display: none; text-align: center; padding: 20px;">
                 <i data-lucide="loader" class="spin" style="width: 32px; height: 32px; color: var(--accent-color);"></i>
-                <p style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7;">Generating secure link...</p>
             </div>
 
             <div id="share-modal-content">
-                <div class="input-group premium-input-group">
-                    <label style="text-align: left; margin-left: 4px; font-size: 0.75rem; opacity: 0.7; font-weight: 700; text-transform: uppercase;">SHAREABLE LINK</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" class="modal-input" id="share-url-input" readonly placeholder="Generating..." style="flex: 1; text-align: left; font-size: 0.9rem;" />
-                        <button class="nav-action-btn" id="btn-copy-share" title="Copy Link" style="height: 52px; width: 52px; border-radius: 14px; padding: 0;">
-                            <i data-lucide="copy"></i>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+                    <label style="font-size: 0.8rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Shareable Link</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="share-url-input" readonly placeholder="Generating..." style="flex: 1; height: 50px; border-radius: 12px; border: 1px solid var(--border-color); padding: 0 16px; background: var(--bg-color); color: var(--text-color); font-size: 0.9rem;">
+                        <button id="btn-copy-share" style="width: 50px; height: 50px; border-radius: 12px; border: none; background: var(--accent-color); color: var(--btn-text); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <i data-lucide="copy" style="width: 20px; height: 20px;"></i>
                         </button>
                     </div>
                 </div>
-
-                <div style="background: var(--hover-bg); border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; border: 1px solid var(--border-color);">
-                    <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; opacity: 0.8;">
-                        <i data-lucide="shield-check" style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: #10b981;"></i>
-                        Your content is encrypted with a unique key. Only people with this exact link can decrypt and view it.
-                    </p>
-                </div>
-
-                <div class="modal-actions premium-actions" style="margin-top: 24px !important;">
-                    <button class="modal-btn btn-cancel" id="share-modal-close">Close</button>
-                    <button class="modal-btn btn-confirm" id="btn-reset-share" style="background-color: var(--toggle-track); color: var(--text-color);">
-                        <i data-lucide="refresh-cw"></i> Reset Link
-                    </button>
-                </div>
+                <button class="sidebar-btn" id="btn-reset-share" style="width: 100%; background-color: var(--hover-bg) !important; border: 1px solid var(--border-color) !important; border-radius: 12px !important; color: var(--text-color); justify-content: center; font-weight: 700;">
+                    Reset Secure Link
+                </button>
             </div>
         </div>
     </div>

@@ -291,14 +291,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
     // ✨ SETTINGS MODAL ✨
-    document.getElementById('btn-settings')?.addEventListener('click', () => {
+    const openSettings = () => {
         document.getElementById('settings-modal')?.classList.add('show');
-    });
+    };
+    document.getElementById('btn-settings')?.addEventListener('click', openSettings);
+    document.getElementById('mobile-settings-btn')?.addEventListener('click', openSettings);
     document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         document.getElementById('settings-modal')?.classList.add('show');
     });
     document.getElementById('settings-modal-close')?.addEventListener('click', () => {
+        initSettingsToggles();
+        window.closeSettingsModal();
+    });
+    document.getElementById('settings-modal-close-top')?.addEventListener('click', () => {
         initSettingsToggles();
         window.closeSettingsModal();
     });
@@ -311,10 +317,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('share-modal-close')?.addEventListener('click', window.closeShareModal);
     document.getElementById('btn-copy-share')?.addEventListener('click', () => {
+        const btn = document.getElementById('btn-copy-share');
         const input = document.getElementById('share-url-input');
-        if (input && input.value) {
+        if (input && input.value && btn) {
             navigator.clipboard.writeText(input.value).then(() => {
+                // Animation & Visual Feedback
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" style="color: #10b981;"></i>';
+                btn.style.transform = 'scale(1.2)';
+                if (window.lucide) lucide.createIcons();
+
                 window.showToast("<i data-lucide='check-circle'></i> Link Copied");
+
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.style.transform = '';
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
             });
         }
     });
@@ -334,9 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
     });
 
-    document.getElementById('sidebar-btn-export-mobile')?.addEventListener('click', () => {
+    document.getElementById('sidebar-btn-pdf-mobile')?.addEventListener('click', () => {
         sidebarOverlay?.classList.remove('show');
-        document.getElementById('btn-export-md')?.click();
+        document.getElementById('btn-pdf')?.click();
     });
 
     const mobileViewToggle = document.getElementById('mobile-view-toggle');

@@ -307,13 +307,13 @@ window.EditorState = {
     },
 
     applyUIVisibility() {
-        // Reset all togglable elements before applying (important for overlapping selectors)
-        const allToggleSelectors = Array.from(document.querySelectorAll('.settings-modal-box input[data-component]'))
-            .map(input => input.getAttribute('data-component'));
-
-        allToggleSelectors.forEach(selector => {
+        // Reset all togglable elements before applying
+        const allToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        allToggles.forEach(input => {
+            const selector = input.getAttribute('data-component');
             document.querySelectorAll(selector).forEach(el => {
                 el.style.display = '';
+                el.style.visibility = '';
             });
         });
 
@@ -321,31 +321,46 @@ window.EditorState = {
             const checkbox = document.getElementById(id);
             const isVisible = this.uiVisibility[id];
 
-            if (checkbox && isVisible === false) { // Only handle hiding; showing is default
+            if (checkbox && isVisible === false) {
                 const componentSelector = checkbox.getAttribute('data-component');
 
                 if (componentSelector) {
                     const elements = document.querySelectorAll(componentSelector);
                     elements.forEach(el => {
-                        // Crucial Protection: Never hide certain elements
-                        // (App Name, Settings Button, Exit Focus Button)
-                        if (el.closest('.brand') ||
-                            el.closest('#btn-settings') ||
-                            el.closest('#btn-exit-focus') ||
-                            el.closest('#btn-exit-focus-bottom')) {
-                            el.style.display = '';
-                            return;
+                        // Crucial Protection Logic
+                        const isCrucial = el.classList.contains('brand') ||
+                                        el.id === 'btn-settings' ||
+                                        el.id === 'mobile-settings-btn' ||
+                                        el.id === 'btn-exit-focus' ||
+                                        el.id === 'btn-exit-focus-bottom' ||
+                                        el.closest('.brand') ||
+                                        el.closest('#btn-settings') ||
+                                        el.closest('#mobile-settings-btn');
+
+                        if (isCrucial) return;
+
+                        // Special handling for Navbar toggle - hide non-crucial children instead of the bar itself
+                        if (id === 'toggle-nav-bar') {
+                            const children = el.querySelectorAll(':scope > *:not(.brand):not(.actions), :scope > .actions > *:not(#btn-settings):not(#btn-exit-focus)');
+                            children.forEach(child => child.style.display = 'none');
+
+                            // Also hide mobile menu button group if it doesn't contain settings
+                            const mobileMenuGrp = el.querySelector('.mobile-only');
+                            if (mobileMenuGrp && !mobileMenuGrp.contains(document.getElementById('btn-settings'))) {
+                                mobileMenuGrp.style.display = 'none';
+                            }
+                        } else {
+                            el.style.display = 'none';
                         }
-                        el.style.display = 'none';
                     });
                 }
             }
         });
 
-        // Specific recovery logic to ensure navbar is visible if at least settings/brand is there
+        // Ensure navbar is always flex to show protected items
         const navbar = document.querySelector('.navbar');
         if (navbar) {
-            navbar.style.display = '';
+            navbar.style.display = 'flex';
         }
 
         this.cleanupUIGhostElements();
