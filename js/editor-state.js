@@ -272,7 +272,12 @@ window.EditorState = {
     applyAutoSaveUI() {
         const btn = document.getElementById('btn-save-progress');
         if (btn) {
-            btn.style.display = this.autoSave ? 'none' : 'flex';
+            // On mobile, we always want to show the save button as a professional status indicator
+            if (window.innerWidth <= 768) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = this.autoSave ? 'none' : 'flex';
+            }
             // Clear states when toggling
             btn.classList.remove('unsaved', 'saved');
         }

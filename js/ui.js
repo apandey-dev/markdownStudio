@@ -334,13 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
     });
 
-    document.getElementById('sidebar-btn-share')?.addEventListener('click', () => {
+    document.getElementById('sidebar-btn-export-mobile')?.addEventListener('click', () => {
         sidebarOverlay?.classList.remove('show');
-        document.getElementById('btn-share')?.click();
-    });
-    document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => {
-        sidebarOverlay?.classList.remove('show');
-        document.getElementById('btn-pdf')?.click();
+        document.getElementById('btn-export-md')?.click();
     });
 
     const mobileViewToggle = document.getElementById('mobile-view-toggle');

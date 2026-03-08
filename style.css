@@ -729,37 +729,30 @@ textarea:disabled::placeholder {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 14px;
-    height: 48px;
-    background-color: var(--nav-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
+    width: 16px;
+    height: 52px;
+    background-color: var(--accent-color);
+    color: var(--btn-text);
+    border-radius: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     z-index: 20;
-    transition: all 0.2s ease;
-    pointer-events: none; /* Let clicks pass through to divider */
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
 }
 
 .divider:hover .divider-handle,
 .divider:active .divider-handle {
-    height: 56px;
-    border-color: var(--accent-color);
-    background-color: var(--accent-color);
-    color: var(--btn-text);
+    height: 64px;
+    width: 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .divider-handle i {
     width: 14px;
     height: 14px;
-    opacity: 0.6;
-}
-
-.divider:hover .divider-handle i,
-.divider:active .divider-handle i {
-    opacity: 1;
 }
 
 /* ✨ EDGE HANDLES ✨ */
@@ -2120,6 +2113,11 @@ body.dark-mode .btn-help-cute:hover {
     background-repeat: repeat-x;
     margin: 10px 0;
     opacity: 0.3;
+}
+
+body.dark-mode .custom-divider {
+    background-image: linear-gradient(to right, #ffffff 60%, transparent 40%), linear-gradient(to right, #ffffff 60%, transparent 40%);
+    opacity: 0.4;
 }
 
 

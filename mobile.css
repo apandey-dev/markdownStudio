@@ -154,12 +154,12 @@
 
     /* --- 4. TOOLBAR REDESIGN --- */
     .editor-toolbar {
-        height: 64px;
-        padding: 0 12px !important;
+        height: 56px;
+        padding: 0 8px !important;
         background-color: var(--nav-bg);
         border-top: 1px solid var(--border-color);
         border-bottom: 1px solid var(--border-color);
-        gap: 10px !important;
+        gap: 8px !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         flex-shrink: 0;
@@ -173,23 +173,24 @@
     }
 
     .toolbar-group {
-        background-color: var(--toggle-track);
-        border-radius: 14px;
-        padding: 4px;
+        background-color: transparent;
+        border-radius: 0;
+        padding: 0;
         display: flex;
         gap: 4px !important;
         flex-shrink: 0;
     }
 
     .tool-btn {
-        width: 44px !important;
-        height: 44px !important;
-        border-radius: 10px !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 8px !important;
         background-color: transparent !important;
-        opacity: 0.8;
+        opacity: 0.7;
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 1px solid var(--border-color) !important;
     }
 
     .tool-btn i {
@@ -238,6 +239,35 @@
         border-radius: 12px !important;
         font-size: 0.85rem !important;
         font-weight: 600;
+    }
+
+    /* Professional Text-Based Save Button for Mobile */
+    #btn-save-progress {
+        width: auto !important;
+        height: 38px !important;
+        padding: 0 16px !important;
+        border-radius: 20px !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--accent-color) !important;
+        color: var(--btn-text) !important;
+    }
+
+    #btn-save-progress::after {
+        content: 'Save';
+    }
+
+    #btn-save-progress.unsaved {
+        background-color: #ff9f0a !important;
+        color: #000 !important;
+    }
+
+    #btn-save-progress.saved {
+        background-color: #30d158 !important;
+        color: #000 !important;
     }
 
     #active-mode-indicator {
