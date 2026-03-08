@@ -41,39 +41,42 @@
     </script>
 
     <header class="navbar">
-        <button id="mobile-menu-btn" class="mobile-only" title="Menu"><i data-lucide="menu"></i></button>
+        <button id="mobile-menu-btn" class="mobile-only" data-tooltip="Menu"><i data-lucide="menu"></i></button>
         <div class="brand">Markdown Studio</div>
 
         <div class="actions">
-            <button id="mobile-view-toggle" class="mobile-only" title="Toggle Preview">
+            <button id="mobile-view-toggle" class="mobile-only" data-tooltip="Toggle Preview">
                 <i data-lucide="eye"></i>
             </button>
 
             <div class="mode-toggle desktop-only" id="nav-mode-toggle">
-                <button class="mode-tab active" data-target="local" id="nav-tab-local">
+                <button class="mode-tab active" data-target="local" id="nav-tab-local" data-tooltip="Switch to Local Mode">
                     <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> <span
                         class="tab-text">Local</span>
                 </button>
-                <button class="mode-tab" data-target="github" id="nav-tab-github">
+                <button class="mode-tab" data-target="github" id="nav-tab-github" data-tooltip="Switch to Cloud Mode">
                     <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> <span class="tab-text">Cloud</span>
                 </button>
             </div>
 
             <div class="action-pill-group desktop-only">
-                <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes" title="Note Dashboard">
+                <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes" data-tooltip="Note Dashboard">
                     <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-manage" class="pill-action-btn" title="Manage Workspace">
+                <button id="btn-manage" class="pill-action-btn" data-tooltip="Manage Workspace">
                     <i data-lucide="folder-tree" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-share" class="pill-action-btn" title="Generate Secure Link">
+                <button id="btn-share" class="pill-action-btn" data-tooltip="Generate Secure Link">
                     <i data-lucide="share-2" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-pdf" class="pill-action-btn" title="Export to PDF">
+                <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export to PDF">
                     <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-docs" class="pill-action-btn" title="View Documentation">
+                <button id="btn-docs" class="pill-action-btn" data-tooltip="View Documentation">
                     <i data-lucide="book" style="width: 16px; height: 16px;"></i>
+                </button>
+                <button id="btn-exit-focus" class="pill-action-btn" data-tooltip="Exit Focus Mode" style="display: none;">
+                    <i data-lucide="minimize"></i>
                 </button>
             </div>
         </div>
@@ -128,29 +131,32 @@
 
     <main class="app-container">
         <div class="editor-toolbar">
-            <button class="tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
-            <button class="tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
-            <button class="tool-btn" data-action="heading" title="Heading"><i data-lucide="heading"></i></button>
+            <div class="toolbar-group">
+                <button class="tool-btn" data-action="bold" data-tooltip="Bold"><i data-lucide="bold"></i></button>
+                <button class="tool-btn" data-action="italic" data-tooltip="Italic"><i data-lucide="italic"></i></button>
+                <button class="tool-btn" data-action="heading" data-tooltip="Heading"><i data-lucide="heading"></i></button>
+            </div>
+
             <div class="toolbar-divider"></div>
-            <button class="tool-btn" data-action="align-left" title="Align Left"><i
+            <button class="tool-btn" data-action="align-left" data-tooltip="Align Left"><i
                     data-lucide="align-left"></i></button>
-            <button class="tool-btn" data-action="align-center" title="Align Center"><i
+            <button class="tool-btn" data-action="align-center" data-tooltip="Align Center"><i
                     data-lucide="align-center"></i></button>
-            <button class="tool-btn" data-action="align-right" title="Align Right"><i
+            <button class="tool-btn" data-action="align-right" data-tooltip="Align Right"><i
                     data-lucide="align-right"></i></button>
             <div class="toolbar-divider"></div>
-            <button class="tool-btn" data-action="note-link" title="Link to another Note"><i
+            <button class="tool-btn" data-action="note-link" data-tooltip="Link to another Note"><i
                     data-lucide="file-symlink"></i></button>
-            <button class="tool-btn" data-action="link" title="Web Link"><i data-lucide="link"></i></button>
-            <button class="tool-btn" data-action="image" title="Image"><i data-lucide="image"></i></button>
-            <button class="tool-btn" data-action="code" title="Code Block"><i data-lucide="code"></i></button>
-            <button class="tool-btn" data-action="table" title="Table"><i data-lucide="table"></i></button>
-            <button class="tool-btn" data-action="math" title="Math Formula"><i data-lucide="sigma"></i></button>
+            <button class="tool-btn" data-action="link" data-tooltip="Web Link"><i data-lucide="link"></i></button>
+            <button class="tool-btn" data-action="image" data-tooltip="Image"><i data-lucide="image"></i></button>
+            <button class="tool-btn" data-action="code" data-tooltip="Code Block"><i data-lucide="code"></i></button>
+            <button class="tool-btn" data-action="table" data-tooltip="Table"><i data-lucide="table"></i></button>
+            <button class="tool-btn" data-action="math" data-tooltip="Math Formula"><i data-lucide="sigma"></i></button>
 
             <div class="toolbar-divider desktop-only"></div>
 
             <div class="custom-dropdown desktop-only" id="font-dropdown" style="margin-right: 4px;">
-                <div class="dropdown-header">
+                <div class="dropdown-header" data-tooltip="Change Font">
                     <span id="font-selected-text">Fredoka</span>
                     <span class="chevron"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></span>
                 </div>
@@ -168,11 +174,11 @@
 
             <div class="toolbar-spacer"></div>
 
-            <button class="tool-btn desktop-only" id="btn-focus-mode" title="Focus Mode" style="margin-right: 8px;">
+            <button class="tool-btn desktop-only" id="btn-focus-mode" data-tooltip="Focus Mode" style="margin-right: 8px;">
                 <i data-lucide="scan"></i>
             </button>
 
-            <button class="tool-btn active desktop-only" id="btn-scroll-sync" title="Toggle Scroll Sync"
+            <button class="tool-btn active desktop-only" id="btn-scroll-sync" data-tooltip="Toggle Scroll Sync"
                 style="margin-right: 8px;">
                 <i data-lucide="arrow-down-up"></i>
             </button>
@@ -180,18 +186,18 @@
 
             <div class="desktop-only"
                 style="display: flex; gap: 4px; border: 1px solid var(--border-color); border-radius: 8px; padding: 2px;">
-                <button class="tool-btn view-btn" data-view="editor" title="Editor Only"><i
+                <button class="tool-btn view-btn" data-view="editor" data-tooltip="Editor Only"><i
                         data-lucide="file-edit"></i></button>
-                <button class="tool-btn view-btn active" data-view="split" title="Split View"><i
+                <button class="tool-btn view-btn active" data-view="split" data-tooltip="Split View"><i
                         data-lucide="columns"></i></button>
-                <button class="tool-btn view-btn" data-view="preview" title="Preview Only"><i
+                <button class="tool-btn view-btn" data-view="preview" data-tooltip="Preview Only"><i
                         data-lucide="monitor"></i></button>
             </div>
             <div class="toolbar-divider desktop-only"></div>
 
             <input type="file" id="import-file" accept=".md,.txt" style="display: none;" />
-            <button class="tool-btn" id="btn-import-md" title="Import .md file"><i data-lucide="file-up"></i></button>
-            <button class="tool-btn" id="btn-export-md" title="Download .md file"><i
+            <button class="tool-btn" id="btn-import-md" data-tooltip="Import .md file"><i data-lucide="file-up"></i></button>
+            <button class="tool-btn" id="btn-export-md" data-tooltip="Download .md file"><i
                     data-lucide="file-down"></i></button>
         </div>
 
@@ -241,10 +247,6 @@
                     </button>
                 </div>
 
-                <button class="sb-action-btn desktop-only" id="btn-exit-focus" title="Exit Focus Mode"
-                    style="display: none;">
-                    <i data-lucide="minimize"></i> <span class="desktop-only">Exit Focus</span>
-                </button>
             </div>
         </div>
     </main>
@@ -256,14 +258,15 @@
                 <h3 class="modal-title" style="margin:0; display: flex; align-items: center; gap: 8px;"><i
                         data-lucide="folder-tree" style="color: var(--accent-color);"></i> Workspace Manager</h3>
                 <div style="display: flex; gap: 16px; align-items: center;">
-                    <label
-                        style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600; color: var(--text-color);">
-                        <input type="checkbox" id="manage-select-mode"
-                            style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-color);" />
-                        Select Mode
+                    <label class="switch-container">
+                        <span class="switch-label">Select Mode</span>
+                        <div class="switch">
+                            <input type="checkbox" id="manage-select-mode">
+                            <span class="slider"></span>
+                        </div>
                     </label>
                     <div class="toolbar-divider" style="height: 24px; margin: 0;"></div>
-                    <button class="btn-close-dashboard" id="manage-modal-close" title="Close" style="margin:0;"><i
+                    <button class="btn-close-dashboard" id="manage-modal-close" data-tooltip="Close" style="margin:0;"><i
                             data-lucide="x"></i></button>
                 </div>
             </div>
@@ -296,73 +299,27 @@
     </div>
 
     <div class="modal-overlay" id="notes-modal" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-        <div class="modal-box notes-dashboard-box folders-collapsed">
-
-            <div class="notes-dashboard-folders" id="notes-folders-pane">
-                <div class="folders-header">
-                    <span class="pane-title">WORKSPACE</span>
-                    <button class="tool-btn hover-pop" id="btn-new-folder" title="New Folder"><i
-                            data-lucide="folder-plus"></i></button>
-                </div>
-                <div class="folders-list" id="folders-list-container"></div>
+        <div class="modal-box notes-dashboard-box">
+            <div class="notes-dashboard-header">
+                <h3 class="modal-title" style="margin:0; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="library" style="color: var(--accent-color);"></i> All Notes
+                </h3>
+                <button class="btn-close-dashboard" id="notes-modal-close" data-tooltip="Close Dashboard">
+                    <i data-lucide="x"></i>
+                </button>
             </div>
 
-            <div class="notes-dashboard-left">
-                <div class="notes-dashboard-left-header">
-                    <button class="mobile-back-to-folders mobile-only" id="mob-back-folders"><i
-                            data-lucide="chevron-left"></i> Folders</button>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div class="notes-header-text">
-                            <div
-                                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                <h3 class="modal-title"
-                                    style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
-                                    <button class="tool-btn desktop-only hover-pop" id="toggle-folders-btn"
-                                        style="padding: 6px; margin-left: -8px; background: var(--bg-color);"
-                                        title="Toggle Folders">
-                                        <i data-lucide="sidebar"></i>
-                                    </button>
-                                    <span id="current-folder-name" style="font-weight: 700;">All Notes</span>
-                                </h3>
-                                <span id="dashboard-mode-badge" class="dashboard-badge"></span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="modal-btn btn-confirm" id="btn-new-note"
-                                style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New
-                                Note</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="notes-list" id="notes-list-container"></div>
+            <div class="notes-dashboard-body" id="notes-dashboard-content">
+                <!-- Redesigned nested structure will be rendered here via JS -->
             </div>
 
-            <div class="notes-dashboard-right">
-                <div class="dashboard-actions">
-                    <div style="flex: 1;">
-                        <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i
-                                data-lucide="chevron-left"></i> Back</button>
-                    </div>
-
-                    <div class="dash-action-group">
-                        <button class="dash-circle-btn" id="dash-btn-edit" title="Edit Note">
-                            <i data-lucide="edit-2"></i>
-                        </button>
-                        <button class="dash-circle-btn desktop-only" id="dash-btn-export" title="Export PDF">
-                            <i data-lucide="printer"></i>
-                        </button>
-                        <button class="dash-circle-btn btn-delete" id="dash-btn-delete" title="Delete Note">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-
-                        <div class="toolbar-divider" style="height: 24px; margin: 0 4px;"></div>
-
-                        <button class="btn-close-dashboard" id="notes-modal-close" title="Close Workspace">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
+            <div class="notes-dashboard-footer">
+                <button class="modal-btn btn-confirm" id="btn-new-note" data-tooltip="Create New Note">
+                    <i data-lucide="file-plus"></i> New Note
+                </button>
+                <button class="modal-btn btn-confirm" id="btn-new-folder" data-tooltip="Create New Folder" style="background-color: var(--toggle-track); color: var(--text-color);">
+                    <i data-lucide="folder-plus"></i> New Folder
+                </button>
             </div>
         </div>
     </div>

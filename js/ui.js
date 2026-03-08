@@ -37,6 +37,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) lucide.createIcons();
 
+    // ✨ CUSTOM TOOLTIP SYSTEM ✨
+    const tooltip = document.createElement('div');
+    tooltip.className = 'custom-tooltip';
+    document.body.appendChild(tooltip);
+
+    let tooltipTimeout;
+
+    const showTooltip = (el, text) => {
+        const rect = el.getBoundingClientRect();
+        tooltip.textContent = text;
+        tooltip.classList.add('show');
+
+        // Centered position above the element
+        const tooltipRect = tooltip.getBoundingClientRect();
+        tooltip.style.top = `${rect.top - tooltipRect.height - 8}px`;
+        tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltipRect.width / 2)}px`;
+    };
+
+    const hideTooltip = () => {
+        tooltip.classList.remove('show');
+    };
+
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = setTimeout(() => showTooltip(target, target.getAttribute('data-tooltip')), 400);
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+            clearTimeout(tooltipTimeout);
+            hideTooltip();
+        }
+    });
+
     // Init Focus Mode
     const initFocusMode = () => {
         if(localStorage.getItem('md_focus_mode') === 'true') {
@@ -50,12 +88,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('focus-mode');
         localStorage.setItem('md_focus_mode', 'true');
         window.dispatchEvent(new Event('focusModeEnabled'));
+
+        // Custom UI logic for focus mode
+        const pillGroup = document.querySelector('.action-pill-group');
+        if (pillGroup) {
+            pillGroup.querySelectorAll('button:not(#btn-share):not(#btn-pdf):not(#btn-exit-focus)').forEach(btn => {
+                btn.style.display = 'none';
+            });
+            document.getElementById('btn-exit-focus').style.display = 'flex';
+        }
+
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
 
     document.getElementById('btn-exit-focus')?.addEventListener('click', () => {
         document.body.classList.remove('focus-mode');
         localStorage.setItem('md_focus_mode', 'false');
+
+        // Revert UI changes
+        const pillGroup = document.querySelector('.action-pill-group');
+        if (pillGroup) {
+            pillGroup.querySelectorAll('button').forEach(btn => {
+                btn.style.display = 'flex';
+            });
+            document.getElementById('btn-exit-focus').style.display = 'none';
+        }
+
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
     });
 
