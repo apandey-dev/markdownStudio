@@ -196,6 +196,7 @@ window.EditorState = {
     activeNoteId: null,
 
     appMode: 'local',
+    autoSave: true,
     isSyncing: false,
     pendingSync: false,
     syncTimer: null,
@@ -253,6 +254,17 @@ window.EditorState = {
         if (!safeTitle) safeTitle = 'Untitled Note';
         if (folderName === 'All Notes') return `${safeTitle}.md`;
         return `${folderName}/${safeTitle}.md`;
+    },
+
+    loadAutoSave() {
+        const saved = localStorage.getItem('md_auto_save');
+        this.autoSave = saved !== 'false'; // Default to true
+    },
+
+    saveAutoSave() {
+        localStorage.setItem('md_auto_save', this.autoSave);
+        // Dispatch event for UI to update Save button visibility
+        window.dispatchEvent(new CustomEvent('autoSaveToggled', { detail: { enabled: this.autoSave } }));
     },
 
     async switchToMode(targetMode) {

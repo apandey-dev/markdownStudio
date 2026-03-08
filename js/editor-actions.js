@@ -399,6 +399,46 @@ window.EditorActions = {
         reader.readAsText(file);
     },
 
+    async handleManualSave() {
+        const activeNote = window.EditorState.getActiveNote();
+        if (!activeNote) return;
+
+        const editor = document.getElementById('markdown-input');
+        activeNote.content = editor.value;
+        activeNote.lastUpdated = Date.now();
+
+        const saveBtn = document.getElementById('btn-manual-save');
+        const originalHtml = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i data-lucide="loader" class="spin" style="width: 12px; height: 12px;"></i> Saving';
+        saveBtn.disabled = true;
+        if (window.lucide) lucide.createIcons();
+
+        try {
+            await window.EditorState.saveLocalState();
+            if (window.EditorState.appMode === 'github') {
+                // In GitHub mode, we manually trigger the sync immediately
+                await window.EditorState.performCloudSync();
+            }
+
+            // Clear drafts for this note on successful explicit save
+            try {
+                let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                if (drafts[activeNote.id]) {
+                    delete drafts[activeNote.id];
+                    localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                }
+            } catch (e) {}
+
+            window.showToast("<i data-lucide='check-circle'></i> Saved Successfully");
+        } catch (e) {
+            window.showToast("<i data-lucide='alert-triangle'></i> Save Failed");
+        } finally {
+            saveBtn.innerHTML = originalHtml;
+            saveBtn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        }
+    },
+
     async handleSecureShare() {
         const editor = document.getElementById('markdown-input');
         const textToShare = editor.value;

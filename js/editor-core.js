@@ -596,6 +596,21 @@ window.EditorCore = {
         const note = window.EditorState.getActiveNote();
         if (!note) return;
 
+        // ✨ DATA SAFETY: Recovery from unsaved drafts (e.g. after refresh or crash) ✨
+        try {
+            const drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+            let restoredCount = 0;
+            window.EditorState.notes.forEach(n => {
+                if (drafts[n.id] && drafts[n.id] !== n.content) {
+                    n.content = drafts[n.id];
+                    restoredCount++;
+                }
+            });
+            if (restoredCount > 0 && window.showToast) {
+                window.showToast(`<i data-lucide='life-buoy'></i> Restored ${restoredCount} unsaved draft(s)`);
+            }
+        } catch (e) {}
+
         this.highlightedNoteId = window.EditorState.activeNoteId;
         window.EditorState.activeFolder = note.folder || 'All Notes';
         if (!window.EditorState.folders.includes(window.EditorState.activeFolder)) window.EditorState.activeFolder = 'All Notes';
@@ -630,6 +645,15 @@ window.EditorCore = {
         return 300;
     },
 
+    updateLineCol(editor) {
+        const text = editor.value.substring(0, editor.selectionStart);
+        const lines = text.split('\n');
+        const line = lines.length;
+        const col = lines[lines.length - 1].length + 1;
+        const el = document.getElementById('stat-line-col');
+        if (el) el.textContent = `Line ${line}, Col ${col}`;
+    },
+
     dynamicDebounce(rawText) {
         clearTimeout(this.debounceTimeout);
         const waitTime = this.getDynamicDebounceTime(rawText.length);
@@ -640,9 +664,27 @@ window.EditorCore = {
                 activeNote.content = rawText;
                 activeNote.lastUpdated = Date.now();
 
-                // Auto-save is now the only behavior
-                await window.EditorState.saveLocalState();
-                if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
+                // Only save if autoSave is enabled
+                if (window.EditorState.autoSave) {
+                    await window.EditorState.saveLocalState();
+                    if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
+
+                    // Clear drafts on explicit auto-save
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        if (drafts[activeNote.id]) {
+                            delete drafts[activeNote.id];
+                            localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                        }
+                    } catch (e) {}
+                } else {
+                    // Manual mode: Keep in temporary drafts for refresh safety
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        drafts[activeNote.id] = rawText;
+                        localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                    } catch (e) {}
+                }
             }
             this.renderMarkdownCore(rawText);
         }, waitTime);
@@ -888,6 +930,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Secure Share
         document.getElementById('btn-share')?.addEventListener('click', () => window.EditorActions.handleSecureShare());
 
+        // Manual Save
+        document.getElementById('btn-manual-save')?.addEventListener('click', () => window.EditorActions.handleManualSave());
+
         // Mobile / Other listeners
         document.getElementById('mob-back-folders')?.addEventListener('click', () => {
             document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
@@ -918,6 +963,9 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = "Connect";
             btn.disabled = false;
         });
+
+        // Init Settings
+        window.EditorState.loadAutoSave();
 
         // Init App Mode
         const savedMode = localStorage.getItem('md_app_mode') || 'local';
@@ -961,9 +1009,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeNote && editor.value) {
                 activeNote.content = editor.value;
                 activeNote.lastUpdated = Date.now();
-                const key = window.EditorState.appMode === 'local' ? 'md_notes_local' : 'md_notes_github';
-                window.StorageManager.safeSetLocal(key, JSON.stringify(window.EditorState.notes));
-                window.StorageManager.safeSetLocal(`md_active_${window.EditorState.appMode}`, window.EditorState.activeNoteId);
+
+                if (window.EditorState.autoSave) {
+                    window.EditorState.saveLocalState();
+                } else {
+                    // Update draft on exit
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        drafts[activeNote.id] = editor.value;
+                        localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+
+                        // Still update active note ID so we return to same note
+                        localStorage.setItem(`md_active_${window.EditorState.appMode}`, activeNote.id);
+                    } catch (e) {}
+                }
             }
         });
 

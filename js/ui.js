@@ -31,6 +31,7 @@ window.closePatGuideModal = function () { document.getElementById('pat-guide-mod
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
 window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
+window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 
 // window.closeNotesModal is now handled in editor-core.js
 
@@ -208,6 +209,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
+    // ✨ SETTINGS MODAL ✨
+    document.getElementById('btn-settings')?.addEventListener('click', () => {
+        document.getElementById('settings-modal')?.classList.add('show');
+    });
+    document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('settings-modal')?.classList.add('show');
+    });
+    document.getElementById('settings-modal-close')?.addEventListener('click', window.closeSettingsModal);
+    document.getElementById('settings-modal-close-btn')?.addEventListener('click', window.closeSettingsModal);
+
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('pat-guide-modal')?.classList.add('show');
@@ -270,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             if (document.getElementById('management-modal')?.classList.contains('show')) { window.closeManageModal(); return; }
+            if (document.getElementById('settings-modal')?.classList.contains('show')) { window.closeSettingsModal(); return; }
             
             if (document.getElementById('notes-modal')?.classList.contains('show')) { if (typeof window.closeNotesModal === 'function') window.closeNotesModal(); return; }
         }
@@ -548,4 +561,39 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCancelPdf?.addEventListener('click', window.closePdfModal);
 
     document.getElementById('delete-cancel')?.addEventListener('click', window.closeDeleteModal);
+
+    // ✨ SETTINGS LOGIC ✨
+    const autoSaveCheckbox = document.getElementById('setting-auto-save');
+    if (autoSaveCheckbox) {
+        window.EditorState.loadAutoSave();
+        autoSaveCheckbox.checked = window.EditorState.autoSave;
+
+        autoSaveCheckbox.addEventListener('change', (e) => {
+            window.EditorState.autoSave = e.target.checked;
+            window.EditorState.saveAutoSave();
+
+            if (window.EditorState.autoSave) {
+                window.showToast("<i data-lucide='save'></i> Auto Save Enabled");
+            } else {
+                window.showToast("<i data-lucide='mouse-pointer'></i> Manual Save Mode");
+            }
+        });
+    }
+
+    // Toggle Manual Save Button Visibility
+    const updateSaveButtonVisibility = (enabled) => {
+        const saveBtn = document.getElementById('btn-manual-save');
+        const saveDivider = document.getElementById('manual-save-divider');
+        if (saveBtn) saveBtn.style.display = enabled ? 'none' : 'flex';
+        if (saveDivider) saveDivider.style.display = enabled ? 'none' : 'block';
+    };
+
+    window.addEventListener('autoSaveToggled', (e) => {
+        updateSaveButtonVisibility(e.detail.enabled);
+    });
+
+    // Initial visibility check
+    setTimeout(() => {
+        updateSaveButtonVisibility(window.EditorState.autoSave);
+    }, 100);
 });

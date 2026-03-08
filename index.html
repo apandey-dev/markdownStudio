@@ -78,8 +78,8 @@
                 <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export to PDF">
                     <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-docs" class="pill-action-btn" data-tooltip="View Documentation">
-                    <i data-lucide="book" style="width: 16px; height: 16px;"></i>
+                <button id="btn-settings" class="pill-action-btn" data-tooltip="Settings">
+                    <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
                 </button>
                 <button id="btn-exit-focus" class="pill-action-btn" data-tooltip="Exit Focus Mode" style="display: none;">
                     <i data-lucide="minimize" style="width: 16px; height: 16px;"></i>
@@ -129,6 +129,8 @@
                     Manage Folders</button>
                 <button class="sidebar-btn" id="sidebar-btn-docs-mobile"><i data-lucide="book"></i>
                     Documentation</button>
+                <button class="sidebar-btn" id="sidebar-btn-settings-mobile"><i data-lucide="settings"></i>
+                    Settings</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="share-2"></i> Secure Share</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
             </div>
@@ -242,6 +244,10 @@
                     </span>
                     <div class="toolbar-divider" style="height: 12px; margin: 0; opacity: 0.3;"></div>
                     <span id="stat-line-col" style="opacity: 0.8;">Line 1, Col 1</span>
+                    <div class="toolbar-divider" id="manual-save-divider" style="height: 12px; margin: 0; opacity: 0.3; display: none;"></div>
+                    <button id="btn-manual-save" class="pill-action-btn" style="display: none; padding: 2px 8px; font-size: 0.7rem; gap: 4px; background: var(--accent-color); color: white; border-radius: 6px;">
+                        <i data-lucide="save" style="width: 12px; height: 12px;"></i> Save
+                    </button>
                 </div>
             </div>
 
@@ -266,6 +272,32 @@
             </div>
         </div>
     </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
+        <div class="modal-box premium-modal">
+            <div class="premium-modal-header">
+                <div class="premium-icon-wrapper" style="background-color: rgba(99, 102, 241, 0.1); color: #6366f1;"><i data-lucide="settings"></i></div>
+                <h3 class="modal-title">Settings</h3>
+                <p class="modal-subtitle">Configure your editor experience.</p>
+            </div>
+            <div class="settings-body" style="padding: 0 20px 20px;">
+                <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-color);">
+                    <div class="setting-info">
+                        <span class="setting-label" style="font-weight: 600; display: block;">Auto Save</span>
+                        <small style="opacity: 0.6; font-size: 0.8rem;">Save changes automatically as you type.</small>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting-auto-save" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions premium-actions">
+                <button class="modal-btn btn-confirm" id="settings-modal-close-btn" style="width: 100%;">Close</button>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="management-modal"
         style="z-index: 1500; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
