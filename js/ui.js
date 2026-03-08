@@ -133,40 +133,26 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('md_focus_mode', 'true');
         window.dispatchEvent(new Event('focusModeEnabled'));
 
-        // Custom UI logic for focus mode
-        const pillGroup = document.querySelector('.action-pill-group');
-        if (pillGroup) {
-            pillGroup.querySelectorAll('button:not(#btn-share):not(#btn-pdf):not(#btn-exit-focus)').forEach(btn => {
-                btn.style.display = 'none';
-            });
-            document.getElementById('btn-exit-focus').style.display = 'flex';
-        }
-
+        // Reapply UI visibility to handle Focus Mode recovery buttons
+        window.EditorState.applyUIVisibility();
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
 
-    const exitFocus = () => {
+    document.getElementById('btn-exit-focus')?.addEventListener('click', () => {
         document.body.classList.remove('focus-mode');
         localStorage.setItem('md_focus_mode', 'false');
 
-        // Revert UI changes
-        const pillGroup = document.querySelector('.action-pill-group');
-        if (pillGroup) {
-            pillGroup.querySelectorAll('button').forEach(btn => {
-                btn.style.display = 'flex';
-            });
-            document.getElementById('btn-exit-focus').style.display = 'none';
-            document.getElementById('btn-exit-focus-bottom').style.display = 'none';
-        }
-
-        // Apply UI visibility preferences again in case they were hidden by focus mode but should be visible
         window.EditorState.applyUIVisibility();
-
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
-    };
+    });
 
-    document.getElementById('btn-exit-focus')?.addEventListener('click', exitFocus);
-    document.getElementById('btn-exit-focus-bottom')?.addEventListener('click', exitFocus);
+    document.getElementById('btn-exit-focus-floating')?.addEventListener('click', () => {
+        document.getElementById('btn-exit-focus')?.click();
+    });
+
+    document.getElementById('btn-exit-focus-status')?.addEventListener('click', () => {
+        document.getElementById('btn-exit-focus')?.click();
+    });
 
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -218,14 +204,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ✨ SETTINGS MODAL ✨
     document.getElementById('btn-settings')?.addEventListener('click', () => {
+        initSettingsToggles();
+        document.getElementById('settings-modal')?.classList.add('show');
+    });
+    document.getElementById('btn-settings-minimal')?.addEventListener('click', () => {
+        initSettingsToggles();
         document.getElementById('settings-modal')?.classList.add('show');
     });
     document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        initSettingsToggles();
         document.getElementById('settings-modal')?.classList.add('show');
     });
     document.getElementById('settings-modal-close')?.addEventListener('click', () => {
-        initSettingsToggles();
+        initSettingsToggles(); // Revert local DOM changes on close
         window.closeSettingsModal();
     });
 
@@ -430,10 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.selectedPageSize = val;
     });
 
-    setupStaticDropdown('transfer-size-dropdown', 'transfer-size-selected-text', (val) => {
-        window.selectedPageSize = val;
-    });
-
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
     const previewPanel = document.getElementById('preview-panel');
@@ -620,8 +608,42 @@ document.addEventListener('DOMContentLoaded', () => {
             toggle.checked = isVisible;
         });
 
+        const currentStorage = document.getElementById('current-storage-pref');
+        if (currentStorage) {
+            currentStorage.textContent = window.StorageManager.useIDB ? "IndexedDB (High Capacity)" : "Local Storage (Standard)";
+        }
+
+        updateStatusBarChildrenState();
         window.EditorState.applyUIVisibility();
     };
+
+    const updateStatusBarChildrenState = () => {
+        const parentToggle = document.getElementById('toggle-bottom-toolbar');
+        const children = ['toggle-bottom-words', 'toggle-bottom-chars', 'toggle-bottom-reading', 'toggle-bottom-cursor', 'toggle-bottom-theme', 'toggle-bottom-mode'];
+
+        children.forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                const card = checkbox.closest('.setting-card');
+                if (parentToggle.checked) {
+                    card.classList.remove('disabled');
+                    checkbox.disabled = false;
+                } else {
+                    card.classList.add('disabled');
+                    checkbox.disabled = true;
+                }
+            }
+        });
+    };
+
+    document.getElementById('toggle-bottom-toolbar')?.addEventListener('change', updateStatusBarChildrenState);
+
+    // Collapsible Groups Logic
+    document.querySelectorAll('.settings-group-header').forEach(header => {
+        header.addEventListener('click', () => {
+            header.parentElement.classList.toggle('open');
+        });
+    });
 
     const saveSettingsChanges = () => {
         const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
@@ -638,5 +660,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial load
     setTimeout(initSettingsToggles, 100);
-
 });

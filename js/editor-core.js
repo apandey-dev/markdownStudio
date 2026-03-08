@@ -226,19 +226,7 @@ window.EditorCore = {
 
         window.EditorState.extractFoldersFromNotes();
 
-        // Sort folders to keep "All Notes" at the top
-        const sortedFolders = [...window.EditorState.folders].sort((a, b) => {
-            if (a === 'All Notes') return -1;
-            if (b === 'All Notes') return 1;
-            return a.localeCompare(b);
-        });
-
-        sortedFolders.forEach(folder => {
-            const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
-
-            // Skip empty folders unless it's "All Notes"
-            if (folder !== 'All Notes' && folderNotes.length === 0) return;
-
+        window.EditorState.folders.forEach(folder => {
             const folderSection = document.createElement('div');
             folderSection.className = 'dashboard-folder-section';
 
@@ -247,16 +235,16 @@ window.EditorCore = {
             folderTitle.innerHTML = `
                 <i data-lucide="chevron-down" class="collapse-icon"></i>
                 <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i>
-                <span>${folder}</span>
-                <span style="margin-left: auto; font-size: 0.75rem; opacity: 0.5;">${folderNotes.length} notes</span>
+                ${folder}
             `;
 
             const notesList = document.createElement('div');
-            notesList.className = 'dashboard-notes-list collapsed'; // Default collapsed for cleaner view
+            notesList.className = 'dashboard-notes-list collapsed'; // Default collapsed
 
-            // Persistent collapse state can be added later if needed via localStorage
+            const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
 
-            folderTitle.addEventListener('click', (e) => {
+            // Click listener to toggle collapse
+            folderTitle.addEventListener('click', () => {
                 const isCollapsed = notesList.classList.toggle('collapsed');
                 const chevron = folderTitle.querySelector('.collapse-icon');
                 if (chevron) chevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
@@ -265,7 +253,6 @@ window.EditorCore = {
             folderNotes.forEach(note => {
                 const noteRow = document.createElement('div');
                 noteRow.className = 'dashboard-note-row';
-                if (note.id === window.EditorState.activeNoteId) noteRow.classList.add('active');
 
                 const noteInfo = document.createElement('div');
                 noteInfo.className = 'dashboard-note-info';
@@ -315,7 +302,7 @@ window.EditorCore = {
             folderSection.appendChild(notesList);
             container.appendChild(folderSection);
 
-            // Initial state for chevron (collapsed)
+            // Initial state for chevron
             const initialChevron = folderTitle.querySelector('.collapse-icon');
             if (initialChevron) initialChevron.style.transform = 'rotate(-90deg)';
         });
@@ -692,18 +679,27 @@ window.EditorCore = {
                 activeNote.content = rawText;
                 activeNote.lastUpdated = Date.now();
 
-                // AutoSave is now always enabled
-                await window.EditorState.saveLocalState();
-                if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
+                // Only save if autoSave is enabled
+                if (window.EditorState.autoSave) {
+                    await window.EditorState.saveLocalState();
+                    if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
 
-                // Clear drafts on auto-save
-                try {
-                    let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
-                    if (drafts[activeNote.id]) {
-                        delete drafts[activeNote.id];
+                    // Clear drafts on explicit auto-save
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        if (drafts[activeNote.id]) {
+                            delete drafts[activeNote.id];
+                            localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                        }
+                    } catch (e) {}
+                } else {
+                    // Manual mode: Keep in temporary drafts for refresh safety
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        drafts[activeNote.id] = rawText;
                         localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
-                    }
-                } catch (e) {}
+                    } catch (e) {}
+                }
             }
             this.renderMarkdownCore(rawText);
         }, waitTime);
@@ -1027,8 +1023,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeNote.content = editor.value;
                 activeNote.lastUpdated = Date.now();
 
-                // AutoSave is now always enabled
-                window.EditorState.saveLocalState();
+                if (window.EditorState.autoSave) {
+                    window.EditorState.saveLocalState();
+                } else {
+                    // Update draft on exit
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        drafts[activeNote.id] = editor.value;
+                        localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+
+                        // Still update active note ID so we return to same note
+                        localStorage.setItem(`md_active_${window.EditorState.appMode}`, activeNote.id);
+                    } catch (e) {}
+                }
             }
         });
 

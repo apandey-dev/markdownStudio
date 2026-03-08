@@ -89,52 +89,11 @@ window.EditorActions = {
             });
         });
 
-        // Transfer Modal Toggle Logic
+        // Simplified Transfer Modal Toggle
         document.getElementById('btn-import-export')?.addEventListener('click', () => {
-            const modal = document.getElementById('transfer-modal');
-            modal.classList.add('show');
-
-            // Default to Import
-            const importTab = document.querySelector('#transfer-toggle [data-target="import"]');
-            if (importTab) importTab.click();
-
+            document.getElementById('transfer-modal').classList.add('show');
             const note = window.EditorState.getActiveNote();
-            const exportInput = document.getElementById('export-filename-input');
-            if (note && exportInput) {
-                exportInput.value = note.title;
-            }
-        });
-
-        document.querySelectorAll('#transfer-toggle .mode-tab').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const target = e.currentTarget.getAttribute('data-target');
-                document.querySelectorAll('#transfer-toggle .mode-tab').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-
-                if (target === 'import') {
-                    document.getElementById('import-section').style.display = 'block';
-                    document.getElementById('export-section').style.display = 'none';
-                } else {
-                    document.getElementById('import-section').style.display = 'none';
-                    document.getElementById('export-section').style.display = 'block';
-                }
-            });
-        });
-
-        // Export Format Toggle
-        document.querySelectorAll('#export-format-toggle .mode-tab').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const format = e.currentTarget.getAttribute('data-format');
-                document.querySelectorAll('#export-format-toggle .mode-tab').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-
-                const pdfOptions = document.getElementById('pdf-export-options');
-                if (format === 'pdf') {
-                    pdfOptions.style.display = 'block';
-                } else {
-                    pdfOptions.style.display = 'none';
-                }
-            });
+            if (note) document.getElementById('export-filename-input').value = note.title;
         });
 
         // Browse File
@@ -146,30 +105,20 @@ window.EditorActions = {
             if (e.target.files.length > 0) {
                 this.handleImportMd(e.target.files[0]);
                 window.closeTransferModal();
+                e.target.value = ''; // Reset
             }
         });
 
-        // Drag & Drop
+        // Drag & Drop for Import
         const dropZone = document.getElementById('drop-zone');
         if (dropZone) {
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
-                dropZone.addEventListener(name, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                });
+                dropZone.addEventListener(name, (e) => { e.preventDefault(); e.stopPropagation(); });
             });
-
-            ['dragenter', 'dragover'].forEach(name => {
-                dropZone.addEventListener(name, () => dropZone.classList.add('drag-over'));
-            });
-
-            ['dragleave', 'drop'].forEach(name => {
-                dropZone.addEventListener(name, () => dropZone.classList.remove('drag-over'));
-            });
-
+            ['dragenter', 'dragover'].forEach(name => { dropZone.addEventListener(name, () => dropZone.classList.add('drag-over')); });
+            ['dragleave', 'drop'].forEach(name => { dropZone.addEventListener(name, () => dropZone.classList.remove('drag-over')); });
             dropZone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
+                const files = e.dataTransfer.files;
                 if (files.length > 0) {
                     this.handleImportMd(files[0]);
                     window.closeTransferModal();
@@ -177,16 +126,10 @@ window.EditorActions = {
             });
         }
 
-        // Execute Export
+        // Execute Export (Markdown Only in Redesigned Modal)
         document.getElementById('btn-execute-export')?.addEventListener('click', () => {
             const filename = document.getElementById('export-filename-input').value.trim();
-            const format = document.querySelector('#export-format-toggle .mode-tab.active').getAttribute('data-format');
-
-            if (format === 'pdf') {
-                this.handlePdfExport(filename);
-            } else {
-                this.handleExportMd(filename);
-            }
+            this.handleExportMd(filename);
             window.closeTransferModal();
         });
     },
@@ -254,19 +197,10 @@ window.EditorActions = {
                 else editor.value = "";
             }
 
-            if (window.EditorCore.highlightedNoteId === this.pendingDeleteData.id) {
-                let displayNotes = window.EditorState.activeFolder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === window.EditorState.activeFolder);
-                window.EditorCore.highlightedNoteId = displayNotes.length > 0 ? displayNotes[0].id : null;
-            }
-
             if (window.EditorState.appMode === 'github' && noteToDelete.path) {
-                if (navigator.onLine) {
-                    GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
-                        window.OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
-                    });
-                } else {
+                GitHubBackend.deleteNote(noteToDelete.path, noteToDelete.id).catch(() => {
                     window.OfflineQueue.add('delete', { path: noteToDelete.path, sha: noteToDelete.id });
-                }
+                });
             }
 
             if (window.EditorState.notes.length === 0) {
@@ -362,7 +296,7 @@ window.EditorActions = {
         const a = document.createElement('a');
         a.href = url;
 
-        let filename = customFilename || window.EditorState.getActiveNote().title;
+        let filename = customFilename || window.EditorState.getActiveNote()?.title || 'note';
         let safeTitle = filename.replace(/[/\\?%*:|"<>]/g, '_');
         if (!safeTitle || safeTitle.trim() === '') safeTitle = 'markdown_document';
 
@@ -453,7 +387,7 @@ window.EditorActions = {
 
     handlePdfExport(customFilename = null) {
         const inputFilename = document.getElementById('pdf-filename');
-        let fileName = customFilename || inputFilename.value.trim() || window.EditorState.getActiveNote().title || "Document";
+        let fileName = customFilename || inputFilename?.value?.trim() || window.EditorState.getActiveNote()?.title || "Document";
         if (typeof window.closePdfModal === "function") window.closePdfModal();
 
         const style = document.createElement('style');
@@ -467,25 +401,7 @@ window.EditorActions = {
         }
         else if (window.selectedPageSize === 'Infinity') {
             const previewEl = document.getElementById('preview-output');
-            const previewPanel = document.getElementById('preview-panel');
-
-            const isHidden = window.getComputedStyle(previewPanel).display === 'none';
-            if (isHidden) {
-                previewPanel.style.setProperty('display', 'block', 'important');
-                previewPanel.style.setProperty('position', 'absolute', 'important');
-                previewPanel.style.setProperty('visibility', 'hidden', 'important');
-                previewPanel.style.setProperty('z-index', '-1000', 'important');
-            }
-
             const contentHeightPx = previewEl.scrollHeight;
-
-            if (isHidden) {
-                previewPanel.style.removeProperty('display');
-                previewPanel.style.removeProperty('position');
-                previewPanel.style.removeProperty('visibility');
-                previewPanel.style.removeProperty('z-index');
-            }
-
             const contentHeightMm = Math.max(Math.ceil(contentHeightPx * 0.264583) + 40, 297);
             pageCss = `@page { size: 210mm ${contentHeightMm}mm; margin: 0; } #preview-output { padding: 24px 48px !important; }`;
         }
