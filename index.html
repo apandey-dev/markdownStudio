@@ -78,6 +78,9 @@
                 <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export to PDF">
                     <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
                 </button>
+                <button id="btn-transfer" class="pill-action-btn" data-tooltip="Transfer Notes (Import/Export)">
+                    <i data-lucide="arrow-left-right" style="width: 16px; height: 16px;"></i>
+                </button>
                 <button id="btn-docs" class="pill-action-btn" data-tooltip="Documentation">
                     <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
                 </button>
@@ -136,6 +139,7 @@
                     Settings</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="share-2"></i> Secure Share</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
+                <button class="sidebar-btn" id="sidebar-btn-transfer-mobile"><i data-lucide="arrow-left-right"></i> Transfer Notes</button>
             </div>
         </div>
     </div>
@@ -270,6 +274,34 @@
         </div>
     </main>
 
+    <!-- Transfer Notes Modal (Redesigned) -->
+    <div class="modal-overlay" id="transfer-modal" style="z-index: 5000;">
+        <div class="modal-box transfer-modal-box">
+            <div class="transfer-header">
+                <h3 style="margin:0; display:flex; align-items:center; gap:8px;"><i data-lucide="arrow-left-right" style="color:var(--accent-color)"></i> Transfer Notes</h3>
+                <button class="btn-close-dashboard" id="transfer-modal-close" style="margin:0;"><i data-lucide="x"></i></button>
+            </div>
+            <div class="transfer-body" style="padding: 20px 0;">
+                <div class="transfer-section">
+                    <h4 style="margin:0 0 8px 0;">Import Markdown</h4>
+                    <p style="margin:0 0 16px 0; font-size:0.85rem; opacity:0.7;">Select .md files to import into your workspace.</p>
+                    <input type="file" id="import-markdown-input" accept=".md" multiple style="display: none;">
+                    <button class="modal-btn btn-confirm" id="btn-import-md-trigger" style="width: 100%; justify-content:center;">
+                        <i data-lucide="download"></i> Choose Files
+                    </button>
+                </div>
+                <div class="transfer-divider" style="height:1px; background:var(--border-color); margin:24px 0; opacity:0.5;"></div>
+                <div class="transfer-section">
+                    <h4 style="margin:0 0 8px 0;">Export Markdown</h4>
+                    <p style="margin:0 0 16px 0; font-size:0.85rem; opacity:0.7;">Download your current note as a Markdown file.</p>
+                    <button class="modal-btn btn-confirm" id="btn-export-md" style="width: 100%; background: var(--toggle-track); color: var(--text-color); justify-content:center;">
+                        <i data-lucide="upload"></i> Download .md
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
         <div class="modal-box settings-modal-box">
@@ -337,6 +369,16 @@
                                     </div>
                                     <label class="switch">
                                         <input type="checkbox" id="toggle-nav-pdf" checked data-component="#btn-pdf">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-card">
+                                    <div class="setting-details">
+                                        <span class="setting-card-title">Transfer Button</span>
+                                        <span class="setting-card-desc">Toggle Import/Export access.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-nav-transfer" checked data-component="#btn-transfer">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
