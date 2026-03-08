@@ -105,10 +105,10 @@ window.EditorActions = {
             }
         });
 
-        document.querySelectorAll('#transfer-toggle .mode-tab').forEach(btn => {
+        document.querySelectorAll('#transfer-toggle .transfer-tab').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const target = e.currentTarget.getAttribute('data-target');
-                document.querySelectorAll('#transfer-toggle .mode-tab').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#transfer-toggle .transfer-tab').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
 
                 if (target === 'import') {
@@ -117,22 +117,6 @@ window.EditorActions = {
                 } else {
                     document.getElementById('import-section').style.display = 'none';
                     document.getElementById('export-section').style.display = 'block';
-                }
-            });
-        });
-
-        // Export Format Toggle
-        document.querySelectorAll('#export-format-toggle .mode-tab').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const format = e.currentTarget.getAttribute('data-format');
-                document.querySelectorAll('#export-format-toggle .mode-tab').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-
-                const pdfOptions = document.getElementById('pdf-export-options');
-                if (format === 'pdf') {
-                    pdfOptions.style.display = 'block';
-                } else {
-                    pdfOptions.style.display = 'none';
                 }
             });
         });
@@ -180,13 +164,7 @@ window.EditorActions = {
         // Execute Export
         document.getElementById('btn-execute-export')?.addEventListener('click', () => {
             const filename = document.getElementById('export-filename-input').value.trim();
-            const format = document.querySelector('#export-format-toggle .mode-tab.active').getAttribute('data-format');
-
-            if (format === 'pdf') {
-                this.handlePdfExport(filename);
-            } else {
-                this.handleExportMd(filename);
-            }
+            this.handleExportMd(filename);
             window.closeTransferModal();
         });
     },
