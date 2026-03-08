@@ -197,6 +197,7 @@ window.EditorState = {
 
     appMode: 'local',
     autoSave: true,
+    uiVisibility: {},
     isSyncing: false,
     pendingSync: false,
     syncTimer: null,
@@ -265,6 +266,39 @@ window.EditorState = {
         localStorage.setItem('md_auto_save', this.autoSave);
         // Dispatch event for UI to update Save button visibility
         window.dispatchEvent(new CustomEvent('autoSaveToggled', { detail: { enabled: this.autoSave } }));
+    },
+
+    loadUIVisibility() {
+        try {
+            const saved = localStorage.getItem('md_ui_visibility');
+            this.uiVisibility = saved ? JSON.parse(saved) : {};
+        } catch (e) {
+            this.uiVisibility = {};
+        }
+    },
+
+    saveUIVisibility() {
+        localStorage.setItem('md_ui_visibility', JSON.stringify(this.uiVisibility));
+        this.applyUIVisibility();
+    },
+
+    applyUIVisibility() {
+        Object.keys(this.uiVisibility).forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                const componentSelector = checkbox.getAttribute('data-component');
+                const isVisible = this.uiVisibility[id];
+                checkbox.checked = isVisible;
+
+                if (componentSelector) {
+                    const elements = document.querySelectorAll(componentSelector);
+                    elements.forEach(el => {
+                        el.style.display = isVisible ? '' : 'none';
+                        // Special handling for visibility classes if needed
+                    });
+                }
+            }
+        });
     },
 
     async switchToMode(targetMode) {

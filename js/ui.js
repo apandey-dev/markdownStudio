@@ -435,11 +435,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let dragRaf;
 
     if (divider && editorPanel && container) {
-        divider.addEventListener('mousedown', () => {
+        const startDragging = () => {
             isDragging = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
             container.classList.add('is-resizing');
+        };
+
+        divider.addEventListener('mousedown', startDragging);
+        restoreLeft?.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDragging();
+        });
+        restoreRight?.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDragging();
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -451,27 +461,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 const containerRect = container.getBoundingClientRect();
                 let newWidthPercentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
 
+                // Keep within bounds
+                newWidthPercentage = Math.max(0, Math.min(100, newWidthPercentage));
+
                 if (newWidthPercentage <= 5) {
-                    // Collapse to Preview Only
+                    // Snap to Preview Only if very close to left
+                    if (document.body.classList.contains('view-preview')) return;
                     document.body.classList.add('view-preview');
                     document.body.classList.remove('view-editor');
                     restoreLeft.style.display = 'flex';
                     restoreRight.style.display = 'none';
-                    isDragging = false;
-                    document.body.style.cursor = 'default';
                 } else if (newWidthPercentage >= 95) {
-                    // Collapse to Editor Only
+                    // Snap to Editor Only if very close to right
+                    if (document.body.classList.contains('view-editor')) return;
                     document.body.classList.add('view-editor');
                     document.body.classList.remove('view-preview');
                     restoreRight.style.display = 'flex';
                     restoreLeft.style.display = 'none';
-                    isDragging = false;
-                    document.body.style.cursor = 'default';
                 } else {
+                    // Standard Split Mode
                     document.body.classList.remove('view-editor', 'view-preview');
                     restoreLeft.style.display = 'none';
                     restoreRight.style.display = 'none';
                     editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
+
+                    // Update Toolbar Buttons state
+                    document.querySelectorAll('.view-btn').forEach(b => {
+                        b.classList.remove('active');
+                        if (b.getAttribute('data-view') === 'split') b.classList.add('active');
+                    });
                 }
             });
         });
@@ -482,6 +500,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.style.cursor = 'default';
                 document.body.style.userSelect = 'auto';
                 container.classList.remove('is-resizing');
+
+                // If we ended dragging while in a collapsed state, make sure handles are visible
+                if (document.body.classList.contains('view-preview')) {
+                    restoreLeft.style.display = 'flex';
+                } else if (document.body.classList.contains('view-editor')) {
+                    restoreRight.style.display = 'flex';
+                }
             }
         });
 
@@ -579,6 +604,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // UI Component Visibility Toggles
+    const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+    uiToggles.forEach(toggle => {
+        toggle.addEventListener('change', (e) => {
+            window.EditorState.uiVisibility[e.target.id] = e.target.checked;
+            window.EditorState.saveUIVisibility();
+        });
+    });
+
+    window.EditorState.loadUIVisibility();
+    // Initialize toggles from state
+    uiToggles.forEach(toggle => {
+        if (window.EditorState.uiVisibility[toggle.id] === undefined) {
+            window.EditorState.uiVisibility[toggle.id] = true; // Default
+        }
+    });
+    window.EditorState.applyUIVisibility();
 
     // Toggle Manual Save Button Visibility
     const updateSaveButtonVisibility = (enabled) => {
