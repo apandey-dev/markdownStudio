@@ -275,26 +275,142 @@
 
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
-        <div class="modal-box premium-modal">
+        <div class="modal-box premium-modal settings-modal-box">
             <div class="premium-modal-header">
                 <div class="premium-icon-wrapper" style="background-color: rgba(99, 102, 241, 0.1); color: #6366f1;"><i data-lucide="settings"></i></div>
                 <h3 class="modal-title">Settings</h3>
                 <p class="modal-subtitle">Configure your editor experience.</p>
             </div>
-            <div class="settings-body" style="padding: 0 20px 20px;">
-                <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-color);">
-                    <div class="setting-info">
-                        <span class="setting-label" style="font-weight: 600; display: block;">Auto Save</span>
-                        <small style="opacity: 0.6; font-size: 0.8rem;">Save changes automatically as you type.</small>
+            <div class="settings-body" style="padding: 0; max-height: 60vh; overflow-y: auto;">
+                <div class="settings-section">
+                    <h4 class="settings-section-title">General</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Auto Save</span>
+                            <small>Save changes automatically as you type.</small>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="setting-auto-save" checked>
+                            <span class="slider"></span>
+                        </label>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" id="setting-auto-save" checked>
-                        <span class="slider"></span>
-                    </label>
+                </div>
+
+                <div class="settings-section">
+                    <h4 class="settings-section-title">UI Components</h4>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Editor Toolbar Belt</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-editor-toolbar" checked data-component=".editor-toolbar">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-sub-list">
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Formatting (Bold/Italic)</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-format" checked data-component=".editor-toolbar .toolbar-group:nth-child(1)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Heading</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-heading" checked data-component=".editor-toolbar [data-action='heading']">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Font Picker</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-font" checked data-component="#font-dropdown">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Focus Mode</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-focus" checked data-component="#btn-focus-mode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Sync Scroll</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-scroll" checked data-component="#btn-scroll-sync">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Bottom Toolbar</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-bottom-toolbar" checked data-component=".status-bar">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-sub-list">
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Theme Switcher</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-theme" checked data-component=".sb-theme-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Word/Char Counts</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-stats" checked data-component=".status-bar .sb-section:nth-child(2) .action-pill-group">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Top App Bar Controls</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-top-navbar" checked data-component=".navbar">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-sub-list">
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Mode Toggle (Local/Cloud)</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-top-mode" checked data-component=".mode-toggle.desktop-only">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Cloud Indicator</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-mode-indicator" checked data-component="#active-mode-indicator">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info"><span class="setting-label">Action Buttons (Share, PDF, etc)</span></div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-top-actions" checked data-component=".navbar .action-pill-group.desktop-only">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-actions premium-actions">
-                <button class="modal-btn btn-confirm" id="settings-modal-close-btn" style="width: 100%;">Close</button>
+            <div class="modal-actions premium-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <button class="modal-btn btn-confirm" id="settings-modal-close-btn" style="width: 100%;">Save & Close</button>
             </div>
         </div>
     </div>
@@ -572,7 +688,7 @@
                 <p class="modal-subtitle">Import or Export your work seamlessly.</p>
             </div>
 
-            <div class="mode-toggle" id="transfer-toggle" style="margin-bottom: 24px;">
+            <div class="mode-toggle transfer-mode-pill" id="transfer-toggle" style="margin-bottom: 24px; padding: 6px;">
                 <button class="mode-tab active" data-target="import" style="flex:1;">Import</button>
                 <button class="mode-tab" data-target="export" style="flex:1;">Export</button>
             </div>
@@ -593,31 +709,33 @@
 
             <!-- EXPORT SECTION -->
             <div id="export-section" class="transfer-section" style="display: none;">
-                <div class="input-group premium-input-group" style="margin-bottom: 16px;">
-                    <label style="text-align: left; display: block; margin-left: 8px; font-size: 0.75rem; opacity: 0.6; font-weight: 700; text-transform: uppercase;">File Name</label>
-                    <input type="text" class="modal-input" id="export-filename-input" placeholder="note-name" />
-                </div>
-
-                <div class="input-group" style="margin-bottom: 16px; text-align: left;">
-                    <label style="display: block; margin-left: 8px; font-size: 0.75rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Export Format</label>
-                    <div class="mode-toggle" id="export-format-toggle">
-                        <button class="mode-tab active" data-format="md" style="flex:1;">Markdown (.md)</button>
-                        <button class="mode-tab" data-format="pdf" style="flex:1;">Document (.pdf)</button>
+                <div class="transfer-grid">
+                    <div class="input-group premium-input-group" style="grid-column: span 2;">
+                        <label class="transfer-label">File Name</label>
+                        <input type="text" class="modal-input" id="export-filename-input" placeholder="note-name" />
                     </div>
-                </div>
 
-                <!-- PDF SPECIFIC OPTIONS -->
-                <div id="pdf-export-options" style="display: none; margin-bottom: 20px; text-align: left;">
-                    <label style="display: block; margin-left: 8px; font-size: 0.75rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Page Size</label>
-                    <div class="custom-dropdown" id="transfer-size-dropdown">
-                        <div class="dropdown-header" style="height: 48px; border-radius: 12px; background: var(--nav-bg);">
-                            <span id="transfer-size-selected-text">A4 Size (Standard)</span>
-                            <span class="chevron"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
+                    <div class="input-group" style="grid-column: span 2; text-align: left;">
+                        <label class="transfer-label">Export Format</label>
+                        <div class="mode-toggle transfer-mode-pill" id="export-format-toggle">
+                            <button class="mode-tab active" data-format="md" style="flex:1;">Markdown (.md)</button>
+                            <button class="mode-tab" data-format="pdf" style="flex:1;">Document (.pdf)</button>
                         </div>
-                        <div class="dropdown-list" style="border-radius: 12px; padding: 6px;">
-                            <div class="dropdown-item active" data-value="A4">A4 Size (Standard)</div>
-                            <div class="dropdown-item" data-value="A2">A2 Size (Large Format)</div>
-                            <div class="dropdown-item" data-value="Infinity">Infinity (Single Page)</div>
+                    </div>
+
+                    <!-- PDF SPECIFIC OPTIONS -->
+                    <div id="pdf-export-options" style="display: none; grid-column: span 2; text-align: left;">
+                        <label class="transfer-label">Page Size</label>
+                        <div class="custom-dropdown" id="transfer-size-dropdown">
+                            <div class="dropdown-header" style="height: 48px; border-radius: 12px; background: var(--nav-bg);">
+                                <span id="transfer-size-selected-text">A4 Size (Standard)</span>
+                                <span class="chevron"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
+                            </div>
+                            <div class="dropdown-list" style="border-radius: 12px; padding: 6px;">
+                                <div class="dropdown-item active" data-value="A4">A4 Size (Standard)</div>
+                                <div class="dropdown-item" data-value="A2">A2 Size (Large Format)</div>
+                                <div class="dropdown-item" data-value="Infinity">Infinity (Single Page)</div>
+                            </div>
                         </div>
                     </div>
                 </div>
