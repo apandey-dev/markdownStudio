@@ -211,124 +211,88 @@ window.EditorCore = {
     },
 
     renderFoldersList() {
-        const container = document.getElementById('folders-list-container');
+        this.renderNotesDashboard();
+        this.renderMainSidebarFolders();
+    },
+
+    renderNotesList() {
+        this.renderNotesDashboard();
+    },
+
+    renderNotesDashboard() {
+        const container = document.getElementById('notes-dashboard-content');
         if (!container) return;
         container.innerHTML = '';
 
         window.EditorState.extractFoldersFromNotes();
 
         window.EditorState.folders.forEach(folder => {
-            const div = document.createElement('div');
-            div.className = `folder-item ${folder === window.EditorState.activeFolder ? 'active' : ''}`;
+            const folderSection = document.createElement('div');
+            folderSection.className = 'dashboard-folder-section';
 
-            const iconEl = document.createElement('i');
-            iconEl.setAttribute('data-lucide', folder === 'All Notes' ? 'library' : 'folder');
+            const folderTitle = document.createElement('div');
+            folderTitle.className = 'dashboard-folder-title';
+            folderTitle.innerHTML = `<i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i> ${folder}`;
 
-            const textSpan = document.createElement('span');
-            textSpan.textContent = folder;
-            textSpan.style.flex = "1";
-            textSpan.style.whiteSpace = 'nowrap';
-            textSpan.style.overflow = 'hidden';
-            textSpan.style.textOverflow = 'ellipsis';
+            const notesList = document.createElement('div');
+            notesList.className = 'dashboard-notes-list';
 
-            let count = folder === 'All Notes' ? window.EditorState.notes.length : window.EditorState.notes.filter(n => n.folder === folder).length;
-            const countSpan = document.createElement('span');
-            countSpan.textContent = count;
-            countSpan.style.fontSize = "0.75rem";
-            countSpan.style.opacity = "0.6";
+            const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
 
-            div.appendChild(iconEl);
-            div.appendChild(textSpan);
-            div.appendChild(countSpan);
+            folderNotes.forEach(note => {
+                const noteRow = document.createElement('div');
+                noteRow.className = 'dashboard-note-row';
 
-            if (folder !== 'All Notes') {
-                const delBtn = document.createElement('button');
-                delBtn.className = 'folder-del-btn';
-                delBtn.innerHTML = '<i data-lucide="trash-2"></i>';
-                delBtn.title = "Delete Folder";
+                const noteInfo = document.createElement('div');
+                noteInfo.className = 'dashboard-note-info';
+                noteInfo.innerHTML = `<i data-lucide="file-text"></i> ${note.title}`;
 
-                delBtn.addEventListener('click', (e) => {
+                const actions = document.createElement('div');
+                actions.className = 'dashboard-note-actions';
+
+                const openBtn = document.createElement('button');
+                openBtn.className = 'dashboard-action-btn';
+                openBtn.innerHTML = '<i data-lucide="edit-3"></i>';
+                openBtn.setAttribute('data-tooltip', 'Open Note');
+                openBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    const folderNotes = window.EditorState.notes.filter(n => n.folder === folder);
-                    if (folderNotes.length > 0) {
-                        window.showToast("<i data-lucide='alert-circle'></i> Move notes first.");
-                        return;
-                    }
-                    window.EditorActions.pendingDeleteData = { type: 'folder', id: folder };
-                    document.getElementById('delete-modal-title').textContent = 'Delete Folder?';
-                    document.getElementById('delete-modal-desc').textContent = 'This empty folder will be removed. Are you sure?';
+                    window.EditorState.activeNoteId = note.id;
+                    const editor = document.getElementById('markdown-input');
+                    editor.value = note.content;
+                    await window.EditorState.saveLocalState();
+                    this.renderMarkdownCore(note.content);
+                    window.closeNotesModal();
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'dashboard-action-btn btn-delete';
+                deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+                deleteBtn.setAttribute('data-tooltip', 'Delete Note');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.EditorActions.pendingDeleteData = { type: 'note', id: note.id };
+                    document.getElementById('delete-modal-title').textContent = 'Delete Note?';
+                    document.getElementById('delete-modal-desc').textContent = 'This action cannot be undone. Are you sure?';
                     document.getElementById('delete-modal').classList.add('show');
                 });
-                div.appendChild(delBtn);
-            }
 
-            div.addEventListener('click', () => {
-                window.EditorState.activeFolder = folder;
-                this.renderFoldersList();
-                this.renderNotesList();
+                actions.appendChild(openBtn);
+                actions.appendChild(deleteBtn);
 
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
-                }
+                noteRow.appendChild(noteInfo);
+                noteRow.appendChild(actions);
+
+                noteRow.addEventListener('click', () => openBtn.click());
+
+                notesList.appendChild(noteRow);
             });
 
-            container.appendChild(div);
-        });
-
-        this.renderMainSidebarFolders();
-        if (window.lucide) lucide.createIcons();
-    },
-
-    renderNotesList() {
-        const container = document.getElementById('notes-list-container');
-        const folderTitle = document.getElementById('current-folder-name');
-        if (!container) return;
-
-        container.innerHTML = '';
-        if (folderTitle) folderTitle.textContent = window.EditorState.activeFolder;
-
-        this.updatePillUI();
-
-        let displayNotes = window.EditorState.activeFolder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === window.EditorState.activeFolder);
-
-        if (displayNotes.length > 0 && !displayNotes.find(n => n.id === this.highlightedNoteId)) {
-            this.highlightedNoteId = displayNotes[0].id;
-        } else if (displayNotes.length === 0) {
-            this.highlightedNoteId = null;
-        }
-
-        displayNotes.forEach(note => {
-            const div = document.createElement('div');
-            div.className = `note-item ${note.id === this.highlightedNoteId ? 'active' : ''}`;
-
-            const titleContainer = document.createElement('div');
-            titleContainer.className = 'note-title';
-
-            const iconEl = document.createElement('i');
-            iconEl.setAttribute('data-lucide', 'file-text');
-
-            const textSpan = document.createElement('span');
-            textSpan.textContent = note.title;
-
-            titleContainer.appendChild(iconEl);
-            titleContainer.appendChild(textSpan);
-            div.appendChild(titleContainer);
-
-            div.addEventListener('click', () => {
-                this.highlightedNoteId = note.id;
-                this.renderNotesList();
-                this.renderDashboardPreview();
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.notes-dashboard-box')?.classList.add('show-preview-pane');
-                }
-            });
-
-            div.addEventListener('dblclick', () => { document.getElementById('dash-btn-edit')?.click(); });
-            container.appendChild(div);
+            folderSection.appendChild(folderTitle);
+            folderSection.appendChild(notesList);
+            container.appendChild(folderSection);
         });
 
         if (window.lucide) lucide.createIcons();
-        this.renderDashboardPreview();
     },
 
     renderManagementModal() {
