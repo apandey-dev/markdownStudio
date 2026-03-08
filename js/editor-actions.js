@@ -88,6 +88,80 @@ window.EditorActions = {
                 editor.dispatchEvent(new Event('input'));
             });
         });
+
+        // Transfer Modal Toggle Logic
+        document.getElementById('btn-import-export')?.addEventListener('click', () => {
+            const modal = document.getElementById('transfer-modal');
+            modal.classList.add('show');
+            const note = window.EditorState.getActiveNote();
+            const exportInput = document.getElementById('export-filename-input');
+            if (note && exportInput) {
+                exportInput.value = note.title;
+            }
+        });
+
+        document.querySelectorAll('#transfer-toggle .mode-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                document.querySelectorAll('#transfer-toggle .mode-tab').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                if (target === 'import') {
+                    document.getElementById('import-section').style.display = 'block';
+                    document.getElementById('export-section').style.display = 'none';
+                } else {
+                    document.getElementById('import-section').style.display = 'none';
+                    document.getElementById('export-section').style.display = 'block';
+                }
+            });
+        });
+
+        // Browse File
+        document.getElementById('btn-browse-file')?.addEventListener('click', () => {
+            document.getElementById('transfer-import-file').click();
+        });
+
+        document.getElementById('transfer-import-file')?.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleImportMd(e.target.files[0]);
+                window.closeTransferModal();
+            }
+        });
+
+        // Drag & Drop
+        const dropZone = document.getElementById('drop-zone');
+        if (dropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            ['dragenter', 'dragover'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.add('drag-over'));
+            });
+
+            ['dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.remove('drag-over'));
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    this.handleImportMd(files[0]);
+                    window.closeTransferModal();
+                }
+            });
+        }
+
+        // Execute Export
+        document.getElementById('btn-execute-export')?.addEventListener('click', () => {
+            const filename = document.getElementById('export-filename-input').value.trim();
+            this.handleExportMd(filename);
+            window.closeTransferModal();
+        });
     },
 
     async handleNoteCreation() {
@@ -253,19 +327,22 @@ window.EditorActions = {
         this.pendingNewNoteData = null;
     },
 
-    handleExportMd() {
+    handleExportMd(customFilename = null) {
         const editor = document.getElementById('markdown-input');
         const text = editor.value;
         const blob = new Blob([text], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        let safeTitle = window.EditorState.getActiveNote().title.replace(/[/\\?%*:|"<>]/g, '_').toLowerCase();
-        if (safeTitle === 'untitled_note' || !safeTitle) safeTitle = 'markdown_document';
+
+        let filename = customFilename || window.EditorState.getActiveNote().title;
+        let safeTitle = filename.replace(/[/\\?%*:|"<>]/g, '_');
+        if (!safeTitle || safeTitle.trim() === '') safeTitle = 'markdown_document';
+
         a.download = `${safeTitle}.md`;
         a.click();
         URL.revokeObjectURL(url);
-        window.showToast("<i data-lucide='download'></i> Downloaded");
+        window.showToast("<i data-lucide='download'></i> Exported");
     },
 
     handleImportMd(file) {

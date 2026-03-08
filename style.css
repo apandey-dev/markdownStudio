@@ -530,25 +530,6 @@ body.dark-mode .action-pill-group {
     opacity: 0.9;
 }
 
-.sync-note-btn {
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-}
-
-.sync-note-btn:hover {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: #10b981;
-}
-
-.push-all-btn {
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.4);
-}
-
-.push-all-btn:hover {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: #3b82f6;
-}
 
 .sb-action-btn:disabled {
     opacity: 0.5;
@@ -654,14 +635,14 @@ body.dark-mode .toolbar-group {
     background-color: var(--toggle-pill);
     opacity: 1;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px var(--toggle-shadow);
+    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-group .tool-btn.active {
     background-color: var(--toggle-pill);
     color: var(--accent-color);
     opacity: 1;
-    box-shadow: 0 2px 8px var(--toggle-shadow);
+    box-shadow: 0 2px 8px var(--toggle-shadow), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-spacer {
@@ -2262,7 +2243,7 @@ input:checked + .slider:before {
     opacity: 0;
     transform: translateY(5px);
     transition: opacity 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
     white-space: nowrap;
 }
 
