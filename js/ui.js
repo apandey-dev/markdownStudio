@@ -30,19 +30,94 @@ window.closePromptModal = function () { document.getElementById('prompt-modal')?
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
+window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
+window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 
-window.closeNotesModal = function () {
-    document.getElementById('notes-modal')?.classList.remove('show');
-    const dashboardBox = document.querySelector('.notes-dashboard-box');
-    if (dashboardBox) {
-        dashboardBox.classList.remove('show-preview-pane');
-        dashboardBox.classList.add('folders-collapsed');
-    }
-};
+// window.closeNotesModal is now handled in editor-core.js
 
 document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) lucide.createIcons();
+
+    // ✨ CUSTOM TOOLTIP SYSTEM ✨
+    const tooltip = document.createElement('div');
+    tooltip.className = 'custom-tooltip';
+    document.body.appendChild(tooltip);
+
+    let tooltipTimeout;
+
+    const showTooltip = (el, text) => {
+        if (!el || el.offsetWidth === 0) return;
+
+        tooltip.textContent = text;
+
+        // Temporarily show to measure dimensions accurately
+        tooltip.style.display = 'block';
+        tooltip.style.visibility = 'hidden';
+        tooltip.classList.remove('show');
+
+        const rect = el.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+
+        let top = rect.top - tooltipRect.height - 10;
+        let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+        // Viewport boundaries
+        const padding = 12;
+        if (left < padding) left = padding;
+        if (left + tooltipRect.width > window.innerWidth - padding) {
+            left = window.innerWidth - tooltipRect.width - padding;
+        }
+
+        // Vertical flipping with bottom boundary check
+        if (top < padding) {
+            const bottomTop = rect.bottom + 10;
+            if (bottomTop + tooltipRect.height > window.innerHeight - padding) {
+                // If it doesn't fit at bottom either, pick the side with more space
+                if (rect.top > (window.innerHeight - rect.bottom)) {
+                    top = padding;
+                } else {
+                    top = window.innerHeight - tooltipRect.height - padding;
+                }
+            } else {
+                top = bottomTop;
+            }
+        }
+
+        tooltip.style.top = `${top}px`;
+        tooltip.style.left = `${left}px`;
+
+        // Clear measurement styles and show
+        tooltip.style.display = '';
+        tooltip.style.visibility = '';
+        tooltip.classList.add('show');
+    };
+
+    const hideTooltip = () => {
+        tooltip.classList.remove('show');
+    };
+
+    let currentTooltipTarget = null;
+
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (target && target !== currentTooltipTarget) {
+            currentTooltipTarget = target;
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = setTimeout(() => showTooltip(target, target.getAttribute('data-tooltip')), 400);
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        const related = e.relatedTarget?.closest?.('[data-tooltip]');
+
+        if (target && target !== related) {
+            currentTooltipTarget = null;
+            clearTimeout(tooltipTimeout);
+            hideTooltip();
+        }
+    });
 
     // Init Focus Mode
     const initFocusMode = () => {
@@ -57,14 +132,41 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('focus-mode');
         localStorage.setItem('md_focus_mode', 'true');
         window.dispatchEvent(new Event('focusModeEnabled'));
+
+        // Custom UI logic for focus mode
+        const pillGroup = document.querySelector('.action-pill-group');
+        if (pillGroup) {
+            pillGroup.querySelectorAll('button:not(#btn-share):not(#btn-pdf):not(#btn-exit-focus)').forEach(btn => {
+                btn.style.display = 'none';
+            });
+            document.getElementById('btn-exit-focus').style.display = 'flex';
+        }
+
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
 
-    document.getElementById('btn-exit-focus')?.addEventListener('click', () => {
+    const exitFocus = () => {
         document.body.classList.remove('focus-mode');
         localStorage.setItem('md_focus_mode', 'false');
+
+        // Revert UI changes
+        const pillGroup = document.querySelector('.action-pill-group');
+        if (pillGroup) {
+            pillGroup.querySelectorAll('button').forEach(btn => {
+                btn.style.display = 'flex';
+            });
+            document.getElementById('btn-exit-focus').style.display = 'none';
+            document.getElementById('btn-exit-focus-bottom').style.display = 'none';
+        }
+
+        // Apply UI visibility preferences again in case they were hidden by focus mode but should be visible
+        window.EditorState.applyUIVisibility();
+
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
-    });
+    };
+
+    document.getElementById('btn-exit-focus')?.addEventListener('click', exitFocus);
+    document.getElementById('btn-exit-focus-bottom')?.addEventListener('click', exitFocus);
 
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -103,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('manage-modal-close')?.addEventListener('click', window.closeManageModal);
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
+    document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
 
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
@@ -112,6 +215,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('docs-modal')?.classList.add('show');
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
+
+    // ✨ SETTINGS MODAL ✨
+    document.getElementById('btn-settings')?.addEventListener('click', () => {
+        document.getElementById('settings-modal')?.classList.add('show');
+    });
+    document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('settings-modal')?.classList.add('show');
+    });
+    document.getElementById('settings-modal-close')?.addEventListener('click', () => {
+        initSettingsToggles();
+        window.closeSettingsModal();
+    });
 
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -169,13 +285,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
             if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
+            if (document.getElementById('transfer-modal')?.classList.contains('show')) { window.closeTransferModal(); return; }
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             if (document.getElementById('management-modal')?.classList.contains('show')) { window.closeManageModal(); return; }
+            if (document.getElementById('settings-modal')?.classList.contains('show')) { window.closeSettingsModal(); return; }
             
-            if (document.getElementById('notes-modal')?.classList.contains('show')) { window.closeNotesModal(); return; }
+            if (document.getElementById('notes-modal')?.classList.contains('show')) { if (typeof window.closeNotesModal === 'function') window.closeNotesModal(); return; }
         }
     });
 
@@ -185,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardBox.classList.toggle('folders-collapsed');
     });
 
+    // Modified setupDropdown for Font Picker Fix to detach the list and avoid clipping
     function setupToolbarDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -192,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const list = dropdown.querySelector('.dropdown-list');
         const textEl = document.getElementById(textId);
 
+        // Break out of overflow:hidden parent by appending to body
         if (list && !list.parentNode.isEqualNode(document.body)) {
             document.body.appendChild(list);
         }
@@ -201,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const isOpen = list.classList.contains('show');
             
+            // Close others
             document.querySelectorAll('.dropdown-list').forEach(d => {
                 d.classList.remove('show');
                 d.style.opacity = '0';
@@ -224,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Use event delegation for dynamically added items or query them directly
         const items = list.querySelectorAll('.dropdown-item');
         items.forEach(item => {
             item.addEventListener('click', (e) => {
@@ -241,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Generic setupDropdown for other static non-toolbar dropdowns (like in PDF modal)
     function setupStaticDropdown(dropdownId, textId, callback) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -270,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', () => {
         document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
         document.querySelectorAll('.dropdown-list').forEach(l => {
+            // Only affect the detached/floating ones that we manage via JS styles
             if (l.parentNode.isEqualNode(document.body)) {
                 l.classList.remove('show');
                 l.style.opacity = '0';
@@ -306,24 +430,77 @@ document.addEventListener('DOMContentLoaded', () => {
         window.selectedPageSize = val;
     });
 
+    setupStaticDropdown('transfer-size-dropdown', 'transfer-size-selected-text', (val) => {
+        window.selectedPageSize = val;
+    });
+
     const divider = document.getElementById('drag-divider');
     const editorPanel = document.getElementById('editor-panel-wrapper');
+    const previewPanel = document.getElementById('preview-panel');
     const container = document.getElementById('split-workspace');
+    const restoreLeft = document.getElementById('restore-left');
+    const restoreRight = document.getElementById('restore-right');
     let isDragging = false;
+    let dragRaf;
 
     if (divider && editorPanel && container) {
-        divider.addEventListener('mousedown', () => {
+        const startDragging = () => {
             isDragging = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
+            container.classList.add('is-resizing');
+        };
+
+        divider.addEventListener('mousedown', startDragging);
+        restoreLeft?.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDragging();
+        });
+        restoreRight?.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDragging();
         });
 
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            let newWidthPercentage = ((e.clientX - container.getBoundingClientRect().left) / container.getBoundingClientRect().width) * 100;
-            if (newWidthPercentage < 20) newWidthPercentage = 20;
-            if (newWidthPercentage > 80) newWidthPercentage = 80;
-            editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
+
+            if (dragRaf) cancelAnimationFrame(dragRaf);
+
+            dragRaf = requestAnimationFrame(() => {
+                const containerRect = container.getBoundingClientRect();
+                let newWidthPercentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+
+                // Keep within bounds
+                newWidthPercentage = Math.max(0, Math.min(100, newWidthPercentage));
+
+                if (newWidthPercentage <= 5) {
+                    // Snap to Preview Only if very close to left
+                    if (document.body.classList.contains('view-preview')) return;
+                    document.body.classList.add('view-preview');
+                    document.body.classList.remove('view-editor');
+                    restoreLeft.style.display = 'flex';
+                    restoreRight.style.display = 'none';
+                } else if (newWidthPercentage >= 95) {
+                    // Snap to Editor Only if very close to right
+                    if (document.body.classList.contains('view-editor')) return;
+                    document.body.classList.add('view-editor');
+                    document.body.classList.remove('view-preview');
+                    restoreRight.style.display = 'flex';
+                    restoreLeft.style.display = 'none';
+                } else {
+                    // Standard Split Mode
+                    document.body.classList.remove('view-editor', 'view-preview');
+                    restoreLeft.style.display = 'none';
+                    restoreRight.style.display = 'none';
+                    editorPanel.style.flex = `0 0 ${newWidthPercentage}%`;
+
+                    // Update Toolbar Buttons state
+                    document.querySelectorAll('.view-btn').forEach(b => {
+                        b.classList.remove('active');
+                        if (b.getAttribute('data-view') === 'split') b.classList.add('active');
+                    });
+                }
+            });
         });
 
         document.addEventListener('mouseup', () => {
@@ -331,8 +508,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 isDragging = false;
                 document.body.style.cursor = 'default';
                 document.body.style.userSelect = 'auto';
+                container.classList.remove('is-resizing');
+
+                // If we ended dragging while in a collapsed state, make sure handles are visible
+                if (document.body.classList.contains('view-preview')) {
+                    restoreLeft.style.display = 'flex';
+                } else if (document.body.classList.contains('view-editor')) {
+                    restoreRight.style.display = 'flex';
+                }
             }
         });
+
+        const restoreSplit = () => {
+            document.body.classList.remove('view-editor', 'view-preview');
+            editorPanel.style.flex = '0 0 50%';
+            restoreLeft.style.display = 'none';
+            restoreRight.style.display = 'none';
+            if (window.lucide) lucide.createIcons();
+
+            // Update view buttons UI
+            document.querySelectorAll('.view-btn').forEach(b => {
+                b.classList.remove('active');
+                if (b.getAttribute('data-view') === 'split') b.classList.add('active');
+            });
+        };
+
+        restoreLeft?.addEventListener('click', restoreSplit);
+        restoreRight?.addEventListener('click', restoreSplit);
     }
 
     const applyTheme = (themeName) => {
@@ -394,52 +596,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('delete-cancel')?.addEventListener('click', window.closeDeleteModal);
 
-    // ✨ GLOBAL CUSTOM TOOLTIP EVENT DELEGATION ✨
-    const customTooltip = document.getElementById('custom-tooltip');
-    if (customTooltip) {
-        document.addEventListener('mouseover', (e) => {
-            let target = e.target.closest('[data-tooltip], [title]');
-            if (!target) return;
+    // ✨ SETTINGS LOGIC ✨
+    const settingsNavItems = document.querySelectorAll('.settings-nav-item');
+    const settingsContents = document.querySelectorAll('.settings-content');
 
-            // Automatically convert legacy 'title' to 'data-tooltip' logic-free!
-            if (target.hasAttribute('title') && target.getAttribute('title').trim() !== "") {
-                target.setAttribute('data-tooltip', target.getAttribute('title'));
-                target.removeAttribute('title');
-            }
+    settingsNavItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const section = item.getAttribute('data-section');
+            settingsNavItems.forEach(nav => nav.classList.remove('active'));
+            settingsContents.forEach(content => content.classList.remove('active'));
 
-            const text = target.getAttribute('data-tooltip');
-            if (text) {
-                customTooltip.textContent = text;
-                customTooltip.classList.add('show');
-            }
+            item.classList.add('active');
+            document.getElementById(`settings-section-${section}`).classList.add('active');
+        });
+    });
+
+    const initSettingsToggles = () => {
+        window.EditorState.loadUIVisibility();
+
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            const isVisible = window.EditorState.uiVisibility[toggle.id] !== false;
+            toggle.checked = isVisible;
         });
 
-        document.addEventListener('mousemove', (e) => {
-            if (customTooltip.classList.contains('show')) {
-                let x = e.clientX + 15;
-                let y = e.clientY + 15;
-                
-                if (x + customTooltip.offsetWidth > window.innerWidth) {
-                    x = window.innerWidth - customTooltip.offsetWidth - 15;
-                }
-                if (y + customTooltip.offsetHeight > window.innerHeight) {
-                    y = e.clientY - customTooltip.offsetHeight - 15;
-                }
-                
-                customTooltip.style.left = `${x}px`;
-                customTooltip.style.top = `${y}px`;
-            }
-        });
+        window.EditorState.applyUIVisibility();
+    };
 
-        document.addEventListener('mouseout', (e) => {
-            let target = e.target.closest('[data-tooltip]');
-            if (target) {
-                customTooltip.classList.remove('show');
-            }
+    const saveSettingsChanges = () => {
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            window.EditorState.uiVisibility[toggle.id] = toggle.checked;
         });
+        window.EditorState.saveUIVisibility();
 
-        document.addEventListener('mousedown', () => {
-            customTooltip.classList.remove('show');
-        });
-    }
+        window.showToast("<i data-lucide='check-circle'></i> Settings Saved");
+        window.closeSettingsModal();
+    };
+
+    document.getElementById('settings-modal-save-btn')?.addEventListener('click', saveSettingsChanges);
+
+    // Initial load
+    setTimeout(initSettingsToggles, 100);
+
 });

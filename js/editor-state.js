@@ -1,11 +1,8 @@
 /* js/editor-state.js */
 /* ==========================================================================
-   EDITOR STATE & STORAGE MANAGER
-   Maintains application internal state and database layers safely.
+   STORAGE MANAGER (IndexedDB Migration + Quota Handling)
    ========================================================================== */
-
-// Renamed from StorageManager to AppStorageManager to prevent native browser API collisions
-window.AppStorageManager = {
+window.StorageManager = {
     dbName: "markdownStudioDB",
     storeName: "notes",
     db: null,
@@ -144,7 +141,10 @@ window.AppStorageManager = {
     }
 };
 
-window.AppOfflineQueue = {
+/* ==========================================================================
+   OFFLINE QUEUE SYSTEM
+   ========================================================================== */
+window.OfflineQueue = {
     key: 'md_offline_queue',
     isProcessing: false,
 
@@ -159,11 +159,11 @@ window.AppOfflineQueue = {
             return;
         }
         q.push({ type, payload, timestamp: Date.now() });
-        window.AppStorageManager.safeSetLocal(this.key, JSON.stringify(q));
+        window.StorageManager.safeSetLocal(this.key, JSON.stringify(q));
     },
 
     async process() {
-        if (!navigator.onLine || !window.GitHubBackend?.isConfigured || this.isProcessing) return;
+        if (!navigator.onLine || !GitHubBackend.isConfigured || this.isProcessing) return;
         const q = this.get();
         if (q.length === 0) return;
 
@@ -173,7 +173,7 @@ window.AppOfflineQueue = {
         for (let op of q) {
             try {
                 if (op.type === 'delete') {
-                    await window.GitHubBackend.deleteNote(op.payload.path, op.payload.sha);
+                    await GitHubBackend.deleteNote(op.payload.path, op.payload.sha);
                 }
             } catch (e) {
                 console.error("Failed to process offline op:", e);
@@ -181,147 +181,309 @@ window.AppOfflineQueue = {
             }
         }
 
-        window.AppStorageManager.safeSetLocal(this.key, JSON.stringify(remaining));
+        window.StorageManager.safeSetLocal(this.key, JSON.stringify(remaining));
         this.isProcessing = false;
     }
 };
 
-// Explicit Global States
-window.notes = [];
-window.folders = ['All Notes'];
-window.activeFolder = 'All Notes';
-window.activeNoteId = null;
-window.pendingDeleteData = { type: null, id: null };
-window.highlightedNoteId = null;
-window.pendingNewNoteData = null;
-window.pendingRenameData = null;
+/* ==========================================================================
+   EDITOR STATE MANAGEMENT
+   ========================================================================== */
+window.EditorState = {
+    notes: [],
+    folders: ['All Notes'],
+    activeFolder: 'All Notes',
+    activeNoteId: null,
 
-window.appMode = 'local';
-window.isSyncing = false;
-window.pendingSync = false;
-window.syncTimer = null;
-window.syncRetries = 0;
-window.MAX_SYNC_RETRIES = 3;
+    appMode: 'local',
+    autoSave: true,
+    uiVisibility: {},
+    isSyncing: false,
+    pendingSync: false,
+    syncTimer: null,
+    syncRetries: 0,
+    MAX_SYNC_RETRIES: 3,
 
-window.defaultWelcomeNote = `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`;
+    // Default welcome note content
+    defaultWelcomeNote: `# Welcome to Markdown Studio 🖤\n\nYour premium workspace.\n\n## [ ✨ Features ]{#3b82f6}\n* **💻 Code Blocks:** Hover over code to copy it!\n* **🖼️ Pro Images:** \`![alt](url){300x400, center}\`\n* **🧠 Wiki Links:** Type \`[[Note Name]]\` to link notes!\n\n## 🧪 Testing Zone\n\n**1. Copy Code Feature**\n\`\`\`javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\ngreet("Markdown Studio");\n\`\`\`\n\n**2. Responsive Image (Left Aligned, 200px)**\n![Nature](https://images.unsplash.com/photo-1506744626753-143d4e8c1874?q=80&w=300&auto=format&fit=crop){200, left}\nThis text automatically wraps around the right side of the beautiful nature image because we used the \`{200, left}\` syntax.\n\n**3. Custom Raw SVG Icon**\n<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>\n\n/center **Enjoy writing!**`,
 
-// DOM Elements (Populated on Load)
-window.editor = null;
-window.previewPanel = null;
-window.preview = null;
-window.shareBtn = null;
-window.btnConfirmPdf = null;
-window.inputFilename = null;
+    loadFolders() {
+        try {
+            let saved = localStorage.getItem(`md_folders_${this.appMode}`);
+            if (saved) this.folders = JSON.parse(saved);
+            else this.folders = ['All Notes'];
+        } catch (e) { this.folders = ['All Notes']; }
+    },
 
-// Global State Access Helpers
-window.getActiveNote = function () {
-    let n = window.notes.find(n => n.id === window.activeNoteId);
-    if (!n && window.notes.length > 0) {
-        window.activeNoteId = window.notes[0].id;
-        n = window.notes[0];
-        window.saveLocalState();
-    }
-    return n;
-};
+    saveFolders() {
+        window.StorageManager.safeSetLocal(`md_folders_${this.appMode}`, JSON.stringify(this.folders));
+    },
 
-window.getActiveNoteTitle = function () { 
-    const note = window.getActiveNote(); 
-    return note ? note.title : "Document"; 
-};
+    extractFoldersFromNotes() {
+        let fSet = new Set(this.folders);
+        fSet.add('All Notes');
+        this.notes.forEach(n => {
+            if (n.folder) fSet.add(n.folder);
+        });
+        this.folders = Array.from(fSet);
+        this.saveFolders();
+    },
 
-window.generatePath = function(folderName, title) {
-    let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
-    if (!safeTitle) safeTitle = 'Untitled Note';
-    if (folderName === 'All Notes') return `${safeTitle}.md`;
-    return `${folderName}/${safeTitle}.md`;
-};
+    async saveLocalState() {
+        const mode = this.appMode;
+        window.StorageManager.safeSetLocal(`md_active_${mode}`, this.activeNoteId);
+        await window.StorageManager.saveNotes(this.notes, mode);
+    },
 
-window.loadFolders = function() {
-    try {
-        let saved = localStorage.getItem(`md_folders_${window.appMode}`);
-        if (saved) window.folders = JSON.parse(saved);
-        else window.folders = ['All Notes'];
-    } catch (e) { window.folders = ['All Notes']; }
-};
+    getActiveNote() {
+        let n = this.notes.find(n => n.id === this.activeNoteId);
+        if (!n && this.notes.length > 0) {
+            this.activeNoteId = this.notes[0].id;
+            n = this.notes[0];
+            this.saveLocalState();
+        }
+        return n;
+    },
 
-window.saveFolders = function() {
-    window.AppStorageManager.safeSetLocal(`md_folders_${window.appMode}`, JSON.stringify(window.folders));
-};
+    getActiveNoteTitle() {
+        const note = this.getActiveNote();
+        return note ? note.title : "Document";
+    },
 
-window.extractFoldersFromNotes = function() {
-    let fSet = new Set(window.folders);
-    fSet.add('All Notes');
-    window.notes.forEach(n => {
-        if (n.folder) fSet.add(n.folder);
-    });
-    window.folders = Array.from(fSet);
-    window.saveFolders();
-};
+    generatePath(folderName, title) {
+        let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
+        if (!safeTitle) safeTitle = 'Untitled Note';
+        if (folderName === 'All Notes') return `${safeTitle}.md`;
+        return `${folderName}/${safeTitle}.md`;
+    },
 
-window.saveLocalState = async function() {
-    const mode = window.appMode;
-    window.AppStorageManager.safeSetLocal(`md_active_${mode}`, window.activeNoteId);
-    await window.AppStorageManager.saveNotes(window.notes, mode);
-};
+    loadAutoSave() {
+        // Auto Save is now always true.
+        this.autoSave = true;
+    },
 
-// Available to trigger manually if custom sync logic is ever implemented.
-window.triggerCloudSync = function() {
-    if (window.appMode !== 'github') return;
-    window.pendingSync = true;
-    if (window.updatePillUI) window.updatePillUI();
+    saveAutoSave() {
+        // Auto Save is always enabled.
+        this.autoSave = true;
+    },
 
-    clearTimeout(window.syncTimer);
-    window.syncTimer = setTimeout(async () => {
-        if (window.isSyncing) return;
-        await window.performCloudSync();
-    }, 2000);
-};
+    loadUIVisibility() {
+        try {
+            const saved = localStorage.getItem('md_ui_visibility');
+            this.uiVisibility = saved ? JSON.parse(saved) : {};
+        } catch (e) {
+            this.uiVisibility = {};
+        }
+    },
 
-window.performCloudSync = async function() {
-    if (!window.pendingSync || window.appMode !== 'github' || window.isSyncing) return;
+    saveUIVisibility() {
+        localStorage.setItem('md_ui_visibility', JSON.stringify(this.uiVisibility));
+        this.applyUIVisibility();
+    },
 
-    if (!navigator.onLine) {
-        window.pendingSync = true;
-        if (window.updatePillUI) window.updatePillUI();
-        return;
-    }
+    applyUIVisibility() {
+        Object.keys(this.uiVisibility).forEach(id => {
+            const checkbox = document.getElementById(id);
+            const isVisible = this.uiVisibility[id];
 
-    window.isSyncing = true;
-    if (window.updatePillUI) window.updatePillUI();
+            if (checkbox) {
+                checkbox.checked = isVisible;
+                const componentSelector = checkbox.getAttribute('data-component');
 
-    await window.AppOfflineQueue.process();
-
-    try {
-        const currentNote = window.getActiveNote();
-        if (currentNote) {
-            const result = await window.GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
-            if (result && result !== 'conflict') {
-                currentNote.id = result.sha;
-                currentNote.path = result.path;
-                await window.saveLocalState();
-                window.pendingSync = false;
-                window.syncRetries = 0;
-            } else if (result === 'conflict') {
-                throw new Error("Conflict detected");
-            } else {
-                throw new Error("Failed to save to cloud");
+                if (componentSelector) {
+                    const elements = document.querySelectorAll(componentSelector);
+                    elements.forEach(el => {
+                        // Crucial Protection: Never hide certain elements
+                        if (el.classList.contains('brand') ||
+                            el.id === 'btn-settings' ||
+                            el.id === 'btn-exit-focus' ||
+                            el.id === 'btn-exit-focus-bottom' ||
+                            el.closest('#btn-settings') ||
+                            el.closest('#btn-exit-focus') ||
+                            el.closest('#btn-exit-focus-bottom')) {
+                            el.style.display = '';
+                            return;
+                        }
+                        el.style.display = isVisible ? '' : 'none';
+                    });
+                }
             }
-        }
-    } catch (e) {
-        console.error("Sync Error:", e);
-        window.pendingSync = true;
-        window.syncRetries++;
+        });
 
-        if (window.syncRetries <= window.MAX_SYNC_RETRIES) {
-            const backoffTime = Math.pow(2, window.syncRetries) * 1000;
-            clearTimeout(window.syncTimer);
-            window.syncTimer = setTimeout(window.performCloudSync, backoffTime);
-        } else {
-            if (window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Offline");
+        // Specific recovery logic to ensure navbar is visible if at least settings/brand is there
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            navbar.style.display = '';
         }
-    } finally {
-        window.isSyncing = false;
-        if (window.updatePillUI) window.updatePillUI();
-        if (window.pendingSync && window.syncRetries === 0) window.triggerCloudSync();
+    },
+
+    async switchToMode(targetMode) {
+        const editor = document.getElementById('markdown-input');
+        if (this.appMode === targetMode && editor.disabled === false) return;
+
+        if (this.notes.length > 0) await this.saveLocalState();
+
+        if (targetMode === 'github') {
+            const token = localStorage.getItem('md_github_token');
+            if (!token) {
+                document.getElementById('setup-modal').classList.add('show');
+                return;
+            }
+
+            this.appMode = 'github';
+            localStorage.setItem('md_app_mode', 'github');
+            document.querySelectorAll(`[data-target="github"]`).forEach(tab => tab.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> <span class="tab-text">Cloud</span>');
+            if (window.lucide) lucide.createIcons();
+
+            editor.disabled = true;
+            document.body.classList.add('is-loading');
+            await this.initGitHubMode(token);
+        } else {
+            this.appMode = 'local';
+            localStorage.setItem('md_app_mode', 'local');
+            editor.disabled = true;
+            document.body.classList.add('is-loading');
+            await this.loadLocalMode();
+        }
+    },
+
+    async initGitHubMode(token) {
+        this.loadFolders();
+        const localCachedNotes = await window.StorageManager.getAllNotes('github') || [];
+
+        if (localCachedNotes.length > 0) {
+            this.notes = localCachedNotes;
+            this.extractFoldersFromNotes();
+            this.activeNoteId = localStorage.getItem('md_active_github') || this.notes[0]?.id;
+            window.EditorCore.finishAppLoad();
+        }
+
+        const success = await GitHubBackend.init(token);
+        if (success) {
+            const cloudNotes = await GitHubBackend.getAllNotes();
+
+            if (localCachedNotes.length === 0) {
+                if (cloudNotes.length > 0) {
+                    this.notes = cloudNotes;
+                } else {
+                    const result = await GitHubBackend.saveNote('new', 'Welcome.md', "Welcome", this.defaultWelcomeNote);
+                    this.notes = [{ id: result?.sha || 'temp', path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
+                }
+                this.activeNoteId = this.notes[0]?.id;
+            } else {
+                let mergedMap = new Map();
+                localCachedNotes.forEach(n => mergedMap.set(n.path, n));
+
+                let addedOrUpdated = false;
+                cloudNotes.forEach(cn => {
+                    const ln = mergedMap.get(cn.path);
+                    if (!ln || cn.id !== ln.id) {
+                        if (ln) cn.lastUpdated = Date.now();
+                        mergedMap.set(cn.path, cn);
+                        addedOrUpdated = true;
+                    }
+                });
+
+                this.notes = Array.from(mergedMap.values()).sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
+
+                if (addedOrUpdated) {
+                    if (!this.notes.find(n => n.id === this.activeNoteId)) this.activeNoteId = this.notes[0]?.id;
+                    if (document.getElementById('notes-modal').classList.contains('show')) {
+                        window.EditorCore.renderFoldersList();
+                        window.EditorCore.renderNotesList();
+                    }
+                }
+            }
+
+            this.extractFoldersFromNotes();
+            await this.saveLocalState();
+            window.EditorCore.finishAppLoad();
+            window.EditorCore.updatePillUI();
+            this.triggerCloudSync();
+
+        } else {
+            window.showToast("Working locally.");
+            window.EditorCore.finishAppLoad();
+        }
+    },
+
+    async loadLocalMode() {
+        this.loadFolders();
+        const cachedNotes = await window.StorageManager.getAllNotes('local');
+        if (cachedNotes && cachedNotes.length > 0) {
+            this.notes = cachedNotes;
+            this.extractFoldersFromNotes();
+            this.activeNoteId = localStorage.getItem('md_active_local') || this.notes[0]?.id;
+        } else {
+            const id = Date.now().toString();
+            this.notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
+            this.folders = ['All Notes'];
+            this.activeNoteId = id;
+            await this.saveLocalState();
+            this.saveFolders();
+        }
+        window.EditorCore.finishAppLoad();
+        window.EditorCore.updatePillUI();
+    },
+
+    triggerCloudSync() {
+        if (this.appMode !== 'github') return;
+        this.pendingSync = true;
+        window.EditorCore.updatePillUI();
+
+        clearTimeout(this.syncTimer);
+        this.syncTimer = setTimeout(async () => {
+            if (this.isSyncing) return;
+            await this.performCloudSync();
+        }, 2000);
+    },
+
+    async performCloudSync() {
+        if (!this.pendingSync || this.appMode !== 'github' || this.isSyncing) return;
+
+        if (!navigator.onLine) {
+            this.pendingSync = true;
+            window.EditorCore.updatePillUI();
+            return;
+        }
+
+        this.isSyncing = true;
+        window.EditorCore.updatePillUI();
+
+        await window.OfflineQueue.process();
+
+        try {
+            const currentNote = this.getActiveNote();
+            if (currentNote) {
+                const result = await GitHubBackend.saveNote(currentNote.id, currentNote.path, currentNote.title, currentNote.content);
+                if (result && result !== 'conflict') {
+                    currentNote.id = result.sha;
+                    currentNote.path = result.path;
+                    await this.saveLocalState();
+                    this.pendingSync = false;
+                    this.syncRetries = 0;
+                } else if (result === 'conflict') {
+                    throw new Error("Conflict detected");
+                } else {
+                    throw new Error("Failed to save to cloud");
+                }
+            }
+        } catch (e) {
+            console.error("Sync Error:", e);
+            this.pendingSync = true;
+            this.syncRetries++;
+
+            if (this.syncRetries <= this.MAX_SYNC_RETRIES) {
+                const backoffTime = Math.pow(2, this.syncRetries) * 1000;
+                clearTimeout(this.syncTimer);
+                this.syncTimer = setTimeout(() => this.performCloudSync(), backoffTime);
+            } else {
+                if (window.showToast) window.showToast("<i data-lucide='wifi-off'></i> Offline");
+            }
+        } finally {
+            this.isSyncing = false;
+            window.EditorCore.updatePillUI();
+            if (this.pendingSync && this.syncRetries === 0) this.triggerCloudSync();
+        }
     }
 };

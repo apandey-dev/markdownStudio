@@ -41,27 +41,32 @@
     </script>
 
     <header class="navbar">
-        <button id="mobile-menu-btn" class="mobile-only" data-tooltip="Menu"><i data-lucide="menu"></i></button>
+        <div class="action-pill-group mobile-only" style="margin-left: -8px;">
+            <button id="mobile-menu-btn" class="pill-action-btn" data-tooltip="Menu">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
         <div class="brand">Markdown Studio</div>
 
         <div class="actions">
-            <button id="mobile-view-toggle" class="mobile-only" data-tooltip="Toggle Preview">
-                <i data-lucide="eye"></i>
-            </button>
+            <div class="action-pill-group mobile-only">
+                <button id="mobile-view-toggle" class="pill-action-btn" data-tooltip="Toggle Preview">
+                    <i data-lucide="eye"></i>
+                </button>
+            </div>
 
             <div class="mode-toggle desktop-only" id="nav-mode-toggle">
-                <button class="mode-tab active" data-target="local" id="nav-tab-local">
+                <button class="mode-tab active" data-target="local" id="nav-tab-local" data-tooltip="Switch to Local Mode">
                     <i data-lucide="hard-drive" style="width: 14px; height: 14px;"></i> <span
                         class="tab-text">Local</span>
                 </button>
-                <button class="mode-tab" data-target="github" id="nav-tab-github">
+                <button class="mode-tab" data-target="github" id="nav-tab-github" data-tooltip="Switch to Cloud Mode">
                     <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> <span class="tab-text">Cloud</span>
                 </button>
             </div>
 
             <div class="action-pill-group desktop-only">
-                <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes"
-                    data-tooltip="Note Dashboard">
+                <button id="btn-notes-desktop" class="pill-action-btn modal-trigger-notes" data-tooltip="Note Dashboard">
                     <i data-lucide="panel-left" style="width: 16px; height: 16px;"></i>
                 </button>
                 <button id="btn-manage" class="pill-action-btn" data-tooltip="Manage Workspace">
@@ -73,11 +78,10 @@
                 <button id="btn-pdf" class="pill-action-btn" data-tooltip="Export to PDF">
                     <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-docs" class="pill-action-btn" data-tooltip="View Documentation">
-                    <i data-lucide="book" style="width: 16px; height: 16px;"></i>
+                <button id="btn-settings" class="pill-action-btn" data-tooltip="Settings">
+                    <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="btn-exit-focus" class="pill-action-btn" data-tooltip="Exit Focus Mode"
-                    style="display: none;">
+                <button id="btn-exit-focus" class="pill-action-btn" data-tooltip="Exit Focus Mode" style="display: none;">
                     <i data-lucide="minimize" style="width: 16px; height: 16px;"></i>
                 </button>
             </div>
@@ -88,29 +92,29 @@
         <div class="mobile-sidebar" id="mobile-sidebar">
             <div class="sidebar-header">
                 <h3>Menu</h3>
-                <button id="close-sidebar-btn" data-tooltip="Close"><i data-lucide="x"></i></button>
+                <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
 
             <div style="padding: 20px 20px 0; display: flex; gap: 12px;">
                 <div class="mode-toggle" id="mobile-mode-toggle" style="flex: 1;">
                     <button class="mode-tab active" data-target="local" style="flex: 1; justify-content: center;"
-                        data-tooltip="Local Mode">
+                        title="Local Mode">
                         <i data-lucide="hard-drive" style="width: 16px; height: 16px;"></i> <span
                             class="tab-text">Local</span>
                     </button>
                     <button class="mode-tab" data-target="github" style="flex: 1; justify-content: center;"
-                        data-tooltip="Cloud Mode">
+                        title="Cloud Mode">
                         <i data-lucide="cloud" style="width: 16px; height: 16px;"></i> <span
                             class="tab-text">Cloud</span>
                     </button>
                 </div>
                 <div class="mode-toggle" id="mobile-theme-toggle" style="flex: 1;">
                     <button class="mode-tab theme-tab active" data-theme="light"
-                        style="flex: 1; justify-content: center;" data-tooltip="Light Mode">
+                        style="flex: 1; justify-content: center;" title="Light Mode">
                         <i data-lucide="sun" style="width: 16px; height: 16px;"></i> <span class="tab-text">Light</span>
                     </button>
                     <button class="mode-tab theme-tab" data-theme="dark" style="flex: 1; justify-content: center;"
-                        data-tooltip="Dark Mode">
+                        title="Dark Mode">
                         <i data-lucide="moon" style="width: 16px; height: 16px;"></i> <span class="tab-text">Dark</span>
                     </button>
                 </div>
@@ -125,6 +129,8 @@
                     Manage Folders</button>
                 <button class="sidebar-btn" id="sidebar-btn-docs-mobile"><i data-lucide="book"></i>
                     Documentation</button>
+                <button class="sidebar-btn" id="sidebar-btn-settings-mobile"><i data-lucide="settings"></i>
+                    Settings</button>
                 <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="share-2"></i> Secure Share</button>
                 <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
             </div>
@@ -133,59 +139,64 @@
 
     <main class="app-container">
         <div class="editor-toolbar">
-            <button class="tool-btn" data-action="bold" data-tooltip="Bold"><i data-lucide="bold"></i></button>
-            <button class="tool-btn" data-action="italic" data-tooltip="Italic"><i data-lucide="italic"></i></button>
-            <button class="tool-btn" data-action="heading" data-tooltip="Heading"><i data-lucide="heading"></i></button>
-            <div class="toolbar-divider"></div>
-            <button class="tool-btn" data-action="align-left" data-tooltip="Align Left"><i
-                    data-lucide="align-left"></i></button>
-            <button class="tool-btn" data-action="align-center" data-tooltip="Align Center"><i
-                    data-lucide="align-center"></i></button>
-            <button class="tool-btn" data-action="align-right" data-tooltip="Align Right"><i
-                    data-lucide="align-right"></i></button>
-            <div class="toolbar-divider"></div>
-            <button class="tool-btn" data-action="note-link" data-tooltip="Link to another Note"><i
-                    data-lucide="file-symlink"></i></button>
-            <button class="tool-btn" data-action="link" data-tooltip="Web Link"><i data-lucide="link"></i></button>
-            <button class="tool-btn" data-action="image" data-tooltip="Image"><i data-lucide="image"></i></button>
-            <button class="tool-btn" data-action="code" data-tooltip="Code Block"><i data-lucide="code"></i></button>
-            <button class="tool-btn" data-action="table" data-tooltip="Table"><i data-lucide="table"></i></button>
-            <button class="tool-btn" data-action="math" data-tooltip="Math Formula"><i data-lucide="sigma"></i></button>
+            <div class="toolbar-group">
+                <button class="tool-btn" data-action="bold" data-tooltip="Bold"><i data-lucide="bold"></i></button>
+                <button class="tool-btn" data-action="italic" data-tooltip="Italic"><i data-lucide="italic"></i></button>
+                <button class="tool-btn" data-action="heading" data-tooltip="Heading"><i data-lucide="heading"></i></button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="tool-btn" data-action="align-left" data-tooltip="Align Left"><i
+                        data-lucide="align-left"></i></button>
+                <button class="tool-btn" data-action="align-center" data-tooltip="Align Center"><i
+                        data-lucide="align-center"></i></button>
+                <button class="tool-btn" data-action="align-right" data-tooltip="Align Right"><i
+                        data-lucide="align-right"></i></button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="tool-btn" data-action="note-link" data-tooltip="Link to another Note"><i
+                        data-lucide="file-symlink"></i></button>
+                <button class="tool-btn" data-action="link" data-tooltip="Web Link"><i data-lucide="link"></i></button>
+                <button class="tool-btn" data-action="image" data-tooltip="Image"><i data-lucide="image"></i></button>
+                <button class="tool-btn" data-action="code" data-tooltip="Code Block"><i data-lucide="code"></i></button>
+                <button class="tool-btn" data-action="table" data-tooltip="Table"><i data-lucide="table"></i></button>
+                <button class="tool-btn" data-action="math" data-tooltip="Math Formula"><i data-lucide="sigma"></i></button>
+            </div>
 
             <div class="toolbar-divider desktop-only"></div>
 
-            <div class="custom-dropdown desktop-only" id="font-dropdown" style="margin-right: 4px;">
-                <div class="dropdown-header">
-                    <span id="font-selected-text">Fredoka</span>
-                    <span class="chevron"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></span>
-                </div>
-                <div class="dropdown-list">
-                    <div class="dropdown-item active" data-value="Fredoka" style="font-family: 'Fredoka', sans-serif;">
-                        Fredoka</div>
-                    <div class="dropdown-item" data-value="Playpen Sans" style="font-family: 'Playpen Sans', cursive;">
-                        Playpen Sans</div>
-                    <div class="dropdown-item" data-value="Kalam" style="font-family: 'Kalam', cursive;">Kalam</div>
-                    <div class="dropdown-item" data-value="Comic Neue" style="font-family: 'Comic Neue', cursive;">Comic
-                        Neue</div>
-                    <div class="dropdown-item" data-value="Delius" style="font-family: 'Delius', cursive;">Delius</div>
+            <div class="toolbar-group desktop-only">
+                <div class="custom-dropdown" id="font-dropdown">
+                    <div class="dropdown-header" data-tooltip="Change Font">
+                        <span id="font-selected-text">Fredoka</span>
+                        <span class="chevron"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></span>
+                    </div>
+                    <div class="dropdown-list">
+                        <div class="dropdown-item active" data-value="Fredoka" style="font-family: 'Fredoka', sans-serif;">
+                            Fredoka</div>
+                        <div class="dropdown-item" data-value="Playpen Sans" style="font-family: 'Playpen Sans', cursive;">
+                            Playpen Sans</div>
+                        <div class="dropdown-item" data-value="Kalam" style="font-family: 'Kalam', cursive;">Kalam</div>
+                        <div class="dropdown-item" data-value="Comic Neue" style="font-family: 'Comic Neue', cursive;">Comic
+                            Neue</div>
+                        <div class="dropdown-item" data-value="Delius" style="font-family: 'Delius', cursive;">Delius</div>
+                    </div>
                 </div>
             </div>
 
             <div class="toolbar-spacer"></div>
 
-            <button class="tool-btn desktop-only" id="btn-focus-mode" data-tooltip="Focus Mode"
-                style="margin-right: 8px;">
-                <i data-lucide="scan"></i>
-            </button>
+            <div class="toolbar-group desktop-only">
+                <button class="tool-btn" id="btn-focus-mode" data-tooltip="Focus Mode">
+                    <i data-lucide="scan"></i>
+                </button>
+                <button class="tool-btn active" id="btn-scroll-sync" data-tooltip="Toggle Scroll Sync">
+                    <i data-lucide="arrow-down-up"></i>
+                </button>
+            </div>
 
-            <button class="tool-btn active desktop-only" id="btn-scroll-sync" data-tooltip="Toggle Scroll Sync"
-                style="margin-right: 8px;">
-                <i data-lucide="arrow-down-up"></i>
-            </button>
-            <div class="toolbar-divider desktop-only" style="margin-right: 8px;"></div>
-
-            <div class="desktop-only"
-                style="display: flex; gap: 4px; border: 1px solid var(--border-color); border-radius: 50px; padding: 2px;">
+            <div class="toolbar-group desktop-only">
                 <button class="tool-btn view-btn" data-view="editor" data-tooltip="Editor Only"><i
                         data-lucide="file-edit"></i></button>
                 <button class="tool-btn view-btn active" data-view="split" data-tooltip="Split View"><i
@@ -193,16 +204,18 @@
                 <button class="tool-btn view-btn" data-view="preview" data-tooltip="Preview Only"><i
                         data-lucide="monitor"></i></button>
             </div>
-            <div class="toolbar-divider desktop-only"></div>
 
-            <input type="file" id="import-file" accept=".md,.txt" style="display: none;" />
-            <button class="tool-btn" id="btn-import-md" data-tooltip="Import .md file"><i
-                    data-lucide="file-up"></i></button>
-            <button class="tool-btn" id="btn-export-md" data-tooltip="Download .md file"><i
-                    data-lucide="file-down"></i></button>
+            <div class="toolbar-group">
+                <button class="tool-btn" id="btn-import-export" data-tooltip="Transfer Notes">
+                    <i data-lucide="arrow-up-down"></i>
+                </button>
+            </div>
         </div>
 
         <div class="split-workspace" id="split-workspace">
+            <div id="restore-left" class="edge-handle left" data-tooltip="Restore Editor"><i data-lucide="chevron-right"></i></div>
+            <div id="restore-right" class="edge-handle right" data-tooltip="Restore Preview"><i data-lucide="chevron-left"></i></div>
+
             <div class="panel editor-panel" id="editor-panel-wrapper">
                 <textarea id="markdown-input" class="app-fade" placeholder="Loading workspace..." spellcheck="false"
                     disabled></textarea>
@@ -224,20 +237,27 @@
 
         <div class="status-bar">
             <div class="sb-section" id="sb-left-controls">
-                <span id="active-mode-indicator"
-                    style="font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 6px;">
-                    <i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local
-                </span>
+                <div class="action-pill-group" style="padding: 4px 12px; gap: 12px;">
+                    <span id="active-mode-indicator"
+                        style="font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 6px; font-size: 0.75rem;">
+                        <i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local
+                    </span>
+                    <div class="toolbar-divider" style="height: 12px; margin: 0; opacity: 0.3;"></div>
+                    <span id="stat-line-col" style="opacity: 0.8;">Line 1, Col 1</span>
+                </div>
+                <button id="btn-exit-focus-bottom" class="pill-action-btn" data-tooltip="Exit Focus Mode" style="display: none; background: var(--accent-color); color: var(--btn-text); margin-left: 8px;">
+                    <i data-lucide="minimize" style="width: 14px; height: 14px;"></i>
+                </button>
             </div>
 
             <div class="sb-section">
-                <span id="stat-words">0 Words</span>
-                <div class="toolbar-divider" style="height: 12px; margin: 0 6px;"></div>
-                <span id="stat-chars" class="desktop-only">0 Characters</span>
-                <div class="toolbar-divider desktop-only" style="height: 12px; margin: 0 6px;"></div>
-                <span id="stat-reading-time" class="desktop-only">0 min read</span>
-
-                <div class="toolbar-divider desktop-only" style="height: 14px; margin: 0 12px;"></div>
+                <div class="action-pill-group desktop-only" style="padding: 4px 16px; gap: 12px;">
+                    <span id="stat-words" style="opacity: 0.8;">0 Words</span>
+                    <div class="toolbar-divider" style="height: 12px; margin: 0; opacity: 0.3;"></div>
+                    <span id="stat-chars" style="opacity: 0.8;">0 Characters</span>
+                    <div class="toolbar-divider" style="height: 12px; margin: 0; opacity: 0.3;"></div>
+                    <span id="stat-reading-time" style="opacity: 0.8;">0 min read</span>
+                </div>
 
                 <div class="mode-toggle sb-theme-toggle desktop-only" id="theme-toggle-desktop">
                     <button class="mode-tab theme-tab active" data-theme="light">
@@ -247,11 +267,212 @@
                         <i data-lucide="moon" style="width: 12px; height: 12px;"></i> Dark
                     </button>
                 </div>
+
             </div>
         </div>
     </main>
 
-    <div id="custom-tooltip" class="custom-tooltip"></div>
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
+        <div class="modal-box settings-modal-box">
+            <div class="settings-container">
+                <nav class="settings-nav">
+                    <div class="settings-nav-item active" data-section="general">
+                        <i data-lucide="settings"></i> General
+                    </div>
+                    <div class="settings-nav-item" data-section="ui">
+                        <i data-lucide="layout"></i> UI Components
+                    </div>
+                    <div class="settings-nav-item" data-section="editor">
+                        <i data-lucide="file-edit"></i> Editor Settings
+                    </div>
+                    <div class="settings-nav-item" data-section="interface">
+                        <i data-lucide="mouse-pointer"></i> Interface Controls
+                    </div>
+                </nav>
+
+                <div class="settings-content active" id="settings-section-general">
+                    <div class="settings-content-header">
+                        <h3>General Settings</h3>
+                        <p>Core editor behavior and data options.</p>
+                    </div>
+                    <div class="settings-grid">
+                        <!-- Auto Save is now mandatory and always enabled. UI toggle removed. -->
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Storage Status</span>
+                                <span class="setting-card-desc">All changes are automatically saved to your workspace.</span>
+                            </div>
+                            <div style="color: var(--accent-color); font-weight: 600; font-size: 0.85rem;">
+                                <i data-lucide="check-circle" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Active
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-content" id="settings-section-ui">
+                    <div class="settings-content-header">
+                        <h3>UI Components</h3>
+                        <p>Configure the visibility of main workspace elements.</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Cloud/Local Switcher</span>
+                                <span class="setting-card-desc">Show the mode toggle in the navbar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-nav-mode" checked data-component="#nav-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">App Actions</span>
+                                <span class="setting-card-desc">Notes, Manage, Share and Print buttons.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-nav-actions" checked data-component="#btn-notes-desktop, #btn-manage, #btn-share, #btn-pdf">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Editor Toolbar</span>
+                                <span class="setting-card-desc">Show the formatting toolbar above the editor.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-editor-toolbar" checked data-component=".editor-toolbar">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Bottom Status Bar</span>
+                                <span class="setting-card-desc">Show the bottom bar completely.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-toolbar" checked data-component=".status-bar">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-content" id="settings-section-editor">
+                    <div class="settings-content-header">
+                        <h3>Editor Toolbar Groups</h3>
+                        <p>Toggle specific groups of tools in the toolbar.</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Basic Formatting</span>
+                                <span class="setting-card-desc">Bold, Italic, and Heading tools.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-format" checked data-component=".editor-toolbar .toolbar-group:nth-child(1)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Text Alignment</span>
+                                <span class="setting-card-desc">Left, Center, and Right alignment.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-align" checked data-component=".editor-toolbar .toolbar-group:nth-child(2)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Insert Tools</span>
+                                <span class="setting-card-desc">Links, Images, Code, Tables, and Math.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-insert" checked data-component=".editor-toolbar .toolbar-group:nth-child(3)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Font Picker</span>
+                                <span class="setting-card-desc">Typography selection dropdown.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-font" checked data-component="#font-dropdown">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Workspace Views</span>
+                                <span class="setting-card-desc">Editor, Split, and Preview toggles.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-views" checked data-component=".editor-toolbar .toolbar-group:nth-child(8)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-content" id="settings-section-interface">
+                    <div class="settings-content-header">
+                        <h3>Status Bar & Indicators</h3>
+                        <p>Control specific items in the bottom bar.</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Word & Char Stats</span>
+                                <span class="setting-card-desc">Live counts in the status bar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-stats" checked data-component=".status-bar .sb-section:nth-child(2) .action-pill-group">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Theme Toggle</span>
+                                <span class="setting-card-desc">Light/Dark switcher in status bar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-theme" checked data-component=".sb-theme-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Mode Indicator</span>
+                                <span class="setting-card-desc">Cloud/Local status indicator.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-mode-indicator" checked data-component="#active-mode-indicator">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Line & Col Status</span>
+                                <span class="setting-card-desc">Current cursor position display.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-stat-linecol" checked data-component="#stat-line-col">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-footer">
+                <button class="modal-btn btn-cancel" id="settings-modal-close">Cancel</button>
+                <button class="modal-btn btn-confirm" id="settings-modal-save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="management-modal"
         style="z-index: 1500; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
@@ -260,15 +481,16 @@
                 <h3 class="modal-title" style="margin:0; display: flex; align-items: center; gap: 8px;"><i
                         data-lucide="folder-tree" style="color: var(--accent-color);"></i> Workspace Manager</h3>
                 <div style="display: flex; gap: 16px; align-items: center;">
-                    <label
-                        style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600; color: var(--text-color);">
-                        <input type="checkbox" id="manage-select-mode"
-                            style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-color);" />
-                        Select Mode
+                    <label class="switch-container">
+                        <span class="switch-label">Select Mode</span>
+                        <div class="switch">
+                            <input type="checkbox" id="manage-select-mode">
+                            <span class="slider"></span>
+                        </div>
                     </label>
                     <div class="toolbar-divider" style="height: 24px; margin: 0;"></div>
-                    <button class="btn-close-dashboard" id="manage-modal-close" data-tooltip="Close"
-                        style="margin:0;"><i data-lucide="x"></i></button>
+                    <button class="btn-close-dashboard" id="manage-modal-close" data-tooltip="Close" style="margin:0;"><i
+                            data-lucide="x"></i></button>
                 </div>
             </div>
             <div class="manage-body" id="manage-body-content">
@@ -277,11 +499,6 @@
                 <span id="manage-selected-count"
                     style="font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; color: var(--text-color);">0
                     selected</span>
-                <div style="display: flex; gap: 8px;">
-                    <button class="modal-btn btn-confirm" id="manage-btn-bulk-sync"
-                        style="background-color: #10b981; color: white;"><i data-lucide="cloud-upload"></i> Sync/Push
-                        Selected</button>
-                </div>
             </div>
         </div>
     </div>
@@ -305,105 +522,31 @@
     </div>
 
     <div class="modal-overlay" id="notes-modal" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-        <div class="modal-box notes-dashboard-box folders-collapsed">
-
-            <div class="notes-dashboard-folders" id="notes-folders-pane">
-                <div class="folders-header">
-                    <span class="pane-title">WORKSPACE</span>
-                    <button class="tool-btn hover-pop" id="btn-new-folder" data-tooltip="New Folder"><i
-                            data-lucide="folder-plus"></i></button>
-                </div>
-                <div class="folders-list" id="folders-list-container"></div>
+        <div class="modal-box notes-dashboard-box">
+            <div class="notes-dashboard-header">
+                <h3 class="modal-title" style="margin:0; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="library" style="color: var(--accent-color);"></i> All Notes
+                </h3>
+                <button class="btn-close-dashboard" id="notes-modal-close" data-tooltip="Close Dashboard">
+                    <i data-lucide="x"></i>
+                </button>
             </div>
 
-            <div class="notes-dashboard-left">
-                <div class="notes-dashboard-left-header">
-                    <button class="mobile-back-to-folders mobile-only" id="mob-back-folders"><i
-                            data-lucide="chevron-left"></i> Folders</button>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div class="notes-header-text">
-                            <div
-                                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                <h3 class="modal-title"
-                                    style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
-                                    <button class="tool-btn desktop-only hover-pop" id="toggle-folders-btn"
-                                        style="padding: 6px; margin-left: -8px; background: var(--bg-color);"
-                                        data-tooltip="Toggle Folders">
-                                        <i data-lucide="sidebar"></i>
-                                    </button>
-                                    <span id="current-folder-name" style="font-weight: 700;">All Notes</span>
-                                </h3>
-                                <span id="dashboard-mode-badge" class="dashboard-badge"></span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="modal-btn btn-confirm" id="btn-new-note"
-                                style="flex: 1; border-radius: 10px; height: 42px;"><i data-lucide="plus"></i> New
-                                Note</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="notes-list" id="notes-list-container"></div>
+            <div class="notes-dashboard-body" id="notes-dashboard-content">
+                <!-- Redesigned nested structure will be rendered here via JS -->
             </div>
 
-            <div class="notes-dashboard-right">
-                <div class="dashboard-actions">
-                    <div style="flex: 1;">
-                        <button class="pill-btn btn-back mobile-only" id="dash-btn-back"><i
-                                data-lucide="chevron-left"></i> Back</button>
-                    </div>
-
-                    <div class="dash-action-group">
-                        <button class="dash-circle-btn" id="dash-btn-edit" data-tooltip="Edit Note">
-                            <i data-lucide="edit-2"></i>
-                        </button>
-                        <button class="dash-circle-btn desktop-only" id="dash-btn-export" data-tooltip="Export PDF">
-                            <i data-lucide="printer"></i>
-                        </button>
-                        <button class="dash-circle-btn btn-delete" id="dash-btn-delete" data-tooltip="Delete Note">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-
-                        <div class="toolbar-divider" style="height: 24px; margin: 0 4px;"></div>
-
-                        <button class="btn-close-dashboard" id="notes-modal-close" data-tooltip="Close Workspace">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="dashboard-preview-content" id="dashboard-preview-output"></div>
+            <div class="notes-dashboard-footer">
+                <button class="modal-btn btn-confirm" id="btn-new-note" data-tooltip="Create New Note">
+                    <i data-lucide="file-plus"></i> New Note
+                </button>
+                <button class="modal-btn btn-confirm" id="btn-new-folder" data-tooltip="Create New Folder" style="background-color: var(--toggle-track); color: var(--text-color);">
+                    <i data-lucide="folder-plus"></i> New Folder
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="bulk-sync-modal" style="z-index: 3000;">
-        <div class="modal-box"
-            style="width: 90vw; max-width: 500px; height: 75vh; max-height: 600px; display: flex; flex-direction: column; padding: 24px;">
-            <div style="flex-shrink: 0;">
-                <h3 class="modal-title flex-title"><i data-lucide="cloud-upload" style="color: #10b981;"></i> Select
-                    Notes to Sync</h3>
-                <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 16px;">Choose which local notes you want to
-                    upload to your GitHub Workspace.</p>
-            </div>
-            <div id="bulk-sync-list"
-                style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-right: 8px;">
-            </div>
-            <div class="modal-actions" style="flex-shrink: 0; flex-direction: row; justify-content: space-between;">
-                <div style="display: flex; gap: 8px;">
-                    <button class="modal-btn" id="bulk-sync-all"
-                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">Select
-                        All</button>
-                    <button class="modal-btn" id="bulk-sync-none"
-                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">None</button>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="modal-btn btn-cancel" id="bulk-sync-cancel">Cancel</button>
-                    <button class="modal-btn btn-confirm" id="bulk-sync-confirm"
-                        style="background-color: #10b981; color: white;">Start Upload</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="docs-modal" style="z-index: 4000;">
         <div class="modal-box docs-modal-box">
@@ -412,8 +555,7 @@
                     <h2><i data-lucide="book-open" style="color: var(--accent-color);"></i> Markdown Studio Guide</h2>
                     <p>Everything you need to master your premium workspace.</p>
                 </div>
-                <button class="btn-close-dashboard" id="docs-modal-close" data-tooltip="Close"><i
-                        data-lucide="x"></i></button>
+                <button class="btn-close-dashboard" id="docs-modal-close" title="Close"><i data-lucide="x"></i></button>
             </div>
             <div class="docs-body">
                 <div class="docs-section">
@@ -461,7 +603,7 @@
             <div class="github-token-section" id="github-token-section" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label style="font-size: 0.85rem; font-weight: 600; margin: 0;">Personal Access Token</label>
-                    <button id="btn-pat-help" class="btn-help-cute" data-tooltip="How to get a token?"><i
+                    <button id="btn-pat-help" class="btn-help-cute" title="How to get a token?"><i
                             data-lucide="help-circle"></i> Need Help?</button>
                 </div>
                 <input type="password" id="github-token-input" class="modal-input" placeholder="ghp_xxxx..."
@@ -554,7 +696,7 @@
                         <div class="dropdown-list" id="note-folder-dropdown-list" style="z-index: 2500;">
                         </div>
                     </div>
-                    <button class="nav-action-btn" id="btn-quick-new-folder" data-tooltip="Create New Folder"
+                    <button class="nav-action-btn" id="btn-quick-new-folder" title="Create New Folder"
                         style="height: 48px; width: 48px; border-radius: 12px; padding: 0;">
                         <i data-lucide="folder-plus"></i>
                     </button>
@@ -597,6 +739,79 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="transfer-modal" style="z-index: 2000;">
+        <div class="modal-box premium-modal transfer-modal-box">
+            <div class="premium-modal-header">
+                <div class="premium-icon-wrapper" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i data-lucide="arrow-up-down"></i></div>
+                <h3 class="modal-title">Transfer Notes</h3>
+                <p class="modal-subtitle">Import or Export your work seamlessly.</p>
+            </div>
+
+            <div class="mode-toggle transfer-mode-pill" id="transfer-toggle" style="padding: 6px;">
+                <button class="mode-tab active" data-target="import" style="flex:1;">Import</button>
+                <button class="mode-tab" data-target="export" style="flex:1;">Export</button>
+            </div>
+
+            <!-- IMPORT SECTION -->
+            <div id="import-section" class="transfer-section">
+                <div id="drop-zone" class="drop-zone">
+                    <i data-lucide="upload-cloud"></i>
+                    <p>Drag & Drop Markdown File</p>
+                    <span>or</span>
+                    <button class="modal-btn btn-confirm" id="btn-browse-file" style="padding: 10px 24px;">Browse File</button>
+                    <input type="file" id="transfer-import-file" accept=".md,.txt" style="display: none;" />
+                </div>
+                <div class="transfer-instructions">
+                    <p><i data-lucide="info"></i> Supported formats: .md, .txt. Your note will be added to the current active folder.</p>
+                </div>
+            </div>
+
+            <!-- EXPORT SECTION -->
+            <div id="export-section" class="transfer-section" style="display: none;">
+                <div class="transfer-grid">
+                    <div class="input-group premium-input-group" style="grid-column: span 2;">
+                        <label class="transfer-label">File Name</label>
+                        <input type="text" class="modal-input" id="export-filename-input" placeholder="note-name" />
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2; text-align: left;">
+                        <label class="transfer-label">Export Format</label>
+                        <div class="mode-toggle transfer-mode-pill" id="export-format-toggle">
+                            <button class="mode-tab active" data-format="md" style="flex:1;">Markdown (.md)</button>
+                            <button class="mode-tab" data-format="pdf" style="flex:1;">Document (.pdf)</button>
+                        </div>
+                    </div>
+
+                    <!-- PDF SPECIFIC OPTIONS -->
+                    <div id="pdf-export-options" style="display: none; grid-column: span 2; text-align: left;">
+                        <label class="transfer-label">Page Size</label>
+                        <div class="custom-dropdown" id="transfer-size-dropdown">
+                            <div class="dropdown-header" style="height: 48px; border-radius: 12px; background: var(--nav-bg);">
+                                <span id="transfer-size-selected-text">A4 Size (Standard)</span>
+                                <span class="chevron"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
+                            </div>
+                            <div class="dropdown-list" style="border-radius: 12px; padding: 6px;">
+                                <div class="dropdown-item active" data-value="A4">A4 Size (Standard)</div>
+                                <div class="dropdown-item" data-value="A2">A2 Size (Large Format)</div>
+                                <div class="dropdown-item" data-value="Infinity">Infinity (Single Page)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions premium-actions" style="margin-top: 24px;">
+                    <button class="modal-btn btn-confirm" id="btn-execute-export" style="width: 100%; height: 48px; font-size: 1rem;">
+                        <i data-lucide="download" style="width: 18px; height: 18px;"></i> Export Note
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-close-dashboard" id="transfer-modal-close" style="position: absolute; top: 16px; right: 16px;" data-tooltip="Close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="pdf-modal" style="z-index: 2000;">
         <div class="modal-box">
             <h3 class="modal-title flex-title"><i data-lucide="file-text"></i> Export Settings</h3>
@@ -629,6 +844,7 @@
 
     <div id="toast" style="z-index: 99999 !important;">Notification</div>
 
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
@@ -638,8 +854,8 @@
 
     <script src="js/github.js" defer></script>
     <script src="js/editor-state.js" defer></script>
-    <script src="js/editor-core.js" defer></script>
     <script src="js/editor-actions.js" defer></script>
+    <script src="js/editor-core.js" defer></script>
     <script src="js/ui.js" defer></script>
 </body>
 

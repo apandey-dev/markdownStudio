@@ -39,14 +39,14 @@ const GitHubBackend = {
             const userRes = await fetch('https://api.github.com/user', {
                 headers: { 'Authorization': `token ${this.token}` }
             });
-
+            
             if (!userRes.ok) throw new Error('Invalid Token');
-
+            
             const userData = await userRes.json();
             this.repoOwner = userData.login;
 
             await this.checkAndCreateRepo();
-
+            
             // Dynamic default branch fetching incase repo uses `master`
             const repoRes = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}`, {
                 headers: { 'Authorization': `token ${this.token}` }
@@ -71,7 +71,7 @@ const GitHubBackend = {
         if (res.status === 404) {
             await fetch('https://api.github.com/user/repos', {
                 method: 'POST',
-                headers: {
+                headers: { 
                     'Authorization': `token ${this.token}`,
                     'Content-Type': 'application/json'
                 },
@@ -101,7 +101,7 @@ const GitHubBackend = {
         });
         if (!treeRes.ok) return [];
         const treeData = await treeRes.json();
-
+        
         return treeData.tree ? treeData.tree.filter(item => item.type === 'blob' && item.path.endsWith('.md')) : [];
     },
 
@@ -110,42 +110,42 @@ const GitHubBackend = {
         try {
             const fileTree = await this.getTree();
             let notes = [];
-
+            
             // CHUNKED PARALLEL FETCH TO PREVENT BROWSER FREEZE & RATE LIMITS
-            const chunkSize = 5;
+            const chunkSize = 5; 
             for (let i = 0; i < fileTree.length; i += chunkSize) {
                 const chunk = fileTree.slice(i, i + chunkSize);
-
+                
                 const promises = chunk.map(async file => {
                     try {
-                        const contentRes = await fetch(file.url, {
-                            headers: { 'Authorization': `token ${this.token}` }
-                        });
+                        const contentRes = await fetch(file.url, { 
+                            headers: { 'Authorization': `token ${this.token}` } 
+                        }); 
                         if (!contentRes.ok) return null;
 
                         const contentData = await contentRes.json();
                         const rawContent = this.b64_to_utf8(contentData.content || "");
-
+                        
                         const parts = file.path.split('/');
                         const title = parts.pop().replace('.md', '');
                         const folder = parts.length > 0 ? parts.join('/') : 'All Notes';
-
-                        return {
+                        
+                        return { 
                             id: file.sha, // Exact blob SHA mapped to note ID
-                            title: title,
-                            content: rawContent,
-                            path: file.path,
-                            folder: folder,
-                            lastUpdated: Date.now()
+                            title: title, 
+                            content: rawContent, 
+                            path: file.path, 
+                            folder: folder, 
+                            lastUpdated: Date.now() 
                         };
                     } catch (e) {
                         return null; // Prevents one corrupted file from destroying the whole fetch operation
                     }
                 });
-
+                
                 const chunkResults = await Promise.all(promises);
                 notes.push(...chunkResults.filter(n => n !== null));
-
+                
                 // Yield to main UI thread so loading screen animates smoothly
                 await new Promise(resolve => setTimeout(resolve, 20));
             }
@@ -220,7 +220,7 @@ const GitHubBackend = {
                 headers: { 'Authorization': `token ${this.token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sha: newCommitData.sha })
             });
-
+            
             if (updateRefRes.ok) {
                 return { sha: blobData.sha, path: exactPath };
             }
@@ -240,7 +240,7 @@ const GitHubBackend = {
                 body: JSON.stringify({ message: "Deleted via Markdown Studio", sha: sha, branch: this.defaultBranch })
             });
             return true;
-        } catch (e) { return false; }
+        } catch(e) { return false; }
     },
 
     async createSecretGist(encryptedContent) {
@@ -258,11 +258,11 @@ const GitHubBackend = {
                     files: { "shared_document.enc": { content: encryptedContent } }
                 })
             });
-
-            if (!res.ok) return { error: "Permission missing (Needs 'gist' scope)" };
+            
+            if(!res.ok) return { error: "Permission missing (Needs 'gist' scope)" };
             const data = await res.json();
-            return { id: data.id };
-
+            return { id: data.id }; 
+            
         } catch (err) {
             return { error: err.message };
         }
