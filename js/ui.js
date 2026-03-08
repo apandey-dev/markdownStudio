@@ -9,6 +9,8 @@ window.toastTimeout = null;
 
 // Short duration for minimal intrusion
 window.showToast = function (message, duration = 2500) {
+    if (localStorage.getItem('md_hide_toasts') === 'true') return;
+
     const toastEl = document.getElementById('toast');
     if (!toastEl) return;
     clearTimeout(window.toastTimeout);
@@ -30,7 +32,6 @@ window.closePromptModal = function () { document.getElementById('prompt-modal')?
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
-window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
 window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 
 // window.closeNotesModal is now handled in editor-core.js
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let tooltipTimeout;
 
     const showTooltip = (el, text) => {
+        if (localStorage.getItem('md_hide_tooltips') === 'true') return;
         if (!el || el.offsetWidth === 0) return;
 
         tooltip.textContent = text;
@@ -205,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('manage-modal-close')?.addEventListener('click', window.closeManageModal);
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
-    document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
 
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
@@ -289,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
             if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
-            if (document.getElementById('transfer-modal')?.classList.contains('show')) { window.closeTransferModal(); return; }
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
@@ -431,10 +431,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     setupStaticDropdown('size-dropdown', 'size-selected-text', (val) => {
-        window.selectedPageSize = val;
-    });
-
-    setupStaticDropdown('transfer-size-dropdown', 'transfer-size-selected-text', (val) => {
         window.selectedPageSize = val;
     });
 
@@ -615,21 +611,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Custom interaction for settings collapsible sections (Management modal style)
+    document.querySelectorAll('.settings-summary').forEach(summary => {
+        summary.addEventListener('click', (e) => {
+            // No need for custom JS if we use <details>,
+            // but we need to ensure it works without indicator icons.
+            // The CSS already handles hiding the marker.
+        });
+    });
+
     const initSettingsToggles = () => {
         window.EditorState.loadUIVisibility();
 
-        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
-        uiToggles.forEach(toggle => {
-            const isVisible = window.EditorState.uiVisibility[toggle.id] !== false;
-            toggle.checked = isVisible;
+        const allToggles = document.querySelectorAll('.settings-modal-box input[type="checkbox"]');
+        allToggles.forEach(toggle => {
+            if (toggle.hasAttribute('data-component')) {
+                const isVisible = window.EditorState.uiVisibility[toggle.id] !== false;
+                toggle.checked = isVisible;
+            } else if (toggle.id === 'toggle-hide-tooltips' || toggle.id === 'toggle-hide-toasts') {
+                toggle.checked = window.EditorState.uiVisibility[toggle.id] === true;
+            }
         });
 
         window.EditorState.applyUIVisibility();
     };
 
     const saveSettingsChanges = () => {
-        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
-        uiToggles.forEach(toggle => {
+        const allToggles = document.querySelectorAll('.settings-modal-box input[type="checkbox"]');
+        allToggles.forEach(toggle => {
             window.EditorState.uiVisibility[toggle.id] = toggle.checked;
         });
         window.EditorState.saveUIVisibility();
