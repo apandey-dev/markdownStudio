@@ -34,6 +34,7 @@ window.closeDocsModal = function () { document.getElementById('docs-modal')?.cla
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
 window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
+window.closeShareModal = function () { document.getElementById('share-modal')?.classList.remove('show'); };
 
 // window.closeNotesModal is now handled in editor-core.js
 
@@ -287,10 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         document.getElementById('docs-modal')?.classList.add('show');
     });
-    document.getElementById('sidebar-btn-docs-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('docs-modal')?.classList.add('show');
-    });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
     // ✨ SETTINGS MODAL ✨
@@ -311,6 +308,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
+
+    document.getElementById('share-modal-close')?.addEventListener('click', window.closeShareModal);
+    document.getElementById('btn-copy-share')?.addEventListener('click', () => {
+        const input = document.getElementById('share-url-input');
+        if (input && input.value) {
+            navigator.clipboard.writeText(input.value).then(() => {
+                window.showToast("<i data-lucide='check-circle'></i> Link Copied");
+            });
+        }
+    });
+    document.getElementById('btn-reset-share')?.addEventListener('click', () => {
+        window.EditorActions.handleSecureShare();
+    });
     
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
