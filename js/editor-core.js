@@ -638,6 +638,12 @@ window.EditorCore = {
         const note = window.EditorState.getActiveNote();
         if (!note) return;
 
+        // Reset Save button state on load
+        const saveBtn = document.getElementById('btn-save-progress');
+        if (saveBtn) {
+            saveBtn.classList.remove('unsaved', 'saved');
+        }
+
         // ✨ DATA SAFETY: Recovery from unsaved drafts (e.g. after refresh or crash) ✨
         try {
             const drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
@@ -709,6 +715,12 @@ window.EditorCore = {
                         let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
                         drafts[activeNote.id] = rawText;
                         localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+
+                        const saveBtn = document.getElementById('btn-save-progress');
+                        if (saveBtn) {
+                            saveBtn.classList.remove('saved');
+                            saveBtn.classList.add('unsaved');
+                        }
                     } catch (e) {}
                 } else {
                     activeNote.content = rawText;

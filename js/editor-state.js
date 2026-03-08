@@ -271,7 +271,11 @@ window.EditorState = {
 
     applyAutoSaveUI() {
         const btn = document.getElementById('btn-save-progress');
-        if (btn) btn.style.display = this.autoSave ? 'none' : 'flex';
+        if (btn) {
+            btn.style.display = this.autoSave ? 'none' : 'flex';
+            // Clear states when toggling
+            btn.classList.remove('unsaved', 'saved');
+        }
     },
 
     loadUIVisibility() {

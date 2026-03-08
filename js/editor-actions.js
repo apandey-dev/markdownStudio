@@ -148,6 +148,15 @@ window.EditorActions = {
 
         await window.EditorState.saveLocalState();
 
+        const saveBtn = document.getElementById('btn-save-progress');
+        if (saveBtn) {
+            saveBtn.classList.remove('unsaved');
+            saveBtn.classList.add('saved');
+            setTimeout(() => {
+                saveBtn.classList.remove('saved');
+            }, 2000);
+        }
+
         if (window.EditorState.appMode === 'github') {
             window.EditorState.triggerCloudSync();
         } else {
