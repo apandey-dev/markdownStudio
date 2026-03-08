@@ -945,8 +945,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Secure Share
         document.getElementById('btn-share')?.addEventListener('click', () => window.EditorActions.handleSecureShare());
 
-        // Manual Save
-        document.getElementById('btn-manual-save')?.addEventListener('click', () => window.EditorActions.handleManualSave());
 
         // Mobile / Other listeners
         document.getElementById('mob-back-folders')?.addEventListener('click', () => {

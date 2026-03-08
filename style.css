@@ -35,7 +35,7 @@ body.dark-mode {
     --hover-bg: #1a1a1a;
     --border-color: #262626;
     --shadow-color: rgba(0, 0, 0, 0.8);
-    --text-color: #a1a1aa;
+    --text-color: #f1f5f9; /* Primary label color */
     --accent-color: #ffffff;
     --accent-hover: #e5e5e5;
     --btn-text: #000000;
@@ -45,6 +45,32 @@ body.dark-mode {
     --link-color: #ffffff;
     --link-hover: #a1a1aa;
     --link-active: #52525b;
+
+    /* Custom typography contrast improvements */
+    --section-title-color: #e2e8f0;
+    --primary-label-color: #f1f5f9;
+    --description-color: #a1a1aa;
+}
+
+body.dark-mode .settings-content-header h3,
+body.dark-mode .settings-nav-item,
+body.dark-mode .modal-title,
+body.dark-mode .sidebar-section-title,
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3 {
+    color: var(--section-title-color) !important;
+}
+
+body.dark-mode .setting-card-title,
+body.dark-mode label,
+body.dark-mode .dropdown-item,
+body.dark-mode .dropdown-header {
+    color: var(--primary-label-color) !important;
+}
+
+body.dark-mode .setting-card-desc,
+body.dark-mode .settings-content-header p,
+body.dark-mode .modal-subtitle {
+    color: var(--description-color) !important;
 }
 
 * {
@@ -167,6 +193,38 @@ body:not(.is-loading) #preview-skeleton {
     z-index: 100;
     transition: background-color 0.3s, border-color 0.3s;
     flex-shrink: 0;
+}
+
+/* MINIMAL HEADER STRIP */
+.minimal-header {
+    height: 32px;
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: none; /* Only show when navbar is hidden */
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 95;
+    flex-shrink: 0;
+}
+
+.minimal-header[style*="display: flex"] {
+    display: flex !important;
+}
+
+.minimal-header .brand {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.minimal-header .pill-action-btn {
+    width: 24px;
+    height: 24px;
+}
+
+.minimal-header .pill-action-btn i {
+    width: 14px;
+    height: 14px;
 }
 
 .brand {
@@ -788,8 +846,31 @@ body.view-preview .divider {
 }
 
 /* ✨ FOCUS MODE CSS ✨ */
-body.focus-mode .navbar {
-    display: flex !important;
+/* Note: Navbar and Minimal Header visibility are managed by JS to respect UI settings */
+
+/* Floating Exit Focus Button */
+.floating-exit-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    color: var(--btn-text);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.floating-exit-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--accent-hover);
 }
 
 body.focus-mode #mobile-menu-btn,
@@ -815,7 +896,7 @@ body.focus-mode .toolbar-divider {
 }
 
 body.focus-mode #btn-exit-focus {
-    display: flex !important;
+    display: flex;
 }
 
 body.focus-mode .status-bar {
@@ -1769,6 +1850,14 @@ body.dark-mode .btn-cancel:hover {
     overflow-y: auto;
     background-color: var(--bg-color);
     display: none;
+    max-height: 100%; /* Ensure it's scrollable within container */
+}
+
+/* Disabled Setting Card */
+.setting-card.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(1);
 }
 
 .settings-content.active {

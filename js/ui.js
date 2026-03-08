@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-exit-focus').style.display = 'flex';
         }
 
+        window.EditorState.applyUIVisibility();
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
 
@@ -158,7 +159,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-exit-focus').style.display = 'none';
         }
 
+        window.EditorState.applyUIVisibility();
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
+    });
+
+    document.getElementById('btn-exit-focus-floating')?.addEventListener('click', () => {
+        document.getElementById('btn-exit-focus')?.click();
+    });
+
+    document.getElementById('btn-exit-focus-status')?.addEventListener('click', () => {
+        document.getElementById('btn-exit-focus')?.click();
     });
 
     document.querySelectorAll('.view-btn').forEach(btn => {
@@ -211,10 +221,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ✨ SETTINGS MODAL ✨
     document.getElementById('btn-settings')?.addEventListener('click', () => {
+        initSettingsToggles();
+        document.getElementById('settings-modal')?.classList.add('show');
+    });
+    document.getElementById('btn-settings-minimal')?.addEventListener('click', () => {
+        initSettingsToggles();
         document.getElementById('settings-modal')?.classList.add('show');
     });
     document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        initSettingsToggles();
         document.getElementById('settings-modal')?.classList.add('show');
     });
     document.getElementById('settings-modal-close')?.addEventListener('click', () => {
@@ -617,8 +633,30 @@ document.addEventListener('DOMContentLoaded', () => {
             toggle.checked = isVisible;
         });
 
+        updateStatusBarChildrenState();
         window.EditorState.applyUIVisibility();
     };
+
+    const updateStatusBarChildrenState = () => {
+        const parentToggle = document.getElementById('toggle-bottom-toolbar');
+        const children = ['toggle-bottom-words', 'toggle-bottom-chars', 'toggle-bottom-reading', 'toggle-bottom-cursor', 'toggle-bottom-theme', 'toggle-bottom-mode'];
+
+        children.forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                const card = checkbox.closest('.setting-card');
+                if (parentToggle.checked) {
+                    card.classList.remove('disabled');
+                    checkbox.disabled = false;
+                } else {
+                    card.classList.add('disabled');
+                    checkbox.disabled = true;
+                }
+            }
+        });
+    };
+
+    document.getElementById('toggle-bottom-toolbar')?.addEventListener('change', updateStatusBarChildrenState);
 
     const saveSettingsChanges = () => {
         const autoSaveCheckbox = document.getElementById('setting-auto-save');

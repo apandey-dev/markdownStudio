@@ -11,7 +11,7 @@
     <meta name="author" content="Arpit Pandey">
 
     <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><style>.icon { fill: %230f172a; } @media (prefers-color-scheme: dark) { .icon { fill: %23ffffff; } }</style><path class='icon' d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3V8h3v7h3z'/></svg>">
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><style>.icon { fill: %230f172a; } @media (prefers-color-scheme: dark) { .icon { fill: %23ffffff; } }</style><path class='icon' d='M20.5 4H3.5C2.12 4 1 5.12 1 6.5v11C1 18.88 2.12 20 3.5 20h17c1.38 0 2.5-1.12 2.5-2.5v-11C23 5.12 21.88 4 20.5 4zM6 16v-5.5L4.5 12 3 10.5V16H1V8h2l3 3 3-3h2v8H6zm14-1l-4.5 4.5L11 15h3v7h3z'/></svg>">
 
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fredoka:wght@300..700&family=Playpen+Sans:wght@100..800&family=Kalam:wght@300;400;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Delius&display=swap"
@@ -39,6 +39,13 @@
             }
         })();
     </script>
+
+    <div id="minimal-header-strip" class="minimal-header">
+        <div class="brand">Markdown Studio</div>
+        <button id="btn-settings-minimal" class="pill-action-btn" data-tooltip="Settings">
+            <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
+        </button>
+    </div>
 
     <header class="navbar">
         <div class="action-pill-group mobile-only" style="margin-left: -8px;">
@@ -238,16 +245,15 @@
         <div class="status-bar">
             <div class="sb-section" id="sb-left-controls">
                 <div class="action-pill-group" style="padding: 4px 12px; gap: 12px;">
+                    <button id="btn-exit-focus-status" class="pill-action-btn" data-tooltip="Exit Focus Mode" style="display: none; background: var(--accent-color); color: var(--btn-text); opacity: 1;">
+                        <i data-lucide="minimize" style="width: 14px; height: 14px;"></i>
+                    </button>
                     <span id="active-mode-indicator"
                         style="font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 6px; font-size: 0.75rem;">
                         <i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local
                     </span>
                     <div class="toolbar-divider" style="height: 12px; margin: 0; opacity: 0.3;"></div>
                     <span id="stat-line-col" style="opacity: 0.8;">Line 1, Col 1</span>
-                    <div class="toolbar-divider" id="manual-save-divider" style="height: 12px; margin: 0; opacity: 0.3; display: none;"></div>
-                    <button id="btn-manual-save" class="pill-action-btn" style="display: none; padding: 2px 8px; font-size: 0.7rem; gap: 4px; background: var(--accent-color); color: white; border-radius: 6px;">
-                        <i data-lucide="save" style="width: 12px; height: 12px;"></i> Save
-                    </button>
                 </div>
             </div>
 
@@ -273,6 +279,10 @@
         </div>
     </main>
 
+    <button id="btn-exit-focus-floating" class="floating-exit-btn" data-tooltip="Exit Focus Mode" style="display: none;">
+        <i data-lucide="minimize" style="width: 20px; height: 20px;"></i>
+    </button>
+
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
         <div class="modal-box settings-modal-box">
@@ -285,10 +295,10 @@
                         <i data-lucide="layout"></i> UI Components
                     </div>
                     <div class="settings-nav-item" data-section="editor">
-                        <i data-lucide="file-edit"></i> Editor Settings
+                        <i data-lucide="file-edit"></i> Editor Controls
                     </div>
-                    <div class="settings-nav-item" data-section="interface">
-                        <i data-lucide="mouse-pointer"></i> Interface Controls
+                    <div class="settings-nav-item" data-section="status">
+                        <i data-lucide="mouse-pointer"></i> Status Bar
                     </div>
                 </nav>
 
@@ -329,6 +339,26 @@
                         </div>
                         <div class="setting-card">
                             <div class="setting-details">
+                                <span class="setting-card-title">Action Buttons</span>
+                                <span class="setting-card-desc">Show Share, PDF, and other buttons in navbar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-top-actions" checked data-component=".navbar .action-pill-group.desktop-only .pill-action-btn:not(#btn-settings)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Local / Cloud Mode Toggle</span>
+                                <span class="setting-card-desc">Show the mode switch in the top bar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-top-mode" checked data-component="#nav-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
                                 <span class="setting-card-title">Editor Toolbar</span>
                                 <span class="setting-card-desc">Show the formatting toolbar above the editor.</span>
                             </div>
@@ -352,7 +382,7 @@
 
                 <div class="settings-content" id="settings-section-editor">
                     <div class="settings-content-header">
-                        <h3>Editor Settings</h3>
+                        <h3>Editor Controls</h3>
                         <p>Fine-tune formatting tools and editor features.</p>
                     </div>
                     <div class="settings-grid">
@@ -362,53 +392,103 @@
                                 <span class="setting-card-desc">Toggle Bold, Italic and Heading tools.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="toggle-toolbar-format" checked data-component=".editor-toolbar .toolbar-group:nth-child(1), .editor-toolbar [data-action='heading']">
+                                <input type="checkbox" id="toggle-toolbar-format" checked data-component=".editor-toolbar .toolbar-group:nth-child(1)">
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="setting-card">
                             <div class="setting-details">
-                                <span class="setting-card-title">Font Picker</span>
-                                <span class="setting-card-desc">Show the typography selection dropdown.</span>
+                                <span class="setting-card-title">Alignment Tools</span>
+                                <span class="setting-card-desc">Toggle Left, Center and Right alignment tools.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="toggle-toolbar-font" checked data-component="#font-dropdown">
+                                <input type="checkbox" id="toggle-toolbar-align" checked data-component=".editor-toolbar .toolbar-group:nth-child(2)">
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="setting-card">
                             <div class="setting-details">
-                                <span class="setting-card-title">Focus Mode</span>
-                                <span class="setting-card-desc">Show the focus mode button in the toolbar.</span>
+                                <span class="setting-card-title">Insert Tools</span>
+                                <span class="setting-card-desc">Toggle Link, Image, Code, Table and Math tools.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="toggle-toolbar-focus" checked data-component="#btn-focus-mode">
+                                <input type="checkbox" id="toggle-toolbar-insert" checked data-component=".editor-toolbar .toolbar-group:nth-child(3)">
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="setting-card">
                             <div class="setting-details">
-                                <span class="setting-card-title">Sync Scroll</span>
-                                <span class="setting-card-desc">Show the scroll sync toggle button.</span>
+                                <span class="setting-card-title">Editor Control Tools</span>
+                                <span class="setting-card-desc">Toggle Font Picker, Focus Mode, and Sync Scroll.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="toggle-toolbar-scroll" checked data-component="#btn-scroll-sync">
+                                <input type="checkbox" id="toggle-toolbar-controls" checked data-component=".editor-toolbar .toolbar-group:nth-child(5), .editor-toolbar .toolbar-group:nth-child(7)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Editor View Controls</span>
+                                <span class="setting-card-desc">Toggle View Switchers and Transfer tools.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-toolbar-views" checked data-component=".editor-toolbar .toolbar-group:nth-child(8), .editor-toolbar .toolbar-group:nth-child(9)">
                                 <span class="slider"></span>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <div class="settings-content" id="settings-section-interface">
+                <div class="settings-content" id="settings-section-status">
                     <div class="settings-content-header">
-                        <h3>Interface Controls</h3>
+                        <h3>Status Bar Controls</h3>
                         <p>Control specific buttons and indicators.</p>
                     </div>
                     <div class="settings-grid">
                         <div class="setting-card">
                             <div class="setting-details">
-                                <span class="setting-card-title">Theme Switcher</span>
-                                <span class="setting-card-desc">Show the Light/Dark theme toggle in status bar.</span>
+                                <span class="setting-card-title">Word Count</span>
+                                <span class="setting-card-desc">Show word count in the status bar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-words" checked data-component="#stat-words">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Character Count</span>
+                                <span class="setting-card-desc">Show character count in the status bar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-chars" checked data-component="#stat-chars">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Reading Time</span>
+                                <span class="setting-card-desc">Show estimated reading time.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-reading" checked data-component="#stat-reading-time">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Cursor Position Indicator</span>
+                                <span class="setting-card-desc">Show Line and Column position.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-cursor" checked data-component="#stat-line-col">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Theme Toggle</span>
+                                <span class="setting-card-desc">Show the Light/Dark theme toggle.</span>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-bottom-theme" checked data-component=".sb-theme-toggle">
@@ -417,31 +497,11 @@
                         </div>
                         <div class="setting-card">
                             <div class="setting-details">
-                                <span class="setting-card-title">Live Statistics</span>
-                                <span class="setting-card-desc">Show Word and Character counts.</span>
+                                <span class="setting-card-title">Storage Mode Indicators</span>
+                                <span class="setting-card-desc">Show Local and Cloud sync status.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" id="toggle-bottom-stats" checked data-component=".status-bar .sb-section:nth-child(2) .action-pill-group">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-card">
-                            <div class="setting-details">
-                                <span class="setting-card-title">Cloud Indicator</span>
-                                <span class="setting-card-desc">Show the current sync status in the status bar.</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-mode-indicator" checked data-component="#active-mode-indicator">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-card">
-                            <div class="setting-details">
-                                <span class="setting-card-title">Action Buttons</span>
-                                <span class="setting-card-desc">Show Share and PDF export buttons in navbar.</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-top-actions" checked data-component=".navbar .action-pill-group.desktop-only">
+                                <input type="checkbox" id="toggle-bottom-mode" checked data-component="#active-mode-indicator">
                                 <span class="slider"></span>
                             </label>
                         </div>
