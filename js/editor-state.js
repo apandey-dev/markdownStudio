@@ -282,29 +282,36 @@ window.EditorState = {
     },
 
     applyUIVisibility() {
+        // Reset all togglable elements before applying (important for overlapping selectors)
+        const allToggleSelectors = Array.from(document.querySelectorAll('.settings-modal-box input[data-component]'))
+            .map(input => input.getAttribute('data-component'));
+
+        allToggleSelectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(el => {
+                el.style.display = '';
+            });
+        });
+
         Object.keys(this.uiVisibility).forEach(id => {
             const checkbox = document.getElementById(id);
             const isVisible = this.uiVisibility[id];
 
-            if (checkbox) {
-                checkbox.checked = isVisible;
+            if (checkbox && isVisible === false) { // Only handle hiding; showing is default
                 const componentSelector = checkbox.getAttribute('data-component');
 
                 if (componentSelector) {
                     const elements = document.querySelectorAll(componentSelector);
                     elements.forEach(el => {
                         // Crucial Protection: Never hide certain elements
-                        if (el.classList.contains('brand') ||
-                            el.id === 'btn-settings' ||
-                            el.id === 'btn-exit-focus' ||
-                            el.id === 'btn-exit-focus-bottom' ||
+                        // (App Name, Settings Button, Exit Focus Button)
+                        if (el.closest('.brand') ||
                             el.closest('#btn-settings') ||
                             el.closest('#btn-exit-focus') ||
                             el.closest('#btn-exit-focus-bottom')) {
                             el.style.display = '';
                             return;
                         }
-                        el.style.display = isVisible ? '' : 'none';
+                        el.style.display = 'none';
                     });
                 }
             }
