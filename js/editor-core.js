@@ -247,14 +247,12 @@ window.EditorCore = {
             folderTitle.innerHTML = `
                 <i data-lucide="chevron-down" class="collapse-icon"></i>
                 <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i>
-                <span>${folder}</span>
-                <span style="margin-left: auto; font-size: 0.75rem; opacity: 0.5;">${folderNotes.length} notes</span>
+                <span class="truncate-text">${folder}</span>
+                <span style="margin-left: auto; font-size: 0.7rem; opacity: 0.4; font-weight: 600;">${folderNotes.length}</span>
             `;
 
             const notesList = document.createElement('div');
-            notesList.className = 'dashboard-notes-list collapsed'; // Default collapsed for cleaner view
-
-            // Persistent collapse state can be added later if needed via localStorage
+            notesList.className = 'dashboard-notes-list collapsed';
 
             folderTitle.addEventListener('click', (e) => {
                 const isCollapsed = notesList.classList.toggle('collapsed');
@@ -269,7 +267,7 @@ window.EditorCore = {
 
                 const noteInfo = document.createElement('div');
                 noteInfo.className = 'dashboard-note-info';
-                noteInfo.innerHTML = `<i data-lucide="file-text"></i> ${note.title}`;
+                noteInfo.innerHTML = `<i data-lucide="file-text" style="opacity: 0.5;"></i> <span class="truncate-text">${note.title}</span>`;
 
                 const actions = document.createElement('div');
                 actions.className = 'dashboard-note-actions';
@@ -277,7 +275,6 @@ window.EditorCore = {
                 const openBtn = document.createElement('button');
                 openBtn.className = 'dashboard-action-btn btn-open';
                 openBtn.innerHTML = '<i data-lucide="external-link"></i>';
-                openBtn.setAttribute('data-tooltip', 'Open Note');
                 openBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     window.EditorState.activeNoteId = note.id;
@@ -294,8 +291,13 @@ window.EditorCore = {
                 noteRow.appendChild(actions);
 
                 noteRow.addEventListener('click', (e) => {
-                    document.querySelectorAll('.dashboard-note-row').forEach(r => r.classList.remove('active'));
-                    noteRow.classList.add('active');
+                    if (window.innerWidth <= 768) {
+                        // On mobile, just open the note on click for minimal UX
+                        openBtn.click();
+                    } else {
+                        document.querySelectorAll('.dashboard-note-row').forEach(r => r.classList.remove('active'));
+                        noteRow.classList.add('active');
+                    }
                 });
 
                 notesList.appendChild(noteRow);
