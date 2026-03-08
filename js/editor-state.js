@@ -279,6 +279,15 @@ window.EditorState = {
     saveUIVisibility() {
         localStorage.setItem('md_ui_visibility', JSON.stringify(this.uiVisibility));
         this.applyUIVisibility();
+        this.applyFeedbackSettings();
+    },
+
+    applyFeedbackSettings() {
+        const hideTooltips = this.uiVisibility['toggle-hide-tooltips'] === true;
+        const hideToasts = this.uiVisibility['toggle-hide-toasts'] === true;
+
+        localStorage.setItem('md_hide_tooltips', hideTooltips);
+        localStorage.setItem('md_hide_toasts', hideToasts);
     },
 
     applyUIVisibility() {

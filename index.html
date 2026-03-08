@@ -208,11 +208,6 @@
                         data-lucide="monitor"></i></button>
             </div>
 
-            <div class="toolbar-group">
-                <button class="tool-btn" id="btn-import-export" data-tooltip="Transfer Notes">
-                    <i data-lucide="arrow-up-down"></i>
-                </button>
-            </div>
         </div>
 
         <div class="split-workspace" id="split-workspace">
@@ -289,6 +284,9 @@
                     <div class="settings-nav-item" data-section="status">
                         <i data-lucide="mouse-pointer"></i> Bottom Status Bar
                     </div>
+                    <div class="settings-nav-item" data-section="feedback">
+                        <i data-lucide="message-square"></i> UI Feedback
+                    </div>
                 </nav>
 
                 <!-- UI Components Category -->
@@ -300,7 +298,7 @@
                     <div class="settings-collapsible-area">
                         <!-- Top App Bar Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="layout-panel-top"></i> Top App Bar</summary>
+                            <summary class="settings-summary"><i data-lucide="layout-panel-top"></i> <span>Top App Bar</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -357,7 +355,7 @@
 
                         <!-- Editor Toolbar Visibility -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="trello"></i> Editor Toolbar</summary>
+                            <summary class="settings-summary"><i data-lucide="trello"></i> <span>Editor Toolbar</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -374,7 +372,7 @@
 
                         <!-- Editor View Controls Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="columns"></i> Editor View Controls</summary>
+                            <summary class="settings-summary"><i data-lucide="columns"></i> <span>Editor View Controls</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -411,7 +409,7 @@
 
                         <!-- Bottom Status Bar Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="minus"></i> Bottom Status Bar</summary>
+                            <summary class="settings-summary"><i data-lucide="minus"></i> <span>Bottom Status Bar</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -437,7 +435,7 @@
                     <div class="settings-collapsible-area">
                         <!-- Formatting Tools Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="type"></i> Formatting Tools</summary>
+                            <summary class="settings-summary"><i data-lucide="type"></i> <span>Formatting Tools</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -474,7 +472,7 @@
 
                         <!-- Alignment Tools Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="align-center"></i> Alignment Tools</summary>
+                            <summary class="settings-summary"><i data-lucide="align-center"></i> <span>Alignment Tools</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -511,7 +509,7 @@
 
                         <!-- Insert Tools Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="plus-square"></i> Insert Tools</summary>
+                            <summary class="settings-summary"><i data-lucide="plus-square"></i> <span>Insert Tools</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -568,7 +566,7 @@
 
                         <!-- Editor Controls Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="settings-2"></i> Editor Controls</summary>
+                            <summary class="settings-summary"><i data-lucide="settings-2"></i> <span>Editor Controls</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -600,16 +598,6 @@
                                         <span class="slider"></span>
                                     </label>
                                 </div>
-                                <div class="setting-card">
-                                    <div class="setting-details">
-                                        <span class="setting-card-title">Import / Export</span>
-                                        <span class="setting-card-desc">Toggle Transfer Notes button.</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-tool-import-export" checked data-component="#btn-import-export">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
                             </div>
                         </details>
                     </div>
@@ -624,7 +612,7 @@
                     <div class="settings-collapsible-area">
                         <!-- Storage Indicators Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="database"></i> Storage Indicators</summary>
+                            <summary class="settings-summary"><i data-lucide="database"></i> <span>Storage Indicators</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -641,7 +629,7 @@
 
                         <!-- Statistics Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="bar-chart-2"></i> Statistics</summary>
+                            <summary class="settings-summary"><i data-lucide="bar-chart-2"></i> <span>Statistics</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -678,7 +666,7 @@
 
                         <!-- Cursor Tracking Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="mouse-pointer"></i> Cursor Tracking</summary>
+                            <summary class="settings-summary"><i data-lucide="mouse-pointer"></i> <span>Cursor Tracking</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -695,7 +683,7 @@
 
                         <!-- Theme Control Section -->
                         <details class="settings-details-group" open>
-                            <summary class="settings-summary"><i data-lucide="sun"></i> Theme Control</summary>
+                            <summary class="settings-summary"><i data-lucide="sun"></i> <span>Theme Control</span></summary>
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <div class="setting-details">
@@ -704,6 +692,41 @@
                                     </div>
                                     <label class="switch">
                                         <input type="checkbox" id="toggle-status-theme" checked data-component="#theme-toggle-desktop">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- UI Feedback Category -->
+                <div class="settings-content" id="settings-section-feedback">
+                    <div class="settings-content-header">
+                        <h3>UI Feedback</h3>
+                        <p>Customize global app feedback elements.</p>
+                    </div>
+                    <div class="settings-collapsible-area">
+                        <details class="settings-details-group" open>
+                            <summary class="settings-summary"><span>Feedback Settings</span></summary>
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <div class="setting-details">
+                                        <span class="setting-card-title">Hide Tooltips</span>
+                                        <span class="setting-card-desc">Suppress all hover tooltips globally.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-hide-tooltips">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-card">
+                                    <div class="setting-details">
+                                        <span class="setting-card-title">Hide Toast Messages</span>
+                                        <span class="setting-card-desc">Suppress all toast notification popups.</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-hide-toasts">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -984,54 +1007,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="transfer-modal" style="z-index: 2000;">
-        <div class="modal-box premium-modal transfer-modal-box">
-            <div class="premium-modal-header">
-                <div class="premium-icon-wrapper" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i data-lucide="arrow-up-down"></i></div>
-                <h3 class="modal-title">Transfer Notes</h3>
-                <p class="modal-subtitle">Import or Export Markdown files.</p>
-            </div>
-
-            <div class="transfer-tabs" id="transfer-toggle">
-                <button class="transfer-tab active" data-target="import">Import</button>
-                <button class="transfer-tab" data-target="export">Export</button>
-            </div>
-
-            <!-- IMPORT SECTION -->
-            <div id="import-section" class="transfer-section">
-                <div id="drop-zone" class="drop-zone">
-                    <i data-lucide="upload-cloud"></i>
-                    <p>Drag & Drop Markdown File</p>
-                    <span>or</span>
-                    <button class="modal-btn btn-confirm" id="btn-browse-file" style="padding: 10px 24px;">Browse File</button>
-                    <input type="file" id="transfer-import-file" accept=".md,.txt" style="display: none;" />
-                </div>
-                <div class="transfer-instructions">
-                    <p><i data-lucide="info"></i> Supported formats: .md, .txt. Your note will be added to the current active folder.</p>
-                </div>
-            </div>
-
-            <!-- EXPORT SECTION -->
-            <div id="export-section" class="transfer-section" style="display: none;">
-                <div class="transfer-grid">
-                    <div class="input-group premium-input-group" style="grid-column: span 2;">
-                        <label class="transfer-label">File Name</label>
-                        <input type="text" class="modal-input" id="export-filename-input" placeholder="note-name" />
-                    </div>
-                </div>
-
-                <div class="modal-actions premium-actions" style="margin-top: 24px;">
-                    <button class="modal-btn btn-confirm" id="btn-execute-export" style="width: 100%; height: 48px; font-size: 1rem;">
-                        <i data-lucide="download" style="width: 18px; height: 18px;"></i> Export Markdown
-                    </button>
-                </div>
-            </div>
-
-            <button class="btn-close-dashboard" id="transfer-modal-close" style="position: absolute; top: 16px; right: 16px;" data-tooltip="Close">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="pdf-modal" style="z-index: 2000;">
         <div class="modal-box">
