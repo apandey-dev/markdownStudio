@@ -231,13 +231,24 @@ window.EditorCore = {
             folderSection.className = 'dashboard-folder-section';
 
             const folderTitle = document.createElement('div');
-            folderTitle.className = 'dashboard-folder-title';
-            folderTitle.innerHTML = `<i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i> ${folder}`;
+            folderTitle.className = 'dashboard-folder-title collapsible';
+            folderTitle.innerHTML = `
+                <i data-lucide="chevron-down" class="collapse-icon"></i>
+                <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i>
+                ${folder}
+            `;
 
             const notesList = document.createElement('div');
-            notesList.className = 'dashboard-notes-list';
+            notesList.className = 'dashboard-notes-list collapsed'; // Default collapsed
 
             const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
+
+            // Click listener to toggle collapse
+            folderTitle.addEventListener('click', () => {
+                const isCollapsed = notesList.classList.toggle('collapsed');
+                const chevron = folderTitle.querySelector('.collapse-icon');
+                if (chevron) chevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+            });
 
             folderNotes.forEach(note => {
                 const noteRow = document.createElement('div');
@@ -290,6 +301,10 @@ window.EditorCore = {
             folderSection.appendChild(folderTitle);
             folderSection.appendChild(notesList);
             container.appendChild(folderSection);
+
+            // Initial state for chevron
+            const initialChevron = folderTitle.querySelector('.collapse-icon');
+            if (initialChevron) initialChevron.style.transform = 'rotate(-90deg)';
         });
 
         if (window.lucide) lucide.createIcons();

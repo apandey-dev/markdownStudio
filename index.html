@@ -275,132 +275,171 @@
 
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
-        <div class="modal-box premium-modal settings-modal-box">
-            <div class="premium-modal-header">
-                <div class="premium-icon-wrapper" style="background-color: rgba(99, 102, 241, 0.1); color: #6366f1;"><i data-lucide="settings"></i></div>
-                <h3 class="modal-title">Settings</h3>
-                <p class="modal-subtitle">Configure your editor experience.</p>
-            </div>
-            <div class="settings-body" style="padding: 0; max-height: 60vh; overflow-y: auto;">
-                <div class="settings-section">
-                    <h4 class="settings-section-title">General</h4>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <span class="setting-label">Auto Save</span>
-                            <small>Save changes automatically as you type.</small>
+        <div class="modal-box settings-modal-box">
+            <div class="settings-container">
+                <nav class="settings-nav">
+                    <div class="settings-nav-item active" data-section="general">
+                        <i data-lucide="settings"></i> General
+                    </div>
+                    <div class="settings-nav-item" data-section="ui">
+                        <i data-lucide="layout"></i> UI Components
+                    </div>
+                    <div class="settings-nav-item" data-section="editor">
+                        <i data-lucide="file-edit"></i> Editor Settings
+                    </div>
+                    <div class="settings-nav-item" data-section="interface">
+                        <i data-lucide="mouse-pointer"></i> Interface Controls
+                    </div>
+                </nav>
+
+                <div class="settings-content active" id="settings-section-general">
+                    <div class="settings-content-header">
+                        <h3>General Settings</h3>
+                        <p>Core editor behavior and data options.</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Auto Save</span>
+                                <span class="setting-card-desc">Save changes automatically to your storage.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-auto-save" checked>
+                                <span class="slider"></span>
+                            </label>
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" id="setting-auto-save" checked>
-                            <span class="slider"></span>
-                        </label>
                     </div>
                 </div>
 
-                <div class="settings-section">
-                    <h4 class="settings-section-title">UI Components</h4>
-
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <span class="setting-label">Editor Toolbar Belt</span>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="toggle-editor-toolbar" checked data-component=".editor-toolbar">
-                            <span class="slider"></span>
-                        </label>
+                <div class="settings-content" id="settings-section-ui">
+                    <div class="settings-content-header">
+                        <h3>UI Components</h3>
+                        <p>Configure the visibility of main workspace elements.</p>
                     </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Top App Bar</span>
+                                <span class="setting-card-desc">Show or hide the main navigation bar.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-top-navbar" checked data-component=".navbar">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Editor Toolbar</span>
+                                <span class="setting-card-desc">Show the formatting toolbar above the editor.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-editor-toolbar" checked data-component=".editor-toolbar">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Bottom Status Bar</span>
+                                <span class="setting-card-desc">Show the bottom bar with word counts and theme toggle.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-bottom-toolbar" checked data-component=".status-bar">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-                    <div class="setting-sub-list">
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Formatting (Bold/Italic)</span></div>
+                <div class="settings-content" id="settings-section-editor">
+                    <div class="settings-content-header">
+                        <h3>Editor Settings</h3>
+                        <p>Fine-tune formatting tools and editor features.</p>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Formatting Tools</span>
+                                <span class="setting-card-desc">Toggle Bold, Italic and Heading tools.</span>
+                            </div>
                             <label class="switch">
-                                <input type="checkbox" id="toggle-toolbar-format" checked data-component=".editor-toolbar .toolbar-group:nth-child(1)">
+                                <input type="checkbox" id="toggle-toolbar-format" checked data-component=".editor-toolbar .toolbar-group:nth-child(1), .editor-toolbar [data-action='heading']">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Heading</span></div>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-toolbar-heading" checked data-component=".editor-toolbar [data-action='heading']">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Font Picker</span></div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Font Picker</span>
+                                <span class="setting-card-desc">Show the typography selection dropdown.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-toolbar-font" checked data-component="#font-dropdown">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Focus Mode</span></div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Focus Mode</span>
+                                <span class="setting-card-desc">Show the focus mode button in the toolbar.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-toolbar-focus" checked data-component="#btn-focus-mode">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Sync Scroll</span></div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Sync Scroll</span>
+                                <span class="setting-card-desc">Show the scroll sync toggle button.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-toolbar-scroll" checked data-component="#btn-scroll-sync">
                                 <span class="slider"></span>
                             </label>
                         </div>
                     </div>
+                </div>
 
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <span class="setting-label">Bottom Toolbar</span>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="toggle-bottom-toolbar" checked data-component=".status-bar">
-                            <span class="slider"></span>
-                        </label>
+                <div class="settings-content" id="settings-section-interface">
+                    <div class="settings-content-header">
+                        <h3>Interface Controls</h3>
+                        <p>Control specific buttons and indicators.</p>
                     </div>
-
-                    <div class="setting-sub-list">
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Theme Switcher</span></div>
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Theme Switcher</span>
+                                <span class="setting-card-desc">Show the Light/Dark theme toggle in status bar.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-bottom-theme" checked data-component=".sb-theme-toggle">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Word/Char Counts</span></div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Live Statistics</span>
+                                <span class="setting-card-desc">Show Word and Character counts.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-bottom-stats" checked data-component=".status-bar .sb-section:nth-child(2) .action-pill-group">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                    </div>
-
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <span class="setting-label">Top App Bar Controls</span>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="toggle-top-navbar" checked data-component=".navbar">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="setting-sub-list">
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Mode Toggle (Local/Cloud)</span></div>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-top-mode" checked data-component=".mode-toggle.desktop-only">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Cloud Indicator</span></div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Cloud Indicator</span>
+                                <span class="setting-card-desc">Show the current sync status in the status bar.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-mode-indicator" checked data-component="#active-mode-indicator">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="setting-item">
-                            <div class="setting-info"><span class="setting-label">Action Buttons (Share, PDF, etc)</span></div>
+                        <div class="setting-card">
+                            <div class="setting-details">
+                                <span class="setting-card-title">Action Buttons</span>
+                                <span class="setting-card-desc">Show Share and PDF export buttons in navbar.</span>
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-top-actions" checked data-component=".navbar .action-pill-group.desktop-only">
                                 <span class="slider"></span>
@@ -409,8 +448,9 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-actions premium-actions" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
-                <button class="modal-btn btn-confirm" id="settings-modal-close-btn" style="width: 100%;">Save & Close</button>
+            <div class="settings-footer">
+                <button class="modal-btn btn-cancel" id="settings-modal-close">Cancel</button>
+                <button class="modal-btn btn-confirm" id="settings-modal-save-btn">Save Changes</button>
             </div>
         </div>
     </div>
@@ -688,7 +728,7 @@
                 <p class="modal-subtitle">Import or Export your work seamlessly.</p>
             </div>
 
-            <div class="mode-toggle transfer-mode-pill" id="transfer-toggle" style="margin-bottom: 24px; padding: 6px;">
+            <div class="mode-toggle transfer-mode-pill" id="transfer-toggle" style="padding: 6px;">
                 <button class="mode-tab active" data-target="import" style="flex:1;">Import</button>
                 <button class="mode-tab" data-target="export" style="flex:1;">Export</button>
             </div>

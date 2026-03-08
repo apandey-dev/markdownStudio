@@ -93,6 +93,11 @@ window.EditorActions = {
         document.getElementById('btn-import-export')?.addEventListener('click', () => {
             const modal = document.getElementById('transfer-modal');
             modal.classList.add('show');
+
+            // Default to Import
+            const importTab = document.querySelector('#transfer-toggle [data-target="import"]');
+            if (importTab) importTab.click();
+
             const note = window.EditorState.getActiveNote();
             const exportInput = document.getElementById('export-filename-input');
             if (note && exportInput) {
@@ -416,6 +421,7 @@ window.EditorActions = {
         try {
             await window.EditorState.saveLocalState();
             if (window.EditorState.appMode === 'github') {
+                window.EditorState.pendingSync = true;
                 // In GitHub mode, we manually trigger the sync immediately
                 await window.EditorState.performCloudSync();
             }
