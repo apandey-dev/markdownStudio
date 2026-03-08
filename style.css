@@ -1477,8 +1477,10 @@ body.dark-mode .btn-cancel:hover {
     cursor: pointer;
 }
 
-.dashboard-note-row:hover {
+.dashboard-note-row:hover,
+.dashboard-note-row.active {
     background-color: var(--hover-bg);
+    border-left: 3px solid var(--accent-color);
 }
 
 .dashboard-note-info {

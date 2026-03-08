@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
 
-    document.getElementById('btn-exit-focus')?.addEventListener('click', () => {
+    const exitFocus = () => {
         document.body.classList.remove('focus-mode');
         localStorage.setItem('md_focus_mode', 'false');
 
@@ -156,10 +156,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.style.display = 'flex';
             });
             document.getElementById('btn-exit-focus').style.display = 'none';
+            document.getElementById('btn-exit-focus-bottom').style.display = 'none';
         }
 
+        // Apply UI visibility preferences again in case they were hidden by focus mode but should be visible
+        window.EditorState.applyUIVisibility();
+
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
-    });
+    };
+
+    document.getElementById('btn-exit-focus')?.addEventListener('click', exitFocus);
+    document.getElementById('btn-exit-focus-bottom')?.addEventListener('click', exitFocus);
 
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -605,11 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const initSettingsToggles = () => {
-        window.EditorState.loadAutoSave();
         window.EditorState.loadUIVisibility();
-
-        const autoSaveCheckbox = document.getElementById('setting-auto-save');
-        if (autoSaveCheckbox) autoSaveCheckbox.checked = window.EditorState.autoSave;
 
         const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
         uiToggles.forEach(toggle => {
@@ -621,12 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveSettingsChanges = () => {
-        const autoSaveCheckbox = document.getElementById('setting-auto-save');
-        if (autoSaveCheckbox) {
-            window.EditorState.autoSave = autoSaveCheckbox.checked;
-            window.EditorState.saveAutoSave();
-        }
-
         const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
         uiToggles.forEach(toggle => {
             window.EditorState.uiVisibility[toggle.id] = toggle.checked;
@@ -642,20 +639,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial load
     setTimeout(initSettingsToggles, 100);
 
-    // Toggle Manual Save Button Visibility
-    const updateSaveButtonVisibility = (enabled) => {
-        const saveBtn = document.getElementById('btn-manual-save');
-        const saveDivider = document.getElementById('manual-save-divider');
-        if (saveBtn) saveBtn.style.display = enabled ? 'none' : 'flex';
-        if (saveDivider) saveDivider.style.display = enabled ? 'none' : 'block';
-    };
-
-    window.addEventListener('autoSaveToggled', (e) => {
-        updateSaveButtonVisibility(e.detail.enabled);
-    });
-
-    // Initial visibility check
-    setTimeout(() => {
-        updateSaveButtonVisibility(window.EditorState.autoSave);
-    }, 100);
 });

@@ -258,14 +258,13 @@ window.EditorState = {
     },
 
     loadAutoSave() {
-        const saved = localStorage.getItem('md_auto_save');
-        this.autoSave = saved !== 'false'; // Default to true
+        // Auto Save is now always true.
+        this.autoSave = true;
     },
 
     saveAutoSave() {
-        localStorage.setItem('md_auto_save', this.autoSave);
-        // Dispatch event for UI to update Save button visibility
-        window.dispatchEvent(new CustomEvent('autoSaveToggled', { detail: { enabled: this.autoSave } }));
+        // Auto Save is always enabled.
+        this.autoSave = true;
     },
 
     loadUIVisibility() {
@@ -285,20 +284,37 @@ window.EditorState = {
     applyUIVisibility() {
         Object.keys(this.uiVisibility).forEach(id => {
             const checkbox = document.getElementById(id);
+            const isVisible = this.uiVisibility[id];
+
             if (checkbox) {
-                const componentSelector = checkbox.getAttribute('data-component');
-                const isVisible = this.uiVisibility[id];
                 checkbox.checked = isVisible;
+                const componentSelector = checkbox.getAttribute('data-component');
 
                 if (componentSelector) {
                     const elements = document.querySelectorAll(componentSelector);
                     elements.forEach(el => {
+                        // Crucial Protection: Never hide certain elements
+                        if (el.classList.contains('brand') ||
+                            el.id === 'btn-settings' ||
+                            el.id === 'btn-exit-focus' ||
+                            el.id === 'btn-exit-focus-bottom' ||
+                            el.closest('#btn-settings') ||
+                            el.closest('#btn-exit-focus') ||
+                            el.closest('#btn-exit-focus-bottom')) {
+                            el.style.display = '';
+                            return;
+                        }
                         el.style.display = isVisible ? '' : 'none';
-                        // Special handling for visibility classes if needed
                     });
                 }
             }
         });
+
+        // Specific recovery logic to ensure navbar is visible if at least settings/brand is there
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            navbar.style.display = '';
+        }
     },
 
     async switchToMode(targetMode) {
