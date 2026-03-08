@@ -196,7 +196,6 @@ window.EditorState = {
     activeNoteId: null,
 
     appMode: 'local',
-    autoSave: true,
     uiVisibility: {},
     isSyncing: false,
     pendingSync: false,
@@ -257,17 +256,6 @@ window.EditorState = {
         return `${folderName}/${safeTitle}.md`;
     },
 
-    loadAutoSave() {
-        const saved = localStorage.getItem('md_auto_save');
-        this.autoSave = saved !== 'false'; // Default to true
-    },
-
-    saveAutoSave() {
-        localStorage.setItem('md_auto_save', this.autoSave);
-        // Dispatch event for UI to update Save button visibility
-        window.dispatchEvent(new CustomEvent('autoSaveToggled', { detail: { enabled: this.autoSave } }));
-    },
-
     loadUIVisibility() {
         try {
             const saved = localStorage.getItem('md_ui_visibility');
@@ -283,22 +271,69 @@ window.EditorState = {
     },
 
     applyUIVisibility() {
-        Object.keys(this.uiVisibility).forEach(id => {
+        const toggles = [
+            'toggle-top-navbar', 'toggle-top-actions', 'toggle-top-mode',
+            'toggle-editor-toolbar', 'toggle-bottom-toolbar',
+            'toggle-toolbar-format', 'toggle-toolbar-align', 'toggle-toolbar-insert',
+            'toggle-toolbar-controls', 'toggle-toolbar-views',
+            'toggle-toolbar-focus', 'toggle-toolbar-scroll',
+            'toggle-bottom-words', 'toggle-bottom-chars', 'toggle-bottom-reading',
+            'toggle-bottom-cursor', 'toggle-bottom-theme', 'toggle-bottom-mode'
+        ];
+
+        toggles.forEach(id => {
+            const isVisible = this.uiVisibility[id] !== false; // Default to true
             const checkbox = document.getElementById(id);
             if (checkbox) {
-                const componentSelector = checkbox.getAttribute('data-component');
-                const isVisible = this.uiVisibility[id];
                 checkbox.checked = isVisible;
-
-                if (componentSelector) {
-                    const elements = document.querySelectorAll(componentSelector);
-                    elements.forEach(el => {
+                const selector = checkbox.getAttribute('data-component');
+                if (selector) {
+                    document.querySelectorAll(selector).forEach(el => {
                         el.style.display = isVisible ? '' : 'none';
-                        // Special handling for visibility classes if needed
                     });
                 }
             }
         });
+
+        const isFocusMode = document.body.classList.contains('focus-mode');
+        const navbarVisible = this.uiVisibility['toggle-top-navbar'] !== false;
+        const statusBarVisible = this.uiVisibility['toggle-bottom-toolbar'] !== false;
+
+        // ✨ NAVBAR & MINIMAL HEADER LOGIC ✨
+        const navbar = document.querySelector('.navbar');
+        const minimalHeader = document.getElementById('minimal-header-strip');
+
+        if (navbarVisible) {
+            if (navbar) navbar.style.display = 'flex';
+            if (minimalHeader) minimalHeader.style.display = 'none';
+        } else {
+            if (navbar) navbar.style.display = 'none';
+            if (minimalHeader) minimalHeader.style.display = 'flex';
+        }
+
+        // ✨ FOCUS MODE RECOVERY PROTECTION ✨
+        const exitNavbar = document.getElementById('btn-exit-focus');
+        const exitStatus = document.getElementById('btn-exit-focus-status');
+        const floatingExit = document.getElementById('btn-exit-focus-floating');
+
+        if (isFocusMode) {
+            // Ensure Exit button is visible in the most appropriate location
+            if (exitNavbar) exitNavbar.style.display = navbarVisible ? 'flex' : 'none';
+            if (exitStatus) exitStatus.style.display = (!navbarVisible && statusBarVisible) ? 'flex' : 'none';
+            if (floatingExit) floatingExit.style.display = (!navbarVisible && !statusBarVisible) ? 'flex' : 'none';
+        } else {
+            if (exitNavbar) exitNavbar.style.display = 'none';
+            if (exitStatus) exitStatus.style.display = 'none';
+            if (floatingExit) floatingExit.style.display = 'none';
+        }
+
+        // Parent-Child Status Bar Visibility Logic
+        if (!statusBarVisible) {
+            const children = ['#stat-words', '#stat-chars', '#stat-reading-time', '#stat-line-col', '.sb-theme-toggle', '#active-mode-indicator', '#btn-exit-focus-status'];
+            children.forEach(sel => {
+                document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
+            });
+        }
     },
 
     async switchToMode(targetMode) {
