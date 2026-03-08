@@ -101,27 +101,21 @@
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
 
-            <div style="padding: 20px 20px 0; display: flex; gap: 12px;">
-                <div class="mode-toggle" id="mobile-mode-toggle" style="flex: 1;">
-                    <button class="mode-tab active" data-target="local" style="flex: 1; justify-content: center;"
-                        title="Local Mode">
-                        <i data-lucide="hard-drive" style="width: 16px; height: 16px;"></i> <span
-                            class="tab-text">Local</span>
+            <div style="padding: 20px 24px 0; display: flex; gap: 12px;">
+                <div class="mode-toggle" id="mobile-mode-toggle" style="flex: 1; background: var(--toggle-track); border-radius: 50px; padding: 4px;">
+                    <button class="mode-tab active" data-target="local" style="flex: 1; border-radius: 50px; height: 40px;" title="Local Mode">
+                        <i data-lucide="hard-drive" style="width: 18px; height: 18px;"></i>
                     </button>
-                    <button class="mode-tab" data-target="github" style="flex: 1; justify-content: center;"
-                        title="Cloud Mode">
-                        <i data-lucide="cloud" style="width: 16px; height: 16px;"></i> <span
-                            class="tab-text">Cloud</span>
+                    <button class="mode-tab" data-target="github" style="flex: 1; border-radius: 50px; height: 40px;" title="Cloud Mode">
+                        <i data-lucide="cloud" style="width: 18px; height: 18px;"></i>
                     </button>
                 </div>
-                <div class="mode-toggle" id="mobile-theme-toggle" style="flex: 1;">
-                    <button class="mode-tab theme-tab active" data-theme="light"
-                        style="flex: 1; justify-content: center;" title="Light Mode">
-                        <i data-lucide="sun" style="width: 16px; height: 16px;"></i> <span class="tab-text">Light</span>
+                <div class="mode-toggle" id="mobile-theme-toggle" style="flex: 1; background: var(--toggle-track); border-radius: 50px; padding: 4px;">
+                    <button class="mode-tab theme-tab active" data-theme="light" style="flex: 1; border-radius: 50px; height: 40px;" title="Light Mode">
+                        <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
                     </button>
-                    <button class="mode-tab theme-tab" data-theme="dark" style="flex: 1; justify-content: center;"
-                        title="Dark Mode">
-                        <i data-lucide="moon" style="width: 16px; height: 16px;"></i> <span class="tab-text">Dark</span>
+                    <button class="mode-tab theme-tab" data-theme="dark" style="flex: 1; border-radius: 50px; height: 40px;" title="Dark Mode">
+                        <i data-lucide="moon" style="width: 18px; height: 18px;"></i>
                     </button>
                 </div>
             </div>
@@ -130,16 +124,8 @@
                 <div class="sidebar-section-title">WORKSPACE</div>
                 <div id="dynamic-sidebar-folders" style="display:flex; flex-direction:column; gap:8px;"></div>
 
-                <div class="sidebar-section-title" style="margin-top: 16px;">TOOLS</div>
-                <button class="sidebar-btn" id="sidebar-btn-manage-mobile"><i data-lucide="folder-tree"></i>
-                    Manage Folders</button>
-                <button class="sidebar-btn" id="sidebar-btn-docs-mobile"><i data-lucide="book-open"></i>
-                    Documentation</button>
-                <button class="sidebar-btn" id="sidebar-btn-settings-mobile"><i data-lucide="settings"></i>
-                    Settings</button>
-                <button class="sidebar-btn" id="sidebar-btn-share"><i data-lucide="share-2"></i> Secure Share</button>
-                <button class="sidebar-btn" id="sidebar-btn-pdf"><i data-lucide="printer"></i> Export PDF</button>
-                <button class="sidebar-btn" id="sidebar-btn-transfer-mobile"><i data-lucide="arrow-left-right"></i> Transfer Notes</button>
+                <div class="sidebar-section-title" style="margin-top: 16px;">OPTIONS</div>
+                <button class="sidebar-btn" id="sidebar-btn-export-mobile"><i data-lucide="upload"></i> Export Note (.md)</button>
             </div>
         </div>
     </div>
