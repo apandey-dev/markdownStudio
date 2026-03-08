@@ -196,11 +196,16 @@
         border-bottom: 1px solid var(--border-color);
     }
 
-    .premium-tool-btn,
     .tool-btn {
-        width: 36px !important;
-        /* Slightly larger for touch on mobile */
-        height: 36px !important;
+        appearance: none;
+        outline: none;
+        padding: 8px 12px !important;
+        border-radius: 10px !important;
+    }
+
+    .tool-btn i {
+        width: 18px !important;
+        height: 18px !important;
     }
 
     .toolbar-divider {
@@ -801,4 +806,3 @@
         bottom: calc(24px + env(safe-area-inset-bottom));
     }
 }
-
