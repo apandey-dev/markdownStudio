@@ -217,8 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         document.getElementById('settings-modal')?.classList.add('show');
     });
-    document.getElementById('settings-modal-close')?.addEventListener('click', window.closeSettingsModal);
-    document.getElementById('settings-modal-close-btn')?.addEventListener('click', window.closeSettingsModal);
+    document.getElementById('settings-modal-close')?.addEventListener('click', () => {
+        initSettingsToggles();
+        window.closeSettingsModal();
+    });
 
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -588,40 +590,57 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('delete-cancel')?.addEventListener('click', window.closeDeleteModal);
 
     // ✨ SETTINGS LOGIC ✨
-    const autoSaveCheckbox = document.getElementById('setting-auto-save');
-    if (autoSaveCheckbox) {
+    const settingsNavItems = document.querySelectorAll('.settings-nav-item');
+    const settingsContents = document.querySelectorAll('.settings-content');
+
+    settingsNavItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const section = item.getAttribute('data-section');
+            settingsNavItems.forEach(nav => nav.classList.remove('active'));
+            settingsContents.forEach(content => content.classList.remove('active'));
+
+            item.classList.add('active');
+            document.getElementById(`settings-section-${section}`).classList.add('active');
+        });
+    });
+
+    const initSettingsToggles = () => {
         window.EditorState.loadAutoSave();
-        autoSaveCheckbox.checked = window.EditorState.autoSave;
+        window.EditorState.loadUIVisibility();
 
-        autoSaveCheckbox.addEventListener('change', (e) => {
-            window.EditorState.autoSave = e.target.checked;
+        const autoSaveCheckbox = document.getElementById('setting-auto-save');
+        if (autoSaveCheckbox) autoSaveCheckbox.checked = window.EditorState.autoSave;
+
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            const isVisible = window.EditorState.uiVisibility[toggle.id] !== false;
+            toggle.checked = isVisible;
+        });
+
+        window.EditorState.applyUIVisibility();
+    };
+
+    const saveSettingsChanges = () => {
+        const autoSaveCheckbox = document.getElementById('setting-auto-save');
+        if (autoSaveCheckbox) {
+            window.EditorState.autoSave = autoSaveCheckbox.checked;
             window.EditorState.saveAutoSave();
-
-            if (window.EditorState.autoSave) {
-                window.showToast("<i data-lucide='save'></i> Auto Save Enabled");
-            } else {
-                window.showToast("<i data-lucide='mouse-pointer'></i> Manual Save Mode");
-            }
-        });
-    }
-
-    // UI Component Visibility Toggles
-    const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
-    uiToggles.forEach(toggle => {
-        toggle.addEventListener('change', (e) => {
-            window.EditorState.uiVisibility[e.target.id] = e.target.checked;
-            window.EditorState.saveUIVisibility();
-        });
-    });
-
-    window.EditorState.loadUIVisibility();
-    // Initialize toggles from state
-    uiToggles.forEach(toggle => {
-        if (window.EditorState.uiVisibility[toggle.id] === undefined) {
-            window.EditorState.uiVisibility[toggle.id] = true; // Default
         }
-    });
-    window.EditorState.applyUIVisibility();
+
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            window.EditorState.uiVisibility[toggle.id] = toggle.checked;
+        });
+        window.EditorState.saveUIVisibility();
+
+        window.showToast("<i data-lucide='check-circle'></i> Settings Saved");
+        window.closeSettingsModal();
+    };
+
+    document.getElementById('settings-modal-save-btn')?.addEventListener('click', saveSettingsChanges);
+
+    // Initial load
+    setTimeout(initSettingsToggles, 100);
 
     // Toggle Manual Save Button Visibility
     const updateSaveButtonVisibility = (enabled) => {
