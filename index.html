@@ -221,31 +221,6 @@
                     style="font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local
                 </span>
-
-                <div class="toolbar-divider" style="height: 14px; margin: 0 8px;"></div>
-
-                <button id="btn-toggle-autosave" class="sb-action-btn" title="Toggle Auto-Save">
-                    <i data-lucide="toggle-right" style="width: 16px; height: 16px; color: #10b981;"></i>
-                    <span class="desktop-only" style="color: var(--text-color);">Auto-Save: ON</span>
-                </button>
-
-                <button id="btn-manual-save" class="sb-action-btn manual-save-btn" title="Save Note to Cloud & Local"
-                    style="display: none;">
-                    <i data-lucide="save" style="width: 14px; height: 14px;"></i>
-                    <span class="desktop-only">Save Now</span>
-                </button>
-
-                <button id="btn-sync-current" class="sb-action-btn sync-note-btn" title="Sync Current Note to Cloud"
-                    style="display: none;">
-                    <i data-lucide="cloud-upload" style="width: 14px; height: 14px;"></i> <span
-                        class="desktop-only">Sync Note</span>
-                </button>
-
-                <button id="btn-push-github" class="sb-action-btn push-all-btn" title="Bulk Upload to Cloud"
-                    style="display: none;">
-                    <i data-lucide="folder-up" style="width: 14px; height: 14px;"></i> <span class="desktop-only">Push
-                        All</span>
-                </button>
             </div>
 
             <div class="sb-section">
@@ -298,11 +273,6 @@
                 <span id="manage-selected-count"
                     style="font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; color: var(--text-color);">0
                     selected</span>
-                <div style="display: flex; gap: 8px;">
-                    <button class="modal-btn btn-confirm" id="manage-btn-bulk-sync"
-                        style="background-color: #10b981; color: white;"><i data-lucide="cloud-upload"></i> Sync/Push
-                        Selected</button>
-                </div>
             </div>
         </div>
     </div>
@@ -397,34 +367,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="bulk-sync-modal" style="z-index: 3000;">
-        <div class="modal-box"
-            style="width: 90vw; max-width: 500px; height: 75vh; max-height: 600px; display: flex; flex-direction: column; padding: 24px;">
-            <div style="flex-shrink: 0;">
-                <h3 class="modal-title flex-title"><i data-lucide="cloud-upload" style="color: #10b981;"></i> Select
-                    Notes to Sync</h3>
-                <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 16px;">Choose which local notes you want to
-                    upload to your GitHub Workspace.</p>
-            </div>
-            <div id="bulk-sync-list"
-                style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-right: 8px;">
-            </div>
-            <div class="modal-actions" style="flex-shrink: 0; flex-direction: row; justify-content: space-between;">
-                <div style="display: flex; gap: 8px;">
-                    <button class="modal-btn" id="bulk-sync-all"
-                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">Select
-                        All</button>
-                    <button class="modal-btn" id="bulk-sync-none"
-                        style="background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">None</button>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="modal-btn btn-cancel" id="bulk-sync-cancel">Cancel</button>
-                    <button class="modal-btn btn-confirm" id="bulk-sync-confirm"
-                        style="background-color: #10b981; color: white;">Start Upload</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="docs-modal" style="z-index: 4000;">
         <div class="modal-box docs-modal-box">
@@ -649,19 +591,6 @@
 
     <div id="toast" style="z-index: 99999 !important;">Notification</div>
 
-    <div id="upload-progress-widget" class="progress-widget hidden">
-        <div class="pw-header">
-            <span class="pw-title" id="pw-title">Uploading to Cloud</span>
-            <i data-lucide="loader" class="spin" id="pw-spinner" style="color: #10b981; width: 18px; height: 18px;"></i>
-            <i data-lucide="check-circle" id="pw-success"
-                style="color: #10b981; width: 18px; height: 18px; display: none;"></i>
-        </div>
-        <div class="pw-filename" id="pw-filename">Starting...</div>
-        <div class="pw-status" id="pw-status">0 out of 0 done</div>
-        <div class="pw-bar-track">
-            <div class="pw-bar-fill" id="pw-fill"></div>
-        </div>
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
@@ -672,7 +601,9 @@
 
     <script src="js/ui.js" defer></script>
     <script src="js/github.js" defer></script>
-    <script src="js/editor.js" defer></script>
+    <script src="js/editor-state.js" defer></script>
+    <script src="js/editor-actions.js" defer></script>
+    <script src="js/editor-core.js" defer></script>
 </body>
 
 </html>
