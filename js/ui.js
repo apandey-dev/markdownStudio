@@ -687,6 +687,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initSettingsToggles = () => {
         window.EditorState.loadUIVisibility();
+        window.EditorState.loadAutoSave();
+
+        const autoSaveToggle = document.getElementById('toggle-auto-save');
+        if (autoSaveToggle) autoSaveToggle.checked = window.EditorState.autoSave;
 
         const allToggles = document.querySelectorAll('.settings-modal-box input[type="checkbox"]');
         allToggles.forEach(toggle => {
@@ -738,7 +742,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveSettingsChanges = () => {
         const allToggles = document.querySelectorAll('.settings-modal-box input[type="checkbox"]');
         allToggles.forEach(toggle => {
-            window.EditorState.uiVisibility[toggle.id] = toggle.checked;
+            if (toggle.id === 'toggle-auto-save') {
+                window.EditorState.saveAutoSave(toggle.checked);
+            } else {
+                window.EditorState.uiVisibility[toggle.id] = toggle.checked;
+            }
         });
         window.EditorState.saveUIVisibility();
 
@@ -747,6 +755,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('settings-modal-save-btn')?.addEventListener('click', saveSettingsChanges);
+
+    document.getElementById('btn-save-progress')?.addEventListener('click', () => {
+        window.EditorActions.handleSaveProgress();
+    });
+
+    document.getElementById('btn-push-github')?.addEventListener('click', () => {
+        window.EditorActions.handlePushToGitHub();
+    });
 
     // Initial load
     setTimeout(initSettingsToggles, 100);
