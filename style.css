@@ -530,6 +530,16 @@ body.dark-mode .action-pill-group {
     opacity: 0.9;
 }
 
+#btn-save-progress.unsaved {
+    background-color: #f59e0b !important;
+    color: #fff !important;
+}
+
+#btn-save-progress.saved {
+    background-color: #10b981 !important;
+    color: #fff !important;
+}
+
 
 .sb-action-btn:disabled {
     opacity: 0.5;
