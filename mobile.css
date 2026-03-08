@@ -4,7 +4,7 @@
 
 @media screen and (max-width: 768px) {
 
-    /* --- 1. GLOBAL RESET & LAYOUT --- */
+    /* --- 1. GLOBAL MOBILE DEFAULTS --- */
     :root {
         --safe-top: env(safe-area-inset-top, 0px);
         --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -12,16 +12,16 @@
 
     html, body {
         height: 100% !important;
-        overflow: hidden !important;
-        position: fixed !important; /* Lock the viewport to prevent overscroll bounce */
+        overflow: hidden !important; /* Prevent double scrollbars on the body */
+        position: fixed !important; /* Stop bouncy scroll on iOS */
         width: 100% !important;
-        -webkit-text-size-adjust: 100%;
     }
 
     body {
         display: flex;
         flex-direction: column;
         background-color: var(--bg-color);
+        font-size: 16px; /* Standard mobile font size to prevent auto-zoom on inputs */
     }
 
     .desktop-only {
@@ -32,18 +32,18 @@
         display: flex !important;
     }
 
-    /* Better touch interactions */
+    /* Better touch interactions globally */
     * {
         -webkit-tap-highlight-color: transparent !important;
     }
 
-    button, .mode-tab, .dropdown-header, .note-item, .folder-item {
+    button, .mode-tab, .dropdown-header, .note-item, .folder-item, .sidebar-btn {
+        min-height: 44px; /* Apple/Google touch target standard */
         cursor: pointer;
         user-select: none;
     }
 
-    /* --- 2. HEADER (NAVBAR) STABILITY FIX --- */
-    /* Fixed header ensures it stays visible even when keyboard opens */
+    /* --- 2. HEADER (NAVBAR) - ALWAYS VISIBLE --- */
     .navbar {
         position: fixed !important;
         top: 0;
@@ -61,13 +61,15 @@
     }
 
     .brand {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+        font-weight: 700;
         flex: 1;
         text-align: center;
         margin: 0 12px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: var(--accent-color);
     }
 
     #mobile-menu-btn, #mobile-view-toggle {
@@ -79,6 +81,12 @@
         background-color: var(--toggle-track) !important;
         border-radius: 12px !important;
         border: none !important;
+        color: var(--text-color);
+    }
+
+    #mobile-menu-btn i, #mobile-view-toggle i {
+        width: 24px !important;
+        height: 24px !important;
     }
 
     #mobile-menu-btn:active, #mobile-view-toggle:active {
@@ -86,7 +94,7 @@
         transform: scale(0.92);
     }
 
-    /* --- 3. MAIN WORKSPACE --- */
+    /* --- 3. MAIN WORKSPACE & EDITOR --- */
     .app-container {
         margin-top: calc(60px + var(--safe-top));
         flex: 1;
@@ -94,6 +102,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        width: 100vw;
     }
 
     .split-workspace {
@@ -101,75 +110,91 @@
         flex-direction: column;
         overflow: hidden;
         background-color: var(--editor-bg);
+        position: relative;
     }
 
     .panel {
         flex: 1 !important;
         width: 100% !important;
         height: 100% !important;
-        display: none; /* View toggle handles this */
+        display: none; /* View toggled via JS classes on body */
     }
 
-    /* View Toggles for Mobile (Logic usually handled via JS classes on body) */
-    body:not(.view-preview) .editor-panel {
+    /* Logic for visibility usually controlled by .view-preview / .view-editor on body */
+    body:not(.show-preview) .editor-panel {
         display: flex !important;
     }
 
-    body.view-preview .preview-panel {
+    body.show-preview .preview-panel {
         display: flex !important;
     }
 
-    /* Adjusting textarea for mobile typing */
+    body.show-preview .editor-toolbar {
+        display: none !important; /* Hide toolbar in preview mode */
+    }
+
     textarea {
-        padding: 20px 24px calc(40px + var(--safe-bottom)) !important;
-        font-size: 16px !important; /* Prevents auto-zoom on iOS */
-        line-height: 1.6;
+        padding: 20px 24px calc(60px + var(--safe-bottom)) !important;
+        font-size: 16px !important;
+        line-height: 1.7;
+        width: 100%;
+        height: 100%;
+        -webkit-overflow-scrolling: touch;
     }
 
     .preview-panel {
         padding: 24px 20px calc(40px + var(--safe-bottom)) !important;
+        background-color: var(--preview-bg);
     }
 
-    /* Hide divider on mobile */
-    .divider, .edge-handle {
+    /* Hide desktop-only UI components */
+    .divider, .edge-handle, .restore-left, .restore-right {
         display: none !important;
     }
 
-    /* --- 4. ENHANCED MOBILE TOOLBAR --- */
+    /* --- 4. TOOLBAR REDESIGN --- */
     .editor-toolbar {
-        height: 60px;
+        height: 64px;
         padding: 0 12px !important;
         background-color: var(--nav-bg);
         border-top: 1px solid var(--border-color);
         border-bottom: 1px solid var(--border-color);
-        gap: 12px !important;
+        gap: 10px !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         flex-shrink: 0;
         z-index: 100;
-        scrollbar-width: none;
+        scrollbar-width: none; /* Hide scrollbar Firefox */
+        align-items: center;
     }
 
     .editor-toolbar::-webkit-scrollbar {
-        display: none;
+        display: none; /* Hide scrollbar Chrome/Safari */
     }
 
     .toolbar-group {
+        background-color: var(--toggle-track);
+        border-radius: 14px;
         padding: 4px;
+        display: flex;
         gap: 4px !important;
+        flex-shrink: 0;
     }
 
     .tool-btn {
-        width: 44px !important; /* Larger touch area */
+        width: 44px !important;
         height: 44px !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         background-color: transparent !important;
         opacity: 0.8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .tool-btn i {
-        width: 24px !important; /* Larger icons */
-        height: 24px !important;
+        width: 22px !important;
+        height: 22px !important;
     }
 
     .tool-btn:active {
@@ -178,20 +203,25 @@
     }
 
     .tool-btn.active {
-        background-color: var(--toggle-track) !important;
+        background-color: var(--toggle-pill) !important;
+        color: var(--accent-color) !important;
         opacity: 1;
+        box-shadow: 0 2px 6px var(--toggle-shadow);
     }
 
     /* --- 5. BOTTOM STATUS BAR --- */
     .status-bar {
         height: auto;
-        padding: 12px 16px calc(12px + var(--safe-bottom)) !important;
-        flex-direction: row;
-        gap: 16px;
+        padding: 10px 16px calc(10px + var(--safe-bottom)) !important;
         background-color: var(--nav-bg);
-        justify-content: flex-start;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
         overflow-x: auto;
         scrollbar-width: none;
+        flex-shrink: 0;
     }
 
     .status-bar::-webkit-scrollbar {
@@ -199,73 +229,227 @@
     }
 
     .sb-section {
-        gap: 12px;
+        gap: 10px;
     }
 
     .sb-action-btn {
-        height: 44px !important;
-        padding: 0 16px !important;
-        border-radius: 14px !important;
-        font-size: 0.9rem !important;
+        height: 40px !important;
+        padding: 0 14px !important;
+        border-radius: 12px !important;
+        font-size: 0.85rem !important;
+        font-weight: 600;
     }
 
-    /* --- 6. MODALS (BOTTOM SHEETS) --- */
+    #active-mode-indicator {
+        font-size: 0.7rem !important;
+    }
+
+    /* --- 6. MENU DRAWER (SIDEBAR) REDESIGN --- */
+    .mobile-sidebar-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 6000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-sidebar-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .mobile-sidebar {
+        position: absolute;
+        top: 0;
+        left: -85%;
+        width: 80%;
+        max-width: 320px;
+        height: 100%;
+        background-color: var(--nav-bg);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        padding-top: var(--safe-top);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.2);
+    }
+
+    .mobile-sidebar-overlay.show .mobile-sidebar {
+        transform: translateX(100%);
+    }
+
+    .sidebar-header {
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 12px;
+    }
+
+    .sidebar-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+
+    #close-sidebar-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--hover-bg);
+        border: none;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-links {
+        padding: 0 16px 24px;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .sidebar-section-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: var(--text-color);
+        opacity: 0.5;
+        margin: 16px 0 4px 8px;
+    }
+
+    .sidebar-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px !important;
+        font-size: 1rem !important;
+        font-weight: 600;
+        border-radius: 16px !important;
+        border: 1px solid var(--border-color) !important;
+        background-color: var(--bg-color) !important;
+        color: var(--text-color) !important;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-btn i {
+        width: 20px;
+        height: 20px;
+        color: var(--accent-color);
+    }
+
+    .sidebar-btn:active {
+        transform: scale(0.97);
+        background-color: var(--hover-bg) !important;
+        border-color: var(--accent-color) !important;
+    }
+
+    .sidebar-folder-btn.active {
+        background-color: var(--accent-color) !important;
+        color: var(--btn-text) !important;
+        border-color: var(--accent-color) !important;
+    }
+
+    .sidebar-folder-btn.active i {
+        color: var(--btn-text) !important;
+    }
+
+    /* --- 7. MODAL REDESIGN (NATIVE BOTTOM SHEETS) --- */
     .modal-overlay {
-        align-items: flex-end !important; /* Bottom sheet style */
+        align-items: flex-end !important; /* Positions modal at the bottom */
         padding: 0 !important;
         background-color: rgba(0, 0, 0, 0.7);
+        z-index: 10000;
     }
 
     .modal-box {
         width: 100% !important;
         max-width: 100% !important;
-        border-radius: 24px 24px 0 0 !important;
+        border-radius: 28px 28px 0 0 !important;
         padding: 32px 24px calc(24px + var(--safe-bottom)) !important;
         margin: 0 !important;
-        transform: translateY(100%);
+        transform: translateY(100%) !important;
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        max-height: 92vh !important;
+        max-height: 94vh !important;
         overflow-y: auto;
+        border: none !important;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
     }
 
     .modal-overlay.show .modal-box {
-        transform: translateY(0);
+        transform: translateY(0) !important;
     }
 
-    /* Visual drag handle for bottom sheets */
-    .modal-box::after {
+    /* Handle bar for bottom sheets */
+    .modal-box::before {
         content: '';
         position: absolute;
         top: 12px;
         left: 50%;
         transform: translateX(-50%);
-        width: 40px;
+        width: 48px;
         height: 5px;
-        background-color: var(--border-color);
+        background-color: var(--text-color);
+        opacity: 0.15;
         border-radius: 10px;
     }
 
     .modal-title {
         font-size: 1.4rem !important;
+        font-weight: 700;
         margin-bottom: 24px !important;
         text-align: center;
+        color: var(--accent-color);
+    }
+
+    .modal-subtitle {
+        text-align: center;
+        margin-bottom: 20px;
     }
 
     .modal-actions {
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 32px;
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-top: 32px !important;
     }
 
     .modal-btn {
         width: 100% !important;
-        height: 54px !important;
+        height: 56px !important;
         font-size: 1.1rem !important;
-        border-radius: 16px !important;
+        font-weight: 700;
+        border-radius: 18px !important;
         margin: 0 !important;
+        justify-content: center !important;
     }
 
-    /* --- 7. SETTINGS ADAPTATION --- */
+    .btn-confirm {
+        background-color: var(--accent-color) !important;
+        color: var(--btn-text) !important;
+    }
+
+    .btn-cancel {
+        background-color: var(--toggle-track) !important;
+        color: var(--text-color) !important;
+        border: none !important;
+    }
+
+    /* --- 8. SETTINGS MODAL MOBILE OPTIMIZATION --- */
     .settings-modal-box {
         height: 85vh !important;
         padding: 0 !important;
@@ -284,12 +468,13 @@
         height: auto !important;
         flex-direction: row !important;
         overflow-x: auto !important;
-        padding: 12px !important;
+        padding: 12px 16px !important;
         border-right: none !important;
         border-bottom: 1px solid var(--border-color) !important;
         gap: 10px !important;
         scrollbar-width: none;
         flex-shrink: 0;
+        background-color: var(--nav-bg);
     }
 
     .settings-nav::-webkit-scrollbar {
@@ -300,119 +485,176 @@
         white-space: nowrap !important;
         padding: 10px 18px !important;
         font-size: 0.9rem !important;
-        border-radius: 12px !important;
+        border-radius: 14px !important;
+        min-height: 40px !important;
     }
 
     .settings-content {
         padding: 24px !important;
         flex: 1;
+        background-color: var(--bg-color);
+    }
+
+    .settings-content-header h3 {
+        font-size: 1.2rem !important;
+        margin-bottom: 8px !important;
     }
 
     .settings-footer {
         padding: 16px 24px calc(16px + var(--safe-bottom)) !important;
+        background-color: var(--nav-bg);
+        border-top: 1px solid var(--border-color);
     }
 
     .setting-card {
-        padding: 16px !important;
-        border-radius: 16px !important;
+        padding: 18px !important;
+        border-radius: 20px !important;
+        margin-bottom: 12px;
+        background-color: var(--nav-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
-    /* --- 8. DASHBOARD & MANAGEMENT --- */
-    .notes-dashboard-box, .manage-modal-box, .docs-modal-box {
-        height: 94vh !important;
-        max-width: 100vw !important;
-        border-radius: 28px 28px 0 0 !important;
+    .setting-card-title {
+        font-size: 1rem !important;
     }
 
-    .dashboard-note-row, .manage-note-row {
-        padding: 14px 16px !important;
-        margin-bottom: 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 14px !important;
+    .setting-card-desc {
+        font-size: 0.8rem !important;
+    }
+
+    /* --- 9. WORKSPACE MANAGER (MANAGEMENT MODAL) --- */
+    .manage-modal-box {
+        height: 92vh !important;
+        padding: 0 !important;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .manage-header {
+        padding: 24px !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 16px !important;
+        border-bottom: 1px solid var(--border-color);
         background-color: var(--nav-bg);
     }
 
-    .dashboard-note-actions, .manage-actions {
-        opacity: 1 !important; /* Always show actions on mobile */
+    .manage-header h3 {
+        margin: 0 !important;
     }
 
-    .dashboard-action-btn, .manage-btn {
+    .manage-body {
+        padding: 20px 16px !important;
+        flex: 1;
+        background-color: var(--bg-color);
+    }
+
+    .manage-folder {
+        margin-bottom: 16px !important;
+        border-radius: 20px !important;
+        border: 1px solid var(--border-color) !important;
+        background-color: var(--nav-bg);
+        overflow: hidden;
+    }
+
+    .manage-folder-header {
+        padding: 16px 20px !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+    }
+
+    .manage-note-row {
+        padding: 14px 16px 14px 36px !important;
+        border-top: 1px solid var(--border-color) !important;
+        min-height: 60px;
+    }
+
+    .manage-note-title {
+        font-size: 1rem !important;
+    }
+
+    .manage-actions {
+        opacity: 1 !important; /* Always visible on mobile */
+        gap: 10px !important;
+    }
+
+    .manage-btn {
         width: 44px !important;
         height: 44px !important;
         border-radius: 12px !important;
+        background-color: var(--bg-color) !important;
+        border: 1px solid var(--border-color) !important;
     }
 
-    /* Folder items */
-    .dashboard-folder-title, .manage-folder-header {
-        padding: 14px 18px !important;
+    .manage-btn.btn-delete {
+        color: #ef4444 !important;
+    }
+
+    .manage-footer {
+        padding: 16px 24px calc(16px + var(--safe-bottom)) !important;
+        background-color: var(--nav-bg);
+    }
+
+    /* --- 10. ALL NOTES DASHBOARD --- */
+    .notes-dashboard-box {
+        height: 94vh !important;
+        padding: 0 !important;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notes-dashboard-header {
+        padding: 20px 24px !important;
+        background-color: var(--nav-bg);
+    }
+
+    .notes-dashboard-body {
+        padding: 16px !important;
+        background-color: var(--bg-color);
+    }
+
+    .dashboard-folder-title {
+        padding: 16px 18px !important;
         font-size: 1.1rem !important;
+        border-radius: 18px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .dashboard-note-row {
+        padding: 16px 18px !important;
+        margin-bottom: 10px !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 16px !important;
+        background-color: var(--nav-bg) !important;
+        box-shadow: 0 2px 6px var(--shadow-color) !important;
+    }
+
+    .dashboard-note-info {
+        font-size: 1.05rem !important;
+    }
+
+    .dashboard-note-actions {
+        opacity: 1 !important;
+        gap: 12px !important;
+    }
+
+    .dashboard-action-btn {
+        width: 48px !important;
+        height: 48px !important;
         border-radius: 14px !important;
     }
 
-    /* --- 9. SIDEBAR OVERLAY --- */
-    .mobile-sidebar-overlay {
-        display: block;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        z-index: 6000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .mobile-sidebar-overlay.show {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .mobile-sidebar {
-        position: absolute;
-        top: 0;
-        left: -85%;
-        width: 85%;
-        height: 100%;
+    .notes-dashboard-footer {
+        padding: 20px 24px calc(20px + var(--safe-bottom)) !important;
         background-color: var(--nav-bg);
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex;
-        flex-direction: column;
-        padding-top: var(--safe-top);
+        flex-direction: column !important;
+        gap: 12px !important;
     }
 
-    .mobile-sidebar-overlay.show .mobile-sidebar {
-        transform: translateX(100%);
-    }
-
-    .sidebar-header {
-        padding: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .sidebar-links {
-        padding: 20px;
-        flex: 1;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .sidebar-btn {
-        padding: 16px 20px !important;
-        font-size: 1.05rem !important;
-        border-radius: 16px !important;
-        border: 1px solid var(--border-color) !important;
-        background-color: var(--bg-color) !important;
-    }
-
-    /* --- 10. DISABLED FEEDBACKS (MOBILE) --- */
+    /* --- 11. DISABLE FEEDBACK (TOOLTIP & TOAST) --- */
     #toast,
     .custom-tooltip,
     [data-tooltip]::before,
@@ -423,7 +665,12 @@
         pointer-events: none !important;
     }
 
-    /* --- 11. PREVIEW ENHANCEMENTS --- */
+    /* --- 12. TEXT AREA TYPOGRAPHY & FIXES --- */
+    #preview-output h1 { font-size: 1.8rem !important; }
+    #preview-output h2 { font-size: 1.5rem !important; }
+    #preview-output h3 { font-size: 1.3rem !important; }
+    #preview-output p, #preview-output li { font-size: 1.05rem !important; line-height: 1.6; }
+
     #preview-output table {
         display: block;
         overflow-x: auto;
@@ -431,19 +678,34 @@
     }
 
     #preview-output img {
-        height: auto !important; /* Ensure images don't stretch weirdly */
         max-width: 100% !important;
+        height: auto !important;
     }
 
     #preview-output pre {
         padding: 16px !important;
         border-radius: 16px !important;
+        font-size: 0.9rem !important;
     }
 
-    /* --- 12. TEXT & TYPOGRAPHY --- */
-    h1 { font-size: 1.8rem !important; }
-    h2 { font-size: 1.5rem !important; }
-    h3 { font-size: 1.3rem !important; }
-    p, li { font-size: 1.05rem !important; }
+    /* --- 13. UTILITIES --- */
+    .input-group label {
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .modal-input {
+        height: 52px !important;
+        border-radius: 14px !important;
+        font-size: 1rem !important;
+        padding: 0 16px !important;
+    }
+
+    .dropdown-header {
+        height: 52px !important;
+        border-radius: 14px !important;
+        padding: 0 16px !important;
+    }
 
 }
