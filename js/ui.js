@@ -33,6 +33,7 @@ window.closePatGuideModal = function () { document.getElementById('pat-guide-mod
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
 window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
+window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
 
 // window.closeNotesModal is now handled in editor-core.js
 
@@ -194,6 +195,77 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('manage-modal-close')?.addEventListener('click', window.closeManageModal);
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
 
+    // ✨ TRANSFER MODAL ✨
+    document.getElementById('btn-transfer')?.addEventListener('click', () => {
+        document.getElementById('transfer-modal')?.classList.add('show');
+    });
+    document.getElementById('sidebar-btn-transfer-mobile')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('transfer-modal')?.classList.add('show');
+    });
+    document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
+
+    document.getElementById('btn-import-md-trigger')?.addEventListener('click', () => {
+        document.getElementById('import-markdown-input')?.click();
+    });
+
+    document.getElementById('import-markdown-input')?.addEventListener('change', async (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        let importedCount = 0;
+        for (const file of files) {
+            try {
+                const text = await file.text();
+                const noteName = file.name.replace(/\.[^/.]+$/, "");
+                const newId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+                const path = window.EditorState.generatePath('All Notes', noteName);
+
+                window.EditorState.notes.unshift({
+                    id: newId,
+                    path: path,
+                    folder: 'All Notes',
+                    title: noteName,
+                    content: text,
+                    lastUpdated: Date.now()
+                });
+                importedCount++;
+            } catch (err) {
+                console.error("Failed to import file:", file.name, err);
+            }
+        }
+
+        if (importedCount > 0) {
+            await window.EditorState.saveLocalState();
+            if (window.EditorState.appMode === 'github') {
+                window.EditorState.triggerCloudSync();
+            }
+            window.EditorCore.renderFoldersList();
+            window.EditorCore.renderNotesList();
+            window.showToast(`<i data-lucide='download'></i> Imported ${importedCount} note(s)`);
+            window.closeTransferModal();
+        }
+        e.target.value = ''; // Reset input
+    });
+
+    document.getElementById('btn-export-md')?.addEventListener('click', () => {
+        const activeNote = window.EditorState.getActiveNote();
+        if (!activeNote) return window.showToast("No active note to export.");
+
+        const blob = new Blob([activeNote.content], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${activeNote.title}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        window.showToast("<i data-lucide='upload'></i> Exported");
+        window.closeTransferModal();
+    });
+
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
     });
@@ -288,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             if (document.getElementById('management-modal')?.classList.contains('show')) { window.closeManageModal(); return; }
             if (document.getElementById('settings-modal')?.classList.contains('show')) { window.closeSettingsModal(); return; }
+            if (document.getElementById('transfer-modal')?.classList.contains('show')) { window.closeTransferModal(); return; }
             
             if (document.getElementById('notes-modal')?.classList.contains('show')) { if (typeof window.closeNotesModal === 'function') window.closeNotesModal(); return; }
         }

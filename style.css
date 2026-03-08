@@ -1407,6 +1407,18 @@ body.dark-mode .btn-cancel:hover {
     border-color: #ef4444;
 }
 
+.dashboard-action-btn.btn-open {
+    background: var(--accent-color);
+    color: var(--btn-text);
+    border-color: var(--accent-color);
+    opacity: 1;
+}
+
+.dashboard-action-btn.btn-open:hover {
+    background: var(--accent-hover);
+    transform: scale(1.1);
+}
+
 /* ✨ PERFECT DASHBOARD ACTIONS ✨ */
 .dashboard-actions {
     display: flex;
@@ -1634,7 +1646,11 @@ body.dark-mode .btn-cancel:hover {
 
 .settings-nav-item.active {
     background-color: var(--accent-color);
-    color: white;
+    color: var(--btn-text);
+}
+
+body.dark-mode .settings-nav-item:not(.active) {
+    color: var(--text-color);
 }
 
 .settings-nav-item i {
@@ -2283,6 +2299,30 @@ body.dark-mode .btn-help-cute:hover {
     #pdf-modal .btn-cancel {
         border: 2px solid var(--border-color);
     }
+}
+
+/* TRANSFER MODAL */
+.transfer-modal-box {
+    max-width: 440px;
+    padding: 24px 32px !important;
+}
+
+.transfer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.transfer-section h4 {
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.transfer-section p {
+    color: var(--text-color);
 }
 
 /* MANAGEMENT MODAL */

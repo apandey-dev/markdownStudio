@@ -331,6 +331,47 @@ window.EditorState = {
         if (navbar) {
             navbar.style.display = '';
         }
+
+        this.cleanupUIGhostElements();
+    },
+
+    cleanupUIGhostElements() {
+        // 1. Hide dividers if they don't have visible siblings on BOTH sides
+        document.querySelectorAll('.toolbar-divider').forEach(div => {
+            let prev = div.previousElementSibling;
+            while (prev && (getComputedStyle(prev).display === 'none' || prev.classList.contains('toolbar-divider'))) {
+                prev = prev.previousElementSibling;
+            }
+            let next = div.nextElementSibling;
+            while (next && (getComputedStyle(next).display === 'none' || next.classList.contains('toolbar-divider'))) {
+                next = next.nextElementSibling;
+            }
+
+            if (!prev || !next) {
+                div.style.display = 'none';
+            } else {
+                div.style.display = '';
+            }
+        });
+
+        // 2. Hide empty action-pill-groups, toolbar-groups, or mode-toggles
+        document.querySelectorAll('.action-pill-group, .toolbar-group, .mode-toggle').forEach(group => {
+            // Check if all functional children are hidden
+            const visibleChildren = Array.from(group.children).filter(child => {
+                return !child.classList.contains('toolbar-divider') &&
+                       !child.classList.contains('toolbar-spacer') &&
+                       getComputedStyle(child).display !== 'none';
+            });
+
+            if (visibleChildren.length === 0) {
+                group.style.display = 'none';
+            } else {
+                // Restore if it was hidden by this logic
+                if (group.style.display === 'none') {
+                    group.style.display = '';
+                }
+            }
+        });
     },
 
     async switchToMode(targetMode) {

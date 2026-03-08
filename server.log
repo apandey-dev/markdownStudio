@@ -1,8 +1,0 @@
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /style.css HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /mobile.css HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /js/github.js HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /js/editor-state.js HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /js/editor-actions.js HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /js/editor-core.js HTTP/1.1" 200 -
-127.0.0.1 - - [08/Mar/2026 10:49:34] "GET /js/ui.js HTTP/1.1" 200 -

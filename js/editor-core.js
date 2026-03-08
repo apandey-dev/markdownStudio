@@ -262,8 +262,8 @@ window.EditorCore = {
                 actions.className = 'dashboard-note-actions';
 
                 const openBtn = document.createElement('button');
-                openBtn.className = 'dashboard-action-btn';
-                openBtn.innerHTML = '<i data-lucide="edit-3"></i>';
+                openBtn.className = 'dashboard-action-btn btn-open';
+                openBtn.innerHTML = '<i data-lucide="external-link"></i>';
                 openBtn.setAttribute('data-tooltip', 'Open Note');
                 openBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
@@ -275,25 +275,15 @@ window.EditorCore = {
                     window.closeNotesModal();
                 });
 
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'dashboard-action-btn btn-delete';
-                deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
-                deleteBtn.setAttribute('data-tooltip', 'Delete Note');
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    window.EditorActions.pendingDeleteData = { type: 'note', id: note.id };
-                    document.getElementById('delete-modal-title').textContent = 'Delete Note?';
-                    document.getElementById('delete-modal-desc').textContent = 'This action cannot be undone. Are you sure?';
-                    document.getElementById('delete-modal').classList.add('show');
-                });
-
                 actions.appendChild(openBtn);
-                actions.appendChild(deleteBtn);
 
                 noteRow.appendChild(noteInfo);
                 noteRow.appendChild(actions);
 
-                noteRow.addEventListener('click', () => openBtn.click());
+                noteRow.addEventListener('click', (e) => {
+                    document.querySelectorAll('.dashboard-note-row').forEach(r => r.classList.remove('active'));
+                    noteRow.classList.add('active');
+                });
 
                 notesList.appendChild(noteRow);
             });
@@ -342,6 +332,40 @@ window.EditorCore = {
 
             header.appendChild(collapseIcon);
             header.appendChild(folderTitle);
+
+            if (folder !== 'All Notes') {
+                const fActions = document.createElement('div');
+                fActions.className = 'manage-actions';
+
+                const renameF = document.createElement('button');
+                renameF.className = 'manage-btn';
+                renameF.innerHTML = '<i data-lucide="edit-3"></i>';
+                renameF.title = "Rename Folder";
+                renameF.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.EditorActions.pendingRenameData = { type: 'folder', name: folder };
+                    const input = document.getElementById('rename-input');
+                    input.value = folder;
+                    document.getElementById('rename-modal').classList.add('show');
+                    setTimeout(() => input.focus(), 100);
+                });
+
+                const deleteF = document.createElement('button');
+                deleteF.className = 'manage-btn btn-danger';
+                deleteF.innerHTML = '<i data-lucide="trash-2"></i>';
+                deleteF.title = "Delete Folder";
+                deleteF.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.EditorActions.pendingDeleteData = { type: 'folder', id: folder };
+                    document.getElementById('delete-modal-title').textContent = 'Delete Folder?';
+                    document.getElementById('delete-modal-desc').textContent = 'All notes in this folder will be moved to "All Notes". Continue?';
+                    document.getElementById('delete-modal').classList.add('show');
+                });
+
+                fActions.appendChild(renameF);
+                fActions.appendChild(deleteF);
+                header.appendChild(fActions);
+            }
 
             const notesContainer = document.createElement('div');
             notesContainer.className = 'manage-notes-container';
@@ -396,6 +420,19 @@ window.EditorCore = {
                         return;
                     }
 
+                    document.querySelectorAll('.manage-note-row').forEach(r => r.classList.remove('active'));
+                    noteRow.classList.add('active');
+                });
+
+                const actions = document.createElement('div');
+                actions.className = 'manage-actions';
+
+                const openBtn = document.createElement('button');
+                openBtn.className = 'manage-btn btn-open';
+                openBtn.innerHTML = '<i data-lucide="external-link"></i>';
+                openBtn.title = "Open Note";
+                openBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
                     window.EditorState.activeNoteId = note.id;
                     this.highlightedNoteId = note.id;
                     window.EditorState.activeFolder = note.folder || 'All Notes';
@@ -408,50 +445,24 @@ window.EditorCore = {
                     window.showToast("<i data-lucide='edit-2'></i> Opened");
                 });
 
-                const actions = document.createElement('div');
-                actions.className = 'manage-actions';
-
-                // Rename/Move Button
-                const btnRename = document.createElement('button');
-                btnRename.className = 'manage-btn';
-                btnRename.title = "Rename or Move Note";
-                btnRename.innerHTML = '<i data-lucide="edit"></i>';
-                btnRename.addEventListener('click', (e) => {
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'manage-btn';
+                renameBtn.innerHTML = '<i data-lucide="edit-3"></i>';
+                renameBtn.title = "Rename Note";
+                renameBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const renameModal = document.getElementById('rename-modal');
-                    const renameInput = document.getElementById('rename-input');
-                    if (renameModal && renameInput) {
-                        renameInput.value = note.title;
-                        window.EditorState.activeFolder = note.folder || 'All Notes';
-
-                        const dropList = document.getElementById('note-folder-dropdown-list');
-                        const dropText = document.getElementById('folder-selected-text');
-                        if (dropList && dropText) {
-                            dropList.innerHTML = '';
-                            window.EditorState.folders.forEach(f => {
-                                const div = document.createElement('div');
-                                div.className = `dropdown-item ${f === window.EditorState.activeFolder ? 'active' : ''}`;
-                                div.setAttribute('data-value', f);
-                                div.textContent = f;
-                                dropList.appendChild(div);
-                            });
-                            dropText.textContent = window.EditorState.activeFolder;
-                            dropText.setAttribute('data-selected', window.EditorState.activeFolder);
-                            if (window.EditorCore.setupFolderDropdown) window.EditorCore.setupFolderDropdown();
-                        }
-
-                        window.EditorActions.pendingRenameData = { id: note.id, folder: note.folder };
-                        renameModal.classList.add('show');
-                        setTimeout(() => { renameInput.focus(); }, 100);
-                    }
+                    window.EditorActions.pendingRenameData = { type: 'note', id: note.id };
+                    const input = document.getElementById('rename-input');
+                    input.value = note.title;
+                    document.getElementById('rename-modal').classList.add('show');
+                    setTimeout(() => input.focus(), 100);
                 });
 
-                // Delete Button
-                const btnDel = document.createElement('button');
-                btnDel.className = 'manage-btn btn-delete';
-                btnDel.title = "Delete Note";
-                btnDel.innerHTML = '<i data-lucide="trash-2"></i>';
-                btnDel.addEventListener('click', (e) => {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'manage-btn btn-danger';
+                deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+                deleteBtn.title = "Delete Note";
+                deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     window.EditorActions.pendingDeleteData = { type: 'note', id: note.id };
                     document.getElementById('delete-modal-title').textContent = 'Delete Note?';
@@ -459,8 +470,9 @@ window.EditorCore = {
                     document.getElementById('delete-modal').classList.add('show');
                 });
 
-                actions.appendChild(btnRename);
-                actions.appendChild(btnDel);
+                actions.appendChild(openBtn);
+                actions.appendChild(renameBtn);
+                actions.appendChild(deleteBtn);
 
                 noteRow.appendChild(nTitle);
                 noteRow.appendChild(actions);
