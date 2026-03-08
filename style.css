@@ -1179,6 +1179,35 @@ a.internal-note-link i {
     font-weight: 600 !important;
 }
 
+.sidebar-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-family: var(--ui-font);
+}
+
+.sidebar-btn:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+}
+
+.sidebar-btn i {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+}
+
 /* MODALS */
 .modal-overlay {
     position: fixed;

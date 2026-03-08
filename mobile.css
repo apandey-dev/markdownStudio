@@ -300,7 +300,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 85%;
+        width: 88%;
         max-width: 340px;
         height: 100%;
         background-color: var(--nav-bg);
@@ -317,12 +317,12 @@
     }
 
     .sidebar-header {
-        padding: 20px 28px; /* Increased horizontal padding */
+        padding: 24px 28px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid var(--border-color);
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }
 
     .sidebar-header h3 {
@@ -345,7 +345,7 @@
     }
 
     .sidebar-links {
-        padding: 8px 24px 24px; /* Increased horizontal padding */
+        padding: 8px 24px 24px;
         flex: 1;
         overflow-y: auto;
         display: flex;
@@ -417,10 +417,15 @@
 
     /* --- 7. MODAL REDESIGN (NATIVE BOTTOM SHEETS) --- */
     .modal-overlay {
-        align-items: flex-end !important; /* Positions modal at the bottom */
+        align-items: flex-end !important;
         padding: 0 !important;
         background-color: rgba(0, 0, 0, 0.7);
         z-index: 10000;
+        display: none !important;
+    }
+
+    .modal-overlay.show {
+        display: flex !important;
     }
 
     .modal-box {
@@ -650,36 +655,35 @@
         padding: 0 !important;
         display: flex;
         flex-direction: column;
+        background-color: var(--bg-color) !important;
     }
 
     .notes-dashboard-header {
-        padding: 20px 24px !important;
+        padding: 24px !important;
         background-color: var(--nav-bg);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .notes-dashboard-body {
-        padding: 16px !important;
+        padding: 20px 16px !important;
         background-color: var(--bg-color);
-    }
-
-    .dashboard-folder-title {
-        padding: 10px 12px !important;
-        font-size: 0.95rem !important;
-        border-radius: 8px !important;
-        margin-bottom: 4px !important;
-        background-color: transparent !important; /* Minimal */
-        border-bottom: 1px solid var(--border-color) !important;
+        flex: 1;
     }
 
     .dashboard-note-row {
-        padding: 10px 12px 10px 32px !important; /* Indented for notes */
-        margin-bottom: 0 !important;
-        border: none !important;
-        border-bottom: 1px solid var(--border-color) !important;
-        border-radius: 0 !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        opacity: 0.85;
+        padding: 16px 20px !important;
+        margin-bottom: 12px !important;
+        background-color: var(--nav-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 4px 12px var(--shadow-color) !important;
+        opacity: 1 !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .dashboard-note-row:active {
+        transform: scale(0.97);
+        background-color: var(--hover-bg) !important;
     }
 
     .dashboard-note-row.active {
@@ -717,6 +721,10 @@
         gap: 12px !important;
     }
 
+    #btn-new-folder {
+        display: none !important;
+    }
+
     /* --- 11. DISABLE FEEDBACK (TOOLTIP & TOAST) --- */
     #toast,
     .custom-tooltip,
@@ -752,6 +760,11 @@
     }
 
     /* --- 13. UTILITIES --- */
+    #pdf-modal .modal-box {
+        max-height: 80vh !important;
+        padding-top: 40px !important;
+    }
+
     .truncate-text {
         white-space: nowrap;
         overflow: hidden;
