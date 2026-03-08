@@ -531,13 +531,15 @@ body.dark-mode .action-pill-group {
 }
 
 #btn-save-progress.unsaved {
-    background-color: #f59e0b !important;
-    color: #fff !important;
+    background-color: #ff9f0a !important; /* Vibrant high-contrast orange */
+    color: #000 !important;
+    box-shadow: 0 0 12px rgba(255, 159, 10, 0.4);
 }
 
 #btn-save-progress.saved {
-    background-color: #10b981 !important;
-    color: #fff !important;
+    background-color: #30d158 !important; /* Vibrant high-contrast green */
+    color: #000 !important;
+    box-shadow: 0 0 12px rgba(48, 209, 88, 0.4);
 }
 
 
@@ -720,6 +722,44 @@ textarea:disabled::placeholder {
     background-color: var(--accent-color);
     width: 4px;
     left: 2px;
+}
+
+.divider-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 48px;
+    background-color: var(--nav-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    z-index: 20;
+    transition: all 0.2s ease;
+    pointer-events: none; /* Let clicks pass through to divider */
+}
+
+.divider:hover .divider-handle,
+.divider:active .divider-handle {
+    height: 56px;
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+    color: var(--btn-text);
+}
+
+.divider-handle i {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+}
+
+.divider:hover .divider-handle i,
+.divider:active .divider-handle i {
+    opacity: 1;
 }
 
 /* ✨ EDGE HANDLES ✨ */

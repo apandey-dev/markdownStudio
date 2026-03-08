@@ -334,10 +334,9 @@ window.EditorActions = {
             return;
         }
 
-        const shareBtn = document.getElementById('btn-share');
-        const originalHtml = shareBtn.innerHTML;
-        shareBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 16px;"></i> Generating`;
-        shareBtn.disabled = true;
+        document.getElementById('share-modal').classList.add('show');
+        document.getElementById('share-modal-loading').style.display = 'block';
+        document.getElementById('share-modal-content').style.display = 'none';
         if (window.lucide) lucide.createIcons();
 
         try {
@@ -349,23 +348,18 @@ window.EditorActions = {
 
             if (gistResult && !gistResult.error) {
                 const shareableUrl = `https://apandey-studio.vercel.app/share.html?id=${gistResult.id}#${secretKey}`;
-                if (navigator.share) {
-                    try { await navigator.share({ title: window.EditorState.getActiveNote().title, url: shareableUrl }); }
-                    catch (err) { console.log(err); }
-                } else {
-                    await navigator.clipboard.writeText(shareableUrl);
-                    window.showToast("<i data-lucide='link'></i> Link Copied");
-                }
+                document.getElementById('share-url-input').value = shareableUrl;
+                document.getElementById('share-modal-loading').style.display = 'none';
+                document.getElementById('share-modal-content').style.display = 'block';
+                if (window.lucide) lucide.createIcons();
             } else {
                 window.showToast("Needs 'gist' permission.");
+                document.getElementById('share-modal').classList.remove('show');
             }
         } catch (err) {
             window.showToast("Encryption Error.");
+            document.getElementById('share-modal').classList.remove('show');
         }
-
-        shareBtn.innerHTML = originalHtml;
-        shareBtn.disabled = false;
-        if (window.lucide) lucide.createIcons();
     },
 
     handlePdfExport(customFilename = null) {
