@@ -930,13 +930,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.getElementById('conflict-overwrite')?.addEventListener('click', () => window.EditorActions.handleConflictOverwrite());
 
-        // Import / Export
-        document.getElementById('btn-export-md')?.addEventListener('click', () => window.EditorActions.handleExportMd());
-        document.getElementById('btn-import-md')?.addEventListener('click', () => document.getElementById('import-file').click());
-        document.getElementById('import-file')?.addEventListener('change', (e) => {
-            window.EditorActions.handleImportMd(e.target.files[0]);
-            e.target.value = '';
-        });
 
         // Export PDF
         document.getElementById('modal-confirm')?.addEventListener('click', () => window.EditorActions.handlePdfExport());
