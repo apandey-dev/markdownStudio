@@ -328,12 +328,11 @@ window.EditorState = {
                     const elements = document.querySelectorAll(componentSelector);
                     elements.forEach(el => {
                         // Crucial Protection: Never hide certain elements
-                        // (App Name, Settings Button, Exit Focus Button, Mobile Menu)
+                        // (App Name, Settings Button, Exit Focus Button)
                         if (el.closest('.brand') ||
                             el.closest('#btn-settings') ||
                             el.closest('#btn-exit-focus') ||
-                            el.closest('#btn-exit-focus-bottom') ||
-                            el.closest('#mobile-menu-btn')) {
+                            el.closest('#btn-exit-focus-bottom')) {
                             el.style.display = '';
                             return;
                         }
