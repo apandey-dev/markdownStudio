@@ -126,15 +126,19 @@
                 <div id="mobile-sidebar-notes-list" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
 
-            <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-                <button class="sidebar-btn" id="sidebar-btn-share" style="color: var(--accent-color) !important;">
-                    <i data-lucide="share-2"></i> <span>Share Note</span>
-                </button>
-                <button class="sidebar-btn" id="sidebar-btn-pdf" style="color: var(--accent-color) !important;">
-                    <i data-lucide="printer"></i> <span>Export PDF</span>
-                </button>
-                <button class="sidebar-btn" id="sidebar-btn-mobile-settings" style="color: var(--text-color) !important;">
-                    <i data-lucide="settings"></i> <span>Settings</span>
+            <div style="padding: 20px 24px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px; background: var(--bg-color);">
+                <div style="display: flex; gap: 12px;">
+                    <button class="sidebar-btn" id="sidebar-btn-share" style="flex: 1; justify-content: center; background: var(--hover-bg) !important; color: var(--accent-color) !important; border: 1px solid var(--border-color) !important; flex-direction: column; gap: 6px; padding: 12px !important; height: auto; border-radius: 16px !important;">
+                        <i data-lucide="share-2" style="width: 24px; height: 24px;"></i>
+                        <span style="font-size: 0.8rem; font-weight: 600; white-space: nowrap; margin-top: 4px;">Share</span>
+                    </button>
+                    <button class="sidebar-btn" id="sidebar-btn-pdf" style="flex: 1; justify-content: center; background: var(--hover-bg) !important; color: var(--accent-color) !important; border: 1px solid var(--border-color) !important; flex-direction: column; gap: 6px; padding: 12px !important; height: auto; border-radius: 16px !important;">
+                        <i data-lucide="printer" style="width: 24px; height: 24px;"></i>
+                        <span style="font-size: 0.8rem; font-weight: 600; white-space: nowrap; margin-top: 4px;">Export</span>
+                    </button>
+                </div>
+                <button class="sidebar-btn" id="sidebar-btn-mobile-settings" style="justify-content: center; background: var(--accent-color) !important; color: var(--btn-text) !important; border-radius: 16px !important; height: 52px !important; margin-top: 4px;">
+                    <i data-lucide="settings" style="opacity: 1; width: 18px; height: 18px;"></i> <span style="text-align: center; flex: none; font-size: 1rem;">Settings</span>
                 </button>
             </div>
         </div>
@@ -1001,10 +1005,9 @@
                 <input type="password" id="github-token-input" class="modal-input" placeholder="ghp_xxxx..."
                     autocomplete="off" spellcheck="false" />
             </div>
-            <div class="modal-actions" style="margin-top: 24px; flex-direction: row; gap: 12px;">
+            <div class="modal-actions" style="margin-top: 24px; flex-direction: row !important; gap: 12px !important;">
                 <button class="modal-btn btn-cancel" id="btn-cancel-setup" style="flex: 1;">Cancel</button>
-                <button class="modal-btn btn-confirm" id="btn-start-app"
-                    style="flex: 1; padding: 14px; font-size: 1.1rem;">Connect</button>
+                <button class="modal-btn btn-confirm" id="btn-start-app" style="flex: 1; padding: 14px; font-size: 1.1rem;">Connect</button>
             </div>
         </div>
     </div>

@@ -449,8 +449,15 @@
         margin-top: 32px !important;
     }
 
+    /* Exceptions for specific modals where side-by-side is preferred even on mobile */
+    .delete-actions,
+    .setup-modal-box .modal-actions,
+    .premium-actions {
+        flex-direction: row !important;
+    }
+
     .modal-btn {
-        width: 100% !important;
+        width: 100%;
         height: 56px !important;
         font-size: 1.1rem !important;
         font-weight: 700;
