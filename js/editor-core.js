@@ -232,10 +232,18 @@ window.EditorCore = {
 
             const folderTitle = document.createElement('div');
             folderTitle.className = 'dashboard-folder-title';
-            folderTitle.innerHTML = `<i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i> ${folder}`;
+            folderTitle.style.cursor = 'pointer';
+            folderTitle.innerHTML = `<i data-lucide="chevron-right" class="collapse-icon" style="margin-right:8px; transition: transform 0.2s;"></i> <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i> ${folder}`;
 
             const notesList = document.createElement('div');
             notesList.className = 'dashboard-notes-list';
+            notesList.style.display = 'none'; // Collapsed by default
+
+            folderTitle.addEventListener('click', () => {
+                const isCollapsed = notesList.style.display === 'none';
+                notesList.style.display = isCollapsed ? 'flex' : 'none';
+                folderTitle.querySelector('.collapse-icon').style.transform = isCollapsed ? 'rotate(90deg)' : 'rotate(0deg)';
+            });
 
             const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
 
@@ -462,30 +470,52 @@ window.EditorCore = {
 
     renderMainSidebarFolders() {
         const container = document.getElementById('dynamic-sidebar-folders');
-        if (!container) return;
-        container.innerHTML = '';
+        const mobileContainer = document.getElementById('mobile-notes-list');
 
-        window.EditorState.folders.forEach(folder => {
-            const btn = document.createElement('button');
-            btn.className = `sidebar-btn sidebar-folder-btn ${folder === window.EditorState.activeFolder ? 'active' : ''}`;
+        if (container) {
+            container.innerHTML = '';
+            window.EditorState.folders.forEach(folder => {
+                const btn = document.createElement('button');
+                btn.className = `sidebar-btn sidebar-folder-btn ${folder === window.EditorState.activeFolder ? 'active' : ''}`;
 
-            let iconType = folder === 'All Notes' ? 'library' : 'folder';
-            let count = folder === 'All Notes' ? window.EditorState.notes.length : window.EditorState.notes.filter(n => n.folder === folder).length;
+                let iconType = folder === 'All Notes' ? 'library' : 'folder';
+                let count = folder === 'All Notes' ? window.EditorState.notes.length : window.EditorState.notes.filter(n => n.folder === folder).length;
 
-            btn.innerHTML = `<i data-lucide="${iconType}"></i> <span style="flex:1; text-align:left;">${folder}</span> <span style="font-size: 0.75rem; opacity: 0.6; background: var(--shadow-color); padding: 2px 8px; border-radius: 10px;">${count}</span>`;
+                btn.innerHTML = `<i data-lucide="${iconType}"></i> <span style="flex:1; text-align:left;">${folder}</span> <span style="font-size: 0.75rem; opacity: 0.6; background: var(--shadow-color); padding: 2px 8px; border-radius: 10px;">${count}</span>`;
 
-            btn.addEventListener('click', () => {
-                window.EditorState.activeFolder = folder;
-                document.getElementById('mobile-sidebar-overlay').classList.remove('show');
-                document.getElementById('notes-modal').classList.add('show');
-                this.renderFoldersList();
-                this.renderNotesList();
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
-                }
+                btn.addEventListener('click', () => {
+                    window.EditorState.activeFolder = folder;
+                    document.getElementById('mobile-sidebar-overlay').classList.remove('show');
+                    document.getElementById('notes-modal').classList.add('show');
+                    this.renderFoldersList();
+                    this.renderNotesList();
+                    if (window.innerWidth <= 768) {
+                        document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+                    }
+                });
+                container.appendChild(btn);
             });
-            container.appendChild(btn);
-        });
+        }
+
+        if (mobileContainer) {
+            mobileContainer.innerHTML = '';
+            window.EditorState.notes.forEach(note => {
+                const item = document.createElement('div');
+                item.className = `mobile-note-item ${note.id === window.EditorState.activeNoteId ? 'active' : ''}`;
+                item.textContent = note.title;
+                item.addEventListener('click', async () => {
+                    window.EditorState.activeNoteId = note.id;
+                    const editor = document.getElementById('markdown-input');
+                    editor.value = note.content;
+                    await window.EditorState.saveLocalState();
+                    this.renderMarkdownCore(note.content);
+                    document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+                    window.showToast("<i data-lucide='edit-2'></i> Opened");
+                });
+                mobileContainer.appendChild(item);
+            });
+        }
+
         if (window.lucide) lucide.createIcons();
     },
 
@@ -551,6 +581,7 @@ window.EditorCore = {
 
     updatePillUI() {
         const isGithub = window.EditorState.appMode === 'github';
+        const isAutoSave = window.EditorState.autoSave;
 
         document.querySelectorAll('[data-target]').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll(`[data-target="${window.EditorState.appMode}"]`).forEach(tab => tab.classList.add('active'));
@@ -561,6 +592,9 @@ window.EditorCore = {
                 if (window.EditorState.isSyncing) {
                     indicator.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> Syncing...`;
                     indicator.style.color = '#3b82f6';
+                } else if (!isAutoSave) {
+                    indicator.innerHTML = `<i data-lucide="cloud" style="width:14px; height:14px;"></i> Cloud Mode (Manual)`;
+                    indicator.style.color = 'var(--text-color)';
                 } else if (window.EditorState.pendingSync) {
                     indicator.innerHTML = `<i data-lucide="cloud-upload" style="width:14px; height:14px;"></i> Pending Sync`;
                     indicator.style.color = '#f59e0b';
@@ -569,7 +603,11 @@ window.EditorCore = {
                     indicator.style.color = '#10b981';
                 }
             } else {
-                indicator.innerHTML = `<i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local Storage`;
+                if (!isAutoSave) {
+                    indicator.innerHTML = `<i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local (Manual)`;
+                } else {
+                    indicator.innerHTML = `<i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local Storage`;
+                }
                 indicator.style.color = 'var(--text-color)';
             }
         }
@@ -678,6 +716,9 @@ window.EditorCore = {
                         }
                     } catch (e) {}
                 } else {
+                    // Force update indicator even in manual mode
+                    window.EditorCore.updatePillUI();
+
                     // Manual mode: Keep in temporary drafts for refresh safety
                     try {
                         let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');

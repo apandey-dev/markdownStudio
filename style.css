@@ -358,6 +358,17 @@ body.dark-mode .action-pill-group {
     transform: translateY(0) scale(1);
 }
 
+.custom-dropdown.open-upward .dropdown-list {
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.98);
+}
+
+.custom-dropdown.open-upward.open .dropdown-list {
+    transform: translateY(0) scale(1);
+}
+
 .dropdown-item {
     padding: 10px 14px;
     border-radius: 8px;
@@ -1363,9 +1374,9 @@ body.dark-mode .btn-cancel:hover {
 
 /* ✨ ALL NOTES DASHBOARD ✨ */
 .notes-dashboard-box {
-    max-width: 600px;
+    max-width: 700px !important;
     width: 95vw;
-    height: 80vh;
+    height: 500px !important;
     padding: 0 !important;
     display: flex;
     flex-direction: column;
@@ -1584,9 +1595,9 @@ body.dark-mode .btn-cancel:hover {
 
 /* WIDER DOCS MODAL */
 .docs-modal-box {
-    max-width: 960px !important;
+    max-width: 700px !important;
     width: 95vw;
-    height: 85vh;
+    height: 500px !important;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -1666,14 +1677,96 @@ body.dark-mode .btn-cancel:hover {
 
 .settings-modal-box {
     text-align: left !important;
+    max-width: 700px !important;
+    height: 500px !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px !important;
 }
 
-.settings-modal-box .premium-modal-header {
-    align-items: flex-start !important;
+.settings-container {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.settings-left-panel {
+    width: 220px;
+    background-color: var(--hover-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.settings-panel-header {
+    padding: 0 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-nav-item {
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.settings-nav-item i {
+    width: 18px;
+    height: 18px;
+}
+
+.settings-nav-item:hover {
+    opacity: 1;
+    background-color: var(--shadow-color);
+}
+
+.settings-nav-item.active {
+    opacity: 1;
+    background-color: var(--nav-bg);
+    color: var(--accent-color);
+    border-left: 4px solid var(--accent-color);
+    padding-left: 20px;
+}
+
+.settings-right-panel {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    background-color: var(--nav-bg);
+}
+
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-footer {
+    padding: 20px 32px;
+    background-color: var(--nav-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
 .settings-section {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 }
 
 .settings-section-title {
@@ -1682,7 +1775,7 @@ body.dark-mode .btn-cancel:hover {
     text-transform: uppercase;
     letter-spacing: 1px;
     opacity: 0.5;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border-color);
 }
@@ -1691,19 +1784,22 @@ body.dark-mode .btn-cancel:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 14px 0;
 }
 
 .setting-label {
     font-weight: 600;
     display: block;
+    color: var(--text-color);
 }
 
 .setting-info small {
     opacity: 0.6;
     font-size: 0.8rem;
     display: block;
-    margin-top: 2px;
+    margin-top: 4px;
+    max-width: 320px;
+    line-height: 1.4;
 }
 
 .setting-sub-list {
@@ -1713,7 +1809,7 @@ body.dark-mode .btn-cancel:hover {
 }
 
 .setting-sub-list .setting-item {
-    padding: 8px 0;
+    padding: 10px 0;
 }
 
 .setting-sub-list .setting-label {
@@ -1980,6 +2076,32 @@ body.dark-mode .btn-help-cute:hover {
     transform: translateY(0);
 }
 
+/* ✨ FLOATING EXIT FOCUS BUTTON ✨ */
+#floating-exit-focus {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+#floating-exit-focus #btn-exit-focus {
+    background: var(--accent-color);
+    color: var(--btn-text);
+    padding: 10px 24px;
+    height: auto;
+    width: auto;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    gap: 8px;
+    opacity: 1;
+}
+
+#floating-exit-focus #btn-exit-focus:hover {
+    transform: translateX(0) translateY(-2px);
+}
+
 .custom-divider {
     border: none;
     height: 5px;
@@ -2221,9 +2343,9 @@ body.dark-mode .btn-help-cute:hover {
 
 /* MANAGEMENT MODAL */
 .manage-modal-box {
-    max-width: 650px;
+    max-width: 700px !important;
     width: 95vw;
-    height: 80vh;
+    height: 500px !important;
     padding: 0 !important;
     display: flex;
     flex-direction: column;

@@ -123,6 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const initFocusMode = () => {
         if(localStorage.getItem('md_focus_mode') === 'true') {
             document.body.classList.add('focus-mode');
+            const floatingExit = document.getElementById('floating-exit-focus');
+            if (floatingExit) floatingExit.style.display = 'block';
             setTimeout(() => window.dispatchEvent(new Event('focusModeEnabled')), 100);
         }
     };
@@ -133,14 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('md_focus_mode', 'true');
         window.dispatchEvent(new Event('focusModeEnabled'));
 
-        // Custom UI logic for focus mode
-        const pillGroup = document.querySelector('.action-pill-group');
-        if (pillGroup) {
-            pillGroup.querySelectorAll('button:not(#btn-share):not(#btn-pdf):not(#btn-exit-focus)').forEach(btn => {
-                btn.style.display = 'none';
-            });
-            document.getElementById('btn-exit-focus').style.display = 'flex';
-        }
+        const floatingExit = document.getElementById('floating-exit-focus');
+        if (floatingExit) floatingExit.style.display = 'block';
 
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
@@ -149,14 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('focus-mode');
         localStorage.setItem('md_focus_mode', 'false');
 
-        // Revert UI changes
-        const pillGroup = document.querySelector('.action-pill-group');
-        if (pillGroup) {
-            pillGroup.querySelectorAll('button').forEach(btn => {
-                btn.style.display = 'flex';
-            });
-            document.getElementById('btn-exit-focus').style.display = 'none';
-        }
+        const floatingExit = document.getElementById('floating-exit-focus');
+        if (floatingExit) floatingExit.style.display = 'none';
 
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
     });
@@ -209,16 +199,64 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
-    // ✨ SETTINGS MODAL ✨
+    // ✨ SETTINGS MODAL REDESIGN ✨
+    const settingsModal = document.getElementById('settings-modal');
+
     document.getElementById('btn-settings')?.addEventListener('click', () => {
-        document.getElementById('settings-modal')?.classList.add('show');
+        settingsModal?.classList.add('show');
+        // Reset tabs to default
+        document.querySelectorAll('.settings-nav-item').forEach(nav => nav.classList.remove('active'));
+        document.querySelector('.settings-nav-item[data-tab="general"]')?.classList.add('active');
+        document.querySelectorAll('.settings-tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById('settings-tab-general')?.classList.add('active');
+
+        // Sync toggles with current state
+        window.EditorState.loadAutoSave();
+        document.getElementById('setting-auto-save').checked = window.EditorState.autoSave;
+
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            toggle.checked = window.EditorState.uiVisibility[toggle.id] !== false;
+        });
     });
+
     document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('settings-modal')?.classList.add('show');
+        document.getElementById('btn-settings')?.click();
     });
-    document.getElementById('settings-modal-close')?.addEventListener('click', window.closeSettingsModal);
-    document.getElementById('settings-modal-close-btn')?.addEventListener('click', window.closeSettingsModal);
+
+    document.querySelectorAll('.settings-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const tab = item.getAttribute('data-tab');
+            document.querySelectorAll('.settings-nav-item').forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+
+            document.querySelectorAll('.settings-tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`settings-tab-${tab}`)?.classList.add('active');
+        });
+    });
+
+    document.getElementById('settings-modal-cancel-btn')?.addEventListener('click', window.closeSettingsModal);
+
+    document.getElementById('settings-modal-save-btn')?.addEventListener('click', () => {
+        // Apply Auto Save
+        const autoSaveVal = document.getElementById('setting-auto-save').checked;
+        window.EditorState.autoSave = autoSaveVal;
+        window.EditorState.saveAutoSave();
+
+        // Apply UI Visibility
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            window.EditorState.uiVisibility[toggle.id] = toggle.checked;
+        });
+        window.EditorState.saveUIVisibility();
+        if (window.EditorState.applyUIVisibility) {
+            window.EditorState.applyUIVisibility();
+        }
+
+        window.closeSettingsModal();
+        window.showToast("<i data-lucide='check-circle'></i> Settings Applied");
+    });
 
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -238,14 +276,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
     });
 
-    document.getElementById('sidebar-btn-share')?.addEventListener('click', () => {
+    document.getElementById('mobile-btn-share')?.addEventListener('click', () => {
         sidebarOverlay?.classList.remove('show');
         document.getElementById('btn-share')?.click();
     });
-    document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => {
+    document.getElementById('mobile-btn-pdf')?.addEventListener('click', () => {
         sidebarOverlay?.classList.remove('show');
         document.getElementById('btn-pdf')?.click();
     });
+    document.getElementById('mobile-btn-theme')?.addEventListener('click', () => {
+        const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(currentTheme);
+    });
+
+    const mobileModeToggle = document.getElementById('mobile-mode-toggle');
+    if (mobileModeToggle) {
+        mobileModeToggle.querySelectorAll('.mode-tab').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                await window.EditorState.switchToMode(target);
+                sidebarOverlay?.classList.remove('show');
+            });
+        });
+    }
 
     const mobileViewToggle = document.getElementById('mobile-view-toggle');
     if (mobileViewToggle) {
@@ -326,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.style.top = `${rect.bottom + 8}px`;
                 list.style.left = `${rect.left}px`;
                 list.style.width = `${Math.max(rect.width, 160)}px`;
-                list.style.zIndex = '3000';
+                list.style.zIndex = '9000';
                 
                 list.classList.add('show');
                 dropdown.classList.add('open');
@@ -359,11 +412,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
+        const list = dropdown.querySelector('.dropdown-list');
         const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
 
         header?.addEventListener('click', (e) => {
             e.stopPropagation();
+
+            // Check if we need to flip the dropdown to open upwards
+            const rect = header.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const dropdownHeight = list ? 160 : 0; // estimate or use list height
+
+            if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                dropdown.classList.add('open-upward');
+            } else {
+                dropdown.classList.remove('open-upward');
+            }
+
             document.querySelectorAll('.custom-dropdown').forEach(d => {
                 if (d !== dropdown) d.classList.remove('open');
             });
@@ -587,40 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('delete-cancel')?.addEventListener('click', window.closeDeleteModal);
 
-    // ✨ SETTINGS LOGIC ✨
-    const autoSaveCheckbox = document.getElementById('setting-auto-save');
-    if (autoSaveCheckbox) {
-        window.EditorState.loadAutoSave();
-        autoSaveCheckbox.checked = window.EditorState.autoSave;
-
-        autoSaveCheckbox.addEventListener('change', (e) => {
-            window.EditorState.autoSave = e.target.checked;
-            window.EditorState.saveAutoSave();
-
-            if (window.EditorState.autoSave) {
-                window.showToast("<i data-lucide='save'></i> Auto Save Enabled");
-            } else {
-                window.showToast("<i data-lucide='mouse-pointer'></i> Manual Save Mode");
-            }
-        });
-    }
-
-    // UI Component Visibility Toggles
-    const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
-    uiToggles.forEach(toggle => {
-        toggle.addEventListener('change', (e) => {
-            window.EditorState.uiVisibility[e.target.id] = e.target.checked;
-            window.EditorState.saveUIVisibility();
-        });
-    });
-
+    // UI Component Visibility Toggles logic moved to Save button in redesign
     window.EditorState.loadUIVisibility();
-    // Initialize toggles from state
-    uiToggles.forEach(toggle => {
-        if (window.EditorState.uiVisibility[toggle.id] === undefined) {
-            window.EditorState.uiVisibility[toggle.id] = true; // Default
-        }
-    });
     window.EditorState.applyUIVisibility();
 
     // Toggle Manual Save Button Visibility
@@ -629,6 +663,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const saveDivider = document.getElementById('manual-save-divider');
         if (saveBtn) saveBtn.style.display = enabled ? 'none' : 'flex';
         if (saveDivider) saveDivider.style.display = enabled ? 'none' : 'block';
+
+        if (window.EditorCore && window.EditorCore.updatePillUI) {
+            window.EditorCore.updatePillUI();
+        }
     };
 
     window.addEventListener('autoSaveToggled', (e) => {

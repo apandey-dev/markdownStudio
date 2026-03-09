@@ -284,21 +284,63 @@ window.EditorState = {
 
     applyUIVisibility() {
         Object.keys(this.uiVisibility).forEach(id => {
+            const isVisible = this.uiVisibility[id];
+
+            // Map IDs to selectors if checkbox not present (for initialization)
+            let selector = null;
             const checkbox = document.getElementById(id);
             if (checkbox) {
-                const componentSelector = checkbox.getAttribute('data-component');
-                const isVisible = this.uiVisibility[id];
+                selector = checkbox.getAttribute('data-component');
                 checkbox.checked = isVisible;
+            } else {
+                // Fallback mapping for initial load before modal is rendered
+                const mappings = {
+                    'toggle-editor-toolbar': '.editor-toolbar',
+                    'toggle-toolbar-format': '.editor-toolbar .toolbar-group:nth-child(1)',
+                    'toggle-toolbar-heading': ".editor-toolbar [data-action='heading']",
+                    'toggle-toolbar-font': '#font-dropdown',
+                    'toggle-toolbar-focus': '#btn-focus-mode',
+                    'toggle-toolbar-scroll': '#btn-scroll-sync',
+                    'toggle-bottom-toolbar': '.status-bar',
+                    'toggle-bottom-theme': '.sb-theme-toggle',
+                    'toggle-bottom-stats': '.status-bar .sb-section:nth-child(2) .action-pill-group',
+                    'toggle-top-navbar': '.navbar',
+                    'toggle-top-mode': '.mode-toggle.desktop-only',
+                    'toggle-mode-indicator': '#active-mode-indicator',
+                    'toggle-top-actions': '.navbar .action-pill-group.desktop-only'
+                };
+                selector = mappings[id];
+            }
 
-                if (componentSelector) {
-                    const elements = document.querySelectorAll(componentSelector);
-                    elements.forEach(el => {
-                        el.style.display = isVisible ? '' : 'none';
-                        // Special handling for visibility classes if needed
-                    });
-                }
+            if (selector) {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.display = isVisible ? '' : 'none';
+                });
             }
         });
+
+        // ✨ CRITICAL PROTECTIONS (Never hide these) ✨
+        const brand = document.querySelector('.brand');
+        if (brand) brand.style.display = '';
+
+        const settingsBtn = document.getElementById('btn-settings');
+        if (settingsBtn) settingsBtn.style.display = '';
+
+        const exitFocusBtn = document.getElementById('btn-exit-focus');
+        if (exitFocusBtn && document.body.classList.contains('focus-mode')) {
+            exitFocusBtn.style.display = 'flex';
+        }
+
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            navbar.style.display = '';
+            // Ensure the container for brand/settings is also visible
+            const actionsGroup = settingsBtn?.parentElement;
+            if (actionsGroup) actionsGroup.style.display = '';
+            const actionsContainer = actionsGroup?.parentElement;
+            if (actionsContainer) actionsContainer.style.display = '';
+        }
     },
 
     async switchToMode(targetMode) {
