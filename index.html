@@ -97,12 +97,11 @@
     <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay">
         <div class="mobile-sidebar" id="mobile-sidebar">
             <div class="sidebar-header">
-                <h3>Notes</h3>
+                <h3>Menu</h3>
                 <button id="close-sidebar-btn"><i data-lucide="x"></i></button>
             </div>
 
-            <!-- Hidden original elements to prevent JS crashes -->
-            <div style="display: none; padding: 20px 24px 0; gap: 12px;">
+            <div style="padding: 20px 24px 0; display: flex; gap: 12px;">
                 <div class="mode-toggle" id="mobile-mode-toggle" style="flex: 1; background: var(--toggle-track); border-radius: 50px; padding: 4px;">
                     <button class="mode-tab active" data-target="local" style="flex: 1; border-radius: 50px; height: 40px;" title="Local Mode">
                         <i data-lucide="hard-drive" style="width: 18px; height: 18px;"></i>
@@ -120,22 +119,10 @@
                     </button>
                 </div>
             </div>
-            <div id="dynamic-sidebar-folders" style="display: none;"></div>
 
-            <div class="sidebar-links" style="padding-top: 12px;">
-                <div id="mobile-sidebar-notes-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-            </div>
-
-            <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-                <button class="sidebar-btn" id="sidebar-btn-share" style="color: var(--accent-color) !important;">
-                    <i data-lucide="share-2"></i> <span>Share Note</span>
-                </button>
-                <button class="sidebar-btn" id="sidebar-btn-pdf" style="color: var(--accent-color) !important;">
-                    <i data-lucide="printer"></i> <span>Export PDF</span>
-                </button>
-                <button class="sidebar-btn" id="sidebar-btn-mobile-settings" style="color: var(--text-color) !important;">
-                    <i data-lucide="settings"></i> <span>Settings</span>
-                </button>
+            <div class="sidebar-links">
+                <div class="sidebar-section-title">WORKSPACE</div>
+                <div id="dynamic-sidebar-folders" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
         </div>
     </div>
@@ -305,56 +292,8 @@
         </div>
     </div>
 
-    <!-- Mobile Settings Modal -->
-    <div class="modal-overlay mobile-only" id="mobile-settings-modal" style="z-index: 6500;">
-        <div class="modal-box" style="padding: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h3 style="margin: 0; font-size: 1.3rem; color: var(--accent-color);">Settings</h3>
-                <button id="mobile-settings-close" class="btn-close-dashboard" style="margin: 0;"><i data-lucide="x"></i></button>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                <!-- Mode Toggle -->
-                <div style="background: var(--nav-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: var(--text-color); opacity: 0.7; text-transform: uppercase;">Storage Mode</label>
-                    <div class="mode-toggle" id="mobile-settings-mode-toggle" style="background: var(--toggle-track); border-radius: 50px; padding: 4px; display: flex;">
-                        <button class="mode-tab active" data-target="local" style="flex: 1; border-radius: 50px; height: 44px; display: flex; justify-content: center;" title="Local Mode">
-                            <i data-lucide="hard-drive" style="width: 18px; height: 18px; margin-right: 8px;"></i> Local
-                        </button>
-                        <button class="mode-tab" data-target="github" style="flex: 1; border-radius: 50px; height: 44px; display: flex; justify-content: center;" title="Cloud Mode">
-                            <i data-lucide="cloud" style="width: 18px; height: 18px; margin-right: 8px;"></i> Cloud
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Theme Toggle -->
-                <div style="background: var(--nav-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: var(--text-color); opacity: 0.7; text-transform: uppercase;">App Theme</label>
-                    <div class="mode-toggle" id="mobile-settings-theme-toggle" style="background: var(--toggle-track); border-radius: 50px; padding: 4px; display: flex;">
-                        <button class="mode-tab theme-tab active" data-theme="light" style="flex: 1; border-radius: 50px; height: 44px; display: flex; justify-content: center;" title="Light Mode">
-                            <i data-lucide="sun" style="width: 18px; height: 18px; margin-right: 8px;"></i> Light
-                        </button>
-                        <button class="mode-tab theme-tab" data-theme="dark" style="flex: 1; border-radius: 50px; height: 44px; display: flex; justify-content: center;" title="Dark Mode">
-                            <i data-lucide="moon" style="width: 18px; height: 18px; margin-right: 8px;"></i> Dark
-                        </button>
-                    </div>
-                </div>
-
-                <!-- GitHub Config (Only visible in cloud mode maybe? Or always visible) -->
-                <div style="background: var(--nav-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <label style="font-size: 0.85rem; font-weight: 700; margin: 0; color: var(--text-color); opacity: 0.7; text-transform: uppercase;">GitHub Integration</label>
-                        <button id="mobile-btn-pat-help" class="btn-help-cute" title="Help"><i data-lucide="help-circle"></i></button>
-                    </div>
-                    <input type="password" id="mobile-github-token-input" class="modal-input" placeholder="ghp_xxxx..." autocomplete="off" spellcheck="false" style="margin-bottom: 12px; width: 100%;" />
-                    <button class="modal-btn btn-confirm" id="mobile-btn-save-token" style="width: 100%;">Save Token</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Settings Modal -->
-    <div class="modal-overlay desktop-only" id="settings-modal" style="z-index: 5000;">
+    <div class="modal-overlay" id="settings-modal" style="z-index: 5000;">
         <div class="modal-box settings-modal-box">
             <div class="settings-container">
                 <nav class="settings-nav">
