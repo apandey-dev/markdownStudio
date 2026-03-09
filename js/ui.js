@@ -9,8 +9,6 @@ window.toastTimeout = null;
 
 // Short duration for minimal intrusion
 window.showToast = function (message, duration = 2500) {
-    if (localStorage.getItem('md_hide_toasts') === 'true') return;
-
     const toastEl = document.getElementById('toast');
     if (!toastEl) return;
     clearTimeout(window.toastTimeout);
@@ -32,9 +30,8 @@ window.closePromptModal = function () { document.getElementById('prompt-modal')?
 window.closePatGuideModal = function () { document.getElementById('pat-guide-modal')?.classList.remove('show'); };
 window.closeDocsModal = function () { document.getElementById('docs-modal')?.classList.remove('show'); };
 window.closeManageModal = function () { document.getElementById('management-modal')?.classList.remove('show'); };
-window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 window.closeTransferModal = function () { document.getElementById('transfer-modal')?.classList.remove('show'); };
-window.closeShareModal = function () { document.getElementById('share-modal')?.classList.remove('show'); };
+window.closeSettingsModal = function () { document.getElementById('settings-modal')?.classList.remove('show'); };
 
 // window.closeNotesModal is now handled in editor-core.js
 
@@ -50,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let tooltipTimeout;
 
     const showTooltip = (el, text) => {
-        if (localStorage.getItem('md_hide_tooltips') === 'true') return;
         if (!el || el.offsetWidth === 0) return;
 
         tooltip.textContent = text;
@@ -127,6 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const initFocusMode = () => {
         if(localStorage.getItem('md_focus_mode') === 'true') {
             document.body.classList.add('focus-mode');
+            const floatingExit = document.getElementById('floating-exit-focus');
+            if (floatingExit) floatingExit.style.display = 'block';
             setTimeout(() => window.dispatchEvent(new Event('focusModeEnabled')), 100);
         }
     };
@@ -137,40 +135,21 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('md_focus_mode', 'true');
         window.dispatchEvent(new Event('focusModeEnabled'));
 
-        // Custom UI logic for focus mode
-        const pillGroup = document.querySelector('.action-pill-group');
-        if (pillGroup) {
-            pillGroup.querySelectorAll('button:not(#btn-share):not(#btn-pdf):not(#btn-exit-focus)').forEach(btn => {
-                btn.style.display = 'none';
-            });
-            document.getElementById('btn-exit-focus').style.display = 'flex';
-        }
+        const floatingExit = document.getElementById('floating-exit-focus');
+        if (floatingExit) floatingExit.style.display = 'block';
 
         window.showToast("<i data-lucide='scan'></i> Focus Mode Enabled");
     });
 
-    const exitFocus = () => {
+    document.getElementById('btn-exit-focus')?.addEventListener('click', () => {
         document.body.classList.remove('focus-mode');
         localStorage.setItem('md_focus_mode', 'false');
 
-        // Revert UI changes
-        const pillGroup = document.querySelector('.action-pill-group');
-        if (pillGroup) {
-            pillGroup.querySelectorAll('button').forEach(btn => {
-                btn.style.display = 'flex';
-            });
-            document.getElementById('btn-exit-focus').style.display = 'none';
-            document.getElementById('btn-exit-focus-bottom').style.display = 'none';
-        }
-
-        // Apply UI visibility preferences again in case they were hidden by focus mode but should be visible
-        window.EditorState.applyUIVisibility();
+        const floatingExit = document.getElementById('floating-exit-focus');
+        if (floatingExit) floatingExit.style.display = 'none';
 
         window.showToast("<i data-lucide='minimize'></i> Focus Mode Disabled");
-    };
-
-    document.getElementById('btn-exit-focus')?.addEventListener('click', exitFocus);
-    document.getElementById('btn-exit-focus-bottom')?.addEventListener('click', exitFocus);
+    });
 
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -209,77 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('manage-modal-close')?.addEventListener('click', window.closeManageModal);
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
-
-    // ✨ TRANSFER MODAL ✨
-    document.getElementById('btn-transfer')?.addEventListener('click', () => {
-        document.getElementById('transfer-modal')?.classList.add('show');
-    });
-    document.getElementById('sidebar-btn-transfer-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('transfer-modal')?.classList.add('show');
-    });
     document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
-
-    document.getElementById('btn-import-md-trigger')?.addEventListener('click', () => {
-        document.getElementById('import-markdown-input')?.click();
-    });
-
-    document.getElementById('import-markdown-input')?.addEventListener('change', async (e) => {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-
-        let importedCount = 0;
-        for (const file of files) {
-            try {
-                const text = await file.text();
-                const noteName = file.name.replace(/\.[^/.]+$/, "");
-                const newId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-                const path = window.EditorState.generatePath('All Notes', noteName);
-
-                window.EditorState.notes.unshift({
-                    id: newId,
-                    path: path,
-                    folder: 'All Notes',
-                    title: noteName,
-                    content: text,
-                    lastUpdated: Date.now()
-                });
-                importedCount++;
-            } catch (err) {
-                console.error("Failed to import file:", file.name, err);
-            }
-        }
-
-        if (importedCount > 0) {
-            await window.EditorState.saveLocalState();
-            if (window.EditorState.appMode === 'github') {
-                window.EditorState.triggerCloudSync();
-            }
-            window.EditorCore.renderFoldersList();
-            window.EditorCore.renderNotesList();
-            window.showToast(`<i data-lucide='download'></i> Imported ${importedCount} note(s)`);
-            window.closeTransferModal();
-        }
-        e.target.value = ''; // Reset input
-    });
-
-    document.getElementById('btn-export-md')?.addEventListener('click', () => {
-        const activeNote = window.EditorState.getActiveNote();
-        if (!activeNote) return window.showToast("No active note to export.");
-
-        const blob = new Blob([activeNote.content], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${activeNote.title}.md`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        window.showToast("<i data-lucide='upload'></i> Exported");
-        window.closeTransferModal();
-    });
 
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
@@ -290,17 +199,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
-    // ✨ SETTINGS MODAL ✨
+    // ✨ SETTINGS MODAL REDESIGN ✨
+    const settingsModal = document.getElementById('settings-modal');
+
     document.getElementById('btn-settings')?.addEventListener('click', () => {
-        document.getElementById('settings-modal')?.classList.add('show');
+        settingsModal?.classList.add('show');
+        // Reset tabs to default
+        document.querySelectorAll('.settings-nav-item').forEach(nav => nav.classList.remove('active'));
+        document.querySelector('.settings-nav-item[data-tab="general"]')?.classList.add('active');
+        document.querySelectorAll('.settings-tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById('settings-tab-general')?.classList.add('active');
+
+        // Sync toggles with current state
+        window.EditorState.loadAutoSave();
+        document.getElementById('setting-auto-save').checked = window.EditorState.autoSave;
+
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            toggle.checked = window.EditorState.uiVisibility[toggle.id] !== false;
+        });
     });
+
     document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('settings-modal')?.classList.add('show');
+        document.getElementById('btn-settings')?.click();
     });
-    document.getElementById('settings-modal-close')?.addEventListener('click', () => {
-        initSettingsToggles();
+
+    document.querySelectorAll('.settings-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const tab = item.getAttribute('data-tab');
+            document.querySelectorAll('.settings-nav-item').forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+
+            document.querySelectorAll('.settings-tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`settings-tab-${tab}`)?.classList.add('active');
+        });
+    });
+
+    document.getElementById('settings-modal-cancel-btn')?.addEventListener('click', window.closeSettingsModal);
+
+    document.getElementById('settings-modal-save-btn')?.addEventListener('click', () => {
+        // Apply Auto Save
+        const autoSaveVal = document.getElementById('setting-auto-save').checked;
+        window.EditorState.autoSave = autoSaveVal;
+        window.EditorState.saveAutoSave();
+
+        // Apply UI Visibility
+        const uiToggles = document.querySelectorAll('.settings-modal-box input[data-component]');
+        uiToggles.forEach(toggle => {
+            window.EditorState.uiVisibility[toggle.id] = toggle.checked;
+        });
+        window.EditorState.saveUIVisibility();
+        if (window.EditorState.applyUIVisibility) {
+            window.EditorState.applyUIVisibility();
+        }
+
         window.closeSettingsModal();
+        window.showToast("<i data-lucide='check-circle'></i> Settings Applied");
     });
 
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
@@ -308,19 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
     document.getElementById('pat-guide-close')?.addEventListener('click', window.closePatGuideModal);
-
-    document.getElementById('share-modal-close')?.addEventListener('click', window.closeShareModal);
-    document.getElementById('btn-copy-share')?.addEventListener('click', () => {
-        const input = document.getElementById('share-url-input');
-        if (input && input.value) {
-            navigator.clipboard.writeText(input.value).then(() => {
-                window.showToast("<i data-lucide='check-circle'></i> Link Copied");
-            });
-        }
-    });
-    document.getElementById('btn-reset-share')?.addEventListener('click', () => {
-        window.EditorActions.handleSecureShare();
-    });
     
     document.getElementById('btn-cancel-setup')?.addEventListener('click', () => {
         document.getElementById('setup-modal').classList.remove('show');
@@ -334,10 +276,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
     });
 
-    document.getElementById('sidebar-btn-export-mobile')?.addEventListener('click', () => {
+    document.getElementById('mobile-btn-share')?.addEventListener('click', () => {
         sidebarOverlay?.classList.remove('show');
-        document.getElementById('btn-export-md')?.click();
+        document.getElementById('btn-share')?.click();
     });
+    document.getElementById('mobile-btn-pdf')?.addEventListener('click', () => {
+        sidebarOverlay?.classList.remove('show');
+        document.getElementById('btn-pdf')?.click();
+    });
+    document.getElementById('mobile-btn-theme')?.addEventListener('click', () => {
+        const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(currentTheme);
+    });
+
+    const mobileModeToggle = document.getElementById('mobile-mode-toggle');
+    if (mobileModeToggle) {
+        mobileModeToggle.querySelectorAll('.mode-tab').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                await window.EditorState.switchToMode(target);
+                sidebarOverlay?.classList.remove('show');
+            });
+        });
+    }
 
     const mobileViewToggle = document.getElementById('mobile-view-toggle');
     if (mobileViewToggle) {
@@ -368,13 +329,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('delete-modal')?.classList.contains('show')) { document.getElementById('delete-cancel')?.click(); return; }
             if (document.getElementById('pdf-modal')?.classList.contains('show')) { document.getElementById('modal-cancel')?.click(); return; }
             if (document.getElementById('rename-modal')?.classList.contains('show')) { document.getElementById('rename-cancel')?.click(); return; }
+            if (document.getElementById('transfer-modal')?.classList.contains('show')) { window.closeTransferModal(); return; }
             
             if (document.getElementById('setup-modal')?.classList.contains('show')) { document.getElementById('btn-cancel-setup')?.click(); return; }
             if (document.getElementById('pat-guide-modal')?.classList.contains('show')) { document.getElementById('pat-guide-close')?.click(); return; }
             if (document.getElementById('docs-modal')?.classList.contains('show')) { window.closeDocsModal(); return; }
             if (document.getElementById('management-modal')?.classList.contains('show')) { window.closeManageModal(); return; }
             if (document.getElementById('settings-modal')?.classList.contains('show')) { window.closeSettingsModal(); return; }
-            if (document.getElementById('transfer-modal')?.classList.contains('show')) { window.closeTransferModal(); return; }
             
             if (document.getElementById('notes-modal')?.classList.contains('show')) { if (typeof window.closeNotesModal === 'function') window.closeNotesModal(); return; }
         }
@@ -418,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.style.top = `${rect.bottom + 8}px`;
                 list.style.left = `${rect.left}px`;
                 list.style.width = `${Math.max(rect.width, 160)}px`;
-                list.style.zIndex = '3000';
+                list.style.zIndex = '9000';
                 
                 list.classList.add('show');
                 dropdown.classList.add('open');
@@ -451,11 +412,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         const header = dropdown.querySelector('.dropdown-header');
+        const list = dropdown.querySelector('.dropdown-list');
         const items = dropdown.querySelectorAll('.dropdown-item');
         const textEl = document.getElementById(textId);
 
         header?.addEventListener('click', (e) => {
             e.stopPropagation();
+
+            // Check if we need to flip the dropdown to open upwards
+            const rect = header.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const dropdownHeight = list ? 160 : 0; // estimate or use list height
+
+            if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                dropdown.classList.add('open-upward');
+            } else {
+                dropdown.classList.remove('open-upward');
+            }
+
             document.querySelectorAll('.custom-dropdown').forEach(d => {
                 if (d !== dropdown) d.classList.remove('open');
             });
@@ -510,6 +484,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     setupStaticDropdown('size-dropdown', 'size-selected-text', (val) => {
+        window.selectedPageSize = val;
+    });
+
+    setupStaticDropdown('transfer-size-dropdown', 'transfer-size-selected-text', (val) => {
         window.selectedPageSize = val;
     });
 
@@ -675,76 +653,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('delete-cancel')?.addEventListener('click', window.closeDeleteModal);
 
-    // ✨ SETTINGS LOGIC ✨
-    const settingsNavItems = document.querySelectorAll('.settings-nav-item');
-    const settingsContents = document.querySelectorAll('.settings-content');
+    // UI Component Visibility Toggles logic moved to Save button in redesign
+    window.EditorState.loadUIVisibility();
+    window.EditorState.applyUIVisibility();
 
-    settingsNavItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const section = item.getAttribute('data-section');
-            settingsNavItems.forEach(nav => nav.classList.remove('active'));
-            settingsContents.forEach(content => content.classList.remove('active'));
+    // Toggle Manual Save Button Visibility
+    const updateSaveButtonVisibility = (enabled) => {
+        const saveBtn = document.getElementById('btn-manual-save');
+        const saveDivider = document.getElementById('manual-save-divider');
+        if (saveBtn) saveBtn.style.display = enabled ? 'none' : 'flex';
+        if (saveDivider) saveDivider.style.display = enabled ? 'none' : 'block';
 
-            item.classList.add('active');
-            document.getElementById(`settings-section-${section}`).classList.add('active');
-        });
-    });
-
-    // Custom interaction for settings collapsible sections (Management modal style)
-    document.querySelectorAll('.settings-summary').forEach(summary => {
-        summary.addEventListener('click', (e) => {
-            // No need for custom JS if we use <details>,
-            // but we need to ensure it works without indicator icons.
-            // The CSS already handles hiding the marker.
-        });
-    });
-
-    const initSettingsToggles = () => {
-        window.EditorState.loadUIVisibility();
-        window.EditorState.loadAutoSave();
-
-        const autoSaveToggle = document.getElementById('toggle-auto-save');
-        if (autoSaveToggle) autoSaveToggle.checked = window.EditorState.autoSave;
-
-        const allToggles = document.querySelectorAll('.settings-modal-box input[type="checkbox"]');
-        allToggles.forEach(toggle => {
-            if (toggle.hasAttribute('data-component')) {
-                const isVisible = window.EditorState.uiVisibility[toggle.id] !== false;
-                toggle.checked = isVisible;
-            } else if (toggle.id === 'toggle-hide-tooltips' || toggle.id === 'toggle-hide-toasts') {
-                toggle.checked = window.EditorState.uiVisibility[toggle.id] === true;
-            }
-        });
-
-        window.EditorState.applyUIVisibility();
+        if (window.EditorCore && window.EditorCore.updatePillUI) {
+            window.EditorCore.updatePillUI();
+        }
     };
 
-    const saveSettingsChanges = () => {
-        const allToggles = document.querySelectorAll('.settings-modal-box input[type="checkbox"]');
-        allToggles.forEach(toggle => {
-            if (toggle.id === 'toggle-auto-save') {
-                window.EditorState.saveAutoSave(toggle.checked);
-            } else {
-                window.EditorState.uiVisibility[toggle.id] = toggle.checked;
-            }
-        });
-        window.EditorState.saveUIVisibility();
-
-        window.showToast("<i data-lucide='check-circle'></i> Settings Saved");
-        window.closeSettingsModal();
-    };
-
-    document.getElementById('settings-modal-save-btn')?.addEventListener('click', saveSettingsChanges);
-
-    document.getElementById('btn-save-progress')?.addEventListener('click', () => {
-        window.EditorActions.handleSaveProgress();
+    window.addEventListener('autoSaveToggled', (e) => {
+        updateSaveButtonVisibility(e.detail.enabled);
     });
 
-    document.getElementById('btn-push-github')?.addEventListener('click', () => {
-        window.EditorActions.handlePushToGitHub();
-    });
-
-    // Initial load
-    setTimeout(initSettingsToggles, 100);
-
+    // Initial visibility check
+    setTimeout(() => {
+        updateSaveButtonVisibility(window.EditorState.autoSave);
+    }, 100);
 });

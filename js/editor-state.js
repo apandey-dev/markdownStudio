@@ -253,34 +253,19 @@ window.EditorState = {
     generatePath(folderName, title) {
         let safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').trim();
         if (!safeTitle) safeTitle = 'Untitled Note';
-        let relPath = folderName === 'All Notes' ? `${safeTitle}.md` : `${folderName}/${safeTitle}.md`;
-        return `notes/${relPath}`;
+        if (folderName === 'All Notes') return `${safeTitle}.md`;
+        return `${folderName}/${safeTitle}.md`;
     },
 
     loadAutoSave() {
         const saved = localStorage.getItem('md_auto_save');
-        this.autoSave = saved === null ? true : saved === 'true';
-        this.applyAutoSaveUI();
+        this.autoSave = saved !== 'false'; // Default to true
     },
 
-    saveAutoSave(val) {
-        this.autoSave = val;
-        localStorage.setItem('md_auto_save', val);
-        this.applyAutoSaveUI();
-    },
-
-    applyAutoSaveUI() {
-        const btn = document.getElementById('btn-save-progress');
-        if (btn) {
-            // On mobile, we always want to show the save button as a professional status indicator
-            if (window.innerWidth <= 768) {
-                btn.style.display = 'flex';
-            } else {
-                btn.style.display = this.autoSave ? 'none' : 'flex';
-            }
-            // Clear states when toggling
-            btn.classList.remove('unsaved', 'saved');
-        }
+    saveAutoSave() {
+        localStorage.setItem('md_auto_save', this.autoSave);
+        // Dispatch event for UI to update Save button visibility
+        window.dispatchEvent(new CustomEvent('autoSaveToggled', { detail: { enabled: this.autoSave } }));
     },
 
     loadUIVisibility() {
@@ -295,114 +280,74 @@ window.EditorState = {
     saveUIVisibility() {
         localStorage.setItem('md_ui_visibility', JSON.stringify(this.uiVisibility));
         this.applyUIVisibility();
-        this.applyFeedbackSettings();
-    },
-
-    applyFeedbackSettings() {
-        const hideTooltips = this.uiVisibility['toggle-hide-tooltips'] === true;
-        const hideToasts = this.uiVisibility['toggle-hide-toasts'] === true;
-
-        localStorage.setItem('md_hide_tooltips', hideTooltips);
-        localStorage.setItem('md_hide_toasts', hideToasts);
     },
 
     applyUIVisibility() {
-        // Reset all togglable elements before applying (important for overlapping selectors)
-        const allToggleSelectors = Array.from(document.querySelectorAll('.settings-modal-box input[data-component]'))
-            .map(input => input.getAttribute('data-component'));
-
-        allToggleSelectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => {
-                el.style.display = '';
-            });
-        });
-
         Object.keys(this.uiVisibility).forEach(id => {
-            const checkbox = document.getElementById(id);
             const isVisible = this.uiVisibility[id];
 
-            if (checkbox && isVisible === false) { // Only handle hiding; showing is default
-                const componentSelector = checkbox.getAttribute('data-component');
+            // Map IDs to selectors if checkbox not present (for initialization)
+            let selector = null;
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                selector = checkbox.getAttribute('data-component');
+                checkbox.checked = isVisible;
+            } else {
+                // Fallback mapping for initial load before modal is rendered
+                const mappings = {
+                    'toggle-editor-toolbar': '.editor-toolbar',
+                    'toggle-toolbar-format': '.editor-toolbar .toolbar-group:nth-child(1)',
+                    'toggle-toolbar-heading': ".editor-toolbar [data-action='heading']",
+                    'toggle-toolbar-font': '#font-dropdown',
+                    'toggle-toolbar-focus': '#btn-focus-mode',
+                    'toggle-toolbar-scroll': '#btn-scroll-sync',
+                    'toggle-bottom-toolbar': '.status-bar',
+                    'toggle-bottom-theme': '.sb-theme-toggle',
+                    'toggle-bottom-stats': '.status-bar .sb-section:nth-child(2) .action-pill-group',
+                    'toggle-top-navbar': '.navbar',
+                    'toggle-top-mode': '.mode-toggle.desktop-only',
+                    'toggle-mode-indicator': '#active-mode-indicator',
+                    'toggle-top-actions': '.navbar .action-pill-group.desktop-only'
+                };
+                selector = mappings[id];
+            }
 
-                if (componentSelector) {
-                    const elements = document.querySelectorAll(componentSelector);
-                    elements.forEach(el => {
-                        // Crucial Protection: Never hide certain elements
-                        // (App Name, Settings Button, Exit Focus Button)
-                        if (el.closest('.brand') ||
-                            el.closest('#btn-settings') ||
-                            el.closest('#btn-exit-focus') ||
-                            el.closest('#btn-exit-focus-bottom')) {
-                            el.style.display = '';
-                            return;
-                        }
-                        el.style.display = 'none';
-                    });
-                }
+            if (selector) {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.display = isVisible ? '' : 'none';
+                });
             }
         });
 
-        // Specific recovery logic to ensure navbar is visible if at least settings/brand is there
+        // ✨ CRITICAL PROTECTIONS (Never hide these) ✨
+        const brand = document.querySelector('.brand');
+        if (brand) brand.style.display = '';
+
+        const settingsBtn = document.getElementById('btn-settings');
+        if (settingsBtn) settingsBtn.style.display = '';
+
+        const exitFocusBtn = document.getElementById('btn-exit-focus');
+        if (exitFocusBtn && document.body.classList.contains('focus-mode')) {
+            exitFocusBtn.style.display = 'flex';
+        }
+
         const navbar = document.querySelector('.navbar');
         if (navbar) {
             navbar.style.display = '';
+            // Ensure the container for brand/settings is also visible
+            const actionsGroup = settingsBtn?.parentElement;
+            if (actionsGroup) actionsGroup.style.display = '';
+            const actionsContainer = actionsGroup?.parentElement;
+            if (actionsContainer) actionsContainer.style.display = '';
         }
-
-        this.cleanupUIGhostElements();
-    },
-
-    cleanupUIGhostElements() {
-        // 1. Hide dividers if they don't have visible siblings on BOTH sides
-        document.querySelectorAll('.toolbar-divider').forEach(div => {
-            let prev = div.previousElementSibling;
-            while (prev && (getComputedStyle(prev).display === 'none' || prev.classList.contains('toolbar-divider'))) {
-                prev = prev.previousElementSibling;
-            }
-            let next = div.nextElementSibling;
-            while (next && (getComputedStyle(next).display === 'none' || next.classList.contains('toolbar-divider'))) {
-                next = next.nextElementSibling;
-            }
-
-            if (!prev || !next) {
-                div.style.display = 'none';
-            } else {
-                div.style.display = '';
-            }
-        });
-
-        // 2. Hide empty action-pill-groups, toolbar-groups, or mode-toggles
-        document.querySelectorAll('.action-pill-group, .toolbar-group, .mode-toggle').forEach(group => {
-            // Check if all functional children are hidden
-            const visibleChildren = Array.from(group.children).filter(child => {
-                return !child.classList.contains('toolbar-divider') &&
-                       !child.classList.contains('toolbar-spacer') &&
-                       getComputedStyle(child).display !== 'none';
-            });
-
-            if (visibleChildren.length === 0) {
-                group.style.display = 'none';
-            } else {
-                // Restore if it was hidden by this logic
-                if (group.style.display === 'none') {
-                    group.style.display = '';
-                }
-            }
-        });
     },
 
     async switchToMode(targetMode) {
         const editor = document.getElementById('markdown-input');
         if (this.appMode === targetMode && editor.disabled === false) return;
 
-        if (this.notes.length > 0) {
-            // Ensure current work is saved before switching
-            const currentNote = this.getActiveNote();
-            if (currentNote && editor.value !== currentNote.content) {
-                currentNote.content = editor.value;
-                currentNote.lastUpdated = Date.now();
-            }
-            await this.saveLocalState();
-        }
+        if (this.notes.length > 0) await this.saveLocalState();
 
         if (targetMode === 'github') {
             const token = localStorage.getItem('md_github_token');
@@ -447,9 +392,8 @@ window.EditorState = {
                 if (cloudNotes.length > 0) {
                     this.notes = cloudNotes;
                 } else {
-                    const welcomePath = this.generatePath('All Notes', 'Welcome');
-                    const result = await GitHubBackend.saveNote('new', welcomePath, "Welcome", this.defaultWelcomeNote);
-                    this.notes = [{ id: result?.sha || 'temp', path: welcomePath, folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
+                    const result = await GitHubBackend.saveNote('new', 'Welcome.md', "Welcome", this.defaultWelcomeNote);
+                    this.notes = [{ id: result?.sha || 'temp', path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
                 }
                 this.activeNoteId = this.notes[0]?.id;
             } else {
@@ -498,8 +442,7 @@ window.EditorState = {
             this.activeNoteId = localStorage.getItem('md_active_local') || this.notes[0]?.id;
         } else {
             const id = Date.now().toString();
-            const welcomePath = this.generatePath('All Notes', 'Welcome');
-            this.notes = [{ id: id, path: welcomePath, folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
+            this.notes = [{ id: id, path: 'Welcome.md', folder: 'All Notes', title: "Welcome", content: this.defaultWelcomeNote, lastUpdated: Date.now() }];
             this.folders = ['All Notes'];
             this.activeNoteId = id;
             await this.saveLocalState();

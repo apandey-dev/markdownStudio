@@ -72,16 +72,23 @@
         color: var(--accent-color);
     }
 
+    .action-pill-group.mobile-only {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
     #mobile-menu-btn, #mobile-view-toggle {
         width: 44px !important;
         height: 44px !important;
         display: flex !important;
         align-items: center;
         justify-content: center;
-        background-color: var(--toggle-track) !important;
-        border-radius: 12px !important;
+        background-color: transparent !important;
+        border-radius: 0 !important;
         border: none !important;
         color: var(--text-color);
+        box-shadow: none !important;
     }
 
     #mobile-menu-btn i, #mobile-view-toggle i {
@@ -90,8 +97,10 @@
     }
 
     #mobile-menu-btn:active, #mobile-view-toggle:active {
-        background-color: var(--border-color) !important;
+        background-color: transparent !important;
+        opacity: 0.5;
         transform: scale(0.92);
+        box-shadow: none !important;
     }
 
     /* --- 3. MAIN WORKSPACE & EDITOR --- */
@@ -212,66 +221,7 @@
 
     /* --- 5. BOTTOM STATUS BAR --- */
     .status-bar {
-        height: auto;
-        padding: 10px 16px calc(10px + var(--safe-bottom)) !important;
-        background-color: var(--nav-bg);
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        overflow-x: auto;
-        scrollbar-width: none;
-        flex-shrink: 0;
-    }
-
-    .status-bar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .sb-section {
-        gap: 10px;
-    }
-
-    .sb-action-btn {
-        height: 40px !important;
-        padding: 0 14px !important;
-        border-radius: 12px !important;
-        font-size: 0.85rem !important;
-        font-weight: 600;
-    }
-
-    /* Professional Text-Based Save Button for Mobile */
-    #btn-save-progress {
-        width: auto !important;
-        height: 38px !important;
-        padding: 0 16px !important;
-        border-radius: 20px !important;
-        font-size: 0.85rem !important;
-        font-weight: 700 !important;
-        display: flex !important;
-        align-items: center;
-        gap: 8px;
-        background-color: var(--accent-color) !important;
-        color: var(--btn-text) !important;
-    }
-
-    #btn-save-progress::after {
-        content: 'Save';
-    }
-
-    #btn-save-progress.unsaved {
-        background-color: #ff9f0a !important;
-        color: #000 !important;
-    }
-
-    #btn-save-progress.saved {
-        background-color: #30d158 !important;
-        color: #000 !important;
-    }
-
-    #active-mode-indicator {
-        font-size: 0.7rem !important;
+        display: none !important; /* Completely hide bottom bar on mobile */
     }
 
     /* --- 6. MENU DRAWER (SIDEBAR) REDESIGN --- */
@@ -437,6 +387,31 @@
         box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
     }
 
+    #share-modal .modal-box,
+    #pdf-modal .modal-box {
+        padding-top: 40px !important;
+    }
+
+    #share-modal .premium-modal-header {
+        margin-bottom: 20px !important;
+    }
+
+    #share-modal .premium-icon-wrapper {
+        margin-bottom: 12px !important;
+    }
+
+    #pdf-modal .modal-title {
+        margin-bottom: 20px !important;
+    }
+
+    #pdf-modal .input-group {
+        margin-bottom: 20px !important;
+    }
+
+    #pdf-modal .input-group label {
+        font-size: 0.85rem !important;
+    }
+
     .modal-overlay.show .modal-box {
         transform: translateY(0) !important;
     }
@@ -474,8 +449,15 @@
         margin-top: 32px !important;
     }
 
+    /* Exceptions for specific modals where side-by-side is preferred even on mobile */
+    .delete-actions,
+    .setup-modal-box .modal-actions,
+    .premium-actions {
+        flex-direction: row !important;
+    }
+
     .modal-btn {
-        width: 100% !important;
+        width: 100%;
         height: 56px !important;
         font-size: 1.1rem !important;
         font-weight: 700;
@@ -729,15 +711,26 @@
     }
 
     /* --- 12. TEXT AREA TYPOGRAPHY & FIXES --- */
-    #preview-output h1 { font-size: 1.8rem !important; }
-    #preview-output h2 { font-size: 1.5rem !important; }
-    #preview-output h3 { font-size: 1.3rem !important; }
-    #preview-output p, #preview-output li { font-size: 1.05rem !important; line-height: 1.6; }
+    #preview-output h1 { font-size: 1.6rem !important; margin-top: 1.2em; margin-bottom: 0.6em; }
+    #preview-output h2 { font-size: 1.35rem !important; margin-top: 1.1em; margin-bottom: 0.5em; }
+    #preview-output h3 { font-size: 1.15rem !important; margin-top: 1em; margin-bottom: 0.5em; }
+    #preview-output p, #preview-output li { font-size: 1rem !important; line-height: 1.6; margin-bottom: 1em; }
+
+    #preview-output ul, #preview-output ol {
+        padding-left: 20px !important;
+    }
+
+    #preview-output blockquote {
+        padding: 10px 14px !important;
+        font-size: 0.95rem !important;
+        margin-bottom: 1em !important;
+    }
 
     #preview-output table {
         display: block;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        font-size: 0.9rem !important;
     }
 
     #preview-output img {
@@ -747,8 +740,13 @@
 
     #preview-output pre {
         padding: 16px !important;
-        border-radius: 16px !important;
-        font-size: 0.9rem !important;
+        border-radius: 12px !important;
+        font-size: 0.85rem !important;
+        margin-bottom: 1.2em !important;
+    }
+
+    #preview-output pre code {
+        padding: 36px 12px 12px 12px !important;
     }
 
     /* --- 13. UTILITIES --- */
@@ -778,56 +776,4 @@
         padding: 0 16px !important;
     }
 
-}
-
-/* Enhancements for PDF Export Modal on Mobile */
-@media (max-width: 768px) {
-    #pdf-modal .modal-box {
-        padding-left: 24px !important;
-        padding-right: 24px !important;
-        padding-bottom: 32px !important;
-    }
-
-    #pdf-modal .modal-title {
-        justify-content: center !important;
-        font-size: 1.5rem !important;
-        font-weight: 800 !important;
-        margin-bottom: 24px !important;
-    }
-
-    #pdf-modal .input-group label {
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        margin-bottom: 10px !important;
-        opacity: 0.9 !important;
-    }
-
-    #pdf-modal .modal-input,
-    #pdf-modal .custom-dropdown .dropdown-header {
-        height: 54px !important;
-        font-size: 1rem !important;
-        border-radius: 16px !important;
-        background-color: var(--input-bg) !important;
-        border: 1px solid var(--border-color) !important;
-        padding: 0 16px !important;
-    }
-
-    #pdf-modal .custom-dropdown .dropdown-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    #pdf-modal .modal-actions {
-        margin-top: 36px !important;
-        gap: 16px !important;
-        flex-direction: row !important;
-    }
-
-    #pdf-modal .modal-actions button {
-        flex: 1 !important;
-        height: 52px !important;
-        font-size: 1.05rem !important;
-        border-radius: 16px !important;
-    }
 }
