@@ -88,6 +88,102 @@ window.EditorActions = {
                 editor.dispatchEvent(new Event('input'));
             });
         });
+
+        // Transfer Modal Toggle Logic
+        document.getElementById('btn-import-export')?.addEventListener('click', () => {
+            const modal = document.getElementById('transfer-modal');
+            modal.classList.add('show');
+            const note = window.EditorState.getActiveNote();
+            const exportInput = document.getElementById('export-filename-input');
+            if (note && exportInput) {
+                exportInput.value = note.title;
+            }
+        });
+
+        document.querySelectorAll('#transfer-toggle .mode-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                document.querySelectorAll('#transfer-toggle .mode-tab').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                if (target === 'import') {
+                    document.getElementById('import-section').style.display = 'block';
+                    document.getElementById('export-section').style.display = 'none';
+                } else {
+                    document.getElementById('import-section').style.display = 'none';
+                    document.getElementById('export-section').style.display = 'block';
+                }
+            });
+        });
+
+        // Export Format Toggle
+        document.querySelectorAll('#export-format-toggle .mode-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const format = e.currentTarget.getAttribute('data-format');
+                document.querySelectorAll('#export-format-toggle .mode-tab').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                const pdfOptions = document.getElementById('pdf-export-options');
+                if (format === 'pdf') {
+                    pdfOptions.style.display = 'block';
+                } else {
+                    pdfOptions.style.display = 'none';
+                }
+            });
+        });
+
+        // Browse File
+        document.getElementById('btn-browse-file')?.addEventListener('click', () => {
+            document.getElementById('transfer-import-file').click();
+        });
+
+        document.getElementById('transfer-import-file')?.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleImportMd(e.target.files[0]);
+                window.closeTransferModal();
+            }
+        });
+
+        // Drag & Drop
+        const dropZone = document.getElementById('drop-zone');
+        if (dropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            ['dragenter', 'dragover'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.add('drag-over'));
+            });
+
+            ['dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.remove('drag-over'));
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    this.handleImportMd(files[0]);
+                    window.closeTransferModal();
+                }
+            });
+        }
+
+        // Execute Export
+        document.getElementById('btn-execute-export')?.addEventListener('click', () => {
+            const filename = document.getElementById('export-filename-input').value.trim();
+            const format = document.querySelector('#export-format-toggle .mode-tab.active').getAttribute('data-format');
+
+            if (format === 'pdf') {
+                this.handlePdfExport(filename);
+            } else {
+                this.handleExportMd(filename);
+            }
+            window.closeTransferModal();
+        });
     },
 
     async handleNoteCreation() {
@@ -132,77 +228,8 @@ window.EditorActions = {
         document.getElementById('prompt-modal').classList.remove('show');
         if (typeof window.closeNotesModal === 'function') window.closeNotesModal();
 
-        if (window.EditorState.appMode === 'github' && window.EditorState.autoSave) {
-            window.EditorState.triggerCloudSync();
-        }
+        if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
         window.showToast("<i data-lucide='check-circle'></i> Created");
-    },
-
-    async handleSaveProgress() {
-        const editor = document.getElementById('markdown-input');
-        const activeNote = window.EditorState.getActiveNote();
-        if (!activeNote) return;
-
-        activeNote.content = editor.value;
-        activeNote.lastUpdated = Date.now();
-
-        await window.EditorState.saveLocalState();
-
-        const saveBtn = document.getElementById('btn-save-progress');
-        if (saveBtn) {
-            saveBtn.classList.remove('unsaved');
-            saveBtn.classList.add('saved');
-            setTimeout(() => {
-                saveBtn.classList.remove('saved');
-            }, 2000);
-        }
-
-        if (window.EditorState.appMode === 'github') {
-            window.EditorState.triggerCloudSync();
-        } else {
-            window.showToast("<i data-lucide='save'></i> Saved Locally");
-        }
-    },
-
-    async handlePushToGitHub() {
-        if (window.EditorState.appMode !== 'local') return;
-        const selectedIds = Array.from(document.querySelectorAll('#manage-body-content .manage-checkbox:checked')).map(cb => cb.value);
-        if (selectedIds.length === 0) return window.showToast("No notes selected.");
-
-        const token = localStorage.getItem('md_github_token');
-        if (!token) {
-            window.showToast("Connect GitHub first.");
-            document.getElementById('setup-modal').classList.add('show');
-            return;
-        }
-
-        const pushBtn = document.getElementById('btn-push-github');
-        const originalHtml = pushBtn.innerHTML;
-        pushBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 14px;"></i> PUSHING...`;
-        pushBtn.disabled = true;
-        if (window.lucide) lucide.createIcons();
-
-        let successCount = 0;
-        await GitHubBackend.init(token);
-
-        for (const id of selectedIds) {
-            const note = window.EditorState.notes.find(n => n.id === id);
-            if (!note) continue;
-
-            const result = await GitHubBackend.saveNote(note.id, note.path, note.title, note.content);
-            if (result) successCount++;
-        }
-
-        pushBtn.innerHTML = originalHtml;
-        pushBtn.disabled = false;
-        if (window.lucide) lucide.createIcons();
-
-        if (successCount > 0) {
-            window.showToast(`<i data-lucide='cloud-check'></i> Pushed ${successCount} notes`);
-            document.getElementById('management-modal').classList.remove('show');
-        } else {
-            window.showToast("<i data-lucide='alert-circle'></i> Push failed");
-        }
     },
 
     async handleConfirmDelete() {
@@ -322,6 +349,96 @@ window.EditorActions = {
         this.pendingNewNoteData = null;
     },
 
+    handleExportMd(customFilename = null) {
+        const editor = document.getElementById('markdown-input');
+        const text = editor.value;
+        const blob = new Blob([text], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+
+        let filename = customFilename || window.EditorState.getActiveNote().title;
+        let safeTitle = filename.replace(/[/\\?%*:|"<>]/g, '_');
+        if (!safeTitle || safeTitle.trim() === '') safeTitle = 'markdown_document';
+
+        a.download = `${safeTitle}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+        window.showToast("<i data-lucide='download'></i> Exported");
+    },
+
+    handleImportMd(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = e.target.result;
+            const rawTitle = file.name.replace('.md', '').replace('.txt', '');
+            const folder = window.EditorState.activeFolder;
+            const newPath = window.EditorState.generatePath(folder, rawTitle);
+            const newId = Date.now().toString();
+
+            if (window.EditorState.notes.find(n => n.path === newPath)) {
+                window.showToast("<i data-lucide='alert-triangle'></i> File exists.");
+                return;
+            }
+
+            window.EditorState.notes.unshift({ id: newId, path: newPath, folder: folder, title: rawTitle, content: content, lastUpdated: Date.now() });
+            window.EditorState.activeNoteId = newId;
+            window.EditorCore.highlightedNoteId = newId;
+            document.getElementById('markdown-input').value = content;
+
+            await window.EditorState.saveLocalState();
+            window.EditorCore.renderMarkdownCore(content);
+            window.EditorCore.renderFoldersList();
+            window.EditorCore.renderNotesList();
+            window.EditorCore.renderManagementModal();
+            window.showToast("<i data-lucide='file-up'></i> Imported");
+
+            if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
+        };
+        reader.readAsText(file);
+    },
+
+    async handleManualSave() {
+        const activeNote = window.EditorState.getActiveNote();
+        if (!activeNote) return;
+
+        const editor = document.getElementById('markdown-input');
+        activeNote.content = editor.value;
+        activeNote.lastUpdated = Date.now();
+
+        const saveBtn = document.getElementById('btn-manual-save');
+        const originalHtml = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i data-lucide="loader" class="spin" style="width: 12px; height: 12px;"></i> Saving';
+        saveBtn.disabled = true;
+        if (window.lucide) lucide.createIcons();
+
+        try {
+            await window.EditorState.saveLocalState();
+            if (window.EditorState.appMode === 'github') {
+                // In GitHub mode, we manually trigger the sync immediately
+                await window.EditorState.performCloudSync();
+            }
+
+            // Clear drafts for this note on successful explicit save
+            try {
+                let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                if (drafts[activeNote.id]) {
+                    delete drafts[activeNote.id];
+                    localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                }
+            } catch (e) {}
+
+            window.showToast("<i data-lucide='check-circle'></i> Saved Successfully");
+        } catch (e) {
+            window.showToast("<i data-lucide='alert-triangle'></i> Save Failed");
+        } finally {
+            saveBtn.innerHTML = originalHtml;
+            saveBtn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        }
+    },
+
     async handleSecureShare() {
         const editor = document.getElementById('markdown-input');
         const textToShare = editor.value;
@@ -334,9 +451,10 @@ window.EditorActions = {
             return;
         }
 
-        document.getElementById('share-modal').classList.add('show');
-        document.getElementById('share-modal-loading').style.display = 'block';
-        document.getElementById('share-modal-content').style.display = 'none';
+        const shareBtn = document.getElementById('btn-share');
+        const originalHtml = shareBtn.innerHTML;
+        shareBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width: 16px;"></i> Generating`;
+        shareBtn.disabled = true;
         if (window.lucide) lucide.createIcons();
 
         try {
@@ -348,18 +466,23 @@ window.EditorActions = {
 
             if (gistResult && !gistResult.error) {
                 const shareableUrl = `https://apandey-studio.vercel.app/share.html?id=${gistResult.id}#${secretKey}`;
-                document.getElementById('share-url-input').value = shareableUrl;
-                document.getElementById('share-modal-loading').style.display = 'none';
-                document.getElementById('share-modal-content').style.display = 'block';
-                if (window.lucide) lucide.createIcons();
+                if (navigator.share) {
+                    try { await navigator.share({ title: window.EditorState.getActiveNote().title, url: shareableUrl }); }
+                    catch (err) { console.log(err); }
+                } else {
+                    await navigator.clipboard.writeText(shareableUrl);
+                    window.showToast("<i data-lucide='link'></i> Link Copied");
+                }
             } else {
                 window.showToast("Needs 'gist' permission.");
-                document.getElementById('share-modal').classList.remove('show');
             }
         } catch (err) {
             window.showToast("Encryption Error.");
-            document.getElementById('share-modal').classList.remove('show');
         }
+
+        shareBtn.innerHTML = originalHtml;
+        shareBtn.disabled = false;
+        if (window.lucide) lucide.createIcons();
     },
 
     handlePdfExport(customFilename = null) {
