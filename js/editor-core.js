@@ -213,6 +213,38 @@ window.EditorCore = {
     renderFoldersList() {
         this.renderNotesDashboard();
         this.renderMainSidebarFolders();
+        this.renderMobileSidebarNotes();
+    },
+
+    renderMobileSidebarNotes() {
+        const container = document.getElementById('mobile-sidebar-notes-list');
+        if (!container) return;
+        container.innerHTML = '';
+
+        window.EditorState.notes.forEach(note => {
+            const btn = document.createElement('button');
+            btn.className = `sidebar-btn sidebar-folder-btn ${note.id === window.EditorState.activeNoteId ? 'active' : ''}`;
+
+            btn.innerHTML = `<i data-lucide="file-text"></i> <span style="flex:1; text-align:left;" class="truncate-text">${note.title}</span>`;
+
+            btn.addEventListener('click', async () => {
+                window.EditorState.activeNoteId = note.id;
+                this.highlightedNoteId = note.id;
+                window.EditorState.activeFolder = note.folder || 'All Notes';
+                const editor = document.getElementById('markdown-input');
+                editor.value = note.content;
+                await window.EditorState.saveLocalState();
+
+                this.renderMarkdownCore(note.content);
+                this.renderFoldersList();
+                this.renderNotesList();
+
+                document.getElementById('mobile-sidebar-overlay').classList.remove('show');
+            });
+            container.appendChild(btn);
+        });
+
+        if (window.lucide) lucide.createIcons();
     },
 
     renderNotesList() {

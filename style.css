@@ -2727,6 +2727,12 @@ input:checked + .slider:before {
         margin-bottom: 10pt !important;
     }
 
+    #preview-output blockquote {
+        padding: 10pt 14pt !important;
+        font-size: 11pt !important;
+        margin-bottom: 10pt !important;
+    }
+
     h1,
     h2,
     h3,

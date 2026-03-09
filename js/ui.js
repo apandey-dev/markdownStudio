@@ -294,16 +294,56 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-settings')?.addEventListener('click', () => {
         document.getElementById('settings-modal')?.classList.add('show');
     });
-    document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
+    document.getElementById('sidebar-btn-mobile-settings')?.addEventListener('click', () => {
         document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('settings-modal')?.classList.add('show');
+        document.getElementById('mobile-settings-modal')?.classList.add('show');
+        const tokenInput = document.getElementById('mobile-github-token-input');
+        if (tokenInput) {
+            tokenInput.value = localStorage.getItem('md_github_token') || '';
+        }
+    });
+    document.getElementById('mobile-settings-close')?.addEventListener('click', () => {
+        document.getElementById('mobile-settings-modal')?.classList.remove('show');
+    });
+    document.getElementById('sidebar-btn-share')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('btn-share')?.click();
+    });
+    document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => {
+        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
+        document.getElementById('btn-pdf')?.click();
     });
     document.getElementById('settings-modal-close')?.addEventListener('click', () => {
         initSettingsToggles();
         window.closeSettingsModal();
     });
 
+    document.getElementById('mobile-btn-save-token')?.addEventListener('click', async () => {
+        const tokenInput = document.getElementById('mobile-github-token-input');
+        const token = tokenInput.value.trim();
+        const btn = document.getElementById('mobile-btn-save-token');
+        if (!token) return window.showToast("Token cannot be empty.");
+
+        btn.innerHTML = "Saving...";
+        btn.disabled = true;
+
+        const success = await GitHubBackend.init(token);
+        if (success) {
+            localStorage.setItem('md_github_token', token);
+            window.showToast("<i data-lucide='check'></i> Token Saved");
+        } else {
+            window.showToast("Invalid Token.");
+        }
+
+        btn.innerHTML = "Save Token";
+        btn.disabled = false;
+    });
+
     document.getElementById('btn-pat-help')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('pat-guide-modal')?.classList.add('show');
+    });
+    document.getElementById('mobile-btn-pat-help')?.addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('pat-guide-modal')?.classList.add('show');
     });
@@ -644,6 +684,17 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             const targetTheme = e.currentTarget.getAttribute('data-theme');
             applyTheme(targetTheme);
+        });
+    });
+
+    document.querySelectorAll('#mobile-settings-mode-toggle .mode-tab').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const target = e.currentTarget.getAttribute('data-target');
+            document.querySelectorAll('#mobile-settings-mode-toggle .mode-tab').forEach(t => t.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+
+            document.getElementById('mobile-settings-modal')?.classList.remove('show');
+            await window.EditorState.switchToMode(target);
         });
     });
 
