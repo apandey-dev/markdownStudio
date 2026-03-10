@@ -1,205 +1,173 @@
 /* ==========================================================================
-   📱 MARKDOWN STUDIO - ULTIMATE MOBILE REDESIGN (mobile.css)
+   📱 MARKDOWN STUDIO - PREMIUM NATIVE MOBILE UI/UX
    ========================================================================== */
 
 @media screen and (max-width: 768px) {
 
-    /* --- 1. GLOBAL MOBILE DEFAULTS --- */
-    :root {
-        --safe-top: env(safe-area-inset-top, 0px);
-        --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    html, body {
-        height: 100% !important;
-        overflow: hidden !important; /* Prevent double scrollbars on the body */
-        position: fixed !important; /* Stop bouncy scroll on iOS */
-        width: 100% !important;
-    }
-
-    body {
-        display: flex;
-        flex-direction: column;
-        background-color: var(--bg-color);
-        font-size: 16px; /* Standard mobile font size to prevent auto-zoom on inputs */
+    .mobile-only {
+        display: flex !important;
     }
 
     .desktop-only {
         display: none !important;
     }
 
-    .mobile-only {
-        display: flex !important;
+    input,
+    textarea,
+    select {
+        font-size: 16px !important;
     }
 
-    /* Better touch interactions globally */
     * {
         -webkit-tap-highlight-color: transparent !important;
     }
 
-    button, .mode-tab, .dropdown-header, .note-item, .folder-item, .sidebar-btn {
-        min-height: 44px; /* Apple/Google touch target standard */
-        cursor: pointer;
-        user-select: none;
+    body {
+        height: 100dvh !important;
+        overflow: hidden;
     }
 
-    /* --- 2. HEADER (NAVBAR) - ALWAYS VISIBLE --- */
+    /* NAVBAR */
     .navbar {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: calc(60px + var(--safe-top));
-        padding: var(--safe-top) 16px 0 !important;
-        z-index: 5000;
-        background-color: var(--nav-bg);
-        border-bottom: 1px solid var(--border-color);
+        padding: env(safe-area-inset-top) 16px 0;
+        height: calc(56px + env(safe-area-inset-top));
+        gap: 12px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
         box-shadow: 0 2px 10px var(--shadow-color);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        position: sticky !important;
+        top: 0;
+        z-index: 200;
+    }
+
+    #mobile-menu-btn, #mobile-view-toggle {
+        width: 36px !important;
+        height: 36px !important;
+        border: none !important;
+        opacity: 0.8;
+    }
+
+    #mobile-menu-btn:active, #mobile-view-toggle:active {
+        background-color: var(--toggle-pill) !important;
+        opacity: 1;
+        transform: scale(0.92);
     }
 
     .brand {
         font-size: 1.15rem;
-        font-weight: 700;
         flex: 1;
         text-align: center;
-        margin: 0 12px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: var(--accent-color);
     }
 
-    .action-pill-group.mobile-only {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    #mobile-menu-btn, #mobile-view-toggle {
-        width: 44px !important;
-        height: 44px !important;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        background-color: transparent !important;
-        border-radius: 0 !important;
-        border: none !important;
-        color: var(--text-color);
-        box-shadow: none !important;
-    }
-
-    #mobile-menu-btn i, #mobile-view-toggle i {
-        width: 24px !important;
-        height: 24px !important;
-    }
-
-    #mobile-menu-btn:active, #mobile-view-toggle:active {
-        background-color: transparent !important;
-        opacity: 0.5;
-        transform: scale(0.92);
-        box-shadow: none !important;
-    }
-
-    /* --- 3. MAIN WORKSPACE & EDITOR --- */
+    /* WORKSPACE */
     .app-container {
-        margin-top: calc(60px + var(--safe-top));
-        flex: 1;
-        height: calc(100dvh - 60px - var(--safe-top));
+        flex: 1 !important;
+        height: 100% !important;
+        width: 100vw !important;
+        min-height: 0;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        width: 100vw;
     }
 
     .split-workspace {
-        flex: 1;
-        flex-direction: column;
-        overflow: hidden;
-        background-color: var(--editor-bg);
-        position: relative;
-    }
-
-    .panel {
         flex: 1 !important;
-        width: 100% !important;
-        height: 100% !important;
-        display: none; /* View toggled via JS classes on body */
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        min-height: 0;
     }
 
-    /* Logic for visibility usually controlled by .view-preview / .view-editor on body */
-    body:not(.show-preview) .editor-panel {
+    .editor-panel {
+        flex: 1 !important;
         display: flex !important;
-    }
-
-    body.show-preview .preview-panel {
-        display: flex !important;
-    }
-
-    body.show-preview .editor-toolbar {
-        display: none !important; /* Hide toolbar in preview mode */
-    }
-
-    textarea {
-        padding: 20px 24px calc(60px + var(--safe-bottom)) !important;
-        font-size: 16px !important;
-        line-height: 1.7;
-        width: 100%;
-        height: 100%;
-        -webkit-overflow-scrolling: touch;
+        flex-direction: column;
+        border-right: none;
     }
 
     .preview-panel {
-        padding: 24px 20px calc(40px + var(--safe-bottom)) !important;
-        background-color: var(--preview-bg);
+        flex: 1 !important;
+        display: none;
+        padding: 24px 16px;
+        padding-bottom: calc(30px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* Hide desktop-only UI components */
-    .divider, .edge-handle, .restore-left, .restore-right {
+    body.show-preview .editor-panel {
         display: none !important;
     }
 
-    /* --- 4. TOOLBAR REDESIGN --- */
+    body.show-preview .preview-panel {
+        display: block !important;
+    }
+
+    body.show-preview .editor-toolbar {
+        display: none !important;
+    }
+
+    textarea {
+        padding: 16px;
+        padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
+        line-height: 1.6 !important;
+    }
+
+    #preview-output h1,
+    #dashboard-preview-output h1 {
+        font-size: 1.7rem !important;
+    }
+
+    #preview-output h2,
+    #dashboard-preview-output h2 {
+        font-size: 1.4rem !important;
+    }
+
+    #preview-output h3,
+    #dashboard-preview-output h3 {
+        font-size: 1.15rem !important;
+    }
+
+    #preview-output p,
+    #dashboard-preview-output p,
+    #preview-output ul,
+    #dashboard-preview-output ul,
+    #preview-output ol,
+    #dashboard-preview-output ol {
+        font-size: 1rem !important;
+        line-height: 1.65 !important;
+    }
+
+    .copy-code-btn {
+        appearance: none;
+        outline: none;
+        opacity: 1 !important;
+        width: 36px !important;
+        height: 36px !important;
+        background-color: var(--hover-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 4px 12px var(--shadow-color) !important;
+    }
+
+    .copy-code-btn:active {
+        transform: scale(0.9) !important;
+        background-color: var(--border-color) !important;
+    }
+
+    /* TOOLBAR */
     .editor-toolbar {
-        height: 56px;
-        padding: 0 8px !important;
-        background-color: var(--nav-bg);
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
-        gap: 8px !important;
-        overflow-x: auto;
+        padding: 10px 14px !important;
+        gap: 10px !important;
+        min-height: 60px;
         -webkit-overflow-scrolling: touch;
-        flex-shrink: 0;
-        z-index: 100;
-        scrollbar-width: none; /* Hide scrollbar Firefox */
-        align-items: center;
-    }
-
-    .editor-toolbar::-webkit-scrollbar {
-        display: none; /* Hide scrollbar Chrome/Safari */
-    }
-
-    .toolbar-group {
-        background-color: transparent;
-        border-radius: 0;
-        padding: 0;
-        display: flex;
-        gap: 4px !important;
-        flex-shrink: 0;
+        scroll-behavior: smooth;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .tool-btn {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 8px !important;
-        background-color: transparent !important;
-        opacity: 0.7;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--border-color) !important;
+        appearance: none;
+        outline: none;
+        padding: 10px 14px !important;
+        border-radius: 12px !important;
     }
 
     .tool-btn i {
@@ -207,24 +175,42 @@
         height: 22px !important;
     }
 
-    .tool-btn:active {
-        background-color: var(--hover-bg) !important;
-        opacity: 1;
+    .toolbar-divider {
+        margin: 0 4px !important;
     }
 
-    .tool-btn.active {
-        background-color: var(--toggle-pill) !important;
-        color: var(--accent-color) !important;
-        opacity: 1;
-        box-shadow: 0 2px 6px var(--toggle-shadow);
-    }
-
-    /* --- 5. BOTTOM STATUS BAR --- */
+    /* HORIZONTALLY SCROLLABLE STATUS BAR */
     .status-bar {
-        display: none !important; /* Completely hide bottom bar on mobile */
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        justify-content: flex-start;
+        gap: 12px;
+        overflow-x: auto;
+        scrollbar-width: none;
     }
 
-    /* --- 6. MENU DRAWER (SIDEBAR) REDESIGN --- */
+    .status-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sb-section {
+        gap: 6px;
+    }
+
+    .sb-action-btn {
+        appearance: none;
+        outline: none;
+        padding: 8px 14px !important;
+        height: 34px !important;
+        font-size: 0.85rem !important;
+        border-radius: 12px !important;
+    }
+
+    .sb-action-btn span.desktop-only {
+        display: none !important;
+    }
+
+    /* SIDEBAR OVERLAY */
     .mobile-sidebar-overlay {
         display: block;
         position: fixed;
@@ -233,12 +219,12 @@
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 6000;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 4000;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.3s ease;
     }
 
     .mobile-sidebar-overlay.show {
@@ -249,174 +235,149 @@
     .mobile-sidebar {
         position: absolute;
         top: 0;
-        left: 0;
-        width: 85%;
-        max-width: 340px;
-        height: 100%;
+        left: -320px;
+        width: 300px;
+        max-width: 85vw;
+        height: 100dvh;
         background-color: var(--nav-bg);
-        transform: translateX(-100%);
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
         display: flex;
         flex-direction: column;
-        padding-top: var(--safe-top);
-        box-shadow: 10px 0 40px rgba(0,0,0,0.3);
     }
 
     .mobile-sidebar-overlay.show .mobile-sidebar {
-        transform: translateX(0);
+        transform: translateX(320px);
     }
 
     .sidebar-header {
-        padding: 20px 28px; /* Increased horizontal padding */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        height: calc(64px + env(safe-area-inset-top)) !important;
         border-bottom: 1px solid var(--border-color);
-        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: env(safe-area-inset-top) 20px 0 !important;
     }
 
     .sidebar-header h3 {
-        margin: 0;
         font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--accent-color);
+        margin: 0;
+        font-family: var(--ui-font);
+        font-weight: 600;
     }
 
     #close-sidebar-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--hover-bg);
+        appearance: none;
+        outline: none;
+        background-color: var(--hover-bg) !important;
+        border-radius: 50% !important;
         border: none;
         color: var(--text-color);
+        cursor: pointer;
+        width: 40px !important;
+        height: 40px !important;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: background 0.2s !important;
+    }
+
+    #close-sidebar-btn:active {
+        background-color: var(--border-color) !important;
+        transform: scale(0.9);
     }
 
     .sidebar-links {
-        padding: 8px 24px 24px; /* Increased horizontal padding */
-        flex: 1;
-        overflow-y: auto;
+        padding: 20px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-    }
-
-    .sidebar-section-title {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        font-weight: 800;
-        color: var(--text-color);
-        opacity: 0.4;
-        margin: 12px 0 8px 4px; /* Reduced top margin slightly for better flow */
+        gap: 12px;
+        overflow-y: auto;
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .sidebar-btn {
+        appearance: none;
+        outline: none;
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 14px 18px !important;
-        font-size: 0.95rem !important;
-        font-weight: 700;
-        border-radius: 16px !important;
-        border: none !important;
-        background-color: transparent !important;
-        color: var(--text-color) !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        white-space: nowrap;
-        overflow: hidden;
-        text-align: left;
-    }
-
-    .sidebar-btn span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        flex: 1;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-family: var(--ui-font);
+        font-size: 1.05rem;
+        font-weight: 500;
     }
 
     .sidebar-btn i {
+        color: var(--accent-color);
         width: 20px;
         height: 20px;
-        flex-shrink: 0;
-        opacity: 0.8;
     }
 
     .sidebar-btn:active {
-        background-color: var(--hover-bg) !important;
+        background-color: var(--hover-bg);
+        border-color: var(--text-color);
         transform: scale(0.98);
     }
 
-    .sidebar-folder-btn.active {
-        background-color: #0f172a !important; /* Prominent dark state like in image */
-        color: #ffffff !important;
+    .mode-tab .tab-text {
+        display: none !important;
     }
 
-    body.dark-mode .sidebar-folder-btn.active {
-        background-color: #ffffff !important;
-        color: #000000 !important;
+    .mode-tab {
+        padding: 12px 0 !important;
     }
 
-    .sidebar-folder-btn.active i {
-        color: inherit !important;
-        opacity: 1;
+    .mode-tab i {
+        width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
     }
 
-    /* --- 7. MODAL REDESIGN (NATIVE BOTTOM SHEETS) --- */
+    #mobile-mode-toggle,
+    #mobile-theme-toggle {
+        padding: 6px;
+        background-color: var(--toggle-track);
+        border-radius: 100px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* NATIVE BOTTOM SHEETS (MODALS) */
     .modal-overlay {
-        align-items: flex-end !important; /* Positions modal at the bottom */
+        align-items: flex-end !important;
         padding: 0 !important;
-        background-color: rgba(0, 0, 0, 0.7);
-        z-index: 10000;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 
     .modal-box {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 28px 28px 0 0 !important;
-        padding: 32px 24px calc(24px + var(--safe-bottom)) !important;
+        position: relative;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: auto !important;
+        max-height: 90dvh !important;
+        border-radius: 32px 32px 0 0 !important;
+        padding: 36px 24px calc(24px + env(safe-area-inset-bottom)) !important;
         margin: 0 !important;
         transform: translateY(100%) !important;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        max-height: 94vh !important;
-        overflow-y: auto;
+        transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
         border: none !important;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
-    }
-
-    #share-modal .modal-box,
-    #pdf-modal .modal-box {
-        padding-top: 40px !important;
-    }
-
-    #share-modal .premium-modal-header {
-        margin-bottom: 20px !important;
-    }
-
-    #share-modal .premium-icon-wrapper {
-        margin-bottom: 12px !important;
-    }
-
-    #pdf-modal .modal-title {
-        margin-bottom: 20px !important;
-    }
-
-    #pdf-modal .input-group {
-        margin-bottom: 20px !important;
-    }
-
-    #pdf-modal .input-group label {
-        font-size: 0.85rem !important;
+        border-top: 1px solid var(--border-color) !important;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .modal-overlay.show .modal-box {
         transform: translateY(0) !important;
     }
 
-    /* Handle bar for bottom sheets */
     .modal-box::before {
         content: '';
         position: absolute;
@@ -426,354 +387,397 @@
         width: 48px;
         height: 5px;
         background-color: var(--text-color);
-        opacity: 0.15;
+        opacity: 0.12;
         border-radius: 10px;
+        z-index: 10;
     }
 
     .modal-title {
         font-size: 1.4rem !important;
-        font-weight: 700;
         margin-bottom: 24px !important;
-        text-align: center;
-        color: var(--accent-color);
     }
 
-    .modal-subtitle {
-        text-align: center;
-        margin-bottom: 20px;
+    .modal-input,
+    .dropdown-header {
+        padding: 16px 20px !important;
+        font-size: 1rem !important;
+        border-radius: 16px !important;
+        min-height: 56px !important;
     }
 
     .modal-actions {
-        flex-direction: column !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
         gap: 12px !important;
+        width: 100% !important;
         margin-top: 32px !important;
     }
 
-    /* Exceptions for specific modals where side-by-side is preferred even on mobile */
-    .delete-actions,
-    .setup-modal-box .modal-actions,
-    .premium-actions {
-        flex-direction: row !important;
-    }
-
     .modal-btn {
-        width: 100%;
-        height: 56px !important;
-        font-size: 1.1rem !important;
-        font-weight: 700;
-        border-radius: 18px !important;
-        margin: 0 !important;
+        appearance: none;
+        outline: none;
+        flex: 1 !important;
+        min-height: 54px !important;
+        font-size: 1.05rem !important;
+        border-radius: 16px !important;
         justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 16px !important;
     }
 
-    .btn-confirm {
-        background-color: var(--accent-color) !important;
-        color: var(--btn-text) !important;
+    .note-creation-modal {
+        overflow: visible !important;
     }
 
-    .btn-cancel {
-        background-color: var(--toggle-track) !important;
-        color: var(--text-color) !important;
-        border: none !important;
+    /* Lets folder dropdown pop up over sheet */
+
+    .premium-modal {
+        padding-top: 48px !important;
     }
 
-    /* --- 8. SETTINGS MODAL MOBILE OPTIMIZATION --- */
-    .settings-modal-box {
-        height: 85vh !important;
-        padding: 0 !important;
-        display: flex;
-        flex-direction: column;
+    .premium-icon-wrapper {
+        width: 72px !important;
+        height: 72px !important;
+        margin-bottom: 24px !important;
+        border-radius: 24px !important;
     }
 
-    .settings-container {
+    .premium-icon-wrapper i {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .delete-modal-box {
+        padding-top: 48px !important;
+        text-align: center !important;
+    }
+
+    .delete-icon-wrapper i {
+        width: 56px !important;
+        height: 56px !important;
+    }
+
+    #bulk-sync-modal .modal-actions {
         flex-direction: column !important;
-        flex: 1;
-        overflow: hidden;
+        gap: 16px !important;
     }
 
-    .settings-nav {
-        width: 100% !important;
-        height: auto !important;
+    #bulk-sync-modal .modal-actions>div {
+        display: flex !important;
         flex-direction: row !important;
-        overflow-x: auto !important;
-        padding: 12px 16px !important;
-        border-right: none !important;
-        border-bottom: 1px solid var(--border-color) !important;
-        gap: 10px !important;
-        scrollbar-width: none;
-        flex-shrink: 0;
-        background-color: var(--nav-bg);
+        width: 100% !important;
+        gap: 12px !important;
     }
 
-    .settings-nav::-webkit-scrollbar {
-        display: none;
-    }
-
-    .settings-nav-item {
-        white-space: nowrap !important;
-        padding: 10px 18px !important;
-        font-size: 0.9rem !important;
+    #bulk-sync-modal .modal-btn {
+        min-height: 48px !important;
         border-radius: 14px !important;
-        min-height: 40px !important;
     }
 
-    .settings-content {
-        padding: 24px !important;
-        flex: 1;
-        background-color: var(--bg-color);
-    }
-
-    .settings-content-header h3 {
-        font-size: 1.2rem !important;
-        margin-bottom: 8px !important;
-    }
-
-    .settings-footer {
-        padding: 16px 24px calc(16px + var(--safe-bottom)) !important;
-        background-color: var(--nav-bg);
-        border-top: 1px solid var(--border-color);
-    }
-
-    .setting-card {
-        padding: 18px !important;
-        border-radius: 20px !important;
-        margin-bottom: 12px;
-        background-color: var(--nav-bg) !important;
-        border: 1px solid var(--border-color) !important;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .setting-card-title {
-        font-size: 1rem !important;
-    }
-
-    .setting-card-desc {
-        font-size: 0.8rem !important;
-    }
-
-    /* --- 9. WORKSPACE MANAGER (MANAGEMENT MODAL) --- */
+    /* MANAGEMENT MODAL MOBILE */
     .manage-modal-box {
-        height: 92vh !important;
-        padding: 0 !important;
-        display: flex;
-        flex-direction: column;
+        height: 90dvh !important;
+        padding-top: 36px !important;
     }
 
     .manage-header {
-        padding: 24px !important;
+        padding: 16px !important;
         flex-direction: column !important;
-        align-items: center !important;
+        align-items: flex-start !important;
         gap: 16px !important;
-        border-bottom: 1px solid var(--border-color);
-        background-color: var(--nav-bg);
-    }
-
-    .manage-header h3 {
-        margin: 0 !important;
     }
 
     .manage-body {
-        padding: 20px 16px !important;
-        flex: 1;
-        background-color: var(--bg-color);
-    }
-
-    .manage-folder {
-        margin-bottom: 16px !important;
-        border-radius: 20px !important;
-        border: 1px solid var(--border-color) !important;
-        background-color: var(--nav-bg);
-        overflow: hidden;
-    }
-
-    .manage-folder-header {
-        padding: 16px 20px !important;
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-    }
-
-    .manage-note-row {
-        padding: 14px 16px 14px 36px !important;
-        border-top: 1px solid var(--border-color) !important;
-        min-height: 60px;
-    }
-
-    .manage-note-title {
-        font-size: 1rem !important;
-    }
-
-    .manage-actions {
-        opacity: 1 !important; /* Always visible on mobile */
-        gap: 10px !important;
-    }
-
-    .manage-btn {
-        width: 44px !important;
-        height: 44px !important;
-        border-radius: 12px !important;
-        background-color: var(--bg-color) !important;
-        border: 1px solid var(--border-color) !important;
-    }
-
-    .manage-btn.btn-delete {
-        color: #ef4444 !important;
+        padding: 16px !important;
+        padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
     }
 
     .manage-footer {
-        padding: 16px 24px calc(16px + var(--safe-bottom)) !important;
-        background-color: var(--nav-bg);
+        padding: 16px !important;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
     }
 
-    /* --- 10. ALL NOTES DASHBOARD --- */
-    .notes-dashboard-box {
-        height: 94vh !important;
+    /* NATIVE FULL-SCREEN DASHBOARD */
+    .notes-dashboard-box,
+    .docs-modal-box {
         padding: 0 !important;
+        display: block !important;
+        overflow: hidden !important;
+        border-radius: 24px 24px 0 0 !important;
+        height: 96dvh !important;
+    }
+
+    .notes-dashboard-box.folders-collapsed .notes-dashboard-folders {
+        width: 100% !important;
+        opacity: 1;
+    }
+
+    .notes-dashboard-folders {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 50vh;
+        border-right: none !important;
+        padding-top: 24px !important;
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 30;
+        background: var(--bg-color);
+    }
+
+    .notes-dashboard-left {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 50vh;
+        border-right: none !important;
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s !important;
+        padding-top: 24px !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 40;
+        background: var(--nav-bg);
+        transform: translateX(100%);
+    }
+
+    .notes-dashboard-right {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        z-index: 50;
+        background-color: var(--preview-bg) !important;
         display: flex;
         flex-direction: column;
+        padding-top: 16px;
     }
 
-    .notes-dashboard-header {
-        padding: 20px 24px !important;
-        background-color: var(--nav-bg);
+    .notes-dashboard-box.show-notes-pane .notes-dashboard-folders {
+        transform: translateX(-30%);
+        opacity: 0;
     }
 
-    .notes-dashboard-body {
-        padding: 16px !important;
-        background-color: var(--bg-color);
+    .notes-dashboard-box.show-notes-pane .notes-dashboard-left {
+        transform: translateX(0);
     }
 
-    .dashboard-folder-title {
-        padding: 10px 12px !important;
-        font-size: 0.95rem !important;
-        border-radius: 8px !important;
-        margin-bottom: 4px !important;
-        background-color: transparent !important; /* Minimal */
-        border-bottom: 1px solid var(--border-color) !important;
+    .notes-dashboard-box.show-preview-pane .notes-dashboard-left {
+        transform: translateX(-30%);
+        opacity: 0;
     }
 
-    .dashboard-note-row {
-        padding: 10px 12px 10px 32px !important; /* Indented for notes */
-        margin-bottom: 0 !important;
-        border: none !important;
-        border-bottom: 1px solid var(--border-color) !important;
-        border-radius: 0 !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        opacity: 0.85;
+    .notes-dashboard-box.show-preview-pane .notes-dashboard-right {
+        transform: translateX(0);
     }
 
-    .dashboard-note-row.active {
-        background-color: var(--hover-bg) !important;
+    .folders-header,
+    .notes-dashboard-left-header {
+        padding: 0 24px 16px 24px !important;
     }
 
-    .dashboard-note-info {
-        font-size: 0.95rem !important;
-        font-weight: 500;
-        gap: 12px !important;
+    .mobile-back-to-folders {
+        appearance: none;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: var(--accent-color);
+        font-family: var(--ui-font);
+        font-weight: 600;
+        font-size: 1.05rem;
+        padding: 8px 16px 8px 0;
+        margin-bottom: 12px;
+        cursor: pointer;
     }
 
-    .dashboard-note-actions {
-        opacity: 1 !important;
+    .mobile-back-to-folders i {
+        width: 20px;
+        height: 20px;
+    }
+
+    .folder-del-btn {
+        opacity: 0.7 !important;
+        padding: 10px !important;
+        width: 44px !important;
+        height: 44px !important;
+        margin-left: 6px;
+    }
+
+    .folder-del-btn i {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    #btn-new-note {
+        font-size: 1rem !important;
+        height: 50px !important;
+        border-radius: 14px !important;
+    }
+
+    .folders-list,
+    .notes-list {
+        padding: 0 20px calc(40px + env(safe-area-inset-bottom)) !important;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .folder-item {
+        padding: 18px 20px !important;
+        border-radius: 16px !important;
+        margin-bottom: 10px;
+        background: var(--nav-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .note-item {
+        padding: 18px 20px !important;
+        border-radius: 16px !important;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px var(--shadow-color) !important;
+    }
+
+    .note-item.active {
+        border: 2px solid var(--accent-color) !important;
+    }
+
+    /* ✨ DASHBOARD CIRCULAR BUTTONS FOR MOBILE ✨ */
+    .dashboard-actions {
+        padding: 12px 16px !important;
         gap: 8px !important;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--nav-bg) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        height: auto !important;
     }
 
-    .dashboard-action-btn {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 10px !important;
-        background: var(--bg-color) !important;
-        border-color: var(--border-color) !important;
+    .dash-action-group {
+        gap: 6px !important;
     }
 
-    .dashboard-action-btn.btn-open {
-        background: var(--accent-color) !important;
-        color: var(--btn-text) !important;
+    .dash-circle-btn,
+    .btn-close-dashboard {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        background: transparent !important;
     }
 
-    .notes-dashboard-footer {
-        padding: 20px 24px calc(20px + var(--safe-bottom)) !important;
-        background-color: var(--nav-bg);
+    .dash-circle-btn i,
+    .btn-close-dashboard i {
+        width: 16px !important;
+        height: 16px !important;
+        margin: 0 !important;
+    }
+
+    .dash-circle-btn:active,
+    .btn-close-dashboard:active {
+        transform: scale(0.9) !important;
+    }
+
+    .pill-btn.btn-back {
+        appearance: none;
+        outline: none;
+        border-color: transparent;
+        background-color: transparent;
+        font-family: var(--ui-font);
+        font-weight: 600;
+        font-size: 1.05rem !important;
+        color: var(--accent-color) !important;
+        padding: 0 8px !important;
+        border-radius: 12px !important;
+    }
+
+    .pill-btn.btn-back i {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .dashboard-preview-content {
+        padding: 24px 20px calc(80px + env(safe-area-inset-bottom)) !important;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .docs-modal-box {
+        padding: 0 !important;
+        display: flex !important;
         flex-direction: column !important;
-        gap: 12px !important;
     }
 
-    /* --- 11. DISABLE FEEDBACK (TOOLTIP & TOAST) --- */
-    #toast,
-    .custom-tooltip,
-    [data-tooltip]::before,
-    [data-tooltip]::after {
+    .docs-header {
+        padding: 28px 64px 20px 24px !important;
+    }
+
+    .docs-header h2 {
+        font-size: 1.4rem !important;
+    }
+
+    .docs-body {
+        padding: 24px !important;
+        padding-bottom: calc(60px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .docs-section {
+        margin-bottom: 32px !important;
+    }
+
+    .docs-section h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .setup-modal-box {
+        padding-top: 48px !important;
+    }
+
+    /* DISABLING FEEDBACK ELEMENTS FOR MOBILE */
+    #toast, .custom-tooltip {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
     }
 
-    /* --- 12. TEXT AREA TYPOGRAPHY & FIXES --- */
-    #preview-output h1 { font-size: 1.6rem !important; margin-top: 1.2em; margin-bottom: 0.6em; }
-    #preview-output h2 { font-size: 1.35rem !important; margin-top: 1.1em; margin-bottom: 0.5em; }
-    #preview-output h3 { font-size: 1.15rem !important; margin-top: 1em; margin-bottom: 0.5em; }
-    #preview-output p, #preview-output li { font-size: 1rem !important; line-height: 1.6; margin-bottom: 1em; }
-
-    #preview-output ul, #preview-output ol {
-        padding-left: 20px !important;
-    }
-
-    #preview-output blockquote {
-        padding: 10px 14px !important;
-        font-size: 0.95rem !important;
-        margin-bottom: 1em !important;
-    }
-
-    #preview-output table {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+    /* ✨ BEAUTIFUL SHORT TOAST NOTIFICATION ✨ */
+    #toast {
+        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+        width: fit-content !important;
+        min-width: 100px !important;
+        max-width: 80vw !important;
+        left: 50% !important;
+        margin-left: 0 !important;
+        transform: translate(-50%, 20px) !important;
+        padding: 10px 20px !important;
+        border-radius: 50px !important;
         font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
     }
 
-    #preview-output img {
-        max-width: 100% !important;
-        height: auto !important;
+    #toast.show {
+        transform: translate(-50%, 0) !important;
     }
 
-    #preview-output pre {
-        padding: 16px !important;
-        border-radius: 12px !important;
-        font-size: 0.85rem !important;
-        margin-bottom: 1.2em !important;
+    .progress-widget {
+        width: calc(100vw - 32px);
+        right: 16px;
+        left: 16px;
+        bottom: calc(24px + env(safe-area-inset-bottom));
     }
-
-    #preview-output pre code {
-        padding: 36px 12px 12px 12px !important;
-    }
-
-    /* --- 13. UTILITIES --- */
-    .truncate-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: block;
-    }
-
-    .input-group label {
-        font-size: 0.9rem !important;
-        font-weight: 700 !important;
-        margin-bottom: 8px !important;
-    }
-
-    .modal-input {
-        height: 52px !important;
-        border-radius: 14px !important;
-        font-size: 1rem !important;
-        padding: 0 16px !important;
-    }
-
-    .dropdown-header {
-        height: 52px !important;
-        border-radius: 14px !important;
-        padding: 0 16px !important;
-    }
-
 }

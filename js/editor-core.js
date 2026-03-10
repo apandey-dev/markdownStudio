@@ -226,30 +226,46 @@ window.EditorCore = {
 
         window.EditorState.extractFoldersFromNotes();
 
-        window.EditorState.folders.forEach(folder => {
+        // Sort folders to keep "All Notes" at the top
+        const sortedFolders = [...window.EditorState.folders].sort((a, b) => {
+            if (a === 'All Notes') return -1;
+            if (b === 'All Notes') return 1;
+            return a.localeCompare(b);
+        });
+
+        sortedFolders.forEach(folder => {
+            const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
+
+            // Skip empty folders unless it's "All Notes"
+            if (folder !== 'All Notes' && folderNotes.length === 0) return;
+
             const folderSection = document.createElement('div');
             folderSection.className = 'dashboard-folder-section';
 
             const folderTitle = document.createElement('div');
-            folderTitle.className = 'dashboard-folder-title';
-            folderTitle.style.cursor = 'pointer';
-            folderTitle.innerHTML = `<i data-lucide="chevron-right" class="collapse-icon" style="margin-right:8px; transition: transform 0.2s;"></i> <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i> ${folder}`;
+            folderTitle.className = 'dashboard-folder-title collapsible';
+            folderTitle.innerHTML = `
+                <i data-lucide="chevron-down" class="collapse-icon"></i>
+                <i data-lucide="${folder === 'All Notes' ? 'library' : 'folder'}"></i>
+                <span>${folder}</span>
+                <span style="margin-left: auto; font-size: 0.75rem; opacity: 0.5;">${folderNotes.length} notes</span>
+            `;
 
             const notesList = document.createElement('div');
-            notesList.className = 'dashboard-notes-list';
-            notesList.style.display = 'none'; // Collapsed by default
+            notesList.className = 'dashboard-notes-list collapsed'; // Default collapsed for cleaner view
 
-            folderTitle.addEventListener('click', () => {
-                const isCollapsed = notesList.style.display === 'none';
-                notesList.style.display = isCollapsed ? 'flex' : 'none';
-                folderTitle.querySelector('.collapse-icon').style.transform = isCollapsed ? 'rotate(90deg)' : 'rotate(0deg)';
+            // Persistent collapse state can be added later if needed via localStorage
+
+            folderTitle.addEventListener('click', (e) => {
+                const isCollapsed = notesList.classList.toggle('collapsed');
+                const chevron = folderTitle.querySelector('.collapse-icon');
+                if (chevron) chevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
             });
-
-            const folderNotes = folder === 'All Notes' ? window.EditorState.notes : window.EditorState.notes.filter(n => n.folder === folder);
 
             folderNotes.forEach(note => {
                 const noteRow = document.createElement('div');
                 noteRow.className = 'dashboard-note-row';
+                if (note.id === window.EditorState.activeNoteId) noteRow.classList.add('active');
 
                 const noteInfo = document.createElement('div');
                 noteInfo.className = 'dashboard-note-info';
@@ -259,8 +275,8 @@ window.EditorCore = {
                 actions.className = 'dashboard-note-actions';
 
                 const openBtn = document.createElement('button');
-                openBtn.className = 'dashboard-action-btn';
-                openBtn.innerHTML = '<i data-lucide="edit-3"></i>';
+                openBtn.className = 'dashboard-action-btn btn-open';
+                openBtn.innerHTML = '<i data-lucide="external-link"></i>';
                 openBtn.setAttribute('data-tooltip', 'Open Note');
                 openBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
@@ -272,25 +288,15 @@ window.EditorCore = {
                     window.closeNotesModal();
                 });
 
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'dashboard-action-btn btn-delete';
-                deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
-                deleteBtn.setAttribute('data-tooltip', 'Delete Note');
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    window.EditorActions.pendingDeleteData = { type: 'note', id: note.id };
-                    document.getElementById('delete-modal-title').textContent = 'Delete Note?';
-                    document.getElementById('delete-modal-desc').textContent = 'This action cannot be undone. Are you sure?';
-                    document.getElementById('delete-modal').classList.add('show');
-                });
-
                 actions.appendChild(openBtn);
-                actions.appendChild(deleteBtn);
 
                 noteRow.appendChild(noteInfo);
                 noteRow.appendChild(actions);
 
-                noteRow.addEventListener('click', () => openBtn.click());
+                noteRow.addEventListener('click', (e) => {
+                    document.querySelectorAll('.dashboard-note-row').forEach(r => r.classList.remove('active'));
+                    noteRow.classList.add('active');
+                });
 
                 notesList.appendChild(noteRow);
             });
@@ -298,6 +304,10 @@ window.EditorCore = {
             folderSection.appendChild(folderTitle);
             folderSection.appendChild(notesList);
             container.appendChild(folderSection);
+
+            // Initial state for chevron (collapsed)
+            const initialChevron = folderTitle.querySelector('.collapse-icon');
+            if (initialChevron) initialChevron.style.transform = 'rotate(-90deg)';
         });
 
         if (window.lucide) lucide.createIcons();
@@ -307,10 +317,12 @@ window.EditorCore = {
         const bodyContent = document.getElementById('manage-body-content');
         const footerActions = document.getElementById('manage-footer-actions');
         const selectModeCheckbox = document.getElementById('manage-select-mode');
+        const pushBtn = document.getElementById('btn-push-github');
         if (!bodyContent) return;
 
         const isSelectMode = selectModeCheckbox ? selectModeCheckbox.checked : false;
         if (footerActions) footerActions.style.display = isSelectMode ? 'flex' : 'none';
+        if (pushBtn) pushBtn.style.display = (isSelectMode && window.EditorState.appMode === 'local') ? 'flex' : 'none';
 
         bodyContent.innerHTML = '';
         window.EditorState.extractFoldersFromNotes();
@@ -335,6 +347,40 @@ window.EditorCore = {
 
             header.appendChild(collapseIcon);
             header.appendChild(folderTitle);
+
+            if (folder !== 'All Notes') {
+                const fActions = document.createElement('div');
+                fActions.className = 'manage-actions';
+
+                const renameF = document.createElement('button');
+                renameF.className = 'manage-btn';
+                renameF.innerHTML = '<i data-lucide="edit-3"></i>';
+                renameF.title = "Rename Folder";
+                renameF.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.EditorActions.pendingRenameData = { type: 'folder', name: folder };
+                    const input = document.getElementById('rename-input');
+                    input.value = folder;
+                    document.getElementById('rename-modal').classList.add('show');
+                    setTimeout(() => input.focus(), 100);
+                });
+
+                const deleteF = document.createElement('button');
+                deleteF.className = 'manage-btn btn-danger';
+                deleteF.innerHTML = '<i data-lucide="trash-2"></i>';
+                deleteF.title = "Delete Folder";
+                deleteF.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.EditorActions.pendingDeleteData = { type: 'folder', id: folder };
+                    document.getElementById('delete-modal-title').textContent = 'Delete Folder?';
+                    document.getElementById('delete-modal-desc').textContent = 'All notes in this folder will be moved to "All Notes". Continue?';
+                    document.getElementById('delete-modal').classList.add('show');
+                });
+
+                fActions.appendChild(renameF);
+                fActions.appendChild(deleteF);
+                header.appendChild(fActions);
+            }
 
             const notesContainer = document.createElement('div');
             notesContainer.className = 'manage-notes-container';
@@ -389,6 +435,19 @@ window.EditorCore = {
                         return;
                     }
 
+                    document.querySelectorAll('.manage-note-row').forEach(r => r.classList.remove('active'));
+                    noteRow.classList.add('active');
+                });
+
+                const actions = document.createElement('div');
+                actions.className = 'manage-actions';
+
+                const openBtn = document.createElement('button');
+                openBtn.className = 'manage-btn btn-open';
+                openBtn.innerHTML = '<i data-lucide="external-link"></i>';
+                openBtn.title = "Open Note";
+                openBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
                     window.EditorState.activeNoteId = note.id;
                     this.highlightedNoteId = note.id;
                     window.EditorState.activeFolder = note.folder || 'All Notes';
@@ -401,50 +460,24 @@ window.EditorCore = {
                     window.showToast("<i data-lucide='edit-2'></i> Opened");
                 });
 
-                const actions = document.createElement('div');
-                actions.className = 'manage-actions';
-
-                // Rename/Move Button
-                const btnRename = document.createElement('button');
-                btnRename.className = 'manage-btn';
-                btnRename.title = "Rename or Move Note";
-                btnRename.innerHTML = '<i data-lucide="edit"></i>';
-                btnRename.addEventListener('click', (e) => {
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'manage-btn';
+                renameBtn.innerHTML = '<i data-lucide="edit-3"></i>';
+                renameBtn.title = "Rename Note";
+                renameBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const renameModal = document.getElementById('rename-modal');
-                    const renameInput = document.getElementById('rename-input');
-                    if (renameModal && renameInput) {
-                        renameInput.value = note.title;
-                        window.EditorState.activeFolder = note.folder || 'All Notes';
-
-                        const dropList = document.getElementById('note-folder-dropdown-list');
-                        const dropText = document.getElementById('folder-selected-text');
-                        if (dropList && dropText) {
-                            dropList.innerHTML = '';
-                            window.EditorState.folders.forEach(f => {
-                                const div = document.createElement('div');
-                                div.className = `dropdown-item ${f === window.EditorState.activeFolder ? 'active' : ''}`;
-                                div.setAttribute('data-value', f);
-                                div.textContent = f;
-                                dropList.appendChild(div);
-                            });
-                            dropText.textContent = window.EditorState.activeFolder;
-                            dropText.setAttribute('data-selected', window.EditorState.activeFolder);
-                            if (window.EditorCore.setupFolderDropdown) window.EditorCore.setupFolderDropdown();
-                        }
-
-                        window.EditorActions.pendingRenameData = { id: note.id, folder: note.folder };
-                        renameModal.classList.add('show');
-                        setTimeout(() => { renameInput.focus(); }, 100);
-                    }
+                    window.EditorActions.pendingRenameData = { type: 'note', id: note.id };
+                    const input = document.getElementById('rename-input');
+                    input.value = note.title;
+                    document.getElementById('rename-modal').classList.add('show');
+                    setTimeout(() => input.focus(), 100);
                 });
 
-                // Delete Button
-                const btnDel = document.createElement('button');
-                btnDel.className = 'manage-btn btn-delete';
-                btnDel.title = "Delete Note";
-                btnDel.innerHTML = '<i data-lucide="trash-2"></i>';
-                btnDel.addEventListener('click', (e) => {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'manage-btn btn-danger';
+                deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+                deleteBtn.title = "Delete Note";
+                deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     window.EditorActions.pendingDeleteData = { type: 'note', id: note.id };
                     document.getElementById('delete-modal-title').textContent = 'Delete Note?';
@@ -452,8 +485,9 @@ window.EditorCore = {
                     document.getElementById('delete-modal').classList.add('show');
                 });
 
-                actions.appendChild(btnRename);
-                actions.appendChild(btnDel);
+                actions.appendChild(openBtn);
+                actions.appendChild(renameBtn);
+                actions.appendChild(deleteBtn);
 
                 noteRow.appendChild(nTitle);
                 noteRow.appendChild(actions);
@@ -470,52 +504,30 @@ window.EditorCore = {
 
     renderMainSidebarFolders() {
         const container = document.getElementById('dynamic-sidebar-folders');
-        const mobileContainer = document.getElementById('mobile-notes-list');
+        if (!container) return;
+        container.innerHTML = '';
 
-        if (container) {
-            container.innerHTML = '';
-            window.EditorState.folders.forEach(folder => {
-                const btn = document.createElement('button');
-                btn.className = `sidebar-btn sidebar-folder-btn ${folder === window.EditorState.activeFolder ? 'active' : ''}`;
+        window.EditorState.folders.forEach(folder => {
+            const btn = document.createElement('button');
+            btn.className = `sidebar-btn sidebar-folder-btn ${folder === window.EditorState.activeFolder ? 'active' : ''}`;
 
-                let iconType = folder === 'All Notes' ? 'library' : 'folder';
-                let count = folder === 'All Notes' ? window.EditorState.notes.length : window.EditorState.notes.filter(n => n.folder === folder).length;
+            let iconType = folder === 'All Notes' ? 'library' : 'folder';
+            let count = folder === 'All Notes' ? window.EditorState.notes.length : window.EditorState.notes.filter(n => n.folder === folder).length;
 
-                btn.innerHTML = `<i data-lucide="${iconType}"></i> <span style="flex:1; text-align:left;">${folder}</span> <span style="font-size: 0.75rem; opacity: 0.6; background: var(--shadow-color); padding: 2px 8px; border-radius: 10px;">${count}</span>`;
+            btn.innerHTML = `<i data-lucide="${iconType}"></i> <span style="flex:1; text-align:left;">${folder}</span> <span style="font-size: 0.75rem; opacity: 0.6; background: var(--shadow-color); padding: 2px 8px; border-radius: 10px;">${count}</span>`;
 
-                btn.addEventListener('click', () => {
-                    window.EditorState.activeFolder = folder;
-                    document.getElementById('mobile-sidebar-overlay').classList.remove('show');
-                    document.getElementById('notes-modal').classList.add('show');
-                    this.renderFoldersList();
-                    this.renderNotesList();
-                    if (window.innerWidth <= 768) {
-                        document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
-                    }
-                });
-                container.appendChild(btn);
+            btn.addEventListener('click', () => {
+                window.EditorState.activeFolder = folder;
+                document.getElementById('mobile-sidebar-overlay').classList.remove('show');
+                document.getElementById('notes-modal').classList.add('show');
+                this.renderFoldersList();
+                this.renderNotesList();
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
+                }
             });
-        }
-
-        if (mobileContainer) {
-            mobileContainer.innerHTML = '';
-            window.EditorState.notes.forEach(note => {
-                const item = document.createElement('div');
-                item.className = `mobile-note-item ${note.id === window.EditorState.activeNoteId ? 'active' : ''}`;
-                item.textContent = note.title;
-                item.addEventListener('click', async () => {
-                    window.EditorState.activeNoteId = note.id;
-                    const editor = document.getElementById('markdown-input');
-                    editor.value = note.content;
-                    await window.EditorState.saveLocalState();
-                    this.renderMarkdownCore(note.content);
-                    document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-                    window.showToast("<i data-lucide='edit-2'></i> Opened");
-                });
-                mobileContainer.appendChild(item);
-            });
-        }
-
+            container.appendChild(btn);
+        });
         if (window.lucide) lucide.createIcons();
     },
 
@@ -581,7 +593,6 @@ window.EditorCore = {
 
     updatePillUI() {
         const isGithub = window.EditorState.appMode === 'github';
-        const isAutoSave = window.EditorState.autoSave;
 
         document.querySelectorAll('[data-target]').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll(`[data-target="${window.EditorState.appMode}"]`).forEach(tab => tab.classList.add('active'));
@@ -592,9 +603,6 @@ window.EditorCore = {
                 if (window.EditorState.isSyncing) {
                     indicator.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> Syncing...`;
                     indicator.style.color = '#3b82f6';
-                } else if (!isAutoSave) {
-                    indicator.innerHTML = `<i data-lucide="cloud" style="width:14px; height:14px;"></i> Cloud Mode (Manual)`;
-                    indicator.style.color = 'var(--text-color)';
                 } else if (window.EditorState.pendingSync) {
                     indicator.innerHTML = `<i data-lucide="cloud-upload" style="width:14px; height:14px;"></i> Pending Sync`;
                     indicator.style.color = '#f59e0b';
@@ -603,11 +611,7 @@ window.EditorCore = {
                     indicator.style.color = '#10b981';
                 }
             } else {
-                if (!isAutoSave) {
-                    indicator.innerHTML = `<i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local (Manual)`;
-                } else {
-                    indicator.innerHTML = `<i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local Storage`;
-                }
+                indicator.innerHTML = `<i data-lucide="hard-drive" style="width:14px; height:14px;"></i> Local Storage`;
                 indicator.style.color = 'var(--text-color)';
             }
         }
@@ -699,31 +703,27 @@ window.EditorCore = {
         this.debounceTimeout = setTimeout(async () => {
             const activeNote = window.EditorState.getActiveNote();
             if (activeNote) {
-                activeNote.content = rawText;
-                activeNote.lastUpdated = Date.now();
+                // If Auto Save is OFF, we use temporary caching (drafts)
+                if (!window.EditorState.autoSave) {
+                    try {
+                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
+                        drafts[activeNote.id] = rawText;
+                        localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
+                    } catch (e) {}
+                } else {
+                    activeNote.content = rawText;
+                    activeNote.lastUpdated = Date.now();
 
-                // Only save if autoSave is enabled
-                if (window.EditorState.autoSave) {
                     await window.EditorState.saveLocalState();
                     if (window.EditorState.appMode === 'github') window.EditorState.triggerCloudSync();
 
-                    // Clear drafts on explicit auto-save
+                    // Clear drafts on auto-save
                     try {
                         let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
                         if (drafts[activeNote.id]) {
                             delete drafts[activeNote.id];
                             localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
                         }
-                    } catch (e) {}
-                } else {
-                    // Force update indicator even in manual mode
-                    window.EditorCore.updatePillUI();
-
-                    // Manual mode: Keep in temporary drafts for refresh safety
-                    try {
-                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
-                        drafts[activeNote.id] = rawText;
-                        localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
                     } catch (e) {}
                 }
             }
@@ -956,13 +956,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.getElementById('conflict-overwrite')?.addEventListener('click', () => window.EditorActions.handleConflictOverwrite());
 
-        // Import / Export
-        document.getElementById('btn-export-md')?.addEventListener('click', () => window.EditorActions.handleExportMd());
-        document.getElementById('btn-import-md')?.addEventListener('click', () => document.getElementById('import-file').click());
-        document.getElementById('import-file')?.addEventListener('change', (e) => {
-            window.EditorActions.handleImportMd(e.target.files[0]);
-            e.target.value = '';
-        });
 
         // Export PDF
         document.getElementById('modal-confirm')?.addEventListener('click', () => window.EditorActions.handlePdfExport());
@@ -971,8 +964,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Secure Share
         document.getElementById('btn-share')?.addEventListener('click', () => window.EditorActions.handleSecureShare());
 
-        // Manual Save
-        document.getElementById('btn-manual-save')?.addEventListener('click', () => window.EditorActions.handleManualSave());
 
         // Mobile / Other listeners
         document.getElementById('mob-back-folders')?.addEventListener('click', () => {
@@ -1051,19 +1042,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeNote.content = editor.value;
                 activeNote.lastUpdated = Date.now();
 
-                if (window.EditorState.autoSave) {
-                    window.EditorState.saveLocalState();
-                } else {
-                    // Update draft on exit
-                    try {
-                        let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
-                        drafts[activeNote.id] = editor.value;
-                        localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
-
-                        // Still update active note ID so we return to same note
-                        localStorage.setItem(`md_active_${window.EditorState.appMode}`, activeNote.id);
-                    } catch (e) {}
-                }
+                // AutoSave is now always enabled
+                window.EditorState.saveLocalState();
             }
         });
 
