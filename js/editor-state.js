@@ -346,11 +346,11 @@ window.EditorState = {
         // 1. Hide dividers if they don't have visible siblings on BOTH sides
         document.querySelectorAll('.toolbar-divider').forEach(div => {
             let prev = div.previousElementSibling;
-            while (prev && (getComputedStyle(prev).display === 'none' || prev.classList.contains('toolbar-divider'))) {
+            while (prev && (prev.style.display === 'none' || getComputedStyle(prev).display === 'none' || prev.classList.contains('toolbar-divider'))) {
                 prev = prev.previousElementSibling;
             }
             let next = div.nextElementSibling;
-            while (next && (getComputedStyle(next).display === 'none' || next.classList.contains('toolbar-divider'))) {
+            while (next && (next.style.display === 'none' || getComputedStyle(next).display === 'none' || next.classList.contains('toolbar-divider'))) {
                 next = next.nextElementSibling;
             }
 
@@ -367,7 +367,7 @@ window.EditorState = {
             const visibleChildren = Array.from(group.children).filter(child => {
                 return !child.classList.contains('toolbar-divider') &&
                        !child.classList.contains('toolbar-spacer') &&
-                       getComputedStyle(child).display !== 'none';
+                       child.style.display !== 'none' && getComputedStyle(child).display !== 'none';
             });
 
             if (visibleChildren.length === 0) {
