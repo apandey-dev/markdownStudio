@@ -518,13 +518,9 @@ window.EditorCore = {
 
             btn.addEventListener('click', () => {
                 window.EditorState.activeFolder = folder;
-                document.getElementById('mobile-sidebar-overlay').classList.remove('show');
                 document.getElementById('notes-modal').classList.add('show');
                 this.renderFoldersList();
                 this.renderNotesList();
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
-                }
             });
             container.appendChild(btn);
         });
@@ -651,7 +647,7 @@ window.EditorCore = {
             if (restoredCount > 0 && window.showToast) {
                 window.showToast(`<i data-lucide='life-buoy'></i> Restored ${restoredCount} unsaved draft(s)`);
             }
-        } catch (e) {}
+        } catch (e) { }
 
         this.highlightedNoteId = window.EditorState.activeNoteId;
         window.EditorState.activeFolder = note.folder || 'All Notes';
@@ -709,7 +705,7 @@ window.EditorCore = {
                         let drafts = JSON.parse(localStorage.getItem('md_unsaved_drafts') || '{}');
                         drafts[activeNote.id] = rawText;
                         localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
-                    } catch (e) {}
+                    } catch (e) { }
                 } else {
                     activeNote.content = rawText;
                     activeNote.lastUpdated = Date.now();
@@ -724,7 +720,7 @@ window.EditorCore = {
                             delete drafts[activeNote.id];
                             localStorage.setItem('md_unsaved_drafts', JSON.stringify(drafts));
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             }
             this.renderMarkdownCore(rawText);
@@ -876,8 +872,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.EditorActions.returningToNoteModal) {
                 setTimeout(() => { document.getElementById('btn-new-note').click(); }, 300);
                 window.EditorActions.returningToNoteModal = false;
-            } else if (window.innerWidth <= 768) {
-                document.querySelector('.notes-dashboard-box')?.classList.add('show-notes-pane');
             }
         });
 
@@ -965,10 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-share')?.addEventListener('click', () => window.EditorActions.handleSecureShare());
 
 
-        // Mobile / Other listeners
-        document.getElementById('mob-back-folders')?.addEventListener('click', () => {
-            document.querySelector('.notes-dashboard-box')?.classList.remove('show-notes-pane');
-        });
+        // Other listeners
 
         document.getElementById('manage-select-mode')?.addEventListener('change', () => window.EditorCore.renderManagementModal());
 
@@ -1064,13 +1055,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Helper for UI.js integration
-window.getActiveNoteTitle = function() { return window.EditorState.getActiveNoteTitle(); };
-window.renderFoldersList = function() { window.EditorCore.renderFoldersList(); };
-window.renderNotesList = function() { window.EditorCore.renderNotesList(); };
-window.renderManagementModal = function() { window.EditorCore.renderManagementModal(); };
-window.setupFolderDropdown = function() { window.EditorCore.setupFolderDropdown(); };
-window.renderDashboardPreview = function() { window.EditorCore.renderDashboardPreview(); };
-window.closeNotesModal = function() {
+window.getActiveNoteTitle = function () { return window.EditorState.getActiveNoteTitle(); };
+window.renderFoldersList = function () { window.EditorCore.renderFoldersList(); };
+window.renderNotesList = function () { window.EditorCore.renderNotesList(); };
+window.renderManagementModal = function () { window.EditorCore.renderManagementModal(); };
+window.setupFolderDropdown = function () { window.EditorCore.setupFolderDropdown(); };
+window.renderDashboardPreview = function () { window.EditorCore.renderDashboardPreview(); };
+window.closeNotesModal = function () {
     document.getElementById('notes-modal')?.classList.remove('show');
     const dashboardBox = document.querySelector('.notes-dashboard-box');
     if (dashboardBox) {

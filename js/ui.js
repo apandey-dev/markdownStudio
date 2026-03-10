@@ -177,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('notes-modal')?.classList.add('show');
             if (typeof window.renderFoldersList === 'function') window.renderFoldersList();
             if (typeof window.renderNotesList === 'function') window.renderNotesList();
-            document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
         });
     });
 
@@ -186,12 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.renderManagementModal === 'function') window.renderManagementModal();
     });
 
-    document.getElementById('sidebar-btn-manage-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('management-modal')?.classList.add('show');
-        if (typeof window.renderManagementModal === 'function') window.renderManagementModal();
-    });
-
+ 
     document.getElementById('manage-modal-close')?.addEventListener('click', window.closeManageModal);
     document.getElementById('notes-modal-close')?.addEventListener('click', window.closeNotesModal);
 
@@ -199,11 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-transfer')?.addEventListener('click', () => {
         document.getElementById('transfer-modal')?.classList.add('show');
     });
-    document.getElementById('sidebar-btn-transfer-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('transfer-modal')?.classList.add('show');
-    });
-    document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
+     document.getElementById('transfer-modal-close')?.addEventListener('click', window.closeTransferModal);
 
     document.getElementById('btn-import-md-trigger')?.addEventListener('click', () => {
         document.getElementById('import-markdown-input')?.click();
@@ -269,14 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-docs')?.addEventListener('click', () => {
         document.getElementById('docs-modal')?.classList.add('show');
     });
-    document.getElementById('sidebar-btn-docs-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('docs-modal')?.classList.add('show');
-    });
-    document.getElementById('sidebar-btn-docs-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        document.getElementById('docs-modal')?.classList.add('show');
-    });
+ 
     document.getElementById('docs-modal-close')?.addEventListener('click', window.closeDocsModal);
 
     // ✨ SETTINGS MODAL ✨
@@ -288,12 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initSettingsToggles();
         document.getElementById('settings-modal')?.classList.add('show');
     });
-    document.getElementById('sidebar-btn-settings-mobile')?.addEventListener('click', () => {
-        document.getElementById('mobile-sidebar-overlay')?.classList.remove('show');
-        initSettingsToggles();
-        document.getElementById('settings-modal')?.classList.add('show');
-    });
-    document.getElementById('settings-modal-close')?.addEventListener('click', () => {
+     document.getElementById('settings-modal-close')?.addEventListener('click', () => {
         initSettingsToggles(); // Revert local DOM changes on close
         window.closeSettingsModal();
     });
@@ -308,36 +286,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('setup-modal').classList.remove('show');
     });
 
-    const sidebarOverlay = document.getElementById('mobile-sidebar-overlay');
-    document.getElementById('mobile-menu-btn')?.addEventListener('click', () => sidebarOverlay?.classList.add('show'));
-    document.getElementById('close-sidebar-btn')?.addEventListener('click', () => sidebarOverlay?.classList.remove('show'));
-
-    sidebarOverlay?.addEventListener('click', (e) => {
-        if (e.target === sidebarOverlay) sidebarOverlay.classList.remove('show');
-    });
-
-    document.getElementById('sidebar-btn-share')?.addEventListener('click', () => {
-        sidebarOverlay?.classList.remove('show');
-        document.getElementById('btn-share')?.click();
-    });
-    document.getElementById('sidebar-btn-pdf')?.addEventListener('click', () => {
-        sidebarOverlay?.classList.remove('show');
-        document.getElementById('btn-pdf')?.click();
-    });
-
-    const mobileViewToggle = document.getElementById('mobile-view-toggle');
-    if (mobileViewToggle) {
-        mobileViewToggle.addEventListener('click', () => {
-            document.body.classList.toggle('show-preview');
-            const isPreview = document.body.classList.contains('show-preview');
-            mobileViewToggle.innerHTML = isPreview ? '<i data-lucide="edit-2"></i>' : '<i data-lucide="eye"></i>';
-            if (window.lucide) lucide.createIcons();
-        });
-    }
-
+ 
+ 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            if (sidebarOverlay?.classList.contains('show')) { sidebarOverlay.classList.remove('show'); return; }
             const openDropdown = document.querySelector('.custom-dropdown.open');
             if (openDropdown) { 
                 openDropdown.classList.remove('open'); 

@@ -3,8 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
+
+    <script>
+        (function () {
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (isMobile) {
+                document.documentElement.innerHTML = '<head><title>Desktop Only</title></head><body style="display:flex;justify-content:center;align-items:center;height:100vh;background:#fff;color:#000;font-family:sans-serif;text-align:center;padding:20px;margin:0;overflow:hidden;"><h1>This application is available only on desktop devices.</h1></' + 'body>';
+                if (window.stop) window.stop();
+                throw new Error("Mobile device blocked");
+            }
+        })();
+    </script>
 
     <title>Shared Note | Markdown Studio</title>
 
@@ -135,17 +146,23 @@
             line-height: 1.3;
         }
 
-        .share-content h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+        .share-content h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+        }
+
         .share-content h2 {
             font-size: clamp(1.4rem, 3vw, 1.8rem);
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 6px;
         }
-        .share-content h3 { font-size: clamp(1.2rem, 2.5vw, 1.5rem); }
 
-        .share-content > h1:first-child,
-        .share-content > h2:first-child,
-        .share-content > h3:first-child {
+        .share-content h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+        }
+
+        .share-content>h1:first-child,
+        .share-content>h2:first-child,
+        .share-content>h3:first-child {
             margin-top: 0 !important;
         }
 
@@ -243,32 +260,6 @@
 
         .adaptive-color {
             color: var(--text-color) !important;
-        }
-
-        @media screen and (max-width: 768px) {
-            .share-header {
-                padding: 0 16px;
-                height: 56px;
-            }
-
-            .brand-title {
-                font-size: 1.05rem;
-            }
-
-            #btn-edit-studio {
-                padding: 8px 14px;
-                font-size: 0.85rem;
-                gap: 6px;
-            }
-
-            #btn-edit-studio i {
-                width: 14px;
-                height: 14px;
-            }
-
-            .share-content {
-                padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
-            }
         }
     </style>
 </head>
